@@ -61,6 +61,13 @@ struct PtpEventContainer {
 #define PTP_EV_Undefined 0x4000
 #define PTP_EV_CancelTransaction 0x4001
 
+// Vendor init/USB codes
 #define VENDOR_CANON 1193
+
+// PTP Packet types
+#define PACKET_TYPE_COMMAND 1
+#define PACKET_TYPE_DATA 2
+#define PACKET_TYPE_RESPONSE 3
+#define PACKET_TYPE_EVENT 4
 
 #endif
