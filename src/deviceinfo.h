@@ -2,7 +2,7 @@
 #ifndef PTP_DEVICE_INFO_H
 #define PTP_DEVICE_INFO_H
 
-#include "lib.h"
+#include "piclib.h"
 #include <stdio.h>
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {

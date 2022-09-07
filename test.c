@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "piclib.c"
-#include "lib.h"
-
-#include "deviceinfo.h"
+#include <piclib.h>
+#include <deviceinfo.h>
 
 struct PtpRuntime r;
 
