@@ -29,6 +29,15 @@ struct PtpEventContainer {
 	uint32_t param3;
 };
 
+struct PtpStorageID {
+	uint32_t property_code;
+	uint32_t data_type;
+	uint8_t get_set;
+	uint32_t default_value; // ???
+	uint32_t group_code;
+	uint32_t form_flag;
+};
+
 // Standard PTP Operation Codes (OC)
 #define PTP_OC_GetDeviceInfo		0x1001
 #define PTP_OC_OpenSession			0x1002
@@ -159,6 +168,7 @@ struct PtpEventContainer {
 #define PTP_OF_MP2				0xb983
 #define PTP_OF_3GP				0xb984
 
+#define PTP_OC_Canon_ExecEventProc	0x9052
 
 // Vendor init/USB codes
 #define VENDOR_CANON 1193

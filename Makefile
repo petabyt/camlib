@@ -1,6 +1,6 @@
 # temporary makefile
 all:
-	$(CC) -Isrc/ test.c src/piclib.c -o test.o
+	$(CC) -Isrc/ test.c src/packet.c -o test.o
 	./test.o	
 
 clean:

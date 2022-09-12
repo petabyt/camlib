@@ -55,20 +55,30 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	return n;
 }
 
-// Generate a BulkContainer data packet to recieve data
-int ptp_recv_packet(struct PtpRuntime *r, uint16_t code, uint32_t params[5], int param_length, int read_size) {
+int ptp_wide_string(char *buffer, int max, char *input) {
+	int i;
+	for (i = 0; (i < max) && input[i] != '\0'; i++) {
+		buffer[i * 2] = input[i];
+		buffer[i * 2 + 1] = 0; 
+	}
+
+	return i * 2 + 1;
+}
+
+// Generate a BulkContainer data packet to recieve or send data
+int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
-	int size = 12 + (sizeof(uint32_t) * param_length);
-	bulk.length = size + read_size;
+	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
+	bulk.length = size + cmd->data_length;
 	bulk.type = PACKET_TYPE_DATA;
-	bulk.code = code;
+	bulk.code = cmd->code;
 	bulk.transaction = r->transaction;
 
-	bulk.param1 = params[0];
-	bulk.param2 = params[1];
-	bulk.param3 = params[2];
-	bulk.param4 = params[3];
-	bulk.param5 = params[4];
+	bulk.param1 = cmd->params[0];
+	bulk.param2 = cmd->params[1];
+	bulk.param3 = cmd->params[2];
+	bulk.param4 = cmd->params[3];
+	bulk.param5 = cmd->params[4];
 
 	memcpy(r->data, &bulk, size);
 
@@ -77,11 +87,11 @@ int ptp_recv_packet(struct PtpRuntime *r, uint16_t code, uint32_t params[5], int
 }
 
 // Generate a "command" packet that is sent before a data packet
-int ptp_recv_packet_pre(struct PtpRuntime *r, uint16_t code) {
+int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
-	bulk.length = 12;
+	bulk.length = 12; // standard bulk length with 0 parameters
 	bulk.type = PACKET_TYPE_COMMAND;
-	bulk.code = code;
+	bulk.code = cmd->code;
 	bulk.transaction = r->transaction;
 	memcpy(r->data, &bulk, bulk.length);
 	return bulk.length;

@@ -8,6 +8,7 @@ struct PtpRuntime {
 	int transaction;
     uint8_t *data;
     int data_length;
+	int max_packet_size;
 };
 
 // Generic command structure - order of data isn't important.
@@ -15,22 +16,24 @@ struct PtpRuntime {
 struct PtpCommand {
 	int code;
 
-	int params[5];
+	uint32_t params[5];
 	int param_length;
 
-	uint8_t *data;
 	int data_length;
 };
 
-// Helper functions
+// Helper packet reader functions
 uint16_t ptp_read_uint16(void **dat);
 uint16_t ptp_read_uint32(void **dat);
 void ptp_read_string(void **dat, char *string, int max);
 int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
 
-// packet builders
-int ptp_recv_packet(struct PtpRuntime *r, uint16_t code, uint32_t params[5], int param_length, int read_size);
-int ptp_recv_packet_pre(struct PtpRuntime *r, uint16_t code);
+int ptp_wide_string(char *buffer, int max, char *input);
+
+// Packet builder functions
+// A command packet is sent first (cmd), followed by a data packet
+int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 // To store unpacked device info data
 struct PtpDeviceInfo {
