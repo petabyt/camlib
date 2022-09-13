@@ -170,8 +170,11 @@ struct PtpStorageID {
 
 #define PTP_OC_Canon_ExecEventProc	0x9052
 
-// Vendor init/USB codes
+// Vendor init/USB codes, not specifically PTP
 #define VENDOR_CANON 1193
+
+// Standard interface Class ID for PTP.
+#define PTP_CLASS_ID 6
 
 // PTP Packet types
 #define PACKET_TYPE_COMMAND 1

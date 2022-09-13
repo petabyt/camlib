@@ -4,6 +4,18 @@
 
 #include <stdint.h>
 
+// Max timeout for response
+#define PTP_TIMEOUT 1000
+
+// Optional logging
+#ifdef DEV
+	#define PTPLOG(...) /* */
+#endif
+#ifndef PTPLOG
+	#define PTPLOG(...) printf(__VA_ARGS__);
+#endif
+
+// Holds vital lib info - passed to most functions
 struct PtpRuntime {
 	int transaction;
     uint8_t *data;
@@ -22,6 +34,13 @@ struct PtpCommand {
 	int data_length;
 };
 
+// Error codes
+enum PtpReturn {
+	PTP_OK = 0,
+	PTP_NO_DEVICE = -1,
+	PTP_NO_PERMISSIONS = -2,
+};
+
 // Helper packet reader functions
 uint16_t ptp_read_uint16(void **dat);
 uint16_t ptp_read_uint32(void **dat);
@@ -35,7 +54,7 @@ int ptp_wide_string(char *buffer, int max, char *input);
 int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd);
 
-// To store unpacked device info data
+// To store unpacked device info data, after parsing
 struct PtpDeviceInfo {
 	uint16_t standard_version;
 	uint32_t vendor_ext_id;

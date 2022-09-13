@@ -12,13 +12,15 @@ Functions in this lib will either respond to platform specific bindings, or retu
 - [ ] Real time camera previews
 
 ## Design
+- Data parsing, packet building, and packet sending/recieving is all done in a single buffer
 - No memory allocation by core lib
-- No platform specific code
+- No platform specific code at the core
 - C99
+- Try and make it small, and easy to pick and pull out parts
 
 ## License
-### For free/open-source software
-You may fork, use, modify, distribute, and freely use this library under the GNU GPL v2.0 or Later.
 ### For commercial software
 If you want to use this library (as well as the Java USB/IP bindings) for commercial software,  
-contact me (brikbusters@gmail.com) for a commercial license.
+contact me (brikbusters@gmail.com) for a quote on a commercial license.
+### For free/open-source software
+You may fork, use, modify, distribute, and freely use this library under the GNU GPL v2.0 or Later.  

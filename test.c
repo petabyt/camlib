@@ -24,9 +24,15 @@ void print_bytes(uint8_t *bytes, int n) {
 	puts("");
 }
 
+void test();
+
 int main() {
 	r.data = malloc(4096);
 	r.data_length = 4096;
+
+	ptp_connect();
+
+	#if 0
 
 	memcpy(r.data, export, sizeof(export));
 
@@ -40,13 +46,14 @@ int main() {
 	struct PtpCommand cmd;
 	cmd.data_length = 50;
 	cmd.param_length = 0;
-	cmd.code = PTP_OC_Canon_ExecEventProc;
+	cmd.code = PTP_OC_SendObjectInfo;
 
 	int length = ptp_bulk_packet_data(&r, &cmd);
 	memset(r.data + length, 0, 100);
-	int i = ptp_wide_string(r.data + length, 100, "EnableBootDisk");
+	int i = ptp_wide_string(r.data + length, 100, "Some WIDE string");
 	printf("%d\n", i);
 
 	print_bytes(r.data, 100);
+#endif
 }
 
