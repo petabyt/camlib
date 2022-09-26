@@ -22,7 +22,7 @@ daniel@thinkpad:~/Documents/piclib$
 #include <linux/usbdevice_fs.h>
 #include <stdio.h>
 
-#include "piclib.h"
+#include "camlib.h"
 #include "ptp.h"
 
 // Apperantly usb-dev_handle must be defined?

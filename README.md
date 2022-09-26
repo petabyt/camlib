@@ -1,4 +1,4 @@
-# piclib
+# camlib
 Meant to be a portable PTP library. This is a complete rewrite and uses no code from [libptp2](https://github.com/leirf/libptp).  
 Functions in this lib will either respond to platform specific bindings, or return raw packet data. 
 

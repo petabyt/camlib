@@ -1,4 +1,4 @@
-// PicLib specific code, not PTP ISO standard definitions
+// CamLib specific code, not PTP ISO standard definitions
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
 
@@ -8,7 +8,7 @@
 #define PTP_TIMEOUT 1000
 
 // Optional logging
-#ifdef VERBOSE
+#ifdef PTP_VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
 	#define PTPLOG(...) /* */

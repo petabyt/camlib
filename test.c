@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <piclib.h>
+#include <camlib.h>
 #include <backend.h>
 #include <ptp.h>
 #include <operations.h>

@@ -3,7 +3,7 @@
 #include <jni.h>
 #include <string.h>
 
-#include <piclib.h>
+#include <camlib.h>
 #include <ptp.h>
 
 struct PtpRuntime ptp_runtime;

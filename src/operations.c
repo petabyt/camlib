@@ -4,7 +4,7 @@
 
 #include "ptp.h"
 #include "backend.h"
-#include "piclib.h"
+#include "camlib.h"
 
 // Send the initial "cmd" packet (1), build the data packet (2), then leave
 // caller the option to modify data packet before sending it off

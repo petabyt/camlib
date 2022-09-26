@@ -3,7 +3,7 @@
 
 #define PTP_TIMEOUT 1000
 
-#include "piclib.h"
+#include "camlib.h"
 
 int ptp_device_init();
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
