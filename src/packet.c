@@ -55,6 +55,26 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	return n;
 }
 
+int ptp_read_uint32_array(void **dat, uint16_t *buf, int max) {
+	int n = ptp_read_uint32(dat);
+
+	// Probably impossbile scenario
+	if (n > 0xff) {
+		return -1;
+	}
+
+	for (int i = 0; i < n; i++) {
+		// Give a zero if out of bounds
+		if (i >= max) {
+			buf[i] = 0;
+		} else {
+			buf[i] = ptp_read_uint32(dat);
+		}
+	}
+
+	return n;
+}
+
 int ptp_wide_string(char *buffer, int max, char *input) {
 	int i;
 	for (i = 0; (i < max) && input[i] != '\0'; i++) {
