@@ -1,20 +1,4 @@
-// Bindings to old version of Linux USB, the one before libusb
-
-/*
-daniel@thinkpad:~/Documents/piclib$ sudo make
-cc -DVERBOSE -Isrc/ src/libusb.c test.c src/packet.c -lusb -o test.o
-./test.o	
-Initializing USB...
-Trying 019
-Found PTP device 019
-Device has 3 endpoints.
-Endpoint addr: 81
-Endpoint addr: 2
-Endpoint addr: 83
-usb_set_configuration() failure: Inappropriate ioctl for device
-usb_claim_interface() failure: Inappropriate ioctl for device
-daniel@thinkpad:~/Documents/piclib$ 
-*/
+// Bindings to libusb
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -82,11 +66,12 @@ int ptp_device_init() {
 		if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_BULK) {
 			if ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK)) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
+				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
+				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
 			}
 		}
-		PTPLOG("Endpoint addr: %X\n", ep[i].bEndpointAddress);
 	}
 
 	ptp_backend.devh = usb_open(dev);
@@ -110,8 +95,12 @@ int ptp_device_init() {
 }
 
 int ptp_device_close() {
+	usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber);
+	usb_reset(ptp_backend.devh);
 	usb_close(ptp_backend.devh);
 }
+
+void print_bytes(uint8_t *bytes, int n);
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int x = usb_bulk_write(
@@ -121,6 +110,9 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	if (x < 0) {
 		perror("usb_bulk_write()");
 	}
+
+	PTPLOG("usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
+	print_bytes(r->data, x);
 
 	return x;
 }
@@ -133,6 +125,8 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 	if (x < 0) {
 		perror("usb_bulk_read()");
 	}
+
+	PTPLOG("usb_bulk_read(%d, %d)\n", x, ptp_backend.endpoint_in);
 
 	return x;
 }

@@ -85,34 +85,50 @@ int ptp_wide_string(char *buffer, int max, char *input) {
 	return i * 2 + 1;
 }
 
-// Generate a BulkContainer data packet to recieve or send data
-int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	struct PtpBulkContainer bulk;
+// Generate a BulkContainer packet
+int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulkContainer *bulk, int type) {
+	//bulk = (struct PtpBulkContainer*)(r->data);
+
 	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
-	bulk.length = size + cmd->data_length;
-	bulk.type = PACKET_TYPE_DATA;
-	bulk.code = cmd->code;
-	bulk.transaction = r->transaction;
+	bulk->type = type;
+	bulk->length = size;
+	bulk->length += cmd->data_length;
+	bulk->code = cmd->code;
+	bulk->transaction = r->transaction;
 
-	bulk.param1 = cmd->params[0];
-	bulk.param2 = cmd->params[1];
-	bulk.param3 = cmd->params[2];
-	bulk.param4 = cmd->params[3];
-	bulk.param5 = cmd->params[4];
+	bulk->param1 = cmd->params[0];
+	bulk->param2 = cmd->params[1];
+	bulk->param3 = cmd->params[2];
+	bulk->param4 = cmd->params[3];
+	bulk->param5 = cmd->params[4];
 
-	memcpy(r->data, &bulk, size);
+	memcpy(r->data, bulk, size);
 
 	r->transaction++;
 	return size;
 }
 
-// Generate a "command" packet that is sent before a data packet
+// Generate a data container packet
+int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
+	struct PtpBulkContainer bulk;
+	int length = ptp_bulk_packet(r, cmd, &bulk, PACKET_TYPE_DATA);
+	return length;
+}
+
+// Generate a short "command" container packet that is optionally sent before a data packet
+// Page 281 of MTP 1.1 spec
 int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
-	bulk.length = 12; // standard bulk length with 0 parameters
-	bulk.type = PACKET_TYPE_COMMAND;
-	bulk.code = cmd->code;
-	bulk.transaction = r->transaction;
-	memcpy(r->data, &bulk, bulk.length);
-	return bulk.length;
+	cmd->data_length = 0;
+	int length = ptp_bulk_packet(r, cmd, &bulk, PACKET_TYPE_COMMAND);
+	return length;
+}
+
+int ptp_get_return_code(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	if (bulk->type != PACKET_TYPE_RESPONSE) {
+		return -1;
+	}
+
+	return bulk->code;
 }

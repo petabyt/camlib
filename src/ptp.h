@@ -192,7 +192,7 @@ struct PtpStorageID {
 
 #define PTP_IP_PORT 15740
 
-// PTP Packet types
+// PTP Packet container types
 #define PACKET_TYPE_COMMAND 1
 #define PACKET_TYPE_DATA 2
 #define PACKET_TYPE_RESPONSE 3

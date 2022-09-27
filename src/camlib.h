@@ -8,7 +8,7 @@
 #define PTP_TIMEOUT 1000
 
 // Optional logging
-#ifdef PTP_VERBOSE
+#ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
 	#define PTPLOG(...) /* */
@@ -60,6 +60,7 @@ int ptp_wide_string(char *buffer, int max, char *input);
 // A command packet is sent first (cmd), followed by a data packet
 int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_get_return_code(struct PtpRuntime *r);
 
 // Actual data packet returned by GetStorageIds
 struct PtpStorageIds {
