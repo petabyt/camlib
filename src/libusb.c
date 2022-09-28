@@ -8,6 +8,7 @@
 
 #include "camlib.h"
 #include "ptp.h"
+#include "backend.h"
 
 // Apperantly usb-dev_handle must be defined?
 struct usb_dev_handle {
@@ -50,12 +51,14 @@ struct usb_device *ptp_search() {
 
 	return NULL;
 }
-int ptp_device_init() {
+int ptp_device_init(struct PtpRuntime *r) {
 	struct usb_device *dev = ptp_search();
 	ptp_backend.dev = dev;
 	if (dev == NULL) {
 		return PTP_NO_DEVICE;
 	}
+
+	r->max_packet_size = 512;
 
 	struct usb_endpoint_descriptor *ep = dev->config->interface->altsetting->endpoint;
 	int endpoints = dev->config->interface->altsetting->bNumEndpoints;
@@ -91,13 +94,16 @@ int ptp_device_init() {
 		}
 	}
 
+	r->active_connection = 1;
+
 	return 0;
 }
 
-int ptp_device_close() {
+int ptp_device_close(struct PtpRuntime *r) {
 	usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber);
 	usb_reset(ptp_backend.devh);
 	usb_close(ptp_backend.devh);
+	r->active_connection = 0;
 }
 
 void print_bytes(uint8_t *bytes, int n);
@@ -118,15 +124,30 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 }
 
 int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
-	int x = usb_bulk_read(
-		ptp_backend.devh,
-		ptp_backend.endpoint_in,
-		(char*)r->data, r->data_length, PTP_TIMEOUT);
-	if (x < 0) {
-		perror("usb_bulk_read()");
+	int read = 0;
+
+	while (1) {
+		int x = usb_bulk_read(
+			ptp_backend.devh,
+			ptp_backend.endpoint_in,
+			(char*)r->data + read, r->max_packet_size, PTP_TIMEOUT);
+		PTPLOG("usb_bulk_read: %d bytes, endpoint %X, %d so far\n", x, ptp_backend.endpoint_in, read);
+		read += x;
+
+		if (read >= r->data_length - r->max_packet_size) {
+			PTPLOG("Not enough memory");
+			return PTP_OUT_OF_MEMORY;
+		}
+
+		if (x < 0) {
+			PTPLOG("ptp_bulk_read < 0, IO error");
+			return PTP_IO_ERROR;
+		} else if (x != r->max_packet_size) {
+			// No more more packets to read
+			return read;
+		}
+
 	}
 
-	PTPLOG("usb_bulk_read(%d, %d)\n", x, ptp_backend.endpoint_in);
-
-	return x;
+	return read;
 }

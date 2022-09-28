@@ -22,8 +22,6 @@ void print_bytes(uint8_t *bytes, int n) {
 	puts("");
 }
 
-void test();
-
 int main() {
 	r.data = malloc(4096);
 	r.transaction = 0;
@@ -32,8 +30,8 @@ int main() {
 
 	struct PtpDeviceInfo di;
 
-	if (ptp_device_init()) {
-		puts("Device init error");
+	if (ptp_device_init(&r)) {
+		puts("Device connection error");
 		return 0;
 	}
 
@@ -44,7 +42,7 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	ptp_device_close();
+	ptp_device_close(&r);
 
 	return 0;
 }

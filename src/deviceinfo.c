@@ -26,6 +26,9 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	ptp_read_string(&e, di->manufacturer, sizeof(di->manufacturer));
 	ptp_read_string(&e, di->model, sizeof(di->model));
 
+	ptp_read_string(&e, di->device_version, sizeof(di->device_version));
+	ptp_read_string(&e, di->serial_number, sizeof(di->serial_number));
+
 	// TODO: manufacturer, model, device_version, serial_number strings
 
 	return 0;

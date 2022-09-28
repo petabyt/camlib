@@ -7,12 +7,22 @@
 // Max timeout for response
 #define PTP_TIMEOUT 1000
 
-// Optional logging
+// Optional debug logging
 #ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
 	#define PTPLOG(...) /* */
 #endif
+
+// Generic IO error, not PTP return codes
+enum PtpGeneralError {
+	PTP_OK = 0,
+	PTP_NO_DEVICE = -1,
+	PTP_NO_PERMISSION = -2,
+	PTP_OPEN_FAIL = -3,
+	PTP_OUT_OF_MEMORY = -4,
+	PTP_IO_ERROR = -5,
+};
 
 enum PtpConnType {
 	PTP_IP,
@@ -21,11 +31,12 @@ enum PtpConnType {
 
 // Holds vital lib info - passed to most functions
 struct PtpRuntime {
-	int transaction;
-	int session;
+	int transaction; // transaction ID
+	int session; // session ID
     uint8_t *data;
     int data_length;
 	int max_packet_size;
+	int active_connection;
 };
 
 // Generic command structure - order of data isn't important.
@@ -37,14 +48,6 @@ struct PtpCommand {
 	int param_length;
 
 	int data_length;
-};
-
-// Error codes
-enum PtpReturn {
-	PTP_OK = 0,
-	PTP_NO_DEVICE = -1,
-	PTP_NO_PERMISSIONS = -2,
-	PTP_OPEN_FAIL = -3,
 };
 
 // Helper packet reader functions

@@ -29,9 +29,10 @@ void test();
 
 int main() {
 	r.data = malloc(4096);
+	r.data_length = 4096;
 	r.transaction = 0;
 	r.session = 0;
-	r.data_length = 4096;
+	r.active_connection = 0;
 
 	ptp_device_init();
 
