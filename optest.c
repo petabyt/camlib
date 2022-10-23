@@ -22,11 +22,13 @@ void print_bytes(uint8_t *bytes, int n) {
 	puts("");
 }
 
+#define SIZE 3000000
+
 int main() {
-	r.data = malloc(4096);
+	r.data = malloc(SIZE);
 	r.transaction = 0;
 	r.session = 0;
-	r.data_length = 4096;
+	r.data_length = SIZE;
 
 	struct PtpDeviceInfo di;
 
@@ -34,6 +36,8 @@ int main() {
 		puts("Device connection error");
 		return 0;
 	}
+
+	ptp_open_session(&r);
 
 	ptp_get_device_info(&r, &di);
 

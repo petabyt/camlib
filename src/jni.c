@@ -12,11 +12,27 @@ struct PtpRuntime ptp_runtime;
 	#define JNI_FUNC(ret, name) JNIEXPORT ret JNICALL Java_dev_petabyt_camcontrol_MainActivity_##name
 #endif
 
+struct AndroidBackend {
+	int in;
+	int out;
+}backend;
+
+jmethodID jni_bulktransfer;
+
 JNI_FUNC(void, init)(JNIEnv *env, jobject thiz) {
 	// TODO: init piclib
 	ptp_runtime.transaction = 1;
 	ptp_runtime.session = 0;
-	ptp_runtime.data = malloc(1024);
+	ptp_runtime.data = malloc(4096);
+	ptp_runtime.data_length = 4096;
+
+	jclass clsCallback = env->FindClass("se/m7n/android/libusb/LibUsb$Callback");
+	jni_bulktransfer = env->GetMethodID(clsCallback, "bulkTransfer", "(Landroid/hardware/usb/UsbDeviceConnection;Landroid/hardware/usb/UsbEndpoint;[BII)I");
+}
+
+JNI_FUNC(void setEndpoints)(JNIEnv *env, jobject thiz, jint in, jint out) {
+	backend.in = (int)in;
+	backend.out = (int)out;
 }
 
 JNI_FUNC(jbyteArray, recievePacket)(JNIEnv *env, jobject thiz, jint code, jintArray params0, jint read_size) {
@@ -46,3 +62,6 @@ JNI_FUNC(jbyteArray, recievePacketPre)(JNIEnv *env, jobject thiz, jint code) {
 	(*env)->SetByteArrayRegion(env, ret, 0, size, (const jbyte *)(ptp_runtime.data));
 	return ret;
 }
+
+//void 
+//(*env)->GetObjectClass(env, foo_obj)
