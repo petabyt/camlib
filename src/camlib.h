@@ -100,6 +100,15 @@ struct PtpDeviceInfo {
 	char serial_number[128];
 };
 
+struct ObjectRequest {
+	uint32_t storage_id; // left zero to get all
+	uint32_t object_format;
+	uint32_t object_handle;
+	uint8_t all_storage_ids;
+	uint8_t all_formats;
+	uint8_t in_root;
+};
+
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 

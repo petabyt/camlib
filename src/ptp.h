@@ -39,11 +39,21 @@ struct PtpStorageID {
 	uint32_t form_flag;
 };
 
+struct PtpStorageInfo {
+	uint16_t storage_type;
+	uint16_t fs_type;
+	uint16_t access_capability;
+	uint64_t free_space; // will this work on 32 bit android?
+	uint32_t free_objects;
+	// 2 strings follow
+};
+
 // Standard PTP Operation Codes (OC)
 #define PTP_OC_GetDeviceInfo		0x1001
 #define PTP_OC_OpenSession			0x1002
 #define PTP_OC_CloseSession			0x1003
 #define PTP_OC_GetStorageIDs		0x1004
+#define PTP_OC_GetStorageInfo		0x1005
 #define PTP_OC_GetNumObjects		0x1006
 #define PTP_OC_GetObjectHandles		0x1007
 #define PTP_OC_GetObjectInfo		0x1008

@@ -57,6 +57,7 @@ int ptp_open_session(struct PtpRuntime *r) {
 	r->transaction = 1;
 
 	ptp_recieve_bulk_packets(r);
+	return 0;
 }
 
 int ptp_close_session(struct PtpRuntime *r) {
@@ -67,6 +68,7 @@ int ptp_close_session(struct PtpRuntime *r) {
 	int length = ptp_bulk_packet_cmd(r, &cmd);
 	ptp_send_bulk_packets(r, length);
 	ptp_recieve_bulk_packets(r);
+	return 0;
 }
 
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
@@ -78,21 +80,38 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	ptp_send_bulk_packets(r, length);
 	ptp_recieve_bulk_packets(r);
 	return ptp_parse_device_info(r, di);
-
 }
 
 int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpStorageIds *si) {
 	struct PtpCommand cmd;
-	cmd.code = PTP_OC_CloseSession;
+	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
 
-	ptp_prep_recv_bulk(r, &cmd);
-
+	int length = ptp_bulk_packet_cmd(r, &cmd);
+	ptp_send_bulk_packets(r, length);
 	ptp_recieve_bulk_packets(r);
 
 	memcpy(si, r->data, sizeof(struct PtpStorageIds));
 
-	return 123456543;
+	return 0;
+}
+
+int ptp_get_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetStorageInfo;
+	cmd.param_length = 0;
+
+	int length = ptp_bulk_packet_cmd(r, &cmd);
+	ptp_send_bulk_packets(r, length);
+	ptp_recieve_bulk_packets(r);
+
+	memcpy(si, r->data, sizeof(struct PtpStorageInfo));
+
+	return 0;
+}
+
+int ptp_get_num_objects(struct PtpRuntime *r) {
+	
 }
 
 int ptp_canon_evproc(struct PtpRuntime *r, char *string) {
