@@ -35,34 +35,34 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 }
 
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
-	int curr = snprintf(buffer, max, "{\n    ops_supported: [");
+	int curr = snprintf(buffer, max, "{\n    \"ops_supported\": [");
 	for (int i = 0; i < di->ops_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->ops_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "0x%x%s", di->ops_supported[i], end);
+		curr += snprintf(buffer + curr, max - curr, "%d%s", di->ops_supported[i], end);
 	}
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    events_supported: [");
+	curr += snprintf(buffer + curr, max - curr, "    \"events_supported\": [");
 	for (int i = 0; i < di->events_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->events_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "0x%x%s", di->events_supported[i], end);
+		curr += snprintf(buffer + curr, max - curr, "%d%s", di->events_supported[i], end);
 	}
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    props_supported: [");
+	curr += snprintf(buffer + curr, max - curr, "    \"props_supported\": [");
 	for (int i = 0; i < di->props_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->props_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "0x%x%s", di->props_supported[i], end);
+		curr += snprintf(buffer + curr, max - curr, "%d%s", di->props_supported[i], end);
 	}
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    manufacturer: '%s',\n", di->manufacturer);
-	curr += snprintf(buffer + curr, max - curr, "    model: '%s',\n", di->model);
-	curr += snprintf(buffer + curr, max - curr, "    device_version: '%s',\n", di->device_version);
-	curr += snprintf(buffer + curr, max - curr, "    serial_number: '%s',\n", di->serial_number);
+	curr += snprintf(buffer + curr, max - curr, "    \"manufacturer\": \"%s\",\n", di->manufacturer);
+	curr += snprintf(buffer + curr, max - curr, "    \"model\": \"%s\",\n", di->model);
+	curr += snprintf(buffer + curr, max - curr, "    \"device_version\": \"%s\",\n", di->device_version);
+	curr += snprintf(buffer + curr, max - curr, "    \"serial_number\": \"%s\"\n", di->serial_number);
 	curr += snprintf(buffer + curr, max - curr, "}");
 	return curr;
 }

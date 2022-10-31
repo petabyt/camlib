@@ -77,7 +77,7 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	cmd.param_length = 0;
 
 	int length = ptp_bulk_packet_cmd(r, &cmd);
-	ptp_send_bulk_packets(r, length);
+	if (ptp_send_bulk_packets(r, length) != length) return 0;
 	ptp_recieve_bulk_packets(r);
 	return ptp_parse_device_info(r, di);
 }
@@ -127,4 +127,5 @@ int ptp_canon_evproc(struct PtpRuntime *r, char *string) {
 
 	ptp_prep_send_bulk(r, &cmd);
 	ptp_send_bulk_packets(r, length);
+	return 0;
 }
