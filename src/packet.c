@@ -111,7 +111,7 @@ int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulk
 // Generate a data container packet
 int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
-	int length = ptp_bulk_packet(r, cmd, &bulk, PACKET_TYPE_DATA);
+	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_DATA);
 	return length;
 }
 
@@ -120,13 +120,13 @@ int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
 int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
 	cmd->data_length = 0;
-	int length = ptp_bulk_packet(r, cmd, &bulk, PACKET_TYPE_COMMAND);
+	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_COMMAND);
 	return length;
 }
 
 int ptp_get_return_code(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type != PACKET_TYPE_RESPONSE) {
+	if (bulk->type != PTP_PACKET_TYPE_RESPONSE) {
 		return -1;
 	}
 

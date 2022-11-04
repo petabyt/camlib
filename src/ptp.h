@@ -189,9 +189,6 @@ struct PtpStorageInfo {
 #define PTP_PC_FocusMode		0x500a
 #define PTP_PC_DateTime			0x5011
 
-// Vendor init/USB codes, not specifically PTP
-#define VENDOR_CANON 1193
-
 // Standard interface Class ID for PTP.
 // See https://en.wikipedia.org/wiki/USB#Device_classes
 #define PTP_CLASS_ID 6
@@ -199,9 +196,13 @@ struct PtpStorageInfo {
 #define PTP_IP_PORT 15740
 
 // PTP Packet container types
-#define PACKET_TYPE_COMMAND 1
-#define PACKET_TYPE_DATA 2
-#define PACKET_TYPE_RESPONSE 3
-#define PACKET_TYPE_EVENT 4
+#define PTP_PACKET_TYPE_COMMAND 1
+#define PTP_PACKET_TYPE_DATA 2
+#define PTP_PACKET_TYPE_RESPONSE 3
+#define PTP_PACKET_TYPE_EVENT 4
+
+// Vendor init/USB codes, not specifically PTP
+#define USB_REQ_RESET 0x66
+#define USB_REQ_STATUS 0x67
 
 #endif

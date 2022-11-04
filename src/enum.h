@@ -5,6 +5,9 @@ enum PtpType {
 	PTP_OC,
 	PTP_OF,
 	PTP_PC,
+	PTP_EC,
+	PTP_RC,
+	PTP_ENUM,
 };
 
 enum PtpVendor {

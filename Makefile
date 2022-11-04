@@ -14,10 +14,10 @@ src/enum.o: src/ptp.h src/canon.h src/stringify.py
 	$(CC) -c src/enum.c $(CFLAGS) -o src/enum.o
 
 pktest: pktest.o $(FILES)
-	$(CC) $(FILES) $(CFLAGS) pktest.o
+	$(CC) $(FILES) $(CFLAGS) pktest.o -o pktest
 
 optest: $(FILES) $@.o
-	$(CC) $(FILES) enum.h $(CFLAGS) $@.o
+	$(CC) $(FILES) enum.h $(CFLAGS) optest
 
 clean:
-	$(RM) *.o src/*.o src/enum.c
+	$(RM) *.o src/*.o src/enum.c *.out optest pktest
