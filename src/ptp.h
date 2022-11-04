@@ -1,5 +1,7 @@
 // This file implements Picture Transfer Protocol (ISO 15740)
 // Written by Daniel Cook, licensed under GPL2.0 or later
+
+// TODO: stringify script
 #ifndef PTP_H
 #define PTP_H
 
@@ -113,23 +115,10 @@ struct PtpStorageInfo {
 #define PTP_RC_TransactionCanceled		0x201F
 #define PTP_RC_SpecOfDestinationUnsupported	0x2020
 
-// Older fuji specific
+// Older fuji specific for file transfer
 #define PTP_OC_FUJI_SendObjectInfo	0x900C
 #define PTP_OC_FUJI_Unknown1		0x900D
 #define PTP_OC_FUJI_SendObject		0x901D
-
-// Canon EvProc Vendor commands
-#define PTP_OC_CANON_ActivateOperations			0x9050
-#define PTP_OC_CANON_TerminateEventProc_051		0x9051
-#define PTP_OC_CANON_ExecuteEventProc			0x9052
-#define PTP_OC_CANON_GetEventProcReturnData		0x9053
-#define PTP_OC_CANON_IsEventProcRunning			0x9057
-#define PTP_OC_CANON_GetSizeOfTransparentMemory	0x9058
-#define PTP_OC_CANON_LoadTransparentMemory 		0x9059
-#define PTP_OC_CANON_SaveTransparentMemory		0x905a
-#define PTP_OC_CANON_QuickLoadTransparentMemory	0x905b
-#define PTP_OC_CANON_InitiateEventProc1			0x905c
-#define PTP_OC_CANON_TerminateEventProc_05D		0x905d
 
 // Event Codes (EC)
 #define PTP_EC_Undefined			0x4000
@@ -192,6 +181,13 @@ struct PtpStorageInfo {
 #define PTP_OF_MP4				0xb982
 #define PTP_OF_MP2				0xb983
 #define PTP_OF_3GP				0xb984
+
+// Standard Property codes
+#define PTP_PC_BatteryLevel		0x5001
+#define PTP_PC_FocalLength		0x5008
+#define PTP_PC_FocalDistance	0x5009
+#define PTP_PC_FocusMode		0x500a
+#define PTP_PC_DateTime			0x5011
 
 // Vendor init/USB codes, not specifically PTP
 #define VENDOR_CANON 1193

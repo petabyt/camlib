@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "ptp.h"
+#include "canon.h"
 #include "backend.h"
 #include "camlib.h"
 
