@@ -18,7 +18,9 @@ for i in matches:
         output += "{PTP_" + t[0][0] + ", PTP_VENDOR_" + vendor + ", " + "\"" + t[0][2] + "\", " + i[1] + "},\n"
 output += "\n};"
 
+output += "int ptp_enums_length = " + str(len(matches)) + ";\n"
+
 print("Compiled", len(matches), "enums")
-f = open("enum.c", "w")
+f = open("data.c", "w")
 f.write(output)
 f.close()

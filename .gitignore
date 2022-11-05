@@ -1,5 +1,5 @@
 *.o
 .xmake/
 build/
-src/enum.c
+src/data.c
 config.mak

@@ -1,6 +1,8 @@
 #ifndef PTPENUM_H
 #define PTPENUM_H
 
+int ptp_enum(char *string);
+
 enum PtpType {
 	PTP_OC,
 	PTP_OF,
@@ -24,5 +26,8 @@ struct PtpEnum {
 	char *name;
 	int value;
 };
+
+extern int ptp_enums_length;
+extern struct PtpEnum ptp_enums[];
 
 #endif
