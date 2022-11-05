@@ -20,4 +20,4 @@ optest: $(FILES) $@.o
 	$(CC) $(FILES) enum.h $(CFLAGS) optest
 
 clean:
-	$(RM) *.o src/*.o src/enum.c *.out optest pktest
+	$(RM) *.o src/*.o src/data.c *.out optest pktest
