@@ -5,7 +5,7 @@ output = "#include \"enum.h\"\nstruct PtpEnum ptp_enums[] = {\n"
 string = open("ptp.h", "r").read()
 string = string + open("canon.h", "r").read()
 
-regex = r"#define ([A-Za-z0-9_]+)[ \t](0x[0-9a-fA-Z]+)"
+regex = r"#define ([A-Za-z0-9_]+)[ \t]+(0x[0-9a-fA-Z]+)"
 matches = re.findall(regex, string)
 for i in matches:
     t = re.findall(r"PTP_(OC|PC|OF|EC|RC)_(CANON|FUJI|NIKON|SONY|)[_]?([A-Za-z0-9_]+)", i[0])

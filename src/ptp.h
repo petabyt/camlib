@@ -189,20 +189,33 @@ struct PtpStorageInfo {
 #define PTP_PC_FocusMode		0x500a
 #define PTP_PC_DateTime			0x5011
 
-// Standard interface Class ID for PTP.
-// See https://en.wikipedia.org/wiki/USB#Device_classes
-#define PTP_CLASS_ID 6
-
-#define PTP_IP_PORT 15740
-
 // PTP Packet container types
 #define PTP_PACKET_TYPE_COMMAND 1
 #define PTP_PACKET_TYPE_DATA 2
 #define PTP_PACKET_TYPE_RESPONSE 3
 #define PTP_PACKET_TYPE_EVENT 4
 
+// Standard interface Class ID for PTP.
+// See https://en.wikipedia.org/wiki/USB#Device_classes
+#define PTP_CLASS_ID 6
+
+#define PTP_IP_PORT 15740
+
 // Vendor init/USB codes, not specifically PTP
-#define USB_REQ_RESET 0x66
-#define USB_REQ_STATUS 0x67
+#define USB_REQ_RESET			0x66
+#define USB_REQ_STATUS			0x67
+#define USB_REQ_GET_STATUS		0x00
+#define USB_REQ_CLEAR_FEATURE	0x01
+#define USB_REQ_SET_FEATURE		0x03
+
+// Data phase host to device, device to host
+#define USB_DP_HTD				0x0
+#define USB_DP_DTH				0x80
+
+#define USB_RECIP_DEVICE		0x00
+#define USB_RECIP_INTERFACE		0x01
+#define USB_RECIP_ENDPOINT		0x02
+
+#define USB_TYPE_CLASS 0x20
 
 #endif

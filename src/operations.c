@@ -52,7 +52,7 @@ int ptp_open_session(struct PtpRuntime *r) {
 	// PTP open session transaction ID is always 0
 	r->transaction = 0;
 
-	ptp_send_bulk_packets(r, length);
+	if (ptp_send_bulk_packets(r, length) != length) return -1;
 
 	// Set transaction ID back to start
 	r->transaction = 1;
@@ -78,8 +78,13 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	cmd.param_length = 0;
 
 	int length = ptp_bulk_packet_cmd(r, &cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return 0;
-	ptp_recieve_bulk_packets(r);
+	if (ptp_send_bulk_packets(r, length) != length) return -1;
+	int x = ptp_recieve_bulk_packets(r);
+    if (x <= 0) return -2;
+
+    // Small patch for leftover crap (????)
+    if (x == 12) ptp_recieve_bulk_packets(r);
+
 	return ptp_parse_device_info(r, di);
 }
 
