@@ -13,11 +13,9 @@ src/data.o: src/ptp.h src/canon.h src/stringify.py
 	$(CD) src && $(PYTHON3) stringify.py
 	$(CC) -c src/data.c $(CFLAGS) -o src/data.o
 
-pktest: pktest.o $(FILES)
-	$(CC) $(FILES) $(CFLAGS) pktest.o -o pktest
-
-optest: $(FILES) $@.o
-	$(CC) $(FILES) enum.h $(CFLAGS) optest
+pktest optest: $(FILES)
+	$(CC) -c $(CFLAGS) test/$@.c -o test/$@.o
+	$(CC) $(FILES) $(CFLAGS) test/$@.o -o $@
 
 clean:
-	$(RM) *.o src/*.o src/data.c *.out optest pktest
+	$(RM) *.o src/*.o src/data.c *.out optest pktest test/*.o

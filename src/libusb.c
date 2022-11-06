@@ -143,6 +143,16 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			PTPLOG("ptp_bulk_read < 0, IO error");
 			return PTP_IO_ERROR;
 		} else if (x != r->max_packet_size) {
+			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+
+			// Read the response packet if only a data packet was sent
+			if (c->type == PTP_PACKET_TYPE_DATA) {
+				x = usb_bulk_read(ptp_backend.devh,
+					ptp_backend.endpoint_in,
+					(char*)r->data + read,
+				r->max_packet_size, PTP_TIMEOUT);
+			}
+
 			// No more more packets to read
 			return read;
 		}

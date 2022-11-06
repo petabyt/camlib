@@ -37,7 +37,7 @@ int main() {
 		return 0;
 	}
 
-	ptp_open_session(&r);
+	//ptp_open_session(&r);
 
 	ptp_get_device_info(&r, &di);
 
@@ -47,6 +47,13 @@ int main() {
 	printf("%s\n", (char*)r.data);
 
 	ptp_device_close(&r);
+
+	if (ptp_device_init(&r)) {
+		puts("Device connection error");
+		return 0;
+	}
+
+	free(r.data);
 
 	return 0;
 }

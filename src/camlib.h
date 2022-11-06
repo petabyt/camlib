@@ -56,14 +56,23 @@ uint16_t ptp_read_uint32(void **dat);
 void ptp_read_string(void **dat, char *string, int max);
 int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
 int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
-
 int ptp_wide_string(char *buffer, int max, char *input);
 
 // Packet builder functions
 // A command packet is sent first (cmd), followed by a data packet
-int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
+
+// Gets return code directly from runtime data
 int ptp_get_return_code(struct PtpRuntime *r);
+
+// Packets start with a uint32 representing the length of the packet.
+// In some cases, we want to append more data to the packet, so the length
+// value must be updated
+void ptp_update_data_length(struct PtpRuntime *r, int length);
+
+// Used only for open session
+void ptp_update_transaction(struct PtpRuntime *r, int t);
 
 // Actual data packet returned by GetStorageIds
 struct PtpStorageIds {

@@ -109,7 +109,7 @@ int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulk
 }
 
 // Generate a data container packet
-int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
+int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
 	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_DATA);
 	return length;
@@ -117,7 +117,7 @@ int ptp_bulk_packet_data(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 // Generate a short "command" container packet that is optionally sent before a data packet
 // Page 281 of MTP 1.1 spec
-int ptp_bulk_packet_cmd(struct PtpRuntime *r, struct PtpCommand *cmd) {
+int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
 	cmd->data_length = 0;
 	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_COMMAND);
@@ -131,4 +131,14 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 	}
 
 	return bulk->code;
+}
+
+void ptp_update_data_length(struct PtpRuntime *r, int length) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	bulk->length = length;
+}
+
+void ptp_update_transaction(struct PtpRuntime *r, int t) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	bulk->transaction = t;
 }

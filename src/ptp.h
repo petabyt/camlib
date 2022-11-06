@@ -216,6 +216,8 @@ struct PtpStorageInfo {
 #define USB_RECIP_INTERFACE		0x01
 #define USB_RECIP_ENDPOINT		0x02
 
+#ifndef USB_TYPE_CLASS
 #define USB_TYPE_CLASS 0x20
+#endif
 
 #endif
