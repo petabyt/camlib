@@ -44,9 +44,12 @@ void info() {
 
 #if 1
 #define CNFG_IMPLEMENTATION
-#include "../rawdraw/rawdraw_sf.h"
-#include "../rawdraw/os_generic.h"
-void HandleKey( int keycode, int bDown ) { }
+#include "../../rawdraw/rawdraw_sf.h"
+#include "../../rawdraw/os_generic.h"
+int running = 1;
+void HandleKey( int keycode, int bDown ) {
+	if (keycode == CNFG_KEY_ESCAPE) running = 0;
+}
 void HandleButton( int x, int y, int button, int bDown ) { }
 void HandleMotion( int x, int y, int mask ) { }
 void HandleDestroy() { }
@@ -57,41 +60,48 @@ uint32_t rgb(int r, int g, int b) {
 	x[0] = b;
 	x[1] = g;
 	x[2] = r;
-	x[3] = r;
+	x[3] = 0;
 
 	return c;
 }
 
+#define WIDTH 720/2
+#define HEIGHT 480/2
+
+
 void ml_live() {
 	ptp_open_session(&r);
 
-	CNFGSetup( "Magic Lantern Live view", 720, 480 );
+	CNFGSetup( "Magic Lantern Live view", WIDTH, HEIGHT );
 
-	while(CNFGHandleInput())
-	{
+	uint32_t *frame = malloc(WIDTH * HEIGHT * 4);
 
-			puts("Waiting...");
-	int v = ptp_custom_recieve(&r, 0x9997);
-	puts("Recieved");
-	printf("Size: %d\n", v);
-	printf("Return code: 0x%X\n", ptp_get_return_code(&r));
+	while (CNFGHandleInput() && running) {
+		puts("Waiting...");
+		int v = ptp_custom_recieve(&r, 0x9997);
+		puts("Recieved");
+		printf("Size: %d\n", v);
 	
 		CNFGClearFrame();
 
-		int i = 12;
-		for (int y = 0; y < 480; y++) {
-			for (int x = 0; x < 720; x++) {
-				CNFGColor(rgb(r.data[i], r.data[i + 1], r.data[i + 2]));
-				CNFGTackPixel(x, y);
-				i += 3;
-			}
+		uint8_t *data = r.data + 12;
+
+		int x = 0;
+		for (int i = 0; i < WIDTH * HEIGHT * 3; i += 3) {
+			frame[x] = rgb(data[i], data[i + 1], data[i + 2]);
+			x++;
 		}
 
+		CNFGBlitImage(frame, 0, 0, WIDTH, HEIGHT);
+
 		//Display the image and wait for time to display next frame.
-		CNFGSwapBuffers();		
-		//OGUSleep( (int)( 0.5 * 1000 ) );
+		CNFGSwapBuffers();
+		//OGUSleep( (int)( 1000000 ) );
 	}
 
+
+	free(frame);
+	ptp_close_session(&r);
 }
 
 #endif

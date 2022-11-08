@@ -87,8 +87,6 @@ int ptp_wide_string(char *buffer, int max, char *input) {
 
 // Generate a BulkContainer packet
 int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulkContainer *bulk, int type) {
-	//bulk = (struct PtpBulkContainer*)(r->data);
-
 	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
 	bulk->type = type;
 	bulk->length = size;

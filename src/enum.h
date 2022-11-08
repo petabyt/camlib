@@ -2,6 +2,7 @@
 #define PTPENUM_H
 
 int ptp_enum(char *string);
+char *ptp_get_enum(int id);
 
 enum PtpType {
 	PTP_OC,

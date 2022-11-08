@@ -85,12 +85,12 @@ int ptp_device_init(struct PtpRuntime *r) {
 		if (usb_set_configuration(ptp_backend.devh, dev->config->bConfigurationValue)) {
 			perror("usb_set_configuration() failure");
 			usb_close(ptp_backend.devh);
-			return 1;
+			return PTP_OPEN_FAIL;
 		}
 		if (usb_claim_interface(ptp_backend.devh, 0)) {
 			perror("usb_claim_interface() failure");
 			usb_close(ptp_backend.devh);
-			return 1;
+			return PTP_OPEN_FAIL;
 		}
 	}
 
@@ -104,23 +104,31 @@ int ptp_device_close(struct PtpRuntime *r) {
 	usb_reset(ptp_backend.devh);
 	usb_close(ptp_backend.devh);
 	r->active_connection = 0;
+	
+	return 0;
 }
 
 void print_bytes(uint8_t *bytes, int n);
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	int x = usb_bulk_write(
-		ptp_backend.devh,
-		ptp_backend.endpoint_out,
-		(char*)r->data, length, PTP_TIMEOUT);
-	if (x < 0) {
-		perror("usb_bulk_write()");
+	int sent = 0;
+	while (1) {
+		int x = usb_bulk_write(
+			ptp_backend.devh,
+			ptp_backend.endpoint_out,
+			(char*)r->data, length, PTP_TIMEOUT);
+		PTPLOG("usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
+		if (x < 0) {
+			perror("usb_bulk_write()");
+			return PTP_IO_ERROR;
+		}
+		
+		sent += x;
+		
+		if (read >= length) {
+			return sent;
+		}
 	}
-
-	PTPLOG("usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
-	print_bytes(r->data, x);
-
-	return x;
 }
 
 int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
@@ -156,8 +164,5 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			// No more more packets to read
 			return read;
 		}
-
 	}
-
-	return read;
 }

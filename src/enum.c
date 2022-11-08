@@ -10,3 +10,13 @@ int ptp_enum(char *string) {
 
 	return -1;
 }
+
+char *ptp_get_enum(int id) {
+	for (int i = 0; i < ptp_enums_length; i++) {
+		if (id == ptp_enums[i].value) {
+			return ptp_enums[i].name;
+		}
+	}
+
+	return NULL;
+}

@@ -41,12 +41,24 @@ int ptp_close_session(struct PtpRuntime *r) {
 	return 0;
 }
 
+int ptp_custom_recieve(struct PtpRuntime *r, int code) {
+	struct PtpCommand cmd;
+	cmd.code = code;
+	cmd.param_length = 0;
+
+	int length = ptp_new_cmd_packet(r, &cmd);
+	if (ptp_send_bulk_packets(r, length) != length) return -1;
+	int x = ptp_recieve_bulk_packets(r);
+    if (x <= 0) return -2;
+    return x;
+}
+
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDeviceInfo;
 	cmd.param_length = 0;
 
-	int length = ptp_new_data_packet(r, &cmd);
+	int length = ptp_new_cmd_packet(r, &cmd);
 	if (ptp_send_bulk_packets(r, length) != length) return -1;
 	int x = ptp_recieve_bulk_packets(r);
     if (x <= 0) return -2;
