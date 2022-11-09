@@ -124,10 +124,6 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 int ptp_get_return_code(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type != PTP_PACKET_TYPE_RESPONSE) {
-		return -1;
-	}
-
 	return bulk->code;
 }
 
