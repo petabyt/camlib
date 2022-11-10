@@ -8,7 +8,7 @@
 #include <ptp.h>
 #include <operations.h>
 
-struct PtpRuntime r;
+static struct PtpRuntime r;
 
 void print_bytes(uint8_t *bytes, int n) {
 	for (int i = 0; i < n; i++) {
@@ -25,6 +25,7 @@ void print_bytes(uint8_t *bytes, int n) {
 #define SIZE 3000000
 
 int main() {
+	memset(&r, sizeof(struct PtpRuntime), 0);
 	r.data = malloc(SIZE);
 	r.transaction = 0;
 	r.session = 0;
@@ -38,14 +39,15 @@ int main() {
 	}
 
 	ptp_open_session(&r);
-
 	ptp_get_device_info(&r, &di);
-
-	printf("Return code: 0x%X\n", ptp_get_return_code(&r));
 
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
+	printf("recieved: %u\n", ptp_init_capture(&r));
+	printf("%X\n", ((struct PtpBulkContainer *)(r.data))->code);
+
+	ptp_close_session(&r);
 	ptp_device_close(&r);
 
 	free(r.data);

@@ -8,6 +8,7 @@
 #define PTP_TIMEOUT 1000
 
 // Optional debug logging
+#define VERBOSE
 #ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
@@ -18,10 +19,11 @@
 enum PtpGeneralError {
 	PTP_OK = 0,
 	PTP_NO_DEVICE = -1,
-	PTP_NO_PERMISSION = -2,
+	PTP_NO_PERM = -2,
 	PTP_OPEN_FAIL = -3,
-	PTP_OUT_OF_MEMORY = -4,
-	PTP_IO_ERROR = -5,
+	PTP_OUT_OF_MEM = -4,
+	PTP_IO_ERR = -5,
+	PTP_PARSE_ERR = -6,
 };
 
 enum PtpConnType {
@@ -29,7 +31,17 @@ enum PtpConnType {
 	PTP_USB,
 };
 
+enum PtpDeviceType {
+	PTP_DEV_EMPTY = 0,
+	PTP_DEV_CANON,
+	PTP_DEV_NIKON,
+	PTP_DEV_SONY,
+	PTP_DEV_FUJI,
+	PTP_DEV_PANASONIC,
+};
+
 // Holds vital lib info - passed to most functions
+// Initialize all to zero, then set data and data_length
 struct PtpRuntime {
 	int transaction; // transaction ID
 	int session; // session ID
@@ -37,9 +49,12 @@ struct PtpRuntime {
     int data_length;
 	int max_packet_size;
 	int active_connection;
+
+	int device_type;
+	struct PtpDeviceInfo *di;
 };
 
-// Generic command structure - order of data isn't important.
+// Generic command structure - not a packet
 // Meant to be a bridge to the other packet types.
 struct PtpCommand {
 	int code;
@@ -58,6 +73,10 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
 int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
 int ptp_wide_string(char *buffer, int max, char *input);
 
+// Helper packet writer functions
+void ptp_write_uint8(void **dat, uint8_t b);
+void ptp_write_string(void **dat, char *string);
+
 // Packet builder functions
 // A command packet is sent first (cmd), followed by a data packet
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
@@ -65,6 +84,14 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 // Gets return code directly from runtime data
 int ptp_get_return_code(struct PtpRuntime *r);
+
+uint32_t ptp_get_param(struct PtpRuntime *r, int index);
+
+int ptp_detect_device(struct PtpRuntime *r);
+int ptp_check_opcode(struct PtpRuntime *r, int op);
+
+// Get ptr of packet payload, after header
+uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
 // Packets start with a uint32 representing the length of the packet.
 // In some cases, we want to append more data to the packet, so the length
@@ -74,51 +101,12 @@ void ptp_update_data_length(struct PtpRuntime *r, int length);
 // Used only for open session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
 
-// Actual data packet returned by GetStorageIds
-struct PtpStorageIds {
-	uint32_t length;
-	uint32_t data[8];
-};
-
-// To store unpacked device info data, after parsing
-struct PtpDeviceInfo {
-	uint16_t standard_version;
-	uint32_t vendor_ext_id;
-	uint16_t version;
-	char extensions[128];
-	uint16_t functional_mode;
-
-	int ops_supported_length;
-	uint16_t ops_supported[256];
-
-	int events_supported_length;
-	uint16_t events_supported[128];
-
-	int props_supported_length;
-	uint16_t props_supported[64];
-
-	int capture_formats_length;
-	uint16_t capture_formats[16];
-
-	int playback_formats_length;
-	uint16_t playback_formats[16];
-
-	char manufacturer[128];
-	char model[128];
-	char device_version[64];
-	char serial_number[128];
-};
-
-struct ObjectRequest {
-	uint32_t storage_id; // left zero to get all
-	uint32_t object_format;
-	uint32_t object_handle;
-	uint8_t all_storage_ids;
-	uint8_t all_formats;
-	uint8_t in_root;
-};
+#include "data.h"
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
+
+int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 
 #endif

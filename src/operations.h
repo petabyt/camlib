@@ -10,4 +10,6 @@ int ptp_custom_recieve(struct PtpRuntime *r, int code);
 
 int ptp_liveview_frame(struct PtpRuntime *r, uint8_t *buffer);
 
+int ptp_canon_get_viewfinder_data(struct PtpRuntime *r);
+
 #endif

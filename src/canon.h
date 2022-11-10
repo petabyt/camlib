@@ -1,18 +1,13 @@
 #ifndef	CANON_H
 #define CANON_H
 
-// Canon EvProc Vendor commands
-#define PTP_OC_CANON_ActivateOperations			0x9050
-#define PTP_OC_CANON_TerminateEventProc_051		0x9051
-#define PTP_OC_CANON_ExecuteEventProc			0x9052
-#define PTP_OC_CANON_GetEventProcReturnData		0x9053
-#define PTP_OC_CANON_IsEventProcRunning			0x9057
-#define PTP_OC_CANON_GetSizeOfTransparentMemory	0x9058
-#define PTP_OC_CANON_LoadTransparentMemory		0x9059
-#define PTP_OC_CANON_SaveTransparentMemory		0x905a
-#define PTP_OC_CANON_QuickLoadTransparentMemory	0x905b
-#define PTP_OC_CANON_InitiateEventProc1			0x905c
-#define PTP_OC_CANON_TerminateEventProc_05D		0x905d
+#define PTP_OC_CANON_ViewFinderOn		0x900b
+#define PTP_OC_CANON_ViewFinderOff		0x900c
+#define PTP_OC_CANON_GetViewFinderImage	0x901d
+
+#define PTP_OC_EOS_GetViewFinderData	0x9153
+#define PTP_OC_EOS_RemoteReleaseOn		0x9128
+#define PTP_OC_EOS_RemoteReleaseOff		0x9129
 
 // Property Codes
 #define PTP_PC_CANON_BeepCode		0xd001

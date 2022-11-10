@@ -120,12 +120,12 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		PTPLOG("usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
 		if (x < 0) {
 			perror("usb_bulk_write()");
-			return PTP_IO_ERROR;
+			return PTP_IO_ERR;
 		}
 		
 		sent += x;
 		
-		if (read >= length) {
+		if (sent >= length) {
 			return sent;
 		}
 	}
@@ -144,12 +144,12 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 
 		if (read >= r->data_length - r->max_packet_size) {
 			PTPLOG("Not enough memory");
-			return PTP_OUT_OF_MEMORY;
+			return PTP_OUT_OF_MEM;
 		}
 
 		if (x < 0) {
 			PTPLOG("ptp_bulk_read < 0, IO error");
-			return PTP_IO_ERROR;
+			return PTP_IO_ERR;
 		} else if (x != r->max_packet_size) {
 			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 

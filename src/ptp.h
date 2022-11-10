@@ -32,22 +32,14 @@ struct PtpEventContainer {
 	uint32_t param3;
 };
 
-struct PtpStorageID {
+struct PtpObjPropDesc {
 	uint32_t property_code;
 	uint32_t data_type;
 	uint8_t get_set;
-	uint32_t default_value; // ???
+	uint32_t default_value;
 	uint32_t group_code;
 	uint32_t form_flag;
-};
-
-struct PtpStorageInfo {
-	uint16_t storage_type;
-	uint16_t fs_type;
-	uint16_t access_capability;
-	uint64_t free_space; // will this work on 32 bit android?
-	uint32_t free_objects;
-	// 2 strings follow
+	// mystery data type follows, depends on form_flag
 };
 
 // Standard PTP Operation Codes (OC)
@@ -179,8 +171,8 @@ struct PtpStorageInfo {
 #define PTP_OF_Video			0xb980
 #define PTP_OF_WMV				0xb981
 #define PTP_OF_MP4				0xb982
-#define PTP_OF_MP2				0xb983
 #define PTP_OF_3GP				0xb984
+#define PTP_OF_MP2				0xb983
 
 // Standard Property codes
 #define PTP_PC_BatteryLevel		0x5001

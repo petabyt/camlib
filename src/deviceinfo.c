@@ -2,12 +2,12 @@
 #ifndef PTP_DEVICE_INFO_H
 #define PTP_DEVICE_INFO_H
 
-#include "camlib.h"
 #include <stdio.h>
+#include "camlib.h"
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	// Skip packet header
-	void *e = (r->data + 12);
+	void *e = ptp_get_payload(r);
 
 	di->standard_version = ptp_read_uint16(&e);
 	di->vendor_ext_id = ptp_read_uint32(&e);
@@ -29,7 +29,7 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	ptp_read_string(&e, di->device_version, sizeof(di->device_version));
 	ptp_read_string(&e, di->serial_number, sizeof(di->serial_number));
 
-	// TODO: manufacturer, model, device_version, serial_number strings
+	r->di = di;
 
 	return 0;
 }

@@ -2,7 +2,7 @@
 
 CD?=cd
 PYTHON3?=python3
-FILES=src/libusb.o src/operations.o src/packet.o src/deviceinfo.o src/data.o src/enum.o
+FILES=src/libusb.o src/operations.o src/packet.o src/deviceinfo.o src/data.o src/enum.o src/util.o src/canon.o
 
 CFLAGS=-lusb -Isrc/
 
@@ -24,8 +24,10 @@ live: test/live.o
 live: FILES+=test/live.o
 live: CFLAGS+=-lX11
 
-live script pktest optest: $(FILES) $(info $(FILES))
+TEST_TARGETS=live script pktest optest
+
+$(TEST_TARGETS): $(FILES) $(info $(FILES))
 	$(CC) $(FILES) $(CFLAGS) -o $@
 
 clean:
-	$(RM) *.o src/*.o src/data.c *.out optest pktest live script test/*.o
+	$(RM) *.o src/*.o src/data.c *.out $(TEST_TARGETS) test/*.o

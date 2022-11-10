@@ -55,34 +55,20 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	return n;
 }
 
-int ptp_read_uint32_array(void **dat, uint16_t *buf, int max) {
-	int n = ptp_read_uint32(dat);
+// Start write util functions
 
-	// Probably impossbile scenario
-	if (n > 0xff) {
-		return -1;
-	}
-
-	for (int i = 0; i < n; i++) {
-		// Give a zero if out of bounds
-		if (i >= max) {
-			buf[i] = 0;
-		} else {
-			buf[i] = ptp_read_uint32(dat);
-		}
-	}
-
-	return n;
+void ptp_write_uint8(void **dat, uint8_t b) {
+	*((uint8_t*)(dat[0]++)) = b;
 }
 
-int ptp_wide_string(char *buffer, int max, char *input) {
-	int i;
-	for (i = 0; (i < max) && input[i] != '\0'; i++) {
-		buffer[i * 2] = input[i];
-		buffer[i * 2 + 1] = 0; 
-	}
+void ptp_write_string(void **dat, char *string) {
+	int length = strlen(string);
+	ptp_write_uint8(dat, length);
 
-	return i * 2 + 1;
+	for (int i = 0; i < length; i++) {
+		ptp_write_uint8(dat, string[i]);
+		dat[0] += 2;
+	}
 }
 
 // Generate a BulkContainer packet
@@ -122,11 +108,6 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	return length;
 }
 
-int ptp_get_return_code(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	return bulk->code;
-}
-
 void ptp_update_data_length(struct PtpRuntime *r, int length) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	bulk->length = length;
@@ -135,4 +116,37 @@ void ptp_update_data_length(struct PtpRuntime *r, int length) {
 void ptp_update_transaction(struct PtpRuntime *r, int t) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	bulk->transaction = t;
+}
+
+int ptp_get_return_code(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	return bulk->code;
+}
+
+uint8_t *ptp_get_payload(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
+		return NULL;
+	} else {
+		return r->data + 12;
+	}
+}
+
+uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+
+	switch (index) {
+	case 0:
+		return bulk->param1;
+	case 1:
+		return bulk->param2;
+	case 2:
+		return bulk->param3;
+	case 3:
+		return bulk->param4;
+	case 4:
+		return bulk->param5;
+	}
+
+	return 0;
 }

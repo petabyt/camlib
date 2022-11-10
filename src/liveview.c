@@ -7,8 +7,26 @@
 #include <camlib.h>
 #include <operations.h>
 
-int ptp_liveview_size() {
-    return (720 * 480 * 4);
+#define PTP_OC_ML_Live360 0x9997
+
+enum PtpLiveViewType {
+    PTP_LV_CANON = 1,
+    PTP_LV_ML = 2,
+    PTP_LV_NONE = 3,
+};
+
+int ptp_liveview_type(struct PtpRuntime *r, int *width, int *height) {
+    if (ptp_detect_device(r) == PTP_DEV_CANON) {
+        if (ptp_check_opcode(r, PTP_OC_ML_Live360)) {
+            return PTP_LV_ML;
+        }
+
+        if (ptp_check_opcode(r, PTP_OC_CANON_GetViewFinderImage)) {
+            return PTP_LV_CANON;
+        }
+    }
+
+    return PTP_LV_NONE;
 }
 
 int ptp_liveview_frame(struct PtpRuntime *r, uint8_t *buffer) {
