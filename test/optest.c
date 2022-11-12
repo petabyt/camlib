@@ -58,19 +58,28 @@ int main() {
 	printf("0x%lX\n", sinfo.free_space);
 #endif
 
+	ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_set_remote_mode(&r, 1);
+
 	ptp_canon_set_prop_value(&r, PTP_PC_CANON_EOS_VF_Output, 3);
-	printf("0x%X\n", ptp_get_return_code(&r));
+	printf("set: 0x%X\n", ptp_get_return_code(&r));
 
 	ptp_canon_set_prop_value(&r, PTP_PC_CANON_EOS_EVFMode, 1);
-	printf("0x%X\n", ptp_get_return_code(&r));
+	printf("set: 0x%X\n", ptp_get_return_code(&r));
 
 	ptp_canon_set_prop_value(&r, PTP_PC_EOS_CaptureDest, 4);
-	printf("0x%X\n", ptp_get_return_code(&r));
+	printf("set: 0x%X\n", ptp_get_return_code(&r));
 
-	sleep(1);
+	ptp_eos_hdd_capacity(&r);
+	printf("capacity: 0x%X\n", ptp_get_return_code(&r));
 
+	ptp_eos_get_event(&r);
+	printf("event: 0x%X\n", ptp_get_return_code(&r));
+
+	while (1) {
 	ptp_canon_get_viewfinder_data(&r);
 	printf("0x%X\n", ptp_get_return_code(&r));
+	}
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

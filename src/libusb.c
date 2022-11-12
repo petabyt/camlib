@@ -139,7 +139,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			ptp_backend.devh,
 			ptp_backend.endpoint_in,
 			(char*)r->data + read, r->max_packet_size, PTP_TIMEOUT);
-		PTPLOG("usb_bulk_read: %d bytes, endpoint %X, %d so far\n", x, ptp_backend.endpoint_in, read);
+		//PTPLOG("usb_bulk_read: %d bytes, endpoint %X, %d so far\n", x, ptp_backend.endpoint_in, read);
 		read += x;
 
 		if (read >= r->data_length - r->max_packet_size) {
@@ -159,7 +159,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 					ptp_backend.endpoint_in,
 					(char*)r->data + read,
 				r->max_packet_size, PTP_TIMEOUT);
-				PTPLOG("Recieved extra packet %d bytes\n", x)
+				PTPLOG("Recieved extra packet %d bytes + %d\n", x, read)
 			}
 
 			// No more more packets to read

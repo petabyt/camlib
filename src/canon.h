@@ -13,6 +13,9 @@
 #define PTP_OC_EOS_RemoteReleaseOn		0x9128
 #define PTP_OC_EOS_RemoteReleaseOff		0x9129
 #define PTP_OC_EOS_SetDevicePropValueEx	0x9110
+#define PTP_OC_EOS_PCHDDCapacity		0x911A
+#define PTP_OC_EOS_SetEventMode			0x9115
+#define PTP_OC_EOS_SetRemoteMode		0x9114
 
 // Property Codes
 #define PTP_PC_CANON_BeepCode		0xD001
