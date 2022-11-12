@@ -123,3 +123,16 @@ int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 
 	return ptp_generic_send(r, &cmd);
 }
+
+#if 0
+int ptp_send_empty_command(struct PtpRuntime *r, int code) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetNumObjects;
+	cmd.param_length = 1;
+	cmd.params[0] = id;
+	cmd.params[1] = format;
+	cmd.params[2] = in;
+
+	return ptp_generic_send(r, &cmd);
+}
+#endif

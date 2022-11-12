@@ -119,7 +119,12 @@ void ptp_update_transaction(struct PtpRuntime *r, int t) {
 
 int ptp_get_return_code(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	return bulk->code;
+	if (bulk->type == PTP_PACKET_TYPE_DATA) {
+		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+		return bulk->code;
+	} else {
+		return bulk->code;
+	}
 }
 
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {

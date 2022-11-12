@@ -2,5 +2,4 @@ DUMP
 *.o
 .xmake/
 build/
-src/data.c
 config.mak

@@ -2,7 +2,7 @@
 
 CD?=cd
 PYTHON3?=python3
-FILES=src/libusb.o src/operations.o src/packet.o src/data.o src/enum_dump.o src/enum.o src/util.o src/canon.o
+FILES=src/libusb.o src/operations.o src/packet.o src/enum.o src/data.o src/enum_dump.o src/util.o src/canon.o
 
 CFLAGS=-lusb -Isrc/ -Isrc/ -I../mjs/
 
@@ -32,4 +32,4 @@ script_test: script
 	./script test/connect.js
 
 clean:
-	$(RM) *.o src/*.o src/data.c *.out $(TEST_TARGETS) test/*.o
+	$(RM) *.o src/*.o *.out $(TEST_TARGETS) test/*.o

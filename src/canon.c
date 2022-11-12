@@ -20,11 +20,37 @@ int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 int ptp_canon_get_viewfinder_data(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetViewFinderData;
-	cmd.param_length = 3;
-	
-	cmd.params[0] = 0;
-	cmd.params[1] = 0x3e3f0000;
-	cmd.params[2] = 0xd96636c;
+	cmd.param_length = 1;
+
+	cmd.params[0] = 0x200000;
+	cmd.params[1] = 0x0;
+	cmd.params[2] = 0x0;
 
 	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_canon_set_prop_value(struct PtpRuntime *r, int code, int value) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
+	cmd.param_length = 3;
+	
+	cmd.params[0] = 12;
+	cmd.params[1] = code;
+	cmd.params[2] = value;
+
+	int length = ptp_new_cmd_packet(r, &cmd);
+	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
+
+	length = ptp_new_data_packet(r, &cmd);
+	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
+
+	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	return 0;
+}
+
+int ptp_eos_get_event(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_GetViewFinderData;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);	
 }

@@ -159,6 +159,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 					ptp_backend.endpoint_in,
 					(char*)r->data + read,
 				r->max_packet_size, PTP_TIMEOUT);
+				PTPLOG("Recieved extra packet %d bytes\n", x)
 			}
 
 			// No more more packets to read

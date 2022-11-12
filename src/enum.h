@@ -5,11 +5,14 @@ int ptp_enum(char *string);
 char *ptp_get_enum(int id);
 
 enum PtpType {
-	PTP_OC,
-	PTP_OF,
-	PTP_PC,
-	PTP_EC,
-	PTP_RC,
+	PTP_OC, // operation codes
+	PTP_OF, // object formats
+	PTP_PC, // property codes
+	PTP_EC, // 
+	PTP_RC, // return code
+	PTP_ST, 
+	PTP_FT,
+	PTP_AC, // access code
 	PTP_ENUM,
 };
 
