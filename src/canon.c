@@ -31,8 +31,7 @@ int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode) {
 	return ptp_generic_send(r, &cmd);
 }
 
-// BROKEN
-int ptp_canon_get_viewfinder_data(struct PtpRuntime *r) {
+int ptp_eos_get_viewfinder_data(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetViewFinderData;
 	cmd.param_length = 1;
@@ -44,7 +43,7 @@ int ptp_canon_get_viewfinder_data(struct PtpRuntime *r) {
 	return ptp_generic_send(r, &cmd);
 }
 
-int ptp_canon_set_prop_value(struct PtpRuntime *r, int code, int value) {
+int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
 	cmd.param_length = 3;

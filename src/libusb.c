@@ -6,9 +6,9 @@
 #include <linux/usbdevice_fs.h>
 #include <stdio.h>
 
-#include "camlib.h"
-#include "ptp.h"
-#include "backend.h"
+#include <camlib.h>
+#include <ptp.h>
+#include <backend.h>
 
 // Apperantly usb-dev_handle must be defined?
 struct usb_dev_handle {
@@ -104,66 +104,19 @@ int ptp_device_close(struct PtpRuntime *r) {
 	usb_reset(ptp_backend.devh);
 	usb_close(ptp_backend.devh);
 	r->active_connection = 0;
-	
 	return 0;
 }
 
-void print_bytes(uint8_t *bytes, int n);
-
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	int sent = 0;
-	while (1) {
-		int x = usb_bulk_write(
-			ptp_backend.devh,
-			ptp_backend.endpoint_out,
-			(char*)r->data, length, PTP_TIMEOUT);
-		PTPLOG("usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
-		if (x < 0) {
-			perror("usb_bulk_write()");
-			return PTP_IO_ERR;
-		}
-		
-		sent += x;
-		
-		if (sent >= length) {
-			return sent;
-		}
-	}
+int ptp_send_bulk_packet(char *to, int length) {
+	return usb_bulk_write(
+		ptp_backend.devh,
+		ptp_backend.endpoint_out,
+		to, length, PTP_TIMEOUT);
 }
 
-int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
-	int read = 0;
-
-	while (1) {
-		int x = usb_bulk_read(
-			ptp_backend.devh,
-			ptp_backend.endpoint_in,
-			(char*)r->data + read, r->max_packet_size, PTP_TIMEOUT);
-		//PTPLOG("usb_bulk_read: %d bytes, endpoint %X, %d so far\n", x, ptp_backend.endpoint_in, read);
-		read += x;
-
-		if (read >= r->data_length - r->max_packet_size) {
-			PTPLOG("Not enough memory");
-			return PTP_OUT_OF_MEM;
-		}
-
-		if (x < 0) {
-			PTPLOG("ptp_bulk_read < 0, IO error");
-			return PTP_IO_ERR;
-		} else if (x != r->max_packet_size) {
-			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
-
-			// Read the response packet if only a data packet was sent
-			if (c->type == PTP_PACKET_TYPE_DATA) {
-				x = usb_bulk_read(ptp_backend.devh,
-					ptp_backend.endpoint_in,
-					(char*)r->data + read,
-				r->max_packet_size, PTP_TIMEOUT);
-				PTPLOG("Recieved extra packet %d bytes + %d\n", x, read)
-			}
-
-			// No more more packets to read
-			return read;
-		}
-	}
+int ptp_recieve_bulk_packet(char *to, int length) {
+	return usb_bulk_read(
+		ptp_backend.devh,
+		ptp_backend.endpoint_in,
+		to, length, PTP_TIMEOUT);
 }
