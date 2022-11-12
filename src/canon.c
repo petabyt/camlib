@@ -13,10 +13,7 @@ int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 	cmd.params[0] = mode;
 	cmd.params[1] = 0;
 
-	int length = ptp_new_cmd_packet(r, &cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-	return 0;
+	return ptp_generic_send(r, &cmd);
 }
 
 // BROKEN
@@ -29,9 +26,5 @@ int ptp_canon_get_viewfinder_data(struct PtpRuntime *r) {
 	cmd.params[1] = 0x3e3f0000;
 	cmd.params[2] = 0xd96636c;
 
-	int length = ptp_new_cmd_packet(r, &cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return -1;
-	int x = ptp_recieve_bulk_packets(r);
-	if (x <= 0) return -2;
-	return x;
+	return ptp_generic_send(r, &cmd);
 }

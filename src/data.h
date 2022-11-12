@@ -1,11 +1,20 @@
 // Data packets - some very similar to the exact MTP/PTP spec,
-// but might have variable size arrays in them, so it isn't compliant
+// but can have variable size arrays in them, so it isn't compliant
 #ifndef DATA_H
 #define DATA_H
 
+// Try and check for compatibility with 32 bit stuff
+#include <stdint.h>
+#if UINTPTR_MAX == 0xffffffff
+#define BITS_32
+#elif UINTPTR_MAX == 0xffffffffffffffff
+#define BITS_64
+#endif
+
+// 4 Seems like a good limit?
 struct PtpStorageIds {
 	uint32_t length;
-	uint32_t *data;
+	uint32_t data[4];
 };
 
 // To store unpacked device info data, after parsing
@@ -41,7 +50,16 @@ struct PtpStorageInfo {
 	uint16_t storage_type;
 	uint16_t fs_type;
 	uint16_t access_capability;
-	uint64_t free_space; // will this work on 32 bit android?
+#ifdef BITS_32
+	uint32_t max_capacity;
+	uint32_t max_capacity_64;
+	uint32_t free_space;
+	uint32_t free_space_64;
+#endif
+#ifdef BITS_64
+	uint64_t max_capacity;
+	uint64_t free_space;
+#endif
 	uint32_t free_objects;
 };
 
@@ -77,6 +95,12 @@ struct PtpObjectInfo {
 	char date_created[32];
 	char date_modified[32];
 	char keywords[64];
+};
+
+struct PtpDevPropDesc {
+	uint16_t code;
+	uint16_t data_type;
+	uint8_t read_only;
 };
 
 #endif

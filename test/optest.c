@@ -44,8 +44,16 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	printf("recieved: %u\n", ptp_init_capture(&r));
-	printf("%X\n", ((struct PtpBulkContainer *)(r.data))->code);
+	struct PtpStorageIds sids;
+	ptp_get_storage_ids(&r, &sids);
+	printf("0x%X\n", sids.data[0]);
+
+	struct PtpStorageInfo sinfo;
+	if (ptp_get_storage_info(&r, &sinfo, sids.data[0])) {
+		puts("ERR");
+	}
+	printf("%X\n", ptp_get_return_code(&r));
+	printf("0x%lX\n", sinfo.free_space);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

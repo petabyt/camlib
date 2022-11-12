@@ -93,6 +93,8 @@ int ptp_check_opcode(struct PtpRuntime *r, int op);
 // Get ptr of packet payload, after header
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
+
 // Packets start with a uint32 representing the length of the packet.
 // In some cases, we want to append more data to the packet, so the length
 // value must be updated
@@ -108,5 +110,8 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+
+// For emergencies
+int ptp_dump(struct PtpRuntime *r);
 
 #endif

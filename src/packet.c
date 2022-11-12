@@ -1,3 +1,4 @@
+// Packet generation/creation/parsing stuff
 #include <stdint.h>
 #include <string.h>
 
@@ -55,8 +56,6 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	return n;
 }
 
-// Start write util functions
-
 void ptp_write_uint8(void **dat, uint8_t b) {
 	*((uint8_t*)(dat[0]++)) = b;
 }
@@ -99,7 +98,7 @@ int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	return length;
 }
 
-// Generate a short "command" container packet that is optionally sent before a data packet
+// Generate a short "command" container packet
 // Page 281 of MTP 1.1 spec
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;

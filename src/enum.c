@@ -1,6 +1,16 @@
 #include <string.h>
 #include "enum.h"
 
+int ptp_enum_index(char *string, int *value, int i) {
+	if (i >= ptp_enums_length) {
+		return 1;
+	}
+
+	strcpy(string, ptp_enums[i].name);
+	value[0] = ptp_enums[i].value;
+	return 0;
+}
+
 int ptp_enum(char *string) {
 	for (int i = 0; i < ptp_enums_length; i++) {
 		if (!strcmp(string, ptp_enums[i].name)) {

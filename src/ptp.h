@@ -181,6 +181,24 @@ struct PtpObjPropDesc {
 #define PTP_PC_FocusMode		0x500a
 #define PTP_PC_DateTime			0x5011
 
+// Storage Types
+#define PTP_ST_Undefined	0x0
+#define PTP_ST_FixedROM		0x1
+#define PTP_ST_RemovableROM	0x2
+#define PTP_ST_FixedRAM		0x3
+#define PTP_ST_RemovableRAM	0x4
+
+// Filesystem Type
+#define PTP_FT_Undefined	0x0
+#define PTP_FT_GenericFlat	0x1
+#define PTP_FT_GenericHei	0x2
+#define PTP_FT_DCF			0x3
+
+// Access Capability
+#define PTP_AC_ReadWrite	0x0
+#define PTP_AC_Read			0x1
+#define PTP_AC_ReadDelete	0x2
+
 // PTP Packet container types
 #define PTP_PACKET_TYPE_COMMAND 1
 #define PTP_PACKET_TYPE_DATA 2
