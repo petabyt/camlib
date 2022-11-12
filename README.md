@@ -1,6 +1,13 @@
 # camlib
-Meant to be a portable PTP library. This is a complete rewrite and uses no code from [libptp2](https://github.com/leirf/libptp).  
-Functions in this lib will either respond to platform specific bindings, or return raw packet data. 
+This is a portable PTP/USB/IP library written in C99. This uses no code from gphoto2, libptp, or libmtp.  
+This is a complete rewrite from the ground up, and corrects the mistakes made in the design of older libraries.  
+
+## Design
+- Data parsing, packet building, and packet sending/recieving is all done in a single buffer
+- Core library will perform no memory allocation
+- No platform specific code at the core
+- Try and make it small, and easy to pick and pull out parts
+- No macros, unless it's for debugging - everything is a function that can be accessed from other languages
 
 ## Checklist
 - [x] Generate a valid packet
@@ -13,10 +20,3 @@ Functions in this lib will either respond to platform specific bindings, or retu
 - [ ] Complete most EOS/Canon vendor OCs
 - [ ] Transfer files, delete files
 - [ ] "Frontend" functions - generic wrappers for vendor specific things
-
-## Design
-- Data parsing, packet building, and packet sending/recieving is all done in a single buffer
-- No memory allocation by core lib
-- No platform specific code at the core
-- C99
-- Try and make it small, and easy to pick and pull out parts
