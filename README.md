@@ -6,10 +6,13 @@ Functions in this lib will either respond to platform specific bindings, or retu
 - [x] Generate a valid packet
 - [x] Android USB Backend
 - [x] Basic PTP definition header
-- [x] Stable back and forth communication (android backend)
+- [x] Stable back and forth communication (Java/android, LibUSB)
 - [x] Parse device info
-- [ ] Bindings to other languages or USB/IP backends
-- [ ] Real time camera previews
+- [x] Bindings to other languages or USB/IP backends
+- [x] Real time camera previews
+- [ ] Complete most EOS/Canon vendor OCs
+- [ ] Transfer files, delete files
+- [ ] "Frontend" functions - generic wrappers for vendor specific things
 
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
