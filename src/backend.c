@@ -1,16 +1,19 @@
 // Common IO backend code
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <camlib.h>
-#include <ptp.h>
 #include <backend.h>
+#include <ptp.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	while (1) {
 		int x = ptp_send_bulk_packet(r->data + sent, length);
-		PTPLOG("send_bulk_packets: usb_bulk_write(%d, %d)\n", x, ptp_backend.endpoint_out);
 		if (x < 0) {
-			perror("send_bulk_packets:");
+			PTPLOG("send_bulk_packet: %d\n", x);
 			return PTP_IO_ERR;
 		}
 		
@@ -26,7 +29,10 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
 
 	while (1) {
-		int x = ptp_send_bulk_packet(r->data + sent, r->max_packet_size);
+		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
+		if (x < 0) {
+			PTPLOG("recieve_bulk_packet: %d\n", x);
+		}
 		read += x;
 
 		if (read >= r->data_length - r->max_packet_size) {
@@ -38,19 +44,16 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			PTPLOG("recieve_bulk_packets: ptp_bulk_read < 0, IO error\n");
 			return PTP_IO_ERR;
 		} else if (x != r->max_packet_size) {
-			PTPLOG("recieve_bulk_packets: Read %d bytes\n");
+			PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
 			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 
 			// Read the response packet if only a data packet was sent
 			if (c->type == PTP_PACKET_TYPE_DATA) {
-				x = usb_bulk_read(ptp_backend.devh,
-					ptp_backend.endpoint_in,
-					(char*)r->data + read,
-				r->max_packet_size, PTP_TIMEOUT);
+				x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 				PTPLOG("recieve_bulk_packets: Recieved extra packet %d bytes\n", x);
 			}
 
-			PTPLOG("recieve_bulk_packets: Return code: %d\n", ptp_get_return_code(r));
+			PTPLOG("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 			// No more more packets to read
 			return read;

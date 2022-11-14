@@ -24,6 +24,7 @@ enum PtpGeneralError {
 	PTP_OUT_OF_MEM = -4,
 	PTP_IO_ERR = -5,
 	PTP_PARSE_ERR = -6,
+	PTP_CAM_ERR = -7,
 };
 
 enum PtpConnType {
@@ -31,13 +32,21 @@ enum PtpConnType {
 	PTP_USB,
 };
 
+enum PtpLiveViewType {
+	PTP_LV_EOS = 1,
+	PTP_LV_CANON = 2,
+	PTP_LV_ML = 3,
+	PTP_LV_NONE = 0,
+};
+
+// Might delete
 enum PtpDeviceType {
 	PTP_DEV_EMPTY = 0,
-	PTP_DEV_CANON,
-	PTP_DEV_NIKON,
-	PTP_DEV_SONY,
-	PTP_DEV_FUJI,
-	PTP_DEV_PANASONIC,
+	PTP_DEV_CANON = 1,
+	PTP_DEV_NIKON = 2,
+	PTP_DEV_SONY = 3,
+	PTP_DEV_FUJI = 4,
+	PTP_DEV_PANASONIC = 5,
 };
 
 // Holds vital lib info - passed to most functions

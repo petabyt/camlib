@@ -16,6 +16,8 @@
 #define PTP_OC_EOS_PCHDDCapacity		0x911A
 #define PTP_OC_EOS_SetEventMode			0x9115
 #define PTP_OC_EOS_SetRemoteMode		0x9114
+#define PTP_OC_EOS_DriveLens			0x9155
+#define PTP_OC_EOS_KeepDeviceOn			0x911D
 
 // Property Codes
 #define PTP_PC_CANON_BeepCode		0xD001

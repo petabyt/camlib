@@ -1,3 +1,4 @@
+// Parse/pack data and convert to/from JSON
 #include <stdio.h>
 #include <string.h>
 

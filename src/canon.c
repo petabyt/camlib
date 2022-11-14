@@ -6,12 +6,26 @@
 #include "backend.h"
 #include "camlib.h"
 
+// Broken on ptpy
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_RemoteReleaseOn;
 	cmd.param_length = 2;
 	cmd.params[0] = mode;
 	cmd.params[1] = 0;
+	return ptp_generic_send(r, &cmd);
+}
+
+// Add 0x8000 to param1 change direction
+int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
+	if (steps < 0) {
+		steps += 0x8000 + (steps * -1);
+	}
+
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_DriveLens;
+	cmd.param_length = 1;
+	cmd.params[0] = steps;
 	return ptp_generic_send(r, &cmd);
 }
 
@@ -70,6 +84,13 @@ int ptp_eos_get_event(struct PtpRuntime *r) {
 	cmd.param_length = 2;
 	cmd.params[0] = 8;
 	cmd.params[1] = 0;
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_eos_ping(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_KeepDeviceOn;
+	cmd.param_length = 0;
 	return ptp_generic_send(r, &cmd);	
 }
 

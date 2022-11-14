@@ -21,6 +21,7 @@ int ptp_open_session(struct PtpRuntime *r) {
 	// PTP open session transaction ID is always 0
 	r->transaction = 0;
 
+
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
 
 	// Set transaction ID back to start
@@ -43,7 +44,6 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDeviceInfo;
 	cmd.param_length = 0;
-
 	int x = ptp_generic_send(r, &cmd);
 	if (x) {
 		return x;

@@ -2,7 +2,7 @@
 
 CD?=cd
 PYTHON3?=python3
-FILES=src/libusb.o src/operations.o src/packet.o src/enum.o src/data.o src/enum_dump.o src/util.o src/canon.o
+FILES=$(addprefix src/,libusb.o operations.o packet.o enum.o data.o enum_dump.o util.o canon.o backend.o)
 
 CFLAGS=-lusb -Isrc/ -Isrc/ -I../mjs/
 

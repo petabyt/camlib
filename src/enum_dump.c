@@ -163,6 +163,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_PCHDDCapacity", 0x911A},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_SetEventMode", 0x9115},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_SetRemoteMode", 0x9114},
+{PTP_OC, PTP_VENDOR_GENERIC, "EOS_DriveLens", 0x9155},
 {PTP_PC, PTP_VENDOR_CANON, "BeepCode", 0xD001},
 {PTP_PC, PTP_VENDOR_CANON, "ViewFinderMode", 0xD003},
 {PTP_PC, PTP_VENDOR_CANON, "ImageQuality", 0xD006},
@@ -193,4 +194,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_VENDOR_CANON, "EOS_VFSharp", 0xD1B3},
 {PTP_PC, PTP_VENDOR_GENERIC, "EOS_CaptureDest", 0xD11C},
 
-};int ptp_enums_length = 191;
+};int ptp_enums_length = 192;

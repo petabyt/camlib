@@ -45,28 +45,10 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-#if 0
-	struct PtpStorageIds sids;
-	ptp_get_storage_ids(&r, &sids);
-	printf("0x%X\n", sids.data[0]);
-
-	struct PtpStorageInfo sinfo;
-	if (ptp_get_storage_info(&r, &sinfo, sids.data[0])) {
-		puts("ERR");
-	}
-	printf("%X\n", ptp_get_return_code(&r));
-	printf("0x%lX\n", sinfo.free_space);
-#endif
-
-	ptp_eos_set_event_mode(&r, 1);
-	ptp_eos_set_remote_mode(&r, 1);
-
-	ptp_eos_set_prop_value(&r, PTP_PC_CANON_EOS_VF_Output, 3);
-	ptp_eos_set_prop_value(&r, PTP_PC_CANON_EOS_EVFMode, 1);
-	ptp_eos_set_prop_value(&r, PTP_PC_EOS_CaptureDest, 4);
-
-	while (1) {
-		ptp_eos_get_viewfinder_data(&r);
+	//ptp_eos_remote_release_on(&r, 1);
+	puts("DRIVE");
+	for (int i = 0; i < 100; i++) {
+		ptp_eos_drive_lens(&r, 0x0002);
 	}
 
 	ptp_close_session(&r);
