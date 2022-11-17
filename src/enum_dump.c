@@ -62,6 +62,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_RC, PTP_VENDOR_GENERIC, "SessionAlreadyOpened", 0x201E},
 {PTP_RC, PTP_VENDOR_GENERIC, "TransactionCanceled", 0x201F},
 {PTP_RC, PTP_VENDOR_GENERIC, "SpecOfDestinationUnsupported", 0x2020},
+{PTP_RC, PTP_VENDOR_GENERIC, "InvalidObjPropCode", 0xA801},
 {PTP_OC, PTP_VENDOR_FUJI, "SendObjectInfo", 0x900C},
 {PTP_OC, PTP_VENDOR_FUJI, "Unknown1", 0x900D},
 {PTP_OC, PTP_VENDOR_FUJI, "SendObject", 0x901D},
@@ -154,6 +155,8 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_VENDOR_CANON, "ViewFinderOn", 0x900b},
 {PTP_OC, PTP_VENDOR_CANON, "ViewFinderOff", 0x900c},
 {PTP_OC, PTP_VENDOR_CANON, "GetViewFinderImage", 0x901d},
+{PTP_OC, PTP_VENDOR_CANON, "LockUI", 0x9004},
+{PTP_OC, PTP_VENDOR_CANON, "UnlockUI", 0x9005},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_InitiateViewfinder", 0x9151},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_TerminateViewfinder", 0x9152},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_GetViewFinderData", 0x9153},
@@ -164,6 +167,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_SetEventMode", 0x9115},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_SetRemoteMode", 0x9114},
 {PTP_OC, PTP_VENDOR_GENERIC, "EOS_DriveLens", 0x9155},
+{PTP_OC, PTP_VENDOR_GENERIC, "EOS_KeepDeviceOn", 0x911D},
 {PTP_PC, PTP_VENDOR_CANON, "BeepCode", 0xD001},
 {PTP_PC, PTP_VENDOR_CANON, "ViewFinderMode", 0xD003},
 {PTP_PC, PTP_VENDOR_CANON, "ImageQuality", 0xD006},
@@ -194,4 +198,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_VENDOR_CANON, "EOS_VFSharp", 0xD1B3},
 {PTP_PC, PTP_VENDOR_GENERIC, "EOS_CaptureDest", 0xD11C},
 
-};int ptp_enums_length = 192;
+};int ptp_enums_length = 196;

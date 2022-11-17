@@ -1,19 +1,22 @@
 #ifndef PTPENUM_H
 #define PTPENUM_H
 
-int ptp_enum(char *string);
+#define MAX_ENUM_LENGTH 64
+
+int ptp_enum_all(char *string);
+int ptp_enum(int type, char *string);
 char *ptp_get_enum(int id);
 
 enum PtpType {
 	PTP_OC, // operation codes
 	PTP_OF, // object formats
 	PTP_PC, // property codes
-	PTP_EC, // 
+	PTP_EC, // event codes
 	PTP_RC, // return code
-	PTP_ST, 
-	PTP_FT,
+	PTP_ST, // storage type
+	PTP_FT, // filesystem type
 	PTP_AC, // access code
-	PTP_ENUM,
+	PTP_ENUM, // regular enums
 };
 
 enum PtpVendor {

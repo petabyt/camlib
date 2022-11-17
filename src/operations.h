@@ -13,4 +13,11 @@ int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
 int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_eos_set_event_mode(struct PtpRuntime *r, int mode);
+int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode);
+int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode);
+
+// steps can be between -3 and 3
+int ptp_eos_drive_lens(struct PtpRuntime *r, int steps);
+int ptp_eos_ping(struct PtpRuntime *r);
+
 #endif

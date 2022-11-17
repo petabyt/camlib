@@ -11,9 +11,19 @@ int ptp_enum_index(char *string, int *value, int i) {
 	return 0;
 }
 
-int ptp_enum(char *string) {
+int ptp_enum_all(char *string) {
 	for (int i = 0; i < ptp_enums_length; i++) {
 		if (!strcmp(string, ptp_enums[i].name)) {
+			return ptp_enums[i].value;
+		}
+	}
+
+	return -1;
+}
+
+int ptp_enum(int type, char *string) {
+	for (int i = 0; i < ptp_enums_length; i++) {
+		if (!strcmp(string, ptp_enums[i].name) && ptp_enums[i].type == type) {
 			return ptp_enums[i].value;
 		}
 	}

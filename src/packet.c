@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ptp.h"
-#include "camlib.h"
+#include <ptp.h>
+#include <camlib.h>
 
 uint8_t ptp_read_uint8(void **dat) {
 	return *((uint8_t*)(dat[0]++));

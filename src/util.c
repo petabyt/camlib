@@ -13,6 +13,8 @@ int ptp_detect_device(struct PtpRuntime *r) {
 		return PTP_DEV_FUJI;
 	} else if (!strcmp(di->manufacturer, "Sony Corporation")) {
 		return PTP_DEV_SONY;
+	} else if (!strcmp(di->manufacturer, "Nikon Corporation")) {
+		return PTP_DEV_NIKON;
 	}
 
 	return PTP_DEV_EMPTY;

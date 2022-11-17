@@ -4,6 +4,7 @@
 #define DATA_H
 
 // Try and check for compatibility with 32 bit stuff
+// uint64_t is only used once
 #include <stdint.h>
 #if UINTPTR_MAX == 0xffffffff
 #define BITS_32
@@ -101,6 +102,16 @@ struct PtpDevPropDesc {
 	uint16_t code;
 	uint16_t data_type;
 	uint8_t read_only;
+};
+
+struct PtpObjPropDesc {
+	uint32_t property_code;
+	uint32_t data_type;
+	uint8_t get_set;
+	uint32_t default_value;
+	uint32_t group_code;
+	uint32_t form_flag;
+	// mystery data type follows if form_flag == 0
 };
 
 #endif

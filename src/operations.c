@@ -1,11 +1,11 @@
-// Easy to use operation (OC) functions. Requires bindings.
+// Easy to use operation (OC) functions. Requires backend.
+
 #include <stddef.h>
 #include <string.h>
 
-#include "ptp.h"
-#include "canon.h"
-#include "backend.h"
-#include "camlib.h"
+#include <ptp.h>
+#include <backend.h>
+#include <camlib.h>
 
 int ptp_open_session(struct PtpRuntime *r) {
 	r->session++;
@@ -124,6 +124,7 @@ int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 	return ptp_generic_send(r, &cmd);
 }
 
+// Run generic command
 #if 0
 int ptp_send_empty_command(struct PtpRuntime *r, int code) {
 	struct PtpCommand cmd;
