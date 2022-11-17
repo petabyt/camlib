@@ -1,11 +1,16 @@
 // This file implements Picture Transfer Protocol (ISO 15740)
 // Written by Daniel Cook, licensed under GPL2.0 or later
 
-// TODO: stringify script
 #ifndef PTP_H
 #define PTP_H
 
 #include <stdint.h>
+
+// PTP Packet container types
+#define PTP_PACKET_TYPE_COMMAND 1
+#define PTP_PACKET_TYPE_DATA 2
+#define PTP_PACKET_TYPE_RESPONSE 3
+#define PTP_PACKET_TYPE_EVENT 4
 
 struct PtpBulkContainer {
 	uint32_t length; // length of packet, in bytes
@@ -27,19 +32,10 @@ struct PtpEventContainer {
 	uint16_t type;
 	uint16_t code;
 	uint32_t transaction;
+
 	uint32_t param1;
 	uint32_t param2;
 	uint32_t param3;
-};
-
-struct PtpObjPropDesc {
-	uint32_t property_code;
-	uint32_t data_type;
-	uint8_t get_set;
-	uint32_t default_value;
-	uint32_t group_code;
-	uint32_t form_flag;
-	// mystery data type follows, depends on form_flag
 };
 
 // Standard PTP Operation Codes (OC)
@@ -71,6 +67,28 @@ struct PtpObjPropDesc {
 #define PTP_OC_CopyObject			0x101A
 #define PTP_OC_GetPartialObject		0x101B
 #define PTP_OC_InitiateOpenCapture	0x101C
+
+#define PTP_OC_NIKON_Capture		0x90C0
+
+// Non EOS (Canon point and shoot) operation codes
+#define PTP_OC_CANON_ViewFinderOn		0x900b
+#define PTP_OC_CANON_ViewFinderOff		0x900c
+#define PTP_OC_CANON_GetViewFinderImage	0x901d
+#define PTP_OC_CANON_LockUI				0x9004
+#define PTP_OC_CANON_UnlockUI			0x9005
+
+// EOS specific
+#define PTP_OC_EOS_InitiateViewfinder	0x9151
+#define PTP_OC_EOS_TerminateViewfinder	0x9152
+#define PTP_OC_EOS_GetViewFinderData	0x9153
+#define PTP_OC_EOS_RemoteReleaseOn		0x9128
+#define PTP_OC_EOS_RemoteReleaseOff		0x9129
+#define PTP_OC_EOS_SetDevicePropValueEx	0x9110
+#define PTP_OC_EOS_PCHDDCapacity		0x911A
+#define PTP_OC_EOS_SetEventMode			0x9115
+#define PTP_OC_EOS_SetRemoteMode		0x9114
+#define PTP_OC_EOS_DriveLens			0x9155
+#define PTP_OC_EOS_KeepDeviceOn			0x911D
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000
@@ -107,10 +125,17 @@ struct PtpObjPropDesc {
 #define PTP_RC_TransactionCanceled		0x201F
 #define PTP_RC_SpecOfDestinationUnsupported	0x2020
 
-// Older fuji specific for file transfer
-#define PTP_OC_FUJI_SendObjectInfo	0x900C
-#define PTP_OC_FUJI_Unknown1		0x900D
-#define PTP_OC_FUJI_SendObject		0x901D
+// MTP (Microsoft) extension
+#define PTP_RC_UndefinedMTP				0xA800
+#define PTP_RC_InvalidObjPropCode		0xA801
+#define PTP_RC_InvalidObjPropCodeFormat	0xA802
+#define PTP_RC_InvalidObjPropCodeValue	0xA803
+#define PTP_RC_InvalidObjReference		0xA804
+#define PTP_RC_InvalidDataset			0xA806
+#define PTP_RC_GroupSpecUnsupported		0xA807
+#define PTP_RC_DepthSpecUnsupported		0xA808
+#define PTP_RC_ObjectTooLarge			0xA809
+#define PTP_RC_ObjectPropUnsupported	0xA80A
 
 // Event Codes (EC)
 #define PTP_EC_Undefined			0x4000
@@ -181,6 +206,38 @@ struct PtpObjPropDesc {
 #define PTP_PC_FocusMode		0x500a
 #define PTP_PC_DateTime			0x5011
 
+// Canon Property Codes
+#define PTP_PC_CANON_BeepCode		0xD001
+#define PTP_PC_CANON_ViewFinderMode	0xD003
+#define PTP_PC_CANON_ImageQuality	0xD006
+#define PTP_PC_CANON_ImageSize		0xD008
+#define PTP_PC_CANON_FlashMode		0xD00a
+#define PTP_PC_CANON_TvAvSetting	0xD00c
+#define PTP_PC_CANON_MeteringMode	0xd010
+#define PTP_PC_CANON_MacroMode		0xd011
+#define PTP_PC_CANON_FocusingPoint	0xd012
+#define PTP_PC_CANON_WhiteBalance	0xd013
+#define PTP_PC_CANON_ISOSpeed		0xd01c
+#define PTP_PC_CANON_Aperture		0xd01c
+#define PTP_PC_CANON_ShutterSpeed	0xd01e
+#define PTP_PC_CANON_ExpComp		0xd01f
+#define PTP_PC_CANON_Zoom			0xd02a
+#define PTP_PC_CANON_SizeQuality	0xd02c
+#define PTP_PC_CANON_FlashMemory	0xd031
+#define PTP_PC_CANON_CameraModel	0xd032
+#define PTP_PC_CANON_CameraOwner	0xd033
+#define PTP_PC_CANON_UnixTime		0xd032
+#define PTP_PC_CANON_ViewFinderOut	0xD036
+#define PTP_PC_CANON_RealImageWidth	0xD039
+#define PTP_PC_CANON_PhotoEffect	0xD040
+#define PTP_PC_CANON_AssistLight	0xD041
+#define PTP_PC_CANON_EOS_VF_Output	0xD1B0
+#define PTP_PC_CANON_EOS_EVFMode	0xD1B1
+#define PTP_PC_CANON_EOS_DOFPrev	0xD1B2
+#define PTP_PC_CANON_EOS_VFSharp	0xD1B3
+
+#define PTP_PC_EOS_CaptureDest		0xD11C
+
 // Storage Types
 #define PTP_ST_Undefined	0x0
 #define PTP_ST_FixedROM		0x1
@@ -199,16 +256,26 @@ struct PtpObjPropDesc {
 #define PTP_AC_Read			0x1
 #define PTP_AC_ReadDelete	0x2
 
-// PTP Packet container types
-#define PTP_PACKET_TYPE_COMMAND 1
-#define PTP_PACKET_TYPE_DATA 2
-#define PTP_PACKET_TYPE_RESPONSE 3
-#define PTP_PACKET_TYPE_EVENT 4
+#define PTPIP_INIT_COMMAND_REQ	0x1
+#define PTPIP_INIT_COMMAND_ACK	0x2
+#define PTPIP_INIT_EVENT_REQ	0x3
+#define PTPIP_INIT_EVENT_ACK	0x4
+#define PTPIP_INIT_FAIL			0x5
+#define PTPIP_COMMAND_REQUEST	0x6
+#define PTPIP_COMMAND_RESPONSE	0x7
+#define PTPIP_EVENT				0x8
+#define PTPIP_DATA_PACKET_START	0x9
+#define PTPIP_DATA_PACKET		0xA
+#define PTPIP_CANCEL_TRANSACTION	0xB
+#define PTPIP_DATA_PACKET_END	0xC
+#define PTPIP_PING				0xD
+#define PTPIP_PONG				0xE
 
 // Standard interface Class ID for PTP.
 // See https://en.wikipedia.org/wiki/USB#Device_classes
 #define PTP_CLASS_ID 6
 
+// ISO number for PTP/IP, seems to be standard (?)
 #define PTP_IP_PORT 15740
 
 // Vendor init/USB codes, not specifically PTP
@@ -225,7 +292,6 @@ struct PtpObjPropDesc {
 #define USB_RECIP_DEVICE		0x00
 #define USB_RECIP_INTERFACE		0x01
 #define USB_RECIP_ENDPOINT		0x02
-
 #ifndef USB_TYPE_CLASS
 #define USB_TYPE_CLASS 0x20
 #endif
