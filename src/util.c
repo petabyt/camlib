@@ -4,11 +4,12 @@
 #include <backend.h>
 
 // TODO: Canon EOS vs Canon P&S?
+// May be slightly inneficient for every frame/action
 int ptp_detect_device(struct PtpRuntime *r) {
 	struct PtpDeviceInfo *di = r->di;
 	if (di == NULL) return PTP_DEV_EMPTY;
 	if (!strcmp(di->manufacturer, "Canon Inc.")) {
-		return PTP_DEV_CANON;	
+		return PTP_DEV_CANON;
 	} else if (!strcmp(di->manufacturer, "FUJIFILM")) {
 		return PTP_DEV_FUJI;
 	} else if (!strcmp(di->manufacturer, "Sony Corporation")) {

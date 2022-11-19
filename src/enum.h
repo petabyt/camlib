@@ -1,6 +1,8 @@
 #ifndef PTPENUM_H
 #define PTPENUM_H
 
+#include <camlib.h>
+
 #define MAX_ENUM_LENGTH 64
 
 int ptp_enum_all(char *string);
@@ -17,14 +19,6 @@ enum PtpType {
 	PTP_FT, // filesystem type
 	PTP_AC, // access code
 	PTP_ENUM, // regular enums
-};
-
-enum PtpVendor {
-	PTP_VENDOR_CANON,
-	PTP_VENDOR_GENERIC,
-	PTP_VENDOR_NIKON,
-	PTP_VENDOR_FUJI,
-	PTP_VENDOR_SONY,
 };
 
 struct PtpEnum {

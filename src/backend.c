@@ -20,6 +20,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		sent += x;
 		
 		if (sent >= length) {
+			PTPLOG("send_bulk_packet: Sent %d bytes\n", sent);
 			return sent;
 		}
 	}
@@ -54,6 +55,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			}
 
 			PTPLOG("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+			//PTPLOG("recieve_bulk_packets: Param1: 0x%X\n", ptp_get_param(r, 0));
 
 			// No more more packets to read
 			return read;

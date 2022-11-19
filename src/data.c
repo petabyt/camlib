@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <camlib.h>
+#include <ptp.h>
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	void *d = ptp_get_payload(r);
@@ -89,4 +90,43 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	curr += snprintf(buffer + curr, max - curr, "    \"serial_number\": \"%s\"\n", di->serial_number);
 	curr += snprintf(buffer + curr, max - curr, "}");
 	return curr;
+}
+
+//int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
+
+/*
+int x = ptp_open_eos_events(r);
+if (x == NULL) return;
+x = ptp_get_eos_event(r, &event);
+if (x == NULL) goto end;
+*/
+
+// Returns positive offset, or NULL
+void *ptp_open_eos_events(struct PtpRuntime *r) {
+	return ptp_get_payload(r);
+}
+
+void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce) {
+	void *d_ = d;
+
+	uint32_t size = ptp_read_uint32(&d);
+	ce->type = ptp_read_uint32(&d);
+
+	if (ce->type == 0) return NULL;
+	if (d >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) return NULL;
+
+	int read = 0;
+	switch (ce->type) {
+	case PTP_EC_EOS_PropValueChanged:
+		ce->code = ptp_read_uint32(&d);
+		ce->value = ptp_read_uint32(&d);
+		break;
+	default:
+		ce->code = 0;
+		ce->value = 0;
+		break;
+	}
+
+	// Return original unmodified by reads
+	return d_ + size;
 }

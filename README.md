@@ -17,6 +17,6 @@ This is a complete rewrite from the ground up, and corrects the mistakes made in
 - [x] Parse device info
 - [x] Bindings to other languages or USB/IP backends
 - [x] Real time camera previews
-- [ ] Complete most EOS/Canon vendor OCs
+- [x] Complete most EOS/Canon vendor OCs
 - [ ] Transfer files, delete files
 - [ ] "Frontend" functions - generic wrappers for vendor specific things

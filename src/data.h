@@ -114,4 +114,10 @@ struct PtpObjPropDesc {
 	// mystery data type follows if form_flag == 0
 };
 
+struct PtpCanonEvent {
+	int type;
+	int code;
+	int value;
+};
+
 #endif

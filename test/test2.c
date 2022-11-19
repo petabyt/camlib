@@ -8,18 +8,6 @@
 #include <ptp.h>
 #include <operations.h>
 
-void print_bytes(uint8_t *bytes, int n) {
-	for (int i = 0; i < n; i++) {
-		if (bytes[i] > 31 && bytes[i] < 128) {
-			printf("'%c' ", bytes[i]);
-		} else {
-			printf("%02X ", bytes[i]);
-		}
-	}
-
-	puts("");
-}
-
 #define SIZE 3000000
 
 int main() {
@@ -31,24 +19,22 @@ int main() {
 	r.session = 0;
 	r.data_length = SIZE;
 
-	struct PtpDeviceInfo di;
-
 	if (ptp_device_init(&r)) {
 		puts("Device connection error");
 		return 0;
 	}
 
-	ptp_open_session(&r);
+	struct PtpDeviceInfo di;
 	ptp_get_device_info(&r, &di);
+	r.di = &di;
 
-	ptp_device_info_json(&di, (char*)r.data, r.data_length);
-	printf("%s\n", (char*)r.data);
+	ptp_open_session(&r);
 
-	// Take picture
-	ptp_eos_remote_release_on(&r, 1);
-	ptp_eos_remote_release_on(&r, 2);
-	ptp_eos_remote_release_off(&r, 2);
-	ptp_eos_remote_release_off(&r, 1);
+	ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_set_remote_mode(&r, 1);
+
+	int x = ptp_generic_take_picture(&r);
+	printf("%d\n", x);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);
@@ -57,4 +43,3 @@ int main() {
 
 	return 0;
 }
-

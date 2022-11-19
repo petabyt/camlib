@@ -107,6 +107,12 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	return length;
 }
 
+// TODO: Sometimes 12 is not the exact size? Maybe ptp_get_payload_offset
+int ptp_get_data_length(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	return bulk->length - 12;
+}
+
 void ptp_update_data_length(struct PtpRuntime *r, int length) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	bulk->length = length;
@@ -130,7 +136,7 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
-		return NULL;
+		return r->data;
 	} else {
 		return r->data + 12;
 	}

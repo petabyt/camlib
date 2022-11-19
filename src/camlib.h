@@ -42,11 +42,12 @@ enum PtpLiveViewType {
 // Might delete
 enum PtpDeviceType {
 	PTP_DEV_EMPTY = 0,
-	PTP_DEV_CANON = 1,
-	PTP_DEV_NIKON = 2,
-	PTP_DEV_SONY = 3,
-	PTP_DEV_FUJI = 4,
-	PTP_DEV_PANASONIC = 5,
+	PTP_DEV_EOS = 1,
+	PTP_DEV_CANON = 2,
+	PTP_DEV_NIKON = 3,
+	PTP_DEV_SONY = 4,
+	PTP_DEV_FUJI = 5,
+	PTP_DEV_PANASONIC = 6,
 };
 
 // Holds vital lib info - passed to most functions
@@ -93,7 +94,7 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 // Gets return code directly from runtime data
 int ptp_get_return_code(struct PtpRuntime *r);
-
+int ptp_get_data_length(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 
 int ptp_detect_device(struct PtpRuntime *r);
@@ -119,6 +120,9 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+
+void *ptp_open_eos_events(struct PtpRuntime *r);
+void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
 
 // For emergencies
 int ptp_dump(struct PtpRuntime *r);

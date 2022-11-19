@@ -1,9 +1,11 @@
 ## Quick Overview of PTP Standard
-1. "command" packet
-2. "data" packet
-3. recieve data back
+1. The lib can send a command packet with up to 5 parameters
+2. An optional data packet (the data phase)
+3. A response packet is recieved from the camera
 
-### int ptp_recv_packet(struct PtpRuntime *r, uint16_t code, uint32_t params[5], int param_length, int read_size)
-```
-int packet_size = ptp_recv_packet(&r, 0x1001, (uint16_t[]){}, 0, 0x0);
-```
+For data to be sent to the device, a data packet can be sent following  
+the command packet. The camera should know when to expect this.  
+
+- Each packet sent to the camera has a unique transaction ID (see PtpBulkContainer.transaction)
+- The operation code (OC) is an ID for each command, and determines how the camera will expect and send data.
+- In a response packet, the response code (RC) is placed in the (see PtpBulkContainer.code) field

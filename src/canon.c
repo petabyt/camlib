@@ -86,10 +86,8 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 int ptp_eos_get_event(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
-	cmd.code = PTP_OC_EOS_GetViewFinderData;
-	cmd.param_length = 2;
-	cmd.params[0] = 8;
-	cmd.params[1] = 0;
+	cmd.code = PTP_OC_EOS_GetEvent;
+	cmd.param_length = 0;
 	return ptp_generic_send(r, &cmd);	
 }
 

@@ -89,6 +89,7 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_SetRemoteMode		0x9114
 #define PTP_OC_EOS_DriveLens			0x9155
 #define PTP_OC_EOS_KeepDeviceOn			0x911D
+#define PTP_OC_EOS_GetEvent				0x9116
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000
@@ -153,6 +154,31 @@ struct PtpEventContainer {
 #define PTP_EC_StorageInfoChanged	0x400C
 #define PTP_EC_CaptureComplete		0x400D
 #define PTP_EC_UnreportedStatus		0x400E
+
+/* Canon EOS events */
+#define PTP_EC_EOS_RequestGetEvent			0xC101
+#define PTP_EC_EOS_ObjectAddedEx			0xC181
+#define PTP_EC_EOS_ObjectRemoved			0xC182
+#define PTP_EC_EOS_RequestGetObjectInfoEx	0xC183
+#define PTP_EC_EOS_StorageStatusChanged		0xC184
+#define PTP_EC_EOS_StorageInfoChanged		0xC185
+#define PTP_EC_EOS_RequestObjectTransfer	0xC186
+#define PTP_EC_EOS_ObjectInfoChangedEx		0xC187
+#define PTP_EC_EOS_ObjectContentChanged		0xC188
+#define PTP_EC_EOS_PropValueChanged			0xC189
+#define PTP_EC_EOS_AvailListChanged			0xC18A
+#define PTP_EC_EOS_CameraStatusChanged		0xC18B
+#define PTP_EC_EOS_WillSoonShutdown			0xC18D
+#define PTP_EC_EOS_ShutdownTimerUpdated		0xC18E
+#define PTP_EC_EOS_RequestCancelTransfer	0xC18F
+#define PTP_EC_EOS_RequestObjectTransferDT	0xC190
+#define PTP_EC_EOS_RequestCancelTransferDT	0xC191
+#define PTP_EC_EOS_StoreAdded				0xC192
+#define PTP_EC_EOS_StoreRemoved				0xC193
+#define PTP_EC_EOS_BulbExposureTime			0xC194
+#define PTP_EC_EOS_RecordingTime			0xC195
+#define PTP_EC_EOS_RequestObjectTransferTS	0xC1A2
+#define PTP_EC_EOS_AfResult					0xC1A3
 
 // Object Formats (OF)
 #define PTP_OF_Undefined		0x3000
@@ -236,7 +262,31 @@ struct PtpEventContainer {
 #define PTP_PC_CANON_EOS_DOFPrev	0xD1B2
 #define PTP_PC_CANON_EOS_VFSharp	0xD1B3
 
-#define PTP_PC_EOS_CaptureDest		0xD11C
+// EOS Device Property Codes
+#define PTP_PC_EOS_Aperture				0xD101
+#define PTP_PC_EOS_ShutterSpeed			0xD102
+#define PTP_PC_EOS_ISOSpeed				0xD103
+#define PTP_PC_EOS_ExpCompensation		0xD104
+#define PTP_PC_EOS_AutoExposureMode		0xD105
+#define PTP_PC_EOS_DriveMode			0xD106
+#define PTP_PC_EOS_MeteringMode			0xD107 
+#define PTP_PC_EOS_FocusMode			0xD108
+#define PTP_PC_EOS_WhiteBalance			0xD109
+#define PTP_PC_EOS_ColorTemperature		0xD10A
+#define PTP_PC_EOS_WhiteBalanceAdjustA	0xD10B
+#define PTP_PC_EOS_WhiteBalanceAdjustB	0xD10C
+#define PTP_PC_EOS_WhiteBalanceXA		0xD10D
+#define PTP_PC_EOS_WhiteBalanceXB		0xD10E
+#define PTP_PC_EOS_ColorSpace			0xD10F
+#define PTP_PC_EOS_PictureStyle			0xD110
+#define PTP_PC_EOS_BatteryPower			0xD111
+#define PTP_PC_EOS_BatterySelect		0xD112
+#define PTP_PC_EOS_CameraTime			0xD113
+#define PTP_PC_EOS_Owner				0xD115
+#define PTP_PC_EOS_ModelID				0xD116
+#define PTP_PC_EOS_PTPExtensionVersion	0xD119
+#define PTP_PC_EOS_DPOFVersion			0xD11A
+#define PTP_PC_EOS_AvailableShots		0xD11B
 
 // Storage Types
 #define PTP_ST_Undefined	0x0
