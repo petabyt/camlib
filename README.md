@@ -20,3 +20,13 @@ This is a complete rewrite from the ground up, and corrects the mistakes made in
 - [x] Complete most EOS/Canon vendor OCs
 - [ ] Transfer files, delete files
 - [ ] "Frontend" functions - generic wrappers for vendor specific things
+
+## Compiling
+Compile test binary for Windows:
+```
+make WIN=1 wintest.exe
+```
+Compile test binary for Linux:
+```
+make optest
+```

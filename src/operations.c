@@ -7,6 +7,13 @@
 #include <backend.h>
 #include <camlib.h>
 
+// Technically not an OC, but fits snug here
+int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
+	ptp_recieve_int(r->data, r->max_packet_size);
+	memcpy(ec, r->data, sizeof(struct PtpEventContainer));
+	return 0;
+}
+
 int ptp_open_session(struct PtpRuntime *r) {
 	r->session++;
 

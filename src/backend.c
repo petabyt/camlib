@@ -1,4 +1,6 @@
 // Common IO backend code
+// This is incompatible with Win32 - don't link this in for Windows
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -12,7 +14,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	while (1) {
 		int x = ptp_send_bulk_packet(r->data + sent, length);
-		if (x < 0) {
+		if (x < 0 || x == NULL) {
 			PTPLOG("send_bulk_packet: %d\n", x);
 			return PTP_IO_ERR;
 		}
@@ -31,7 +33,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 
 	while (1) {
 		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
-		if (x < 0) {
+		if (x < 0 || x == NULL) {
 			PTPLOG("recieve_bulk_packet: %d\n", x);
 		}
 		read += x;
@@ -61,4 +63,13 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			return read;
 		}
 	}
+}
+
+int ptp_read_int(struct PtpRuntime *r) {
+	int x = ptp_recieve_int(r->data, r->max_packet_size);
+	if (x < 0 || x == NULL) {
+		return PTP_IO_ERR;
+	}
+
+	return x;
 }

@@ -1,4 +1,5 @@
 // Bindings to libusb
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -18,6 +19,7 @@ struct usb_dev_handle {
 struct PtpBackend {
 	uint32_t endpoint_in;
 	uint32_t endpoint_out;
+	uint32_t endpoint_int;
 
 	int fd;
 	struct usb_dev_handle *devh;
@@ -51,6 +53,7 @@ struct usb_device *ptp_search() {
 
 	return NULL;
 }
+
 int ptp_device_init(struct PtpRuntime *r) {
 	struct usb_device *dev = ptp_search();
 	ptp_backend.dev = dev;
@@ -64,6 +67,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 	int endpoints = dev->config->interface->altsetting->bNumEndpoints;
 
 	PTPLOG("Device has %d endpoints.\n", endpoints);
+	PTPLOG("Vendor ID: %d, Product ID: %d\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 
 	for (int i = 0; i < endpoints; i++) {
 		if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_BULK) {
@@ -73,6 +77,11 @@ int ptp_device_init(struct PtpRuntime *r) {
 			} else {
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
+			}
+		} else {
+			if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_INTERRUPT) {
+				ptp_backend.endpoint_int = ep[i].bEndpointAddress;
+				PTPLOG("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
 			}
 		}
 	}
@@ -119,4 +128,11 @@ int ptp_recieve_bulk_packet(char *to, int length) {
 		ptp_backend.devh,
 		ptp_backend.endpoint_in,
 		to, length, PTP_TIMEOUT);
+}
+
+int ptp_recieve_int(char *to, int length) {
+	return usb_bulk_read(
+		ptp_backend.devh,
+		ptp_backend.endpoint_int,
+		to, length, PTP_TIMEOUT);	
 }

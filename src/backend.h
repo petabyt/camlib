@@ -3,13 +3,15 @@
 
 #define PTP_TIMEOUT 1000
 
-#include "camlib.h"
+#include <camlib.h>
 
+// Connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);
 
-// Bare IO, send a single 512 byte packet
+// Bare IO, send a single 512 byte packet. Return negative or NULL on error.
 int ptp_send_bulk_packet(char *to, int length);
 int ptp_recieve_bulk_packet(char *to, int length);
+int ptp_recieve_int(char *to, int length);
 
 // Recieve all packets, and whatever else (common logic for all backends)
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length);

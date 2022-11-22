@@ -7,10 +7,10 @@
 #include <stdint.h>
 
 // PTP Packet container types
-#define PTP_PACKET_TYPE_COMMAND 1
-#define PTP_PACKET_TYPE_DATA 2
-#define PTP_PACKET_TYPE_RESPONSE 3
-#define PTP_PACKET_TYPE_EVENT 4
+#define PTP_PACKET_TYPE_COMMAND 	0x1
+#define PTP_PACKET_TYPE_DATA		0x2
+#define PTP_PACKET_TYPE_RESPONSE	0x3
+#define PTP_PACKET_TYPE_EVENT		0x4
 
 struct PtpBulkContainer {
 	uint32_t length; // length of packet, in bytes
@@ -18,6 +18,8 @@ struct PtpBulkContainer {
 	uint16_t code; // See PTP_OC_*
 	uint32_t transaction;
 
+	// Parameters are only included in command packets,
+	// Skipped in data packets
 	uint32_t param1;
 	uint32_t param2;
 	uint32_t param3;
