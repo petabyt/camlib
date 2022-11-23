@@ -37,12 +37,17 @@ int main() {
 		puts("Device connection error");
 		return 0;
 	}
+	
+	if (ptp_open_session(&r)) return 1;
 
-	ptp_open_session(&r);
+	if (ptp_get_device_info(&r, &di)) {
+		puts("IO ERR");
+	} else {
+		printf("Return Code: %X\n", ptp_get_return_code(&r));
+		ptp_device_info_json(&di, (char*)r.data, r.data_length);
+		printf("%s\n", (char*)r.data);
+	}
 
-
-
-	ptp_close_session(&r);
 	ptp_device_close(&r);
 
 	free(r.data);

@@ -6,6 +6,9 @@
 
 // Tested for MinGW
 
+// ISO PTP CMD packet: 12 bytes
+// Windows wrapper CMD packet: 30 bytes
+
 #include <stdio.h>
 #include <stdint.h>
 #include <windows.h>
@@ -40,7 +43,6 @@ struct WiaBackend {
 	PTP_VENDOR_DATA_IN *pDataIn;
 	PTP_VENDOR_DATA_OUT *pDataOut;
 
-	int last_recieved_type;
 	DWORD dwActualDataOutSize;
 }wia_backend;
 
@@ -77,7 +79,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 	}
 
 	HRESULT x = CoInitialize(NULL);
-	PTPLOG("CoInitialize: %d\n", x);
+	PTPLOG("CoInitialize(): %d\n", x);
 
 	x = CoCreateInstance(
 		&CLSID_WiaDevMgr,
@@ -87,11 +89,11 @@ int ptp_device_init(struct PtpRuntime *r) {
 		(LPVOID *)&wia_backend.wia
 	);
 
-	PTPLOG("CoCreateInstance: %d\n", x);
+	PTPLOG("CoCreateInstance(): %d\n", x);
 	if (x != S_OK) return PTP_NO_DEVICE;
 
+#if 0
 	// Set up a PTP event listener	
-	IUnknown *dev_connected;
 	IWiaEventCallback *callback;
 	callback->lpVtbl->ImageEventCallback = _ImageEventCallback;
 	callback->lpVtbl->QueryInterface = _QueryInterface;
@@ -106,17 +108,18 @@ int ptp_device_init(struct PtpRuntime *r) {
 		&wia_backend.dev_connected
 	);
 
-	PTPLOG("RegisterEventCallbackInterface: %d\n", x);
+	PTPLOG("RegisterEventCallbackInterface(): %d\n", x);
 	if (x != S_OK) return PTP_NO_DEVICE;
+#endif
 
 	x = wia_backend.wia->lpVtbl->EnumDeviceInfo(wia_backend.wia, WIA_DEVINFO_ENUM_LOCAL, &wia_backend.info);
-	printf("EnumDeviceInfo: %d\n", x);
+	printf("EnumDeviceInfo(): %d\n", x);
 	if (x != S_OK) return PTP_NO_DEVICE;
 
 	int curr = 0;
 	while (1) {
 		x = wia_backend.info->lpVtbl->Next(wia_backend.info, 1, &wia_backend.storage, NULL);
-		printf("Next: %d\n", x);
+		printf("Next(): %d\n", x);
 		if (x != S_OK) break;
 		
 		PROPSPEC PropSpec[2] = {0};
@@ -144,7 +147,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 			wia_backend.item, &IID_IWiaItemExtras, (void **)&wia_backend.extras);
 		printf("QueryInterface: %X\n", x);
 
-		FreePropVariantArray(2, PropVar);
+		//FreePropVariantArray(2, PropVar);
 		return 0;
 	}
 
@@ -162,12 +165,13 @@ int ptp_device_close(struct PtpRuntime *r) {
 }
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+	PTPLOG("ptp_send_bulk_packets()\n");
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
 	DWORD dwDataInSize = sizeof(PTP_VENDOR_DATA_IN) - 1;
 	DWORD dwDataOutSize = sizeof(PTP_VENDOR_DATA_OUT) - 1 + MAX_DATA_OUT;
 	
-	//printf("Response: %X\n", pDataOut->ResponseCode);
+	printf("Type: %X\n", bulk->type);
 
 	if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		if (wia_backend.pDataIn->NextPhase == PTP_NEXTPHASE_READ_DATA) {
@@ -176,61 +180,73 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 
 		wia_backend.pDataIn->NextPhase = PTP_NEXTPHASE_WRITE_DATA;
 	} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-	
 		memset(wia_backend.pDataIn, 0, dwDataInSize);
 		memset(wia_backend.pDataOut, 0, dwDataOutSize);
 
 		wia_backend.pDataIn->OpCode = bulk->code;
-		wia_backend.pDataIn->SessionId = r->session;
-		wia_backend.pDataIn->TransactionId = bulk->transaction;
+		wia_backend.pDataIn->SessionId = 0;
+		wia_backend.pDataIn->TransactionId = 0;
 
 		wia_backend.pDataIn->NextPhase = PTP_NEXTPHASE_READ_DATA;
 
 		wia_backend.pDataIn->NumParams = (bulk->length - 12) / 4;
+		wia_backend.pDataOut->Params[0] = bulk->param1;
+		wia_backend.pDataOut->Params[1] = bulk->param2;
+		wia_backend.pDataOut->Params[2] = bulk->param3;
+		wia_backend.pDataOut->Params[3] = bulk->param4;
+		wia_backend.pDataOut->Params[4] = bulk->param5;
+		
+		PTPLOG("Nparams: %d\n", wia_backend.pDataIn->NumParams);
 	}
 
-	return 0;
+	return length;
 }
 
 int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
+	PTPLOG("ptp_recieve_bulk_packets()\n");
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (wia_backend.last_recieved_type == PTP_PACKET_TYPE_RESPONSE
-			&& wia_backend.dwActualDataOutSize != 12) {
-		bulk->type = PTP_PACKET_TYPE_DATA;
-		bulk->length = wia_backend.dwActualDataOutSize;
-		bulk->transaction = wia_backend.pDataOut->TransactionId;
 
-		wia_backend.last_recieved_type == PTP_PACKET_TYPE_DATA;
-		return 0;
-	}
-
-	//DWORD dwDataInSize = sizeof(PTP_VENDOR_DATA_IN) - 1;
+	DWORD dwDataInSize = sizeof(PTP_VENDOR_DATA_IN) - 1;
 	DWORD dwDataOutSize = sizeof(PTP_VENDOR_DATA_OUT) - 1 + MAX_DATA_OUT;
 
 	HRESULT x = wia_backend.extras->lpVtbl->Escape(
 		wia_backend.extras, ESCAPE_PTP_VENDOR_COMMAND,
-		(BYTE *)wia_backend.pDataIn, bulk->length,
+		(BYTE *)wia_backend.pDataIn, dwDataInSize,
 		(BYTE *)wia_backend.pDataOut, dwDataOutSize,
 		&wia_backend.dwActualDataOutSize
 	);
 
-	PTPLOG("Escape: %d\n", x);
+	PTPLOG("Escape(): %X\n", x);
 	if (x != S_OK) {
 		return PTP_IO_ERR;
 	}
 
-	PTPLOG("Recieved %d bytes\n", wia_backend.dwActualDataOutSize);
-
-	bulk->length = wia_backend.dwActualDataOutSize;
+	bulk->length = wia_backend.dwActualDataOutSize - 18;
+	bulk->code = wia_backend.pDataOut->ResponseCode;
 	bulk->transaction = wia_backend.pDataOut->TransactionId;
-	bulk->param1 = wia_backend.pDataOut->Params[0];
-	bulk->param2 = wia_backend.pDataOut->Params[1];
-	bulk->param3 = wia_backend.pDataOut->Params[2];
-	bulk->param4 = wia_backend.pDataOut->Params[3];
-	bulk->param5 = wia_backend.pDataOut->Params[4];
+	if (bulk->length == 12) {
+		bulk->type = PTP_PACKET_TYPE_RESPONSE;
+	} else {
+		bulk->type = PTP_PACKET_TYPE_DATA;
+		
+		// Copy in the 
+		struct PtpBulkContainer *bulk2 = (struct PtpBulkContainer*)(r->data + bulk->length);
+		bulk2->length = 12;
+		bulk2->transaction = wia_backend.pDataOut->TransactionId;
+		bulk2->type = PTP_PACKET_TYPE_RESPONSE;
+		bulk2->code = wia_backend.pDataOut->ResponseCode;
+		
+		bulk2->param1 = wia_backend.pDataOut->Params[0];
+		bulk2->param2 = wia_backend.pDataOut->Params[1];
+		bulk2->param3 = wia_backend.pDataOut->Params[2];
+		bulk2->param4 = wia_backend.pDataOut->Params[3];
+		bulk2->param5 = wia_backend.pDataOut->Params[4];
+	}
 
-	bulk->type = PTP_PACKET_TYPE_RESPONSE;
-	wia_backend.last_recieved_type == PTP_PACKET_TYPE_RESPONSE;
+	PTPLOG("Recieved %d bytes, code %X\n", bulk->length, wia_backend.pDataOut->ResponseCode);
+
+	memcpy((uint8_t *)(bulk) + 12, wia_backend.pDataOut->VendorReadData, bulk->length - 12);
+
 	return 0;
 }
 
