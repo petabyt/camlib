@@ -15,6 +15,9 @@
 	#define PTPLOG(...) /* */
 #endif
 
+// 10mb recommended default buffer size
+#define CAMLIB_DEFAULT_SIZE 10000000
+
 // Generic IO error, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
@@ -103,6 +106,7 @@ int ptp_check_opcode(struct PtpRuntime *r, int op);
 // Get ptr of packet payload, after header
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
+// Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 // Packets start with a uint32 representing the length of the packet.
@@ -110,9 +114,10 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 // value must be updated
 void ptp_update_data_length(struct PtpRuntime *r, int length);
 
-// Used only for open session
+// Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
 
+// Data pack/unpack functions (data.c/data.h)
 #include "data.h"
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
@@ -124,7 +129,10 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 void *ptp_open_eos_events(struct PtpRuntime *r);
 void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
 
-// For emergencies
+// Run a binding - from bind.c
+int bind_run(struct PtpRuntime *r, char *req, char *buffer);
+
+// Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
 
 #endif

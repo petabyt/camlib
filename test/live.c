@@ -65,17 +65,82 @@ uint32_t rgb(int r, int g, int b) {
 	return c;
 }
 
-#define WIDTH 720/2
-#define HEIGHT 480/2
+#define WIDTH 720 / 2
+#define HEIGHT 480 / 2
 
+
+// precompute some parts of YUV to RGB computations
+int yuv2rgb_RV[256];
+int yuv2rgb_GU[256];
+int yuv2rgb_GV[256];
+int yuv2rgb_BU[256];
+
+/** http://www.martinreddy.net/gfx/faqs/colorconv.faq
+ * BT 601:
+ * R'= Y' + 0.000*U' + 1.403*V'
+ * G'= Y' - 0.344*U' - 0.714*V'
+ * B'= Y' + 1.773*U' + 0.000*V'
+ * 
+ * BT 709:
+ * R'= Y' + 0.0000*Cb + 1.5701*Cr
+ * G'= Y' - 0.1870*Cb - 0.4664*Cr
+ * B'= Y' - 1.8556*Cb + 0.0000*Cr
+ */
+
+void precompute_yuv2rgb()
+{
+    /*
+    *R = *Y + ((1437 * V) >> 10);
+    *G = *Y -  ((352 * U) >> 10) - ((731 * V) >> 10);
+    *B = *Y + ((1812 * U) >> 10);
+    */
+    for (int u = 0; u < 256; u++)
+    {
+        int8_t U = u;
+        yuv2rgb_GU[u] = (-352 * U) >> 10;
+        yuv2rgb_BU[u] = (1812 * U) >> 10;
+    }
+
+    for (int v = 0; v < 256; v++)
+    {
+        int8_t V = v;
+        yuv2rgb_RV[v] = (1437 * V) >> 10;
+        yuv2rgb_GV[v] = (-731 * V) >> 10;
+    }
+}
+
+#define COERCE(x,lo,hi) MAX(MIN((x),(hi)),(lo))
+
+#define MIN(a,b) \
+   ({ typeof ((a)+(b)) _a = (a); \
+      typeof ((a)+(b)) _b = (b); \
+     _a < _b ? _a : _b; })
+
+#define MAX(a,b) \
+   ({ typeof ((a)+(b)) _a = (a); \
+       typeof ((a)+(b)) _b = (b); \
+     _a > _b ? _a : _b; })
+
+void yuv2rgb(int Y, int U, int V, int* R, int* G, int* B)
+{
+    const int v_and_ff = V & 0xFF;
+    const int u_and_ff = U & 0xFF;
+    int v = Y + yuv2rgb_RV[v_and_ff];
+    *R = COERCE(v, 0, 255);
+    v = Y + yuv2rgb_GU[u_and_ff] + yuv2rgb_GV[v_and_ff];
+    *G = COERCE(v, 0, 255);
+    v = Y + yuv2rgb_BU[u_and_ff];
+    *B = COERCE(v, 0, 255);
+}
 
 void ml_live() {
+	precompute_yuv2rgb();
 	ptp_open_session(&r);
 
 	CNFGSetup( "Magic Lantern Live view", WIDTH, HEIGHT );
 
 	uint32_t *frame = malloc(WIDTH * HEIGHT * 4);
-
+	int frames = 0;
 	while (CNFGHandleInput() && running) {
 		puts("Waiting...");
 		int v = ptp_custom_recieve(&r, 0x9997);
@@ -88,15 +153,25 @@ void ml_live() {
 
 		int x = 0;
 		for (int i = 0; i < WIDTH * HEIGHT * 3; i += 3) {
-			frame[x] = rgb(data[i], data[i + 1], data[i + 2]);
+			//int r, g, b;
+			//yuv2rgb(data[i], data[i + 1], data[i + 2], &r, &g, &b);
+			r = data[i]; g = data[i + 1]; b = data[i + 2];
+			frame[x] = rgb(r, g, b);
 			x++;
 		}
 
 		CNFGBlitImage(frame, 0, 0, WIDTH, HEIGHT);
 
+		char txtBuf[64];
+		sprintf(txtBuf, "Frames: %d", frames);
+		CNFGColor(0xffffffff);
+		CNFGPenX = 1; CNFGPenY = 1;
+		CNFGDrawText( txtBuf, 2 );
+
 		//Display the image and wait for time to display next frame.
 		CNFGSwapBuffers();
 		//OGUSleep( (int)( 1000000 ) );
+		frames++;
 	}
 
 

@@ -289,6 +289,7 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_PTPExtensionVersion	0xD119
 #define PTP_PC_EOS_DPOFVersion			0xD11A
 #define PTP_PC_EOS_AvailableShots		0xD11B
+#define PTP_PC_EOS_CaptureDestination	0xD11C
 
 // Storage Types
 #define PTP_ST_Undefined	0x0

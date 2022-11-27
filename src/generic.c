@@ -41,6 +41,6 @@ int ptp_generic_set_property(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_generic_drive_lens(struct PtpRuntime *r) {
-	ptp_eos_drive_lens(r, 0x0002);
+int ptp_generic_drive_lens(struct PtpRuntime *r, int x) {
+	ptp_eos_drive_lens(r, x);
 }

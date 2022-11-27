@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -25,8 +26,10 @@ int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode) {
 // Add 0x8000 to param1 change direction
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
 	if (steps < 0) {
-		steps += 0x8000 + (steps * -1);
+		steps = 0x8000 + (steps * -1);
 	}
+	
+	printf("%X\n", steps);
 
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_DriveLens;

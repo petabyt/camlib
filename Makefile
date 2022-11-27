@@ -4,9 +4,11 @@ CC=gcc
 CD?=cd
 PYTHON3?=python3
 
-FILES=$(addprefix src/,operations.o packet.o enum.o data.o enum_dump.o util.o canon.o generic.o)
+# All platforms need these object files
+FILES=$(addprefix src/,operations.o packet.o enum.o data.o enum_dump.o util.o canon.o generic.o liveview.o)
 
 # Basic support for MinGW
+# backend.o is unusable for Windows WIA, so it can't be linked in.
 ifdef WIN
 FILES+=src/winapi.o
 CC=x86_64-w64-mingw32-gcc
@@ -21,14 +23,20 @@ CFLAGS=-Isrc/ -I../mjs/
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-# Defining NOPYTHON will default to regular compiling
+# Defining NOPYTHON will prevent Python from generating a new file
 ifndef NOPYTHON
 src/enum_dump.o: src/ptp.h src/stringify.py
 	$(CD) src && $(PYTHON3) stringify.py
 	$(CC) -c src/enum_dump.c $(CFLAGS) -o src/enum_dump.o
 endif
 
-# Some basic tests
+# Defining BIND will compile JSON bindings (bind.c)
+ifdef BIND
+FILES+=src/bind.o
+endif
+
+# Some basic tests - files need to be added as a dependency
+# and also added to the FILES object list
 TEST_TARGETS=live script pktest optest test2 evtest wintest.exe
 script: ../mjs/mjs.o test/script.o
 script: FILES+=../mjs/mjs.o test/script.o

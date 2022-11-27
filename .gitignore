@@ -3,3 +3,4 @@ DUMP*
 .xmake/
 build/
 config.mak
+*.exe

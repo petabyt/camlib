@@ -14,7 +14,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	while (1) {
 		int x = ptp_send_bulk_packet(r->data + sent, length);
-		if (x < 0 || x == NULL) {
+		if (x < 0) {
 			PTPLOG("send_bulk_packet: %d\n", x);
 			return PTP_IO_ERR;
 		}
@@ -33,7 +33,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 
 	while (1) {
 		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
-		if (x < 0 || x == NULL) {
+		if (x < 0) {
 			PTPLOG("recieve_bulk_packet: %d\n", x);
 		}
 		read += x;
@@ -67,7 +67,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 
 int ptp_read_int(struct PtpRuntime *r) {
 	int x = ptp_recieve_int(r->data, r->max_packet_size);
-	if (x < 0 || x == NULL) {
+	if (x < 0) {
 		return PTP_IO_ERR;
 	}
 

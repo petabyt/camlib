@@ -232,6 +232,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_DEV_EOS, "PTPExtensionVersion", 0xD119},
 {PTP_PC, PTP_DEV_EOS, "DPOFVersion", 0xD11A},
 {PTP_PC, PTP_DEV_EOS, "AvailableShots", 0xD11B},
+{PTP_PC, PTP_DEV_EOS, "CaptureDestination", 0xD11C},
 {PTP_ST, PTP_DEV_EMPTY, "Undefined", 0x0},
 {PTP_ST, PTP_DEV_EMPTY, "FixedROM", 0x1},
 {PTP_ST, PTP_DEV_EMPTY, "RemovableROM", 0x2},
@@ -270,4 +271,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 268;
+};int ptp_enums_length = 269;

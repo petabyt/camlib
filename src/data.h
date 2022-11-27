@@ -120,4 +120,10 @@ struct PtpCanonEvent {
 	int value;
 };
 
+struct PtpEOSViewFinderData {
+	uint32_t length;
+	uint32_t type;
+	// standard JPG follows
+};
+
 #endif
