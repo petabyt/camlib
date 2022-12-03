@@ -1,4 +1,6 @@
-// Packet generation/creation/parsing stuff
+// Packet generation, parsing, and manipulation routines
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdint.h>
 #include <string.h>
 

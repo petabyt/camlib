@@ -1,4 +1,6 @@
 // Liveview wrappers - headers defined in operations.h
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,7 +17,7 @@ ptp_liveview_decode(r, buffer);
 */
 
 // For debugging
-//#define NO_ML_LV
+#define NO_ML_LV
 
 #define PTP_OC_ML_Live360x240 0x9997
 #define PTP_ML_LvWidth 360
@@ -59,7 +61,7 @@ int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
 	}
 
 	uint8_t *data = ptp_get_payload(r);
-	int length = (360 * 240);
+	int length = (PTP_ML_LvWidth * PTP_ML_LvHeight);
 
 	for (int i = 0; i < length; i++) {
 		buffer[0] = data[0];
@@ -97,7 +99,7 @@ int ptp_liveview_init(struct PtpRuntime *r) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		ptp_liveview_eos_init(r);
+		return ptp_liveview_eos_init(r);
 	}
 
 	return 1;

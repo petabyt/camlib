@@ -92,6 +92,7 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_DriveLens			0x9155
 #define PTP_OC_EOS_KeepDeviceOn			0x911D
 #define PTP_OC_EOS_GetEvent				0x9116
+#define PTP_OC_EOS_GetDevicePropValue	0x9127
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000
@@ -229,9 +230,10 @@ struct PtpEventContainer {
 
 // Standard Property codes
 #define PTP_PC_BatteryLevel		0x5001
+#define PTP_PC_FunctionalMode	0x5002
 #define PTP_PC_FocalLength		0x5008
 #define PTP_PC_FocalDistance	0x5009
-#define PTP_PC_FocusMode		0x500a
+#define PTP_PC_FocusMode		0x500A
 #define PTP_PC_DateTime			0x5011
 
 // Canon Property Codes
@@ -308,6 +310,19 @@ struct PtpEventContainer {
 #define PTP_AC_ReadWrite	0x0
 #define PTP_AC_Read			0x1
 #define PTP_AC_ReadDelete	0x2
+
+// Device type codes
+#define PTP_TC_UNDEF	0x0
+#define PTP_TC_INT8		0x1
+#define PTP_TC_UINT8	0x2
+#define PTP_TC_INT16	0x3
+#define PTP_TC_UINT16	0x4
+#define PTP_TC_INT32	0x5
+#define PTP_TC_UINT32	0x6
+#define PTP_TC_INT64	0x7
+#define PTP_TC_UINT64	0x8
+#define PTP_TC_INT128	0x9
+#define PTP_TC_UINT128	0xA
 
 #define PTPIP_INIT_COMMAND_REQ	0x1
 #define PTPIP_INIT_COMMAND_ACK	0x2

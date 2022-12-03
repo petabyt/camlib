@@ -1,3 +1,5 @@
+// Generic front-end functions
+
 #include <stddef.h>
 #include <string.h>
 

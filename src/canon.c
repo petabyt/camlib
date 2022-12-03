@@ -1,3 +1,6 @@
+// Canon and EOS Specific operation implementations
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
@@ -66,6 +69,14 @@ int ptp_eos_get_viewfinder_data(struct PtpRuntime *r) {
 	return ptp_generic_send(r, &cmd);
 }
 
+int ptp_eos_get_prop_value(struct PtpRuntime *r, int code) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_GetDevicePropValue;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+	return ptp_generic_send(r, &cmd);
+}
+
 int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
@@ -75,7 +86,7 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	cmd.params[1] = code;
 	cmd.params[2] = value;
 
-	// Wants data packet for some reason
+	// Wants a data packet
 
 	int length = ptp_new_cmd_packet(r, &cmd);
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;

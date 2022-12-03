@@ -1,4 +1,7 @@
 // Generic text bindings to PTP functions
+// The only function that is exposed is bind_run(), which returns
+// valid JSON from a generic text like request
+// This is not part of the core library, with will use malloc
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdlib.h>
@@ -14,14 +17,13 @@ struct BindResp {
 	char *buffer;
 	int params[10];
 	int params_length;
+	int max;
 };
 
 struct RouteMap {
 	char *name;
 	int (*call)(struct BindResp *, struct PtpRuntime *);
 };
-
-const char *bind_error = "{\"error\": -3}";
 
 int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
 	memset(r, sizeof(struct PtpRuntime), 0);
@@ -70,7 +72,7 @@ int bind_get_device_info(struct BindResp *bind, struct PtpRuntime *r) {
 	}
 
 	ptp_device_info_json(r->di, (char*)r->data, r->data_length);
-	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %s}", x, (char*)r->data);
+	return snprintf(bind->buffer, bind->max, "{\"error\": %d, \"resp\": %s}", x, (char*)r->data);
 }
 
 int bind_custom_cmd(struct BindResp *bind, struct PtpRuntime *r) {
@@ -103,6 +105,10 @@ int bind_get_liveview_frame(struct BindResp *bind, struct PtpRuntime *r) {
 	char *inc = bind->buffer + sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", err);
 
 	for (int i = 0; i < x; i++) {
+		if (inc - bind->buffer >= i) {
+			return 0;
+		}
+
 		if (i > x - 2) {
 			inc += sprintf(inc, "%u", (uint8_t)lv[i]);
 		} else {
@@ -116,17 +122,57 @@ int bind_get_liveview_frame(struct BindResp *bind, struct PtpRuntime *r) {
 	return inc - bind->buffer;
 }
 
+int bind_get_events(struct BindResp *bind, struct PtpRuntime *r) {
+	int dev = ptp_detect_device(r);
+	if (dev == PTP_DEV_EOS) {
+		int x = ptp_eos_get_event(r);
+		if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
+
+		char *buffer = malloc(50000);
+		ptp_eos_events_json(r, buffer, 50000);
+
+		int len = snprintf(bind->buffer, bind->max, "{\"error\": %d, \"resp\": %s}", x, buffer);
+		free(buffer);
+		return len;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", 0);
+}
+
 int bind_get_liveview_type(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_liveview_type(r));
 }
 
 int bind_get_liveview_frame_jpg(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = ptp_liveview_frame(r, bind->buffer);
-	// TODO...
+
+	if (x < 0) {
+		return 0;
+	}
+
+	if (x > bind->max) {
+		return 0;
+	}
+
+	memcpy(bind->buffer, bind->buffer + 8, x);
+
+	return x;
 }
 
 int bind_liveview_init(struct BindResp *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_liveview_type(r));
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_liveview_init(r));
+}
+
+int bind_detect_device(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_detect_device(r));
+}
+
+int bind_eos_set_remote_mode(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_eos_set_remote_mode(r, bind->params[0]));
+}
+
+int bind_eos_set_event_mode(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_eos_set_event_mode(r, bind->params[0]));
 }
 
 struct RouteMap routes[] = {
@@ -141,10 +187,16 @@ struct RouteMap routes[] = {
 	{"ptp_get_liveview_type", bind_get_liveview_type},
 	{"ptp_get_liveview_frame.jpg", bind_get_liveview_frame_jpg},
 	{"ptp_liveview_init", bind_liveview_init},
+	{"ptp_detect_device", bind_detect_device},
+	{"ptp_get_events", bind_get_events},
+//	{"ptp_custom_send", NULL},
+//	{"ptp_custom_cmd", NULL},
+	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
+	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
 };
 
-// Returns -1 for error - return length of content otherwise
-int bind_run(struct PtpRuntime *r, char *req, char *buffer) {
+// See DOCS.md for documentation
+int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 	if (buffer == NULL) {
 		return -1;
 	}
@@ -152,9 +204,12 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer) {
 	struct BindResp bind;
 	bind.params_length = 0;
 	bind.buffer = buffer;
+	bind.max = max;
+
+	puts(req);
 
 	for (int i = 0; req[i] != '\0'; i++) {
-		if (req[i] == ',') {
+		if (req[i] == ';') {
 			req[i] = '\0'; // tear off for strcmp
 			i++;
 			char *base = req + i;

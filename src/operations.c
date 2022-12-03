@@ -1,4 +1,5 @@
 // Easy to use operation (OC) functions. Requires backend.
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stddef.h>
 #include <string.h>
@@ -27,7 +28,6 @@ int ptp_open_session(struct PtpRuntime *r) {
 
 	// PTP open session transaction ID is always 0
 	r->transaction = 0;
-
 
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
 
@@ -129,6 +129,32 @@ int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 	cmd.params[2] = in;
 
 	return ptp_generic_send(r, &cmd);
+}
+
+// Untested
+int ptp_get_prop_value(struct PtpRuntime *r, int code) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetDevicePropDesc;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+	return ptp_generic_send(r, &cmd);
+}
+
+// Untested
+int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetDevicePropValue;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+	int x = ptp_generic_send(r, &cmd);
+	if (x) return x;
+
+	struct PtpDevPropDesc prop;
+	uint32_t *t = (uint32_t*)ptp_get_payload(r);
+	t[0] = (uint32_t)value;
+
+	cmd.param_length = 0;
+	ptp_generic_send_data(r, &cmd, 4);
 }
 
 int ptp_custom_recieve(struct PtpRuntime *r, int code) {

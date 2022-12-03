@@ -109,6 +109,8 @@ uint8_t *ptp_get_payload(struct PtpRuntime *r);
 // Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
+
 // Packets start with a uint32 representing the length of the packet.
 // In some cases, we want to append more data to the packet, so the length
 // value must be updated
@@ -120,17 +122,11 @@ void ptp_update_transaction(struct PtpRuntime *r, int t);
 // Data pack/unpack functions (data.c/data.h)
 #include "data.h"
 
-int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
-int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
-
-int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-
-void *ptp_open_eos_events(struct PtpRuntime *r);
-void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
+// Recommended buffer size for bind_run
+#define PTP_BIND_DEFAULT_SIZE 20000000
 
 // Run a binding - from bind.c
-int bind_run(struct PtpRuntime *r, char *req, char *buffer);
+int bind_run(struct PtpRuntime *r, char *req, char *buffer, int size);
 
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);

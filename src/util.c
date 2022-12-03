@@ -1,3 +1,5 @@
+// Generic misc things
+
 #include <string.h>
 #include <stdio.h>
 #include <camlib.h>
@@ -36,6 +38,14 @@ int ptp_check_opcode(struct PtpRuntime *r, int op) {
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	int length = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
+	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	return 0;
+}
+
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length) {
+	int plength = ptp_new_data_packet(r, cmd);
+	ptp_update_data_length(r, plength + length);
+	if (ptp_send_bulk_packets(r, length) != plength) return PTP_IO_ERR;
 	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 	return 0;
 }

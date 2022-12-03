@@ -98,6 +98,7 @@ struct PtpObjectInfo {
 	char keywords[64];
 };
 
+// ?? 
 struct PtpDevPropDesc {
 	uint16_t code;
 	uint16_t data_type;
@@ -125,5 +126,16 @@ struct PtpEOSViewFinderData {
 	uint32_t type;
 	// standard JPG follows
 };
+
+int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
+int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
+
+int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+
+void *ptp_open_eos_events(struct PtpRuntime *r);
+void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
+
+int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
 
 #endif

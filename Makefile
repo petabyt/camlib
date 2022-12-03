@@ -1,6 +1,5 @@
 -include config.mak
 
-CC=gcc
 CD?=cd
 PYTHON3?=python3
 

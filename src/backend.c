@@ -1,5 +1,6 @@
 // Common IO backend code
 // This is incompatible with Win32 - don't link this in for Windows
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
 #include <stdint.h>

@@ -1,4 +1,6 @@
-// Parse/pack data and convert to/from JSON
+// Parse/pack data and convert to (and from?) JSON
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdio.h>
 #include <string.h>
 
@@ -129,4 +131,23 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 
 	// Return original unmodified by reads
 	return d_ + size;
+}
+
+int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
+	int curr = 0;
+	struct PtpCanonEvent ce;
+	void *dp = ptp_open_eos_events(r);
+	curr += sprintf(buffer, "{\n");
+	while (dp != NULL) {
+		dp = ptp_get_eos_event(r, dp, &ce);
+		if (ce.code == 0) continue;
+		char *end = ",";
+		if (dp == NULL) end = "";
+		curr += snprintf(buffer + curr, max - curr, "    [%u, %u]%s\n", ce.code, ce.value, end);
+		if (dp == NULL) break;
+		if (curr >= max) return 0;
+	}
+
+	curr += sprintf(buffer + curr, "}");
+	return curr;
 }
