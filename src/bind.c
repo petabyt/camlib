@@ -26,7 +26,7 @@ struct RouteMap {
 };
 
 int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
-	memset(r, sizeof(struct PtpRuntime), 0);
+	memset(r, 0, sizeof(struct PtpRuntime));
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->transaction = 0;
 	r->session = 0;
@@ -52,7 +52,6 @@ int bind_disconnect(struct BindResp *bind, struct PtpRuntime *r) {
 
 int bind_open_session(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = ptp_open_session(r);
-	printf("open_session: %d\n", x);
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
@@ -175,6 +174,10 @@ int bind_eos_set_event_mode(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_eos_set_event_mode(r, bind->params[0]));
 }
 
+int bind_hello_world(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "COol beans");
+}
+
 struct RouteMap routes[] = {
 	{"ptp_connect", bind_connect},
 	{"ptp_disconnect", bind_disconnect},
@@ -193,6 +196,7 @@ struct RouteMap routes[] = {
 //	{"ptp_custom_cmd", NULL},
 	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
 	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
+	{"ptp_hello_world", bind_hello_world},
 };
 
 // See DOCS.md for documentation
