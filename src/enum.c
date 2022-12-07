@@ -1,6 +1,8 @@
 #include <string.h>
 #include "enum.h"
 
+char *enum_null = "(null)";
+
 int ptp_enum_index(char *string, int *value, int i) {
 	if (i >= ptp_enums_length) {
 		return 1;
@@ -38,5 +40,5 @@ char *ptp_get_enum(int id) {
 		}
 	}
 
-	return NULL;
+	return enum_null;
 }

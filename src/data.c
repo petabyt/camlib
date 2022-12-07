@@ -6,6 +6,59 @@
 
 #include <camlib.h>
 #include <ptp.h>
+#include <enum.h>
+
+int ptp_get_data_size(void *d, int type) {
+	switch (type) {
+	case PTP_TC_INT8:
+	case PTP_TC_UINT8:
+		return 1;
+	case PTP_TC_INT16:
+	case PTP_TC_UINT16:
+		return 2;
+	case PTP_TC_INT32:
+	case PTP_TC_UINT32:
+		return 4;
+	case PTP_TC_INT64:
+	case PTP_TC_UINT64:
+		return 8;
+	case PTP_TC_UINT8ARRAY:
+	case PTP_TC_UINT16ARRAY:
+	case PTP_TC_UINT32ARRAY:
+	case PTP_TC_UINT64ARRAY:
+		return ((uint32_t*)d)[0];
+	case PTP_TC_STRING:
+		return ((uint8_t*)d)[0];
+	}
+
+	return 0;
+}
+
+int ptp_parse_data(void **d, int type) {
+	switch (type) {
+	case PTP_TC_INT8:
+	case PTP_TC_UINT8:
+		return (uint8_t)ptp_read_uint8(d);
+	case PTP_TC_INT16:
+	case PTP_TC_UINT16:
+		return (uint16_t)ptp_read_uint16(d);
+	case PTP_TC_INT32:
+	case PTP_TC_UINT32:
+		return (uint32_t)ptp_read_uint32(d);
+	}
+
+	return ptp_get_data_size(*d, type);
+}
+
+int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
+	void *d = ptp_get_payload(r);
+	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
+	d += PTP_PROP_DESC_VAR_START;
+	oi->default_value = ptp_parse_data(&d, oi->data_type);
+	oi->current_value = ptp_parse_data(&d, oi->data_type);
+
+	// TODO: Form flag + form (for properties like date/time)
+}
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	void *d = ptp_get_payload(r);
@@ -108,6 +161,7 @@ void *ptp_open_eos_events(struct PtpRuntime *r) {
 	return ptp_get_payload(r);
 }
 
+// Returns NUL when on last element
 void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce) {
 	void *d_ = d;
 
@@ -125,7 +179,7 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 		break;
 	default:
 		ce->code = 0;
-		ce->value = 0;
+		ce->value = ce->type;
 		break;
 	}
 
@@ -137,17 +191,219 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 	int curr = 0;
 	struct PtpCanonEvent ce;
 	void *dp = ptp_open_eos_events(r);
-	curr += sprintf(buffer, "{\n");
+	curr += sprintf(buffer, "[\n");
+	int tmp = 0;
 	while (dp != NULL) {
 		dp = ptp_get_eos_event(r, dp, &ce);
+
 		if (ce.code == 0) continue;
-		char *end = ",";
-		if (dp == NULL) end = "";
-		curr += snprintf(buffer + curr, max - curr, "    [%u, %u]%s\n", ce.code, ce.value, end);
+
+		char *end = "";
+		if (tmp) end = ",";
+		tmp = 1;
+
 		if (dp == NULL) break;
+
+		char *name = ptp_get_enum(ce.code);
+		char *value = NULL;
+		switch (ce.code) {
+		case PTP_PC_EOS_Aperture:
+			ce.value = ptp_eos_get_aperture(ce.value, 0);
+			name = "aperture";
+			break;
+		case PTP_PC_EOS_ShutterSpeed:
+			ce.value = ptp_eos_get_shutter(ce.value, 0);
+			name = "shutter speed";
+			break;
+		case PTP_PC_EOS_ISOSpeed:
+			ce.value = ptp_eos_get_iso(ce.value, 0);
+			name = "iso";
+			break;
+		case PTP_PC_EOS_BatteryPower:
+			name = "battery";
+			break;
+		}
+
+		if (name == enum_null) {
+			curr += snprintf(buffer + curr, max - curr, "    %s[%u, %u]\n", end, ce.code, ce.value);
+		} else {
+			if (value == NULL) {
+				curr += snprintf(buffer + curr, max - curr, "    %s[\"%s\", %u]\n", end, name, ce.value);
+			} else {
+				curr += snprintf(buffer + curr, max - curr, "    %s[\"%s\", \"%s\"]\n", end, name, value);
+			}
+		}
+
 		if (curr >= max) return 0;
 	}
 
-	curr += sprintf(buffer + curr, "}");
+	curr += sprintf(buffer + curr, "]");
 	return curr;
+}
+
+struct CanonShutterSpeed {
+	int value; // value times 100000
+	int data; // data from camera
+}canon_shutter[] = {
+	{0, 0xc}, // BULB 1300D
+	{0, 0x4}, // BULB 5dmk3
+	{3000000,0x10},
+	{2500000,0x13},
+	{2000000,0x15},
+	{1500000,0x18},
+	{1300000,0x1b},
+	{1000000,0x1d},
+	{800000,0x20},
+	{600000,0x23},
+	{500000,0x25},
+	{400000,0x28},
+	{320000,0x2b},
+	{250000,0x2d},
+	{200000,0x30},
+	{160000,0x33},
+	{130000,0x35},
+	{100000,0x38},
+	{80000,0x3b},
+	{60000,0x3d},
+	{50000,0x40},
+	{40000,0x43},
+	{30000,0x45},
+	{25000,0x48},
+	{20000,0x4b},
+	{16666,0x4d},
+	{12500,0x50},
+	{100000 / 10,0x53},
+	{100000 / 13,0x55},
+	{100000 / 15,0x58},
+	{100000 / 20,0x5b},
+	{100000 / 25,0x5d},
+	{100000 / 30,0x60},
+	{100000 / 40,0x63},
+	{100000 / 50,0x65},
+	{100000 / 60,0x68},
+	{100000 / 80,0x6b},
+	{100000 / 100,0x6d},
+	{100000 / 125,0x70},
+	{100000 / 160,0x73},
+	{100000 / 200,0x75},
+	{100000 / 250,0x78},
+	{100000 / 320,0x7b},
+	{100000 / 400,0x7d},
+	{100000 / 500,0x80},
+	{100000 / 640,0x83},
+	{100000 / 800,0x85},
+	{100000 / 1000,0x88},
+	{100000 / 1250,0x8b},
+	{100000 / 1600,0x8d},
+	{100000 / 2000,0x90},
+	{100000 / 2500,0x93},
+	{100000 / 3200,0x95},
+	{100000 / 4000,0x98},
+	{100000 / 5000,0x9a},
+	{100000 / 6400,0x9d},
+	{100000 / 8000,0xa0},
+};
+
+static int ptp_eos_get_shutter(int data, int dir) {
+	for (int i = 0; i < sizeof(canon_shutter) / sizeof(struct CanonShutterSpeed); i++) {
+		if (dir) {
+			if (canon_shutter[i].value == data) {
+				return canon_shutter[i].data;
+			}
+		} else {
+			if (canon_shutter[i].data == data) {
+				return canon_shutter[i].value;
+			}
+		}
+	}
+
+	return data;
+}
+
+struct CanonISO {
+	int value;
+	int data;
+}canon_iso[] = {
+	{50, 0x40},
+	{100, 0x48},
+	{125, 0x4b},
+	{160, 0x4d},
+	{200, 0x50},
+	{250, 0x53},
+	{320, 0x55},
+	{400, 0x58},
+	{500, 0x5b},
+	{640, 0x5b},
+	{800, 0x60},
+	{1000, 0x63},
+	{1250, 0x65},
+	{1600, 0x68},
+	{3200, 0x70},
+	{6400, 0x78},
+};
+
+static int ptp_eos_get_iso(int data, int dir) {
+	for (int i = 0; i < sizeof(canon_iso) / sizeof(struct CanonISO); i++) {
+		if (dir) {
+			if (canon_iso[i].value == data) {
+				return canon_iso[i].data;
+			}
+		} else {
+			if (canon_iso[i].data == data) {
+				return canon_iso[i].value;
+			}
+		}
+	}
+
+	return data;
+}
+
+struct CanonAperture {
+	int value;
+	int data;
+}canon_aperture[] = {
+	{12, 0xd},
+	{14, 0x10},
+	{16, 0x13},
+	{18, 0x15},
+	{20, 0x18},
+	{22, 0x1b},
+	{25, 0x1d},
+	{28, 0x20},
+	{32, 0x23},
+	{35, 0x25},
+	{40, 0x28},
+	{45, 0x2b},
+	{50, 0x2d},
+	{56, 0x30},
+	{71, 0x33},
+	{80, 0x35},
+	{90, 0x38},
+	{100, 0x3b},
+	{110, 0x40},
+	{130, 0x43},
+	{140, 0x45},
+	{160, 0x48},
+	{180, 0x4b},
+	{200, 0x4d},
+	{220, 0x50},
+	{250, 0x53},
+	{290, 0x55},
+	{320, 0x58},
+};
+
+static int ptp_eos_get_aperture(int data, int dir) {
+	for (int i = 0; i < sizeof(canon_aperture) / sizeof(struct CanonAperture); i++) {
+		if (dir) {
+			if (canon_aperture[i].value == data) {
+				return canon_aperture[i].data;
+			}
+		} else {
+			if (canon_aperture[i].data == data) {
+				return canon_aperture[i].value;
+			}
+		}
+	}
+
+	return data;
 }

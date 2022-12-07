@@ -9,19 +9,14 @@
 #include <camlib.h>
 #include <operations.h>
 
-/*
-This interface doesn't feel right, maybe
-ptp_liveview_request(r);
-char *buffer = malloc(ptp_liveview_get_size(r));
-ptp_liveview_decode(r, buffer);
-*/
-
-// For debugging
-#define NO_ML_LV
+#define MAX_EOS_JPEG_SIZE 270000
 
 #define PTP_OC_ML_Live360x240 0x9997
 #define PTP_ML_LvWidth 360
 #define PTP_ML_LvHeight 240
+
+// For debugging
+#define NO_ML_LV
 
 int ptp_liveview_type(struct PtpRuntime *r) {
 	if (ptp_detect_device(r) == PTP_DEV_CANON) {
@@ -48,7 +43,7 @@ int ptp_liveview_size(struct PtpRuntime *r) {
 	case PTP_LV_ML:
 		return PTP_ML_LvWidth * PTP_ML_LvHeight * 4;
 	case PTP_LV_EOS:
-		return 270000; // ??? (compressed JPG)
+		return MAX_EOS_JPEG_SIZE;
 	}
 }
 
@@ -80,15 +75,20 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	if (x < 0) return x;
 
 	struct PtpEOSViewFinderData *vfd = (struct PtpEOSViewFinderData *)(ptp_get_payload(r));
-	memcpy(buffer, ptp_get_payload(r), vfd->length);
+
+	if (MAX_EOS_JPEG_SIZE < vfd->length) {
+		return 0;
+	}
+
+	memcpy(buffer, ptp_get_payload(r) + 8, vfd->length);
 	return vfd->length;
 }
 
 int ptp_liveview_eos_init(struct PtpRuntime *r) {
 	if (ptp_eos_set_event_mode(r, 1)) return PTP_CAM_ERR;
 	if (ptp_eos_set_remote_mode(r, 1)) return PTP_CAM_ERR;
-	if (ptp_eos_set_prop_value(r, PTP_PC_CANON_EOS_VF_Output, 3)) return PTP_CAM_ERR;
-	if (ptp_eos_set_prop_value(r, PTP_PC_CANON_EOS_EVFMode, 1)) return PTP_CAM_ERR;
+	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3)) return PTP_CAM_ERR;
+	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
 	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4)) return PTP_CAM_ERR;
 
 	return 0;

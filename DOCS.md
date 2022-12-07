@@ -36,4 +36,5 @@ The formatted request:
 ptp_connect;
 ptp_drive_lens;-1;
 ptp_custom_send;4097,66,66,66,66,66;
+ptp_custom_cmd;4097,1,2,3,4,5
 ```

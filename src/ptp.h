@@ -6,6 +6,8 @@
 
 #include <stdint.h>
 
+#pragma pack(push, 1)
+
 // PTP Packet container types
 #define PTP_PACKET_TYPE_COMMAND 	0x1
 #define PTP_PACKET_TYPE_DATA		0x2
@@ -80,6 +82,7 @@ struct PtpEventContainer {
 #define PTP_OC_CANON_UnlockUI			0x9005
 
 // EOS specific
+#define PTP_OC_EOS_GetStorageIDs		0x9101
 #define PTP_OC_EOS_InitiateViewfinder	0x9151
 #define PTP_OC_EOS_TerminateViewfinder	0x9152
 #define PTP_OC_EOS_GetViewFinderData	0x9153
@@ -236,7 +239,7 @@ struct PtpEventContainer {
 #define PTP_PC_FocusMode		0x500A
 #define PTP_PC_DateTime			0x5011
 
-// Canon Property Codes
+// Canon (Not EOS) Property Codes
 #define PTP_PC_CANON_BeepCode		0xD001
 #define PTP_PC_CANON_ViewFinderMode	0xD003
 #define PTP_PC_CANON_ImageQuality	0xD006
@@ -261,10 +264,6 @@ struct PtpEventContainer {
 #define PTP_PC_CANON_RealImageWidth	0xD039
 #define PTP_PC_CANON_PhotoEffect	0xD040
 #define PTP_PC_CANON_AssistLight	0xD041
-#define PTP_PC_CANON_EOS_VF_Output	0xD1B0
-#define PTP_PC_CANON_EOS_EVFMode	0xD1B1
-#define PTP_PC_CANON_EOS_DOFPrev	0xD1B2
-#define PTP_PC_CANON_EOS_VFSharp	0xD1B3
 
 // EOS Device Property Codes
 #define PTP_PC_EOS_Aperture				0xD101
@@ -292,6 +291,14 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_DPOFVersion			0xD11A
 #define PTP_PC_EOS_AvailableShots		0xD11B
 #define PTP_PC_EOS_CaptureDestination	0xD11C
+#define PTP_PC_EOS_ImageFormat			0xD120
+#define PTP_PC_EOS_ImageFormatCF		0xD121
+#define PTP_PC_EOS_ImageFormatSD		0xD122
+#define PTP_PC_EOS_ImageFormatExtHD		0xD123
+#define PTP_PC_EOS_VF_Output			0xD1B0
+#define PTP_PC_EOS_EVFMode				0xD1B1
+#define PTP_PC_EOS_DOFPreview			0xD1B2
+#define PTP_PC_EOS_VFSharp				0xD1B3
 
 // Storage Types
 #define PTP_ST_Undefined	0x0
@@ -323,6 +330,11 @@ struct PtpEventContainer {
 #define PTP_TC_UINT64	0x8
 #define PTP_TC_INT128	0x9
 #define PTP_TC_UINT128	0xA
+#define PTP_TC_UINT8ARRAY	0x4002
+#define PTP_TC_UINT16ARRAY	0x4004
+#define PTP_TC_UINT32ARRAY	0x4006
+#define PTP_TC_UINT64ARRAY	0x4008
+#define PTP_TC_STRING	0xFFFF
 
 #define PTPIP_INIT_COMMAND_REQ	0x1
 #define PTPIP_INIT_COMMAND_ACK	0x2
@@ -363,5 +375,7 @@ struct PtpEventContainer {
 #ifndef USB_TYPE_CLASS
 #define USB_TYPE_CLASS 0x20
 #endif
+
+#pragma pack(pop)
 
 #endif

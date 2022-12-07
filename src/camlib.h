@@ -8,7 +8,7 @@
 #define PTP_TIMEOUT 1000
 
 // Optional debug logging
-#define VERBOSE
+//#define VERBOSE
 #ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
@@ -36,13 +36,13 @@ enum PtpConnType {
 };
 
 enum PtpLiveViewType {
+	PTP_LV_NONE = 0,
 	PTP_LV_EOS = 1,
 	PTP_LV_CANON = 2,
 	PTP_LV_ML = 3,
-	PTP_LV_NONE = 0,
 };
 
-// Might delete
+// TODO: Rename to vendor type?
 enum PtpDeviceType {
 	PTP_DEV_EMPTY = 0,
 	PTP_DEV_EOS = 1,
@@ -79,6 +79,7 @@ struct PtpCommand {
 };
 
 // Helper packet reader functions
+uint8_t ptp_read_uint8(void **dat);
 uint16_t ptp_read_uint16(void **dat);
 uint16_t ptp_read_uint32(void **dat);
 void ptp_read_string(void **dat, char *string, int max);
@@ -102,6 +103,7 @@ uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 
 int ptp_detect_device(struct PtpRuntime *r);
 int ptp_check_opcode(struct PtpRuntime *r, int op);
+int ptp_check_prop(struct PtpRuntime *r, int code);
 
 // Get ptr of packet payload, after header
 uint8_t *ptp_get_payload(struct PtpRuntime *r);

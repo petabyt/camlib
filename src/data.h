@@ -12,6 +12,10 @@
 #define BITS_64
 #endif
 
+// Need to avoid structure packing - most architectures are fine with this
+// (accessing a 32 bit integer at an unaligned address - but some might have problems)
+#pragma pack(push, 1)
+
 // 4 Seems like a good limit?
 struct PtpStorageIds {
 	uint32_t length;
@@ -98,11 +102,15 @@ struct PtpObjectInfo {
 	char keywords[64];
 };
 
-// ?? 
 struct PtpDevPropDesc {
 	uint16_t code;
 	uint16_t data_type;
-	uint8_t read_only;
+	uint8_t read_only; // (get/set)
+
+	#define PTP_PROP_DESC_VAR_START 5
+
+	int default_value;
+	int current_value;
 };
 
 struct PtpObjPropDesc {
@@ -129,7 +137,7 @@ struct PtpEOSViewFinderData {
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
-
+int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 
@@ -137,5 +145,11 @@ void *ptp_open_eos_events(struct PtpRuntime *r);
 void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
+
+static int ptp_eos_get_shutter(int data, int dir);
+static int ptp_eos_get_iso(int data, int dir);
+static int ptp_eos_get_aperture(int data, int dir);
+
+#pragma pack(pop)
 
 #endif

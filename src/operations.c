@@ -15,6 +15,14 @@ int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
 	return 0;
 }
 
+int ptp_custom_recieve(struct PtpRuntime *r, int code) {
+	struct PtpCommand cmd;
+	cmd.code = code;
+	cmd.param_length = 0;
+
+	return ptp_generic_send(r, &cmd);
+}
+
 int ptp_open_session(struct PtpRuntime *r) {
 	r->session++;
 
@@ -55,6 +63,7 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	if (x) {
 		return x;
 	} else {
+		// Interfere with errors?
 		return ptp_parse_device_info(r, di);
 	}
 }
@@ -117,7 +126,7 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle) {
 }
 
 int ptp_get_object_handles(struct PtpRuntime *r, int id, int format_code, int handle) {
-	
+	// ...
 }
 
 int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
@@ -131,36 +140,73 @@ int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 	return ptp_generic_send(r, &cmd);
 }
 
-// Untested
 int ptp_get_prop_value(struct PtpRuntime *r, int code) {
 	struct PtpCommand cmd;
-	cmd.code = PTP_OC_GetDevicePropDesc;
+	cmd.code = PTP_OC_GetDevicePropValue;
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 	return ptp_generic_send(r, &cmd);
 }
 
-// Untested
+int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetDevicePropDesc;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+
+	int x = ptp_generic_send(r, &cmd);
+
+	// Return this?
+	ptp_parse_prop_desc(r, pd);
+
+	return x;
+}
+
+int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetThumb;
+	cmd.param_length = 1;
+	cmd.params[0] = handle;
+
+	return ptp_generic_send(r, &cmd);
+}
+
+// Untested, nothing to test on (?)
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDevicePropValue;
 	cmd.param_length = 1;
 	cmd.params[0] = code;
+
 	int x = ptp_generic_send(r, &cmd);
 	if (x) return x;
 
 	struct PtpDevPropDesc prop;
+
+	// Send just value as the data packet
 	uint32_t *t = (uint32_t*)ptp_get_payload(r);
 	t[0] = (uint32_t)value;
-
 	cmd.param_length = 0;
 	ptp_generic_send_data(r, &cmd, 4);
 }
 
-int ptp_custom_recieve(struct PtpRuntime *r, int code) {
+int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 	struct PtpCommand cmd;
-	cmd.code = code;
-	cmd.param_length = 0;
+	cmd.code = PTP_OC_DeleteObject;
+	cmd.param_length = 2;
+	cmd.params[0] = handle;
+	cmd.params[1] = format_code;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_move_object(struct PtpRuntime *r, int handle, int storage_id, int parent_handle) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_MoveObject;
+	cmd.param_length = 3;
+	cmd.params[0] = handle;
+	cmd.params[1] = storage_id;
+	cmd.params[2] = parent_handle;
+
+	return ptp_generic_send(r, &cmd);	
 }

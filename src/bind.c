@@ -1,7 +1,7 @@
 // Generic text bindings to PTP functions
-// The only function that is exposed is bind_run(), which returns
+// - The only function that is exposed is bind_run(), which returns
 // valid JSON from a generic text like request
-// This is not part of the core library, with will use malloc
+// - This is not part of the core library, will use malloc
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdlib.h>
@@ -12,6 +12,10 @@
 #include <camlib.h>
 #include <operations.h>
 #include <backend.h>
+#include <enum.h>
+
+static int connected = 0;
+static int initialized = 0;
 
 struct BindResp {
 	char *buffer;
@@ -26,12 +30,25 @@ struct RouteMap {
 };
 
 int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
-	memset(r, 0, sizeof(struct PtpRuntime));
-	r->data = malloc(CAMLIB_DEFAULT_SIZE);
+	if (initialized) {
+		free(r->data);
+		if (r->di != NULL) free(r->di);
+	} else {
+		memset(r, 0, sizeof(struct PtpRuntime));
+		r->data = malloc(CAMLIB_DEFAULT_SIZE);
+		r->data_length = CAMLIB_DEFAULT_SIZE;
+		r->di = NULL;
+		initialized = 1;
+	}
+
+	if (connected) {
+		ptp_device_close(r);
+		connected = 0;
+	}
+
 	r->transaction = 0;
 	r->session = 0;
-	r->data_length = CAMLIB_DEFAULT_SIZE;
-	r->di = NULL;
+	
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
 
@@ -42,11 +59,13 @@ int bind_connect(struct BindResp *bind, struct PtpRuntime *r) {
 	}
 
 	int x = ptp_device_init(r);
+	if (!x) connected = 1;
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
 int bind_disconnect(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = ptp_device_close(r);
+	if (!x) connected = 0;
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
@@ -121,8 +140,25 @@ int bind_get_liveview_frame(struct BindResp *bind, struct PtpRuntime *r) {
 	return inc - bind->buffer;
 }
 
+int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
+	int dev = ptp_detect_device(r);
+
+	int x;
+	if (ptp_check_prop(r, bind->params[0])) {
+		x = ptp_set_prop_value(r, bind->params[0], bind->params[1]);
+	} else {
+		x = ptp_eos_set_prop_value(r, bind->params[0], bind->params[1]);
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
 int bind_get_events(struct BindResp *bind, struct PtpRuntime *r) {
 	int dev = ptp_detect_device(r);
+
+	//struct PtpEventContainer ec;
+	//ptp_get_event(r, &ec);
+
 	if (dev == PTP_DEV_EOS) {
 		int x = ptp_eos_get_event(r);
 		if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -153,8 +189,6 @@ int bind_get_liveview_frame_jpg(struct BindResp *bind, struct PtpRuntime *r) {
 		return 0;
 	}
 
-	memcpy(bind->buffer, bind->buffer + 8, x);
-
 	return x;
 }
 
@@ -175,7 +209,22 @@ int bind_eos_set_event_mode(struct BindResp *bind, struct PtpRuntime *r) {
 }
 
 int bind_hello_world(struct BindResp *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "COol beans");
+	return sprintf(bind->buffer, "COol beans %d (%d)", bind->params[0], bind->params_length);
+}
+
+int bind_get_enums(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = sprintf(bind->buffer, "{\"error\": %d, resp: [", 0);
+	for (int i = 0; i < ptp_enums_length; i++) {
+		x += sprintf(bind->buffer + x, "{\"type\": %d, \"vendor\": %d, \"name\": \"%s\", \"value\", %d}",
+			ptp_enums[i].type, ptp_enums[i].vendor, ptp_enums[i].name, ptp_enums[i].value);
+	}
+
+	x += sprintf(bind->buffer + x, "]}");
+	return x;
+}
+
+int bind_get_status(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}", connected);
 }
 
 struct RouteMap routes[] = {
@@ -192,11 +241,13 @@ struct RouteMap routes[] = {
 	{"ptp_liveview_init", bind_liveview_init},
 	{"ptp_detect_device", bind_detect_device},
 	{"ptp_get_events", bind_get_events},
-//	{"ptp_custom_send", NULL},
-//	{"ptp_custom_cmd", NULL},
+	{"ptp_set_property", bind_set_property},
 	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
 	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
 	{"ptp_hello_world", bind_hello_world},
+	{"ptp_get_enums", bind_get_enums},
+//	{"ptp_custom_send", NULL},
+//	{"ptp_custom_cmd", NULL},
 };
 
 // See DOCS.md for documentation
@@ -210,15 +261,13 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 	bind.buffer = buffer;
 	bind.max = max;
 
-	puts(req);
-
 	for (int i = 0; req[i] != '\0'; i++) {
 		if (req[i] == ';') {
 			req[i] = '\0'; // tear off for strcmp
 			i++;
 			char *base = req + i;
 			while (*base != ';') {
-				bind.params[bind.params_length] = strtol(base, &base, 10);
+				bind.params[bind.params_length] = strtol(base, &base, 0);
 				bind.params_length++;
 				if (*base != ',') break;
 				base++;
@@ -230,7 +279,9 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 
 	for (int i = 0; i < (int)(sizeof(routes) / sizeof(struct RouteMap)); i++) {
 		if (!strcmp(routes[i].name, req)) {
-			return routes[i].call(&bind, r);
+			int x = routes[i].call(&bind, r);
+			puts(bind.buffer);
+			return x;
 		}
 	}
 

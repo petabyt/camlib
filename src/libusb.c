@@ -109,9 +109,9 @@ int ptp_device_init(struct PtpRuntime *r) {
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
-	usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber);
-	usb_reset(ptp_backend.devh);
-	usb_close(ptp_backend.devh);
+	int x = usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber);
+	x = usb_reset(ptp_backend.devh);
+	x = usb_close(ptp_backend.devh);
 	r->active_connection = 0;
 	return 0;
 }

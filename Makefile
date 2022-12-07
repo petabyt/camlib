@@ -17,7 +17,7 @@ LDFLAGS=-lusb
 FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS=-Isrc/ -I../mjs/
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
