@@ -35,7 +35,7 @@ int ptp_liveview_size(struct PtpRuntime *r);
 int ptp_liveview_init(struct PtpRuntime *r);
 
 // Get a frame directly into buffer, can be JPEG or raw data
-int ptp_liveview_frame(struct PtpRuntime *r, uint8_t *buffer);
+int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);
 
 int ptp_liveview_type(struct PtpRuntime *r);
 

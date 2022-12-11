@@ -71,4 +71,5 @@ int ptp_dump(struct PtpRuntime *r) {
 	FILE *f = fopen("DUMP", "w");
 	fwrite(r->data, r->data_length, 1, f);
 	fclose(f);
+	return 0;
 }

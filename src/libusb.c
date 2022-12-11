@@ -113,26 +113,26 @@ int ptp_device_close(struct PtpRuntime *r) {
 	x = usb_reset(ptp_backend.devh);
 	x = usb_close(ptp_backend.devh);
 	r->active_connection = 0;
-	return 0;
+	return x;
 }
 
-int ptp_send_bulk_packet(char *to, int length) {
+int ptp_send_bulk_packet(void *to, int length) {
 	return usb_bulk_write(
 		ptp_backend.devh,
 		ptp_backend.endpoint_out,
-		to, length, PTP_TIMEOUT);
+		(char *)to, length, PTP_TIMEOUT);
 }
 
-int ptp_recieve_bulk_packet(char *to, int length) {
+int ptp_recieve_bulk_packet(void *to, int length) {
 	return usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_in,
-		to, length, PTP_TIMEOUT);
+		(char *)to, length, PTP_TIMEOUT);
 }
 
-int ptp_recieve_int(char *to, int length) {
+int ptp_recieve_int(void *to, int length) {
 	return usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_int,
-		to, length, PTP_TIMEOUT);	
+		(char *)to, length, PTP_TIMEOUT);	
 }

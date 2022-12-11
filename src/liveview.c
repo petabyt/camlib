@@ -46,6 +46,8 @@ int ptp_liveview_size(struct PtpRuntime *r) {
 	case PTP_LV_EOS:
 		return MAX_EOS_JPEG_SIZE;
 	}
+
+	return 0;
 }
 
 int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
@@ -105,12 +107,12 @@ int ptp_liveview_init(struct PtpRuntime *r) {
 	return 1;
 }
 
-int ptp_liveview_frame(struct PtpRuntime *r, uint8_t *buffer) {
+int ptp_liveview_frame(struct PtpRuntime *r, void *buffer) {
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
-		return ptp_liveview_ml(r, buffer);
+		return ptp_liveview_ml(r, (uint8_t *)buffer);
 	case PTP_LV_EOS:
-		return ptp_liveview_eos(r, buffer);
+		return ptp_liveview_eos(r, (uint8_t *)buffer);
 	}
 
 	return PTP_CAM_ERR;

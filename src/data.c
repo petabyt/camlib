@@ -58,6 +58,7 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
 	oi->current_value = ptp_parse_data(&d, oi->data_type);
 
 	// TODO: Form flag + form (for properties like date/time)
+	return 0;
 }
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
@@ -218,7 +219,6 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 	if (ce->type == 0) return NULL;
 	if (d >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) return NULL;
 
-	int read = 0;
 	switch (ce->type) {
 	case PTP_EC_EOS_PropValueChanged:
 		ce->code = ptp_read_uint32(&d);
