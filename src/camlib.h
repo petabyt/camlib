@@ -19,6 +19,7 @@
 #define CAMLIB_DEFAULT_SIZE 10000000
 
 // Generic IO error, not PTP return codes
+// TODO: Disconnect error?
 enum PtpGeneralError {
 	PTP_OK = 0,
 	PTP_NO_DEVICE = -1,
@@ -101,7 +102,7 @@ int ptp_get_return_code(struct PtpRuntime *r);
 int ptp_get_data_length(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 
-int ptp_detect_device(struct PtpRuntime *r);
+int ptp_device_type(struct PtpRuntime *r);
 int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
 

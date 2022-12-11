@@ -7,7 +7,8 @@
 #include <ptp.h>
 
 // May be slightly inneficient for every frame/action
-int ptp_detect_device(struct PtpRuntime *r) {
+// TODO: maybe cache dev type for speed
+int ptp_device_type(struct PtpRuntime *r) {
 	struct PtpDeviceInfo *di = r->di;
 	if (di == NULL) return PTP_DEV_EMPTY;
 	if (!strcmp(di->manufacturer, "Canon Inc.")) {

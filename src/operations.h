@@ -4,13 +4,15 @@
 int ptp_open_session(struct PtpRuntime *r);
 int ptp_close_session(struct PtpRuntime *r);
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
-int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpStorageIds *si);
+int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a);
 int ptp_custom_recieve(struct PtpRuntime *r, int code);
 int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format);
-int ptp_get_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si, int id);
+int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si);
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
+int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a);
+int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi);
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
@@ -25,10 +27,6 @@ int ptp_eos_get_prop_value(struct PtpRuntime *r, int code);
 // steps can be between -3 and 3
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps);
 int ptp_eos_ping(struct PtpRuntime *r);
-
-// Generic operation wrappers
-int ptp_generic_drive_lens(struct PtpRuntime *r, int x);
-int ptp_generic_take_picture(struct PtpRuntime *r);
 
 // Get approx size of liveview, for allocations only
 int ptp_liveview_size(struct PtpRuntime *r);

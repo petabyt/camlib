@@ -22,6 +22,7 @@ enum PtpType {
 	PTP_ST = 6, // storage type
 	PTP_FT = 7, // filesystem type
 	PTP_AC = 8, // access code
+	PTP_AT = 9, // association type
 };
 
 struct PtpEnum {

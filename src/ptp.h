@@ -14,6 +14,8 @@
 #define PTP_PACKET_TYPE_RESPONSE	0x3
 #define PTP_PACKET_TYPE_EVENT		0x4
 
+// TODO: convert to params[5]; ?
+
 struct PtpBulkContainer {
 	uint32_t length; // length of packet, in bytes
 	uint16_t type; // See PACKET_TYPE_*
@@ -230,6 +232,14 @@ struct PtpEventContainer {
 #define PTP_OF_MP4				0xb982
 #define PTP_OF_3GP				0xb984
 #define PTP_OF_MP2				0xb983
+
+#define PTP_OF_CANON_CRW	0xb101
+#define PTP_OF_CANON_CR2	0xb103
+#define PTP_OF_CANON_MOV	0xb104
+
+// Association types
+#define PTP_AT_Folder	0x1
+#define PTP_AT_Album	0x1
 
 // Standard Property codes
 #define PTP_PC_BatteryLevel		0x5001

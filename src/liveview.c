@@ -9,7 +9,7 @@
 #include <camlib.h>
 #include <operations.h>
 
-#define MAX_EOS_JPEG_SIZE 270000
+#define MAX_EOS_JPEG_SIZE 500000
 
 #define PTP_OC_ML_Live360x240 0x9997
 #define PTP_ML_LvWidth 360
@@ -19,7 +19,8 @@
 #define NO_ML_LV
 
 int ptp_liveview_type(struct PtpRuntime *r) {
-	if (ptp_detect_device(r) == PTP_DEV_CANON) {
+	int type = ptp_device_type(r);
+	if (type == PTP_DEV_CANON || type == PTP_DEV_EOS) {
 		#ifndef NO_ML_LV
 		if (ptp_check_opcode(r, PTP_OC_ML_Live360x240)) {
 			return PTP_LV_ML;
@@ -75,7 +76,6 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	if (x < 0) return x;
 
 	struct PtpEOSViewFinderData *vfd = (struct PtpEOSViewFinderData *)(ptp_get_payload(r));
-
 	if (MAX_EOS_JPEG_SIZE < vfd->length) {
 		return 0;
 	}

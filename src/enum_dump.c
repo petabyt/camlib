@@ -177,6 +177,8 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OF, PTP_DEV_EMPTY, "MP4", 0xb982},
 {PTP_OF, PTP_DEV_EMPTY, "3GP", 0xb984},
 {PTP_OF, PTP_DEV_EMPTY, "MP2", 0xb983},
+{PTP_ENUM, 0, "PTP_AT_Folder", 0x1},
+{PTP_ENUM, 0, "PTP_AT_Album", 0x1},
 {PTP_PC, PTP_DEV_EMPTY, "BatteryLevel", 0x5001},
 {PTP_PC, PTP_DEV_EMPTY, "FunctionalMode", 0x5002},
 {PTP_PC, PTP_DEV_EMPTY, "FocalLength", 0x5008},
@@ -294,4 +296,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 292;
+};int ptp_enums_length = 294;

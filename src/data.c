@@ -62,7 +62,7 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	void *d = ptp_get_payload(r);
-	memcpy(d, oi, PTP_OBJ_INFO_VAR_START);
+	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
 	d += PTP_OBJ_INFO_VAR_START;
 	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
 	ptp_read_string(&d, oi->date_created, sizeof(oi->date_created));
@@ -147,6 +147,51 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	return curr;
 }
 
+const static char *eval_obj_format(int code) {
+	char *x = ptp_get_enum(code);
+	switch (code) {
+	case PTP_OF_Association:
+		return "folder";
+	default:
+		if (x) return x;
+		return "none";
+	}
+}
+
+const static char *eval_protection(int code) {
+	switch (code) {
+	case 0x0:
+		return "none";
+	case 0x1:
+		return "read-only";
+	case 0x8002:
+		return "read-only data";
+	case 0x8003:
+		return "non-transferable data";
+	default:
+		return "reserved";
+	}
+}
+
+int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
+	int curr = sprintf(buffer, "{");
+	curr += sprintf(buffer + curr, "\"storage_id\": %u,", so->storage_id);
+	curr += sprintf(buffer + curr, "\"parent\": %u,", so->parent_obj);
+	curr += sprintf(buffer + curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
+	curr += sprintf(buffer + curr, "\"format_int\": %u,", so->obj_format);
+	curr += sprintf(buffer + curr, "\"protection\": \"%s\",", eval_protection(so->protection));
+	curr += sprintf(buffer + curr, "\"filename\": \"%s\",", so->filename);
+	if (so->compressed_size != 0) {
+		curr += sprintf(buffer + curr, "\"img_width\": %u,", so->img_width);
+		curr += sprintf(buffer + curr, "\"img_height\": %u,", so->img_height);
+	}
+	curr += sprintf(buffer + curr, "\"date_created\": \"%s\",", so->date_created);
+	curr += sprintf(buffer + curr, "\"date_modified\": \"%s\"", so->date_modified);
+	curr += sprintf(buffer + curr, "}");
+
+	return curr;
+}
+
 //int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 
 /*
@@ -164,6 +209,8 @@ void *ptp_open_eos_events(struct PtpRuntime *r) {
 // Returns NUL when on last element
 void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce) {
 	void *d_ = d;
+	ce->code = 0;
+	ce->value = 0;
 
 	uint32_t size = ptp_read_uint32(&d);
 	ce->type = ptp_read_uint32(&d);
@@ -177,10 +224,6 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 		ce->code = ptp_read_uint32(&d);
 		ce->value = ptp_read_uint32(&d);
 		break;
-	default:
-		ce->code = 0;
-		ce->value = ce->type;
-		break;
 	}
 
 	// Return original unmodified by reads
@@ -188,16 +231,18 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 }
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
-	int curr = 0;
 	struct PtpCanonEvent ce;
 	void *dp = ptp_open_eos_events(r);
-	curr += sprintf(buffer, "[\n");
+
+	int curr = sprintf(buffer, "[\n");
+
 	int tmp = 0;
 	while (dp != NULL) {
 		dp = ptp_get_eos_event(r, dp, &ce);
 
 		if (ce.code == 0) continue;
 
+		// Don't put comma for last entry
 		char *end = "";
 		if (tmp) end = ",";
 		tmp = 1;
@@ -222,6 +267,9 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		case PTP_PC_EOS_BatteryPower:
 			name = "battery";
 			break;
+		case PTP_PC_EOS_ImageFormat:
+			ce.value = ptp_eos_get_imgformat(ce.value, 0);
+			name = "image format";
 		}
 
 		if (name == enum_null) {
@@ -304,7 +352,7 @@ struct CanonShutterSpeed {
 	{100000 / 8000,0xa0},
 };
 
-static int ptp_eos_get_shutter(int data, int dir) {
+int ptp_eos_get_shutter(int data, int dir) {
 	for (int i = 0; i < sizeof(canon_shutter) / sizeof(struct CanonShutterSpeed); i++) {
 		if (dir) {
 			if (canon_shutter[i].value == data) {
@@ -324,6 +372,7 @@ struct CanonISO {
 	int value;
 	int data;
 }canon_iso[] = {
+	{0, 0}, // AUTO
 	{50, 0x40},
 	{100, 0x48},
 	{125, 0x4b},
@@ -340,9 +389,10 @@ struct CanonISO {
 	{1600, 0x68},
 	{3200, 0x70},
 	{6400, 0x78},
+	{12800, 0x78+8},
 };
 
-static int ptp_eos_get_iso(int data, int dir) {
+int ptp_eos_get_iso(int data, int dir) {
 	for (int i = 0; i < sizeof(canon_iso) / sizeof(struct CanonISO); i++) {
 		if (dir) {
 			if (canon_iso[i].value == data) {
@@ -392,7 +442,7 @@ struct CanonAperture {
 	{320, 0x58},
 };
 
-static int ptp_eos_get_aperture(int data, int dir) {
+int ptp_eos_get_aperture(int data, int dir) {
 	for (int i = 0; i < sizeof(canon_aperture) / sizeof(struct CanonAperture); i++) {
 		if (dir) {
 			if (canon_aperture[i].value == data) {
@@ -406,4 +456,42 @@ static int ptp_eos_get_aperture(int data, int dir) {
 	}
 
 	return data;
+}
+
+// Lots of confusing types (resolutions, raw+jpeg, superfine, etc)
+// See enum EOSImageFormats
+struct CanonImageFormats {
+	int value;
+	int data;
+}canon_imgformats[] = {
+	{1, 0}, // RAW
+	{3, 1}, // RAW/JPG
+	// 2
+	// 3
+	// 4
+	// 5
+	// 6
+	// 7
+	{2, 8}, // JPG
+	// 9
+	// 10
+	// 11
+	// 12
+	// 13
+};
+
+int ptp_eos_get_imgformat(int data, int dir) {
+	for (int i = 0; i < sizeof(canon_imgformats) / sizeof(struct CanonImageFormats); i++) {
+		if (dir) {
+			if (canon_imgformats[i].value == data) {
+				return canon_imgformats[i].data;
+			}
+		} else {
+			if (canon_imgformats[i].data == data) {
+				return canon_imgformats[i].value;
+			}
+		}
+	}
+
+	return 0;
 }

@@ -22,6 +22,11 @@ struct PtpStorageIds {
 	uint32_t data[4];
 };
 
+struct UintArray {
+	uint32_t length;
+	uint32_t data[];
+};
+
 // To store unpacked device info data, after parsing
 struct PtpDeviceInfo {
 	uint16_t standard_version;
@@ -141,14 +146,25 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 
+int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
+
 void *ptp_open_eos_events(struct PtpRuntime *r);
 void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
 
-static int ptp_eos_get_shutter(int data, int dir);
-static int ptp_eos_get_iso(int data, int dir);
-static int ptp_eos_get_aperture(int data, int dir);
+int ptp_eos_get_shutter(int data, int dir);
+int ptp_eos_get_iso(int data, int dir);
+int ptp_eos_get_aperture(int data, int dir);
+int ptp_eos_get_imgformat(int data, int dir);
+
+// Camlib wrapper types for image formats
+enum ImageFormats {
+	IMG_FORMAT_ETC = 0,
+	IMG_FORMAT_RAW = 1,
+	IMG_FORMAT_JPEG = 2,
+	IMG_FORMAT_RAW_JPEG = 3,
+};
 
 #pragma pack(pop)
 

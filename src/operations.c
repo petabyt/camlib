@@ -78,22 +78,17 @@ int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format) {
 	return ptp_generic_send(r, &cmd);
 }
 
-int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpStorageIds *si) {
+int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
 
 	int x = ptp_generic_send(r, &cmd);
-
-	if (x) {
-		return x;
-	} else {
-		memcpy(si, ptp_get_payload(r), sizeof(struct PtpStorageIds));
-		return 0;
-	}
+	*a = (void*)ptp_get_payload(r);
+	return x;
 }
 
-int ptp_get_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si, int id) {
+int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetStorageInfo;
 	cmd.param_length = 1;
@@ -108,9 +103,7 @@ int ptp_get_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si, int id
 	}
 }
 
-int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle) {
-	struct PtpObjectInfo oi;
-
+int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetObjectInfo;
 	cmd.param_length = 1;
@@ -120,19 +113,27 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle) {
 	if (x) {
 		return x;
 	} else {
-		memcpy(&oi, ptp_get_payload(r), sizeof(struct PtpStorageIds));
-		return 0;
+		return ptp_parse_object_info(r, oi);
 	}
 }
 
-int ptp_get_object_handles(struct PtpRuntime *r, int id, int format_code, int handle) {
-	// ...
+int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetObjectHandles;
+	cmd.param_length = 3;
+	cmd.params[0] = id;
+	cmd.params[1] = format;
+	cmd.params[2] = in;
+
+	int x = ptp_generic_send(r, &cmd);
+	*a = (void*)ptp_get_payload(r);
+	return x;
 }
 
 int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetNumObjects;
-	cmd.param_length = 1;
+	cmd.param_length = 3;
 	cmd.params[0] = id;
 	cmd.params[1] = format;
 	cmd.params[2] = in;

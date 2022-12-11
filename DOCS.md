@@ -31,10 +31,12 @@ The formatted request:
 - The end of each section in the request is marked by a `;` semicolon.
 - The request starts with an ASCII request name, followed by a semicolon.
 - For parameters, base 10 numbers seperated by a single `,` comma follow.
+- Strings can be submitted, when inside `"` quotes
 - The end of the parameters is marked with another `;` semicolon.
 ```
 ptp_connect;
 ptp_drive_lens;-1;
 ptp_custom_send;4097,66,66,66,66,66;
 ptp_custom_cmd;4097,1,2,3,4,5
+ptp_set_property:"iso",6400
 ```

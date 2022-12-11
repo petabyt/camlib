@@ -153,9 +153,9 @@ void ml_live() {
 
 		int x = 0;
 		for (int i = 0; i < WIDTH * HEIGHT * 3; i += 3) {
-			//int r, g, b;
-			//yuv2rgb(data[i], data[i + 1], data[i + 2], &r, &g, &b);
-			r = data[i]; g = data[i + 1]; b = data[i + 2];
+			int r, g, b;
+			yuv2rgb(data[i], data[i + 1], data[i + 2], &r, &g, &b);
+			// r = data[i]; g = data[i + 1]; b = data[i + 2];
 			frame[x] = rgb(r, g, b);
 			x++;
 		}

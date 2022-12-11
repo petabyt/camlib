@@ -19,7 +19,10 @@ This is a complete rewrite from the ground up, and corrects the mistakes made in
 - [x] Real time camera previews
 - [x] Complete most EOS/Canon vendor OCs
 - [ ] Transfer files, delete files
-- [ ] "Frontend" functions - generic wrappers for vendor specific things
+- [x] "Frontend" functions - generic wrappers for vendor specific things
+- [x] Finish common Canon functions
+- [ ] Very primitive support for other cameras, MTP devices
+- [ ] Dummy backend, for testing
 
 ## Compiling
 Compile test binary for Windows:
