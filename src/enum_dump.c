@@ -86,6 +86,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_RC, PTP_DEV_EMPTY, "SessionAlreadyOpened", 0x201E},
 {PTP_RC, PTP_DEV_EMPTY, "TransactionCanceled", 0x201F},
 {PTP_RC, PTP_DEV_EMPTY, "SpecOfDestinationUnsupported", 0x2020},
+{PTP_RC, PTP_DEV_CANON, "NotReady", 0xa102},
 {PTP_RC, PTP_DEV_EMPTY, "UndefinedMTP", 0xA800},
 {PTP_RC, PTP_DEV_EMPTY, "InvalidObjPropCode", 0xA801},
 {PTP_RC, PTP_DEV_EMPTY, "InvalidObjPropCodeFormat", 0xA802},
@@ -134,6 +135,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_EC, PTP_DEV_EOS, "RecordingTime", 0xC195},
 {PTP_EC, PTP_DEV_EOS, "RequestObjectTransferTS", 0xC1A2},
 {PTP_EC, PTP_DEV_EOS, "AfResult", 0xC1A3},
+{PTP_EC, PTP_DEV_EOS, "InfoCheckComplete", 0xc1a4},
 {PTP_OF, PTP_DEV_EMPTY, "Undefined", 0x3000},
 {PTP_OF, PTP_DEV_EMPTY, "Association", 0x3001},
 {PTP_OF, PTP_DEV_EMPTY, "Script", 0x3002},
@@ -177,6 +179,9 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OF, PTP_DEV_EMPTY, "MP4", 0xb982},
 {PTP_OF, PTP_DEV_EMPTY, "3GP", 0xb984},
 {PTP_OF, PTP_DEV_EMPTY, "MP2", 0xb983},
+{PTP_OF, PTP_DEV_CANON, "CRW", 0xb101},
+{PTP_OF, PTP_DEV_CANON, "CR2", 0xb103},
+{PTP_OF, PTP_DEV_CANON, "MOV", 0xb104},
 {PTP_ENUM, 0, "PTP_AT_Folder", 0x1},
 {PTP_ENUM, 0, "PTP_AT_Album", 0x1},
 {PTP_PC, PTP_DEV_EMPTY, "BatteryLevel", 0x5001},
@@ -296,4 +301,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 294;
+};int ptp_enums_length = 299;

@@ -224,6 +224,12 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 		ce->code = ptp_read_uint32(&d);
 		ce->value = ptp_read_uint32(&d);
 		break;
+	// This seems to signal to camera to rerun SetEventMode.
+	// (Some kind of timing issue).
+	case PTP_EC_EOS_InfoCheckComplete:
+		ce->code = PTP_EC_EOS_InfoCheckComplete;
+		ce->value = PTP_EC_EOS_InfoCheckComplete;
+		return NULL;
 	}
 
 	// Return original unmodified by reads

@@ -31,8 +31,8 @@ int ptp_eos_ping(struct PtpRuntime *r);
 // Get approx size of liveview, for allocations only
 int ptp_liveview_size(struct PtpRuntime *r);
 
-// Initialize the liveview if needed
 int ptp_liveview_init(struct PtpRuntime *r);
+int ptp_liveview_deinit(struct PtpRuntime *r);
 
 // Get a frame directly into buffer, can be JPEG or raw data
 int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);

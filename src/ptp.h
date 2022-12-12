@@ -134,6 +134,8 @@ struct PtpEventContainer {
 #define PTP_RC_TransactionCanceled		0x201F
 #define PTP_RC_SpecOfDestinationUnsupported	0x2020
 
+#define PTP_RC_CANON_NotReady	0xa102
+
 // MTP (Microsoft) extension
 #define PTP_RC_UndefinedMTP				0xA800
 #define PTP_RC_InvalidObjPropCode		0xA801
@@ -187,6 +189,7 @@ struct PtpEventContainer {
 #define PTP_EC_EOS_RecordingTime			0xC195
 #define PTP_EC_EOS_RequestObjectTransferTS	0xC1A2
 #define PTP_EC_EOS_AfResult					0xC1A3
+#define PTP_EC_EOS_InfoCheckComplete		0xc1a4
 
 // Object Formats (OF)
 #define PTP_OF_Undefined		0x3000

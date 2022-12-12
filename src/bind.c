@@ -44,6 +44,7 @@ int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
 	initialized = 1;
 
 	if (connected) {
+		ptp_close_session(r);
 		ptp_device_close(r);
 		connected = 0;
 	}	
@@ -243,6 +244,7 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 int bind_get_events(struct BindResp *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 
+	// TODO:
 	//struct PtpEventContainer ec;
 	//ptp_get_event(r, &ec);
 
@@ -281,6 +283,10 @@ int bind_get_liveview_frame_jpg(struct BindResp *bind, struct PtpRuntime *r) {
 
 int bind_liveview_init(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_liveview_init(r));
+}
+
+int bind_liveview_deinit(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_liveview_deinit(r));
 }
 
 int bind_get_device_type(struct BindResp *bind, struct PtpRuntime *r) {
@@ -357,6 +363,7 @@ struct RouteMap routes[] = {
 	{"ptp_get_liveview_type", bind_get_liveview_type},
 	{"ptp_get_liveview_frame.jpg", bind_get_liveview_frame_jpg},
 	{"ptp_liveview_init", bind_liveview_init},
+	{"ptp_liveview_deinit", bind_liveview_deinit},
 	{"ptp_get_device_type", bind_get_device_type},
 	{"ptp_get_events", bind_get_events},
 	{"ptp_set_property", bind_set_property},

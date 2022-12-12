@@ -16,7 +16,7 @@
 #define PTP_ML_LvHeight 240
 
 // For debugging
-#define NO_ML_LV
+//#define NO_ML_LV
 
 int ptp_liveview_type(struct PtpRuntime *r) {
 	int type = ptp_device_type(r);
@@ -86,22 +86,29 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	return vfd->length;
 }
 
-int ptp_liveview_eos_init(struct PtpRuntime *r) {
-	if (ptp_eos_set_event_mode(r, 1)) return PTP_CAM_ERR;
-	if (ptp_eos_set_remote_mode(r, 1)) return PTP_CAM_ERR;
-	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3)) return PTP_CAM_ERR;
-	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
-	if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4)) return PTP_CAM_ERR;
-
-	return 0;
-}
-
 int ptp_liveview_init(struct PtpRuntime *r) {
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		return ptp_liveview_eos_init(r);
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4)) return PTP_CAM_ERR;
+		return 0;
+	}
+
+	return 1;
+}
+
+int ptp_liveview_deinit(struct PtpRuntime *r) {
+	switch (ptp_liveview_type(r)) {
+	case PTP_LV_ML:
+		return 0;
+	case PTP_LV_EOS:
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 0)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 0)) return PTP_CAM_ERR;
+		return 0;
 	}
 
 	return 1;

@@ -42,6 +42,9 @@ int main() {
 	struct PtpDeviceInfo di;
 	ptp_get_device_info(&r, &di);
 
+	ptp_device_info_json(&di, (char*)r.data, r.data_length);
+	printf("%s\n", (char*)r.data);
+
 	ptp_eos_set_remote_mode(&r, 1);
 	ptp_eos_set_event_mode(&r, 1);
 
