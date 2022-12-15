@@ -15,8 +15,8 @@
 	#define PTPLOG(...) /* */
 #endif
 
-// 10mb recommended default buffer size
-#define CAMLIB_DEFAULT_SIZE 10000000
+// 2mb recommended default buffer size
+#define CAMLIB_DEFAULT_SIZE 2000000
 
 // Generic IO error, not PTP return codes
 // TODO: Disconnect error?
@@ -126,7 +126,7 @@ void ptp_update_transaction(struct PtpRuntime *r, int t);
 #include "data.h"
 
 // Recommended buffer size for bind_run
-#define PTP_BIND_DEFAULT_SIZE 20000000
+#define PTP_BIND_DEFAULT_SIZE 5000000
 
 // Run a binding - from bind.c
 int bind_run(struct PtpRuntime *r, char *req, char *buffer, int size);

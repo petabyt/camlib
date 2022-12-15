@@ -75,29 +75,36 @@ struct PtpEventContainer {
 #define PTP_OC_InitiateOpenCapture	0x101C
 
 #define PTP_OC_NIKON_Capture		0x90C0
+#define PTP_OC_NIKON_AfCaptureSDRAM	0x90CB
+#define PTP_OC_NIKON_StartLiveView	0x9201
+#define PTP_OC_NIKON_EndLiveView	0x9202
 
 // Non EOS (Canon point and shoot) operation codes
-#define PTP_OC_CANON_ViewFinderOn		0x900b
-#define PTP_OC_CANON_ViewFinderOff		0x900c
-#define PTP_OC_CANON_GetViewFinderImage	0x901d
+#define PTP_OC_CANON_ViewFinderOn		0x900B
+#define PTP_OC_CANON_ViewFinderOff		0x900C
+#define PTP_OC_CANON_InitCaptureInRAM	0x901A
+#define PTP_OC_CANON_GetViewFinderImage	0x901D
 #define PTP_OC_CANON_LockUI				0x9004
 #define PTP_OC_CANON_UnlockUI			0x9005
 
 // EOS specific
 #define PTP_OC_EOS_GetStorageIDs		0x9101
-#define PTP_OC_EOS_InitiateViewfinder	0x9151
-#define PTP_OC_EOS_TerminateViewfinder	0x9152
-#define PTP_OC_EOS_GetViewFinderData	0x9153
-#define PTP_OC_EOS_RemoteReleaseOn		0x9128
-#define PTP_OC_EOS_RemoteReleaseOff		0x9129
 #define PTP_OC_EOS_SetDevicePropValueEx	0x9110
 #define PTP_OC_EOS_PCHDDCapacity		0x911A
 #define PTP_OC_EOS_SetEventMode			0x9115
 #define PTP_OC_EOS_SetRemoteMode		0x9114
-#define PTP_OC_EOS_DriveLens			0x9155
 #define PTP_OC_EOS_KeepDeviceOn			0x911D
 #define PTP_OC_EOS_GetEvent				0x9116
+#define PTP_OC_EOS_BulbStart			0x9125
+#define PTP_OC_EOS_BulbEnd				0x9126
 #define PTP_OC_EOS_GetDevicePropValue	0x9127
+#define PTP_OC_EOS_RemoteReleaseOn		0x9128
+#define PTP_OC_EOS_RemoteReleaseOff		0x9129
+#define PTP_OC_EOS_DriveLens			0x9155
+#define PTP_OC_EOS_InitiateViewfinder	0x9151
+#define PTP_OC_EOS_TerminateViewfinder	0x9152
+#define PTP_OC_EOS_GetViewFinderData	0x9153
+#define PTP_OC_EOS_DoAutoFocus			0x9154
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000
@@ -134,7 +141,10 @@ struct PtpEventContainer {
 #define PTP_RC_TransactionCanceled		0x201F
 #define PTP_RC_SpecOfDestinationUnsupported	0x2020
 
-#define PTP_RC_CANON_NotReady	0xa102
+// EOS or Canon?
+#define PTP_RC_CANON_Unknown	0xA001
+#define PTP_RC_CANON_NotReady	0xA102
+#define PTP_RC_CANON_BatteryLow	0xA101
 
 // MTP (Microsoft) extension
 #define PTP_RC_UndefinedMTP				0xA800
@@ -165,8 +175,10 @@ struct PtpEventContainer {
 #define PTP_EC_CaptureComplete		0x400D
 #define PTP_EC_UnreportedStatus		0x400E
 
-/* Canon EOS events */
 #define PTP_EC_EOS_RequestGetEvent			0xC101
+#define PTP_EC_EOS_RequestObjectTransfer	0xC009
+
+/* EOS events */
 #define PTP_EC_EOS_ObjectAddedEx			0xC181
 #define PTP_EC_EOS_ObjectRemoved			0xC182
 #define PTP_EC_EOS_RequestGetObjectInfoEx	0xC183
@@ -189,7 +201,7 @@ struct PtpEventContainer {
 #define PTP_EC_EOS_RecordingTime			0xC195
 #define PTP_EC_EOS_RequestObjectTransferTS	0xC1A2
 #define PTP_EC_EOS_AfResult					0xC1A3
-#define PTP_EC_EOS_InfoCheckComplete		0xc1a4
+#define PTP_EC_EOS_InfoCheckComplete		0xC1A4
 
 // Object Formats (OF)
 #define PTP_OF_Undefined		0x3000

@@ -40,6 +40,7 @@ int main() {
 	ptp_open_session(&r);
 	
 	struct PtpDeviceInfo di;
+
 	ptp_get_device_info(&r, &di);
 
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
@@ -48,10 +49,8 @@ int main() {
 	ptp_eos_set_remote_mode(&r, 1);
 	ptp_eos_set_event_mode(&r, 1);
 
-	//ptp_eos_get_prop_value(&r, 0xD1a6);
-
 	ptp_eos_get_event(&r);
-	//ptp_dump(&r);
+	ptp_dump(&r);
 
 	char buffer[50000];
 	ptp_eos_events_json(&r, buffer, 50000);

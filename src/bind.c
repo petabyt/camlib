@@ -31,6 +31,10 @@ struct RouteMap {
 	int (*call)(struct BindResp *, struct PtpRuntime *);
 };
 
+int bind_status(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d}", initialized, connected);
+}
+
 int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
 	if (initialized) {
 		free(r->data);
@@ -41,11 +45,10 @@ int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 	r->di = NULL;
-	initialized = 1;
 
 	if (connected) {
 		ptp_close_session(r);
-		ptp_device_close(r);
+		//ptp_device_close(r);
 		connected = 0;
 	}	
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
@@ -352,9 +355,10 @@ int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
 
 struct RouteMap routes[] = {
 	{"ptp_hello_world", bind_hello_world},
+	{"bind_status", bind_status},
+	{"ptp_init", bind_init},
 	{"ptp_connect", bind_connect},
 	{"ptp_disconnect", bind_disconnect},
-	{"ptp_init", bind_init},
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
 	{"ptp_get_device_info", bind_get_device_info},

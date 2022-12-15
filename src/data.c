@@ -229,7 +229,7 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce)
 	case PTP_EC_EOS_InfoCheckComplete:
 		ce->code = PTP_EC_EOS_InfoCheckComplete;
 		ce->value = PTP_EC_EOS_InfoCheckComplete;
-		return NULL;
+		//return NULL;
 	}
 
 	// Return original unmodified by reads
@@ -271,6 +271,9 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			name = "iso";
 			break;
 		case PTP_PC_EOS_BatteryPower:
+			// EOS has 3 battery bars
+			ce.value++;
+			if (ce.value == 3) ce.value = 4;
 			name = "battery";
 			break;
 		case PTP_PC_EOS_ImageFormat:
