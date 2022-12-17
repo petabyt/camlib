@@ -14,12 +14,14 @@
 #include <backend.h>
 #include <enum.h>
 
+#define BIND_MAX_PARAM 32
+
 static int connected = 0;
 static int initialized = 0;
 
 struct BindResp {
 	char *buffer;
-	int params[10];
+	int params[BIND_MAX_PARAM];
 	int params_length;
 	int max;
 	char string[32];
@@ -353,9 +355,14 @@ int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"code\": %d}", ptp_get_return_code(r));
 }
 
+int bind_reset(struct BindResp *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_device_reset(r));
+}
+
 struct RouteMap routes[] = {
 	{"ptp_hello_world", bind_hello_world},
-	{"bind_status", bind_status},
+	{"ptp_status", bind_status},
+	{"ptp_reset", bind_reset},
 	{"ptp_init", bind_init},
 	{"ptp_connect", bind_connect},
 	{"ptp_disconnect", bind_disconnect},

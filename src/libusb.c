@@ -116,6 +116,10 @@ int ptp_device_close(struct PtpRuntime *r) {
 	return x;
 }
 
+int ptp_device_reset(struct PtpRuntime *r) {
+	return usb_control_msg(ptp_backend.devh, USB_TYPE_CLASS | USB_RECIP_INTERFACE, USB_REQ_RESET, 0, 0, NULL, 0, PTP_TIMEOUT);
+}
+
 int ptp_send_bulk_packet(void *to, int length) {
 	return usb_bulk_write(
 		ptp_backend.devh,

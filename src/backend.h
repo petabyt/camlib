@@ -12,6 +12,7 @@ int ptp_device_init(struct PtpRuntime *r);
 int ptp_send_bulk_packet(void *to, int length);
 int ptp_recieve_bulk_packet(void *to, int length);
 int ptp_recieve_int(void *to, int length);
+int ptp_device_reset(struct PtpRuntime *r);
 
 // Recieve all packets, and whatever else (common logic for all backends)
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length);

@@ -175,16 +175,15 @@ struct PtpEventContainer {
 #define PTP_EC_CaptureComplete		0x400D
 #define PTP_EC_UnreportedStatus		0x400E
 
-#define PTP_EC_EOS_RequestGetEvent			0xC101
-#define PTP_EC_EOS_RequestObjectTransfer	0xC009
+#define PTP_EC_Canon_RequestObjectTransfer	0xC009
 
 /* EOS events */
+#define PTP_EC_EOS_RequestGetEvent			0xC101
 #define PTP_EC_EOS_ObjectAddedEx			0xC181
 #define PTP_EC_EOS_ObjectRemoved			0xC182
 #define PTP_EC_EOS_RequestGetObjectInfoEx	0xC183
-#define PTP_EC_EOS_StorageStatusChanged		0xC184
 #define PTP_EC_EOS_StorageInfoChanged		0xC185
-#define PTP_EC_EOS_RequestObjectTransfer	0xC186
+#define PTP_EC_EOS_StorageStatusChanged		0xC184
 #define PTP_EC_EOS_ObjectInfoChangedEx		0xC187
 #define PTP_EC_EOS_ObjectContentChanged		0xC188
 #define PTP_EC_EOS_PropValueChanged			0xC189
@@ -202,6 +201,9 @@ struct PtpEventContainer {
 #define PTP_EC_EOS_RequestObjectTransferTS	0xC1A2
 #define PTP_EC_EOS_AfResult					0xC1A3
 #define PTP_EC_EOS_InfoCheckComplete		0xC1A4
+
+#define PTP_EC_Nikon_ObjectAddedInSDRAM			0xC101
+#define PTP_EC_Nikon_CaptureCompleteRecInSdram	0xC102
 
 // Object Formats (OF)
 #define PTP_OF_Undefined		0x3000
