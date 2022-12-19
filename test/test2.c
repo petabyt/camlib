@@ -13,7 +13,7 @@
 int main() {
 	struct PtpRuntime r;
 
-	memset(&r, sizeof(struct PtpRuntime), 0);
+	memset(&r, 0, sizeof(struct PtpRuntime));
 	r.data = malloc(SIZE);
 	r.transaction = 0;
 	r.session = 0;
@@ -33,8 +33,22 @@ int main() {
 	ptp_eos_set_event_mode(&r, 1);
 	ptp_eos_set_remote_mode(&r, 1);
 
-	int x = ptp_generic_take_picture(&r);
-	printf("%d\n", x);
+	ptp_eos_get_event(&r);
+	ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_get_event(&r);
+
+	char buffer[50000];
+	ptp_eos_events_json(&r, buffer, 50000);
+	puts(buffer);
+
+	ptp_eos_hdd_capacity(&r);
+
+	//ptp_eos_set_prop_value(&r, PTP_PC_EOS_CaptureDestination, 2);
+	//ptp_eos_set_prop_value(&r, PTP_PC_EOS_EVFMode, 1);
+	ptp_eos_set_prop_value(&r, PTP_PC_EOS_VF_Output, 3);
+	ptp_eos_get_event(&r);
+	ptp_eos_events_json(&r, buffer, 50000);
+	puts(buffer);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

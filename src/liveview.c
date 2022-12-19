@@ -86,14 +86,16 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	return vfd->length;
 }
 
+// This is weird - need to pause, stop, and resume
+
 int ptp_liveview_init(struct PtpRuntime *r) {
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
 		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3)) return PTP_CAM_ERR;
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
 		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4)) return PTP_CAM_ERR;
+		//if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
 		return 0;
 	}
 
@@ -105,9 +107,8 @@ int ptp_liveview_deinit(struct PtpRuntime *r) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 0)) return PTP_CAM_ERR;
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 0)) return PTP_CAM_ERR;
+		//if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2)) return PTP_CAM_ERR;
 		return 0;
 	}
 

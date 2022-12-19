@@ -116,9 +116,23 @@ int ptp_eos_hdd_capacity(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_PCHDDCapacity;
 	cmd.param_length = 3;
-	cmd.params[0] = 0x108d087;
-	cmd.params[1] = 1000;
-	cmd.params[2] = 0;
+	cmd.params[0] = 0x0fffffff;
+	cmd.params[1] = 0x1000;
+	cmd.params[2] = 0x0;
 
 	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_eos_bulb_start(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_BulbStart;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_eos_bulb_stop(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_BulbEnd;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);	
 }

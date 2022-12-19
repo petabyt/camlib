@@ -132,6 +132,7 @@ struct PtpCanonEvent {
 	int type;
 	int code;
 	int value;
+	int def;
 };
 
 struct PtpEOSViewFinderData {

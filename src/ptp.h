@@ -105,6 +105,7 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_TerminateViewfinder	0x9152
 #define PTP_OC_EOS_GetViewFinderData	0x9153
 #define PTP_OC_EOS_DoAutoFocus			0x9154
+#define PTP_OC_EOS_SetDefaultSetting	0x91BE
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000

@@ -279,6 +279,15 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		case PTP_PC_EOS_ImageFormat:
 			ce.value = ptp_eos_get_imgformat(ce.value, 0);
 			name = "image format";
+			break;
+		case PTP_PC_EOS_VF_Output:
+			name = "mirror";
+			if (ce.value == 3) {
+				value = "up";
+			} else {
+				value = "down";
+			}
+			break;
 		}
 
 		if (name == enum_null) {

@@ -345,7 +345,54 @@ int bind_take_picture(struct BindResp *bind, struct PtpRuntime *r) {
 		x |= ptp_eos_remote_release_off(r, 2);
 		x |= ptp_eos_remote_release_off(r, 1);
 	} else {
-		x = PTP_CAM_ERR;
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_bulb_start(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_remote_release_on(r, 1);
+		x |= ptp_eos_remote_release_on(r, 2);
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_bulb_stop(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_remote_release_off(r, 2);
+		x |= ptp_eos_remote_release_off(r, 1);
+
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_mirror_up(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3);
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
+	} else {
+		x = PTP_UNSUPPORTED;
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -368,6 +415,10 @@ struct RouteMap routes[] = {
 	{"ptp_disconnect", bind_disconnect},
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
+	{"ptp_bulb_start", bind_bulb_start},
+	{"ptp_bulb_stop", bind_bulb_stop},
+	{"ptp_mirror_up", bind_mirror_up},
+	{"ptp_mirror_down", bind_mirror_down},
 	{"ptp_get_device_info", bind_get_device_info},
 	{"ptp_drive_lens", bind_drive_lens},
 	{"ptp_get_liveview_frame", bind_get_liveview_frame},
