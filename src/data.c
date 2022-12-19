@@ -285,6 +285,9 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			int b = ptp_read_uint32(&d);
 			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
 			} break;
+		default:
+			// Unknown event, delete the comma
+			curr -= strlen(end);
 		}
 
 		if (curr >= max) return 0;
