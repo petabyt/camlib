@@ -21,10 +21,13 @@ int ptp_eos_set_event_mode(struct PtpRuntime *r, int mode);
 int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode);
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode);
 int ptp_eos_get_event(struct PtpRuntime *r);
-int ptp_eos_hdd_capacity(struct PtpRuntime *r);
+int ptp_eos_hdd_capacity_push(struct PtpRuntime *r);
+int ptp_eos_hdd_capacity_pop(struct PtpRuntime *r);
 int ptp_eos_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_eos_bulb_start(struct PtpRuntime *r);
 int ptp_eos_bulb_stop(struct PtpRuntime *r);
+int ptp_eos_set_ui_lock(struct PtpRuntime *r);
+int ptp_eos_reset_ui_lock(struct PtpRuntime *r);
 
 // steps can be between -3 and 3
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps);

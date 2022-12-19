@@ -90,11 +90,14 @@ struct PtpEventContainer {
 // EOS specific
 #define PTP_OC_EOS_GetStorageIDs		0x9101
 #define PTP_OC_EOS_SetDevicePropValueEx	0x9110
-#define PTP_OC_EOS_PCHDDCapacity		0x911A
-#define PTP_OC_EOS_SetEventMode			0x9115
 #define PTP_OC_EOS_SetRemoteMode		0x9114
-#define PTP_OC_EOS_KeepDeviceOn			0x911D
+#define PTP_OC_EOS_SetEventMode			0x9115
 #define PTP_OC_EOS_GetEvent				0x9116
+#define PTP_OC_EOS_PCHDDCapacity		0x911A
+#define PTP_OC_EOS_SetUILock			0x911B
+#define PTP_OC_EOS_ResetUILock			0x911C
+#define PTP_OC_EOS_KeepDeviceOn			0x911D
+#define PTP_OC_EOS_UpdateFirmware		0x911F
 #define PTP_OC_EOS_BulbStart			0x9125
 #define PTP_OC_EOS_BulbEnd				0x9126
 #define PTP_OC_EOS_GetDevicePropValue	0x9127
@@ -106,6 +109,10 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_GetViewFinderData	0x9153
 #define PTP_OC_EOS_DoAutoFocus			0x9154
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
+
+#define EOS_DESTINATION_CAM		0x2
+#define EOS_DESTINATION_PC		0x4
+#define EOS_DESTINATION_BOTH	0x6
 
 // Return codes (RC)
 #define PTP_RC_Undefined				0x2000
@@ -183,8 +190,9 @@ struct PtpEventContainer {
 #define PTP_EC_EOS_ObjectAddedEx			0xC181
 #define PTP_EC_EOS_ObjectRemoved			0xC182
 #define PTP_EC_EOS_RequestGetObjectInfoEx	0xC183
-#define PTP_EC_EOS_StorageInfoChanged		0xC185
 #define PTP_EC_EOS_StorageStatusChanged		0xC184
+#define PTP_EC_EOS_StorageInfoChanged		0xC185
+#define PTP_EC_EOS_RequestObjectTransfer	0xc186
 #define PTP_EC_EOS_ObjectInfoChangedEx		0xC187
 #define PTP_EC_EOS_ObjectContentChanged		0xC188
 #define PTP_EC_EOS_PropValueChanged			0xC189
@@ -319,6 +327,7 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_DPOFVersion			0xD11A
 #define PTP_PC_EOS_AvailableShots		0xD11B
 #define PTP_PC_EOS_CaptureDestination	0xD11C
+#define PTP_PC_EOS_CurrentFolder		0xD11F
 #define PTP_PC_EOS_ImageFormat			0xD120
 #define PTP_PC_EOS_ImageFormatCF		0xD121
 #define PTP_PC_EOS_ImageFormatSD		0xD122

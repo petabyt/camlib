@@ -193,111 +193,98 @@ int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	return curr;
 }
 
-//int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
+int ptp_eos_prop_json(void **d, char *buffer, int max) {
+	int code = ptp_read_uint32(d);
+	int data_value = ptp_read_uint32(d);
 
-/*
-int x = ptp_open_eos_events(r);
-if (x == NULL) return;
-x = ptp_get_eos_event(r, &event);
-if (x == NULL) goto end;
-*/
-
-// Returns positive offset, or NULL
-void *ptp_open_eos_events(struct PtpRuntime *r) {
-	return ptp_get_payload(r);
-}
-
-// Returns NUL when on last element
-void *ptp_get_eos_event(struct PtpRuntime *r, void *d, struct PtpCanonEvent *ce) {
-	void *d_ = d;
-	ce->code = 0;
-	ce->value = 0;
-
-	uint32_t size = ptp_read_uint32(&d);
-	ce->type = ptp_read_uint32(&d);
-
-	if (ce->type == 0) return NULL;
-	if (d >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) return NULL;
-
-	switch (ce->type) {
-	case PTP_EC_EOS_PropValueChanged:
-		ce->code = ptp_read_uint32(&d);
-		ce->value = ptp_read_uint32(&d);
+	char *name = ptp_get_enum(code);
+	char *value = NULL;
+	switch (code) {
+	case PTP_PC_EOS_Aperture:
+		data_value = ptp_eos_get_aperture(data_value, 0);
+		name = "aperture";
 		break;
-	// This seems to signal to camera to rerun SetEventMode.
-	// (Some kind of timing issue).
-	case PTP_EC_EOS_InfoCheckComplete:
-		ce->code = PTP_EC_EOS_InfoCheckComplete;
-		ce->value = PTP_EC_EOS_InfoCheckComplete;
-		//return NULL;
+	case PTP_PC_EOS_ShutterSpeed:
+		data_value = ptp_eos_get_shutter(data_value, 0);
+		name = "shutter speed";
+		break;
+	case PTP_PC_EOS_ISOSpeed:
+		data_value = ptp_eos_get_iso(data_value, 0);
+		name = "iso";
+		break;
+	case PTP_PC_EOS_BatteryPower:
+		// EOS has 3 battery bars
+		data_value++;
+		if (data_value == 3) data_value = 4;
+		name = "battery";
+		break;
+	case PTP_PC_EOS_ImageFormat:
+		data_value = ptp_eos_get_imgformat(data_value, 0);
+		name = "image format";
+		break;
+	case PTP_PC_EOS_VF_Output:
+		name = "mirror";
+		if (data_value == 3) {
+			value = "up";
+		} else {
+			value = "down";
+		}
+		break;
 	}
 
-	// Return original unmodified by reads
-	return d_ + size;
+	int curr = 0;
+	if (name == enum_null) {
+		curr = snprintf(buffer + curr, max - curr, "[%u, %u]\n", code, data_value);
+	} else {
+		if (value == NULL) {
+			curr = snprintf(buffer + curr, max - curr, "[\"%s\", %u]\n", name, data_value);
+		} else {
+			curr = snprintf(buffer + curr, max - curr, "[\"%s\", \"%s\"]\n", name, value);
+		}
+	}
+
+	return curr;
 }
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
-	struct PtpCanonEvent ce;
-	void *dp = ptp_open_eos_events(r);
+	//struct PtpCanonEvent ce;
+	void *dp = ptp_get_payload(r);
 
 	int curr = sprintf(buffer, "[\n");
 
 	int tmp = 0;
 	while (dp != NULL) {
-		dp = ptp_get_eos_event(r, dp, &ce);
+		void *d = dp;
+		uint32_t size = ptp_read_uint32(&d);
+		uint32_t type = ptp_read_uint32(&d);
+		printf("Code: %X\n", type);
 
-		if (ce.code == 0) continue;
+		dp += size;
+
+		if (type == 0) break;
+		if (dp >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) break;
 
 		// Don't put comma for last entry
 		char *end = "";
 		if (tmp) end = ",";
 		tmp = 1;
 
-		if (dp == NULL) break;
+		curr += sprintf(buffer + curr, "%s", end);
 
-		char *name = ptp_get_enum(ce.code);
-		char *value = NULL;
-		switch (ce.code) {
-		case PTP_PC_EOS_Aperture:
-			ce.value = ptp_eos_get_aperture(ce.value, 0);
-			name = "aperture";
+		switch (type) {
+		case PTP_EC_EOS_PropValueChanged:
+			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr);
 			break;
-		case PTP_PC_EOS_ShutterSpeed:
-			ce.value = ptp_eos_get_shutter(ce.value, 0);
-			name = "shutter speed";
+		// This seems to signal to camera to rerun SetEventMode.
+		// (Some kind of timing issue).
+		case PTP_EC_EOS_InfoCheckComplete:
+			curr += sprintf(buffer + curr, "[%u, %u]\n", type, type);
 			break;
-		case PTP_PC_EOS_ISOSpeed:
-			ce.value = ptp_eos_get_iso(ce.value, 0);
-			name = "iso";
-			break;
-		case PTP_PC_EOS_BatteryPower:
-			// EOS has 3 battery bars
-			ce.value++;
-			if (ce.value == 3) ce.value = 4;
-			name = "battery";
-			break;
-		case PTP_PC_EOS_ImageFormat:
-			ce.value = ptp_eos_get_imgformat(ce.value, 0);
-			name = "image format";
-			break;
-		case PTP_PC_EOS_VF_Output:
-			name = "mirror";
-			if (ce.value == 3) {
-				value = "up";
-			} else {
-				value = "down";
-			}
-			break;
-		}
-
-		if (name == enum_null) {
-			curr += snprintf(buffer + curr, max - curr, "    %s[%u, %u]\n", end, ce.code, ce.value);
-		} else {
-			if (value == NULL) {
-				curr += snprintf(buffer + curr, max - curr, "    %s[\"%s\", %u]\n", end, name, ce.value);
-			} else {
-				curr += snprintf(buffer + curr, max - curr, "    %s[\"%s\", \"%s\"]\n", end, name, value);
-			}
+		case PTP_EC_EOS_RequestObjectTransfer: {
+			int a = ptp_read_uint32(&d);
+			int b = ptp_read_uint32(&d);
+			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
+			} break;
 		}
 
 		if (curr >= max) return 0;

@@ -24,29 +24,39 @@ int main() {
 		return 0;
 	}
 
-	struct PtpDeviceInfo di;
-	ptp_get_device_info(&r, &di);
-	r.di = &di;
-
 	ptp_open_session(&r);
 
 	ptp_eos_set_event_mode(&r, 1);
 	ptp_eos_set_remote_mode(&r, 1);
 
-	ptp_eos_get_event(&r);
-	ptp_eos_set_event_mode(&r, 1);
-	ptp_eos_get_event(&r);
+	struct PtpDeviceInfo di;
+
+	ptp_get_device_info(&r, &di);
+	ptp_device_info_json(&di, (char*)r.data, r.data_length);
+	puts((char *)r.data);
 
 	char buffer[50000];
-	ptp_eos_events_json(&r, buffer, 50000);
-	puts(buffer);
 
-	ptp_eos_hdd_capacity(&r);
+#if 0
+	ptp_eos_set_ui_lock(&r);
+	ptp_eos_hdd_capacity_push(&r);
+	ptp_eos_set_prop_value(&r, PTP_PC_EOS_CaptureDestination, 4);
+	ptp_eos_hdd_capacity_pop(&r);
+	ptp_eos_reset_ui_lock(&r);
 
-	//ptp_eos_set_prop_value(&r, PTP_PC_EOS_CaptureDestination, 2);
-	//ptp_eos_set_prop_value(&r, PTP_PC_EOS_EVFMode, 1);
-	ptp_eos_set_prop_value(&r, PTP_PC_EOS_VF_Output, 3);
+	ptp_eos_remote_release_on(&r, 1);
+	ptp_eos_remote_release_on(&r, 2);
+	ptp_eos_remote_release_off(&r, 2);
+	ptp_eos_remote_release_off(&r, 1);
+
+	sleep(2);
+#endif
+
+	ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_set_remote_mode(&r, 1);
+
 	ptp_eos_get_event(&r);
+	ptp_dump(&r);
 	ptp_eos_events_json(&r, buffer, 50000);
 	puts(buffer);
 

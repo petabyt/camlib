@@ -82,11 +82,11 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
 	cmd.param_length = 3;
 	
-	cmd.params[0] = 12;
+	cmd.params[0] = 0xc;
 	cmd.params[1] = code;
 	cmd.params[2] = value;
 
-	// Wants a data packet
+	// CMD packet should only be 12 bytes long (?)
 
 	int length = ptp_new_cmd_packet(r, &cmd);
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
@@ -112,14 +112,25 @@ int ptp_eos_ping(struct PtpRuntime *r) {
 	return ptp_generic_send(r, &cmd);	
 }
 
-int ptp_eos_hdd_capacity(struct PtpRuntime *r) {
+// The HDD capacity is pushed/popped (for lack of a better term)
+// Not sure why, but his is how EOS Utility does it.
+int ptp_eos_hdd_capacity_push(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_PCHDDCapacity;
 	cmd.param_length = 3;
-	cmd.params[0] = 0x0fffffff;
+	cmd.params[0] = 0xfffffff7;
 	cmd.params[1] = 0x1000;
 	cmd.params[2] = 0x0;
+	return ptp_generic_send(r, &cmd);
+}
 
+int ptp_eos_hdd_capacity_pop(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_PCHDDCapacity;
+	cmd.param_length = 3;
+	cmd.params[0] = 0x332d2d;
+	cmd.params[1] = 0x1000;
+	cmd.params[2] = 0x1;
 	return ptp_generic_send(r, &cmd);
 }
 
@@ -133,6 +144,21 @@ int ptp_eos_bulb_start(struct PtpRuntime *r) {
 int ptp_eos_bulb_stop(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_BulbEnd;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_eos_set_ui_lock(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_SetUILock;
+	cmd.param_length = 1;
+	cmd.params[0] = 0;
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_eos_reset_ui_lock(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_ResetUILock;
 	cmd.param_length = 0;
 	return ptp_generic_send(r, &cmd);	
 }
