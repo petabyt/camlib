@@ -107,7 +107,7 @@ int ptp_liveview_deinit(struct PtpRuntime *r) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		//if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
+		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
 		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2)) return PTP_CAM_ERR;
 		return 0;
 	}
