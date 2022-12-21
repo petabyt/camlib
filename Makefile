@@ -17,7 +17,7 @@ LDFLAGS=-lusb
 FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -36,7 +36,7 @@ endif
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
-TEST_TARGETS=live script pktest optest test2 evtest wintest.exe
+TEST_TARGETS=live script pktest optest test2 evtest wintest.exe bindtest
 script: ../mjs/mjs.o test/script.o
 script: FILES+=../mjs/mjs.o test/script.o
 pktest: test/pktest.o
@@ -47,6 +47,8 @@ test2: test/test2.o
 test2: FILES+=test/test2.o
 evtest: test/evtest.o
 evtest: FILES+=test/evtest.o
+bindtest: test/bindtest.o
+bindtest: FILES+=test/bindtest.o
 live: test/live.o
 live: FILES+=test/live.o
 live: CFLAGS+=-lX11

@@ -7,25 +7,11 @@
 #include <backend.h>
 #include <ptp.h>
 #include <operations.h>
-
-void print_bytes(uint8_t *bytes, int n) {
-	for (int i = 0; i < n; i++) {
-		if (bytes[i] > 31 && bytes[i] < 128) {
-			printf("'%c' ", bytes[i]);
-		} else {
-			printf("%02X ", bytes[i]);
-		}
-	}
-
-	puts("");
-}
-
-#define SIZE 3000000
-
+#define SIZE 300000
 int main() {
 	struct PtpRuntime r;
 
-	memset(&r, sizeof(struct PtpRuntime), 0);
+	memset(&r, 0, sizeof(struct PtpRuntime));
 	r.data = malloc(SIZE);
 	r.transaction = 0;
 	r.session = 0;
@@ -44,25 +30,12 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	struct UintArray *arr;
-	ptp_get_storage_ids(&r, &arr);
-	int handle = arr->data[0];
-	printf("Handle: %X\n", handle);
-
-	struct PtpStorageInfo sinf;
-	ptp_get_storage_info(&r, handle, &sinf);
-
-	ptp_get_object_handles(&r, handle, 0, -1, &arr);
-	handle = arr->data[0];
-	printf("Obj handle %x\n", handle);
-
-	struct PtpObjectInfo oi;
-	ptp_get_object_info(&r, handle, &oi);
-	printf("objinfo %s == %X\n", oi.filename, oi.compressed_size);
-
 	ptp_eos_set_remote_mode(&r, 1);
-	//ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_set_event_mode(&r, 1);
 
+	char buf[1000];
+	bind_run(&r, "ptp_hello_world;\"iso\",6400", buf, 1000);
+	puts(buf);
 
 #if 0
 	// Both produce 25/50/100

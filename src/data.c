@@ -193,6 +193,31 @@ int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	return curr;
 }
 
+const static char *eval_storage_type(int id) {
+	switch (id) {
+	case 1:
+		return "FixedROM";
+	case 2:
+		return "RemovableROM";
+	case 3:
+		return "Internal Storage";
+	case 4:
+		return "Removable Storage";
+	default:
+		return "Unknown";
+	}
+}
+
+int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
+	int len = sprintf(buffer, "{");
+	len += sprintf(buffer + len, "\"storage_type\": %s,", eval_storage_type(so->storage_type));
+	len += sprintf(buffer + len, "\"fs_type\": %u,", so->fs_type);
+	len += sprintf(buffer + len, "\"max_capacity\": %lu,", so->max_capacity);
+	len += sprintf(buffer + len, "\"free_space\": %lu", so->free_space);
+	len += sprintf(buffer + len, "}");
+	return len;
+}
+
 int ptp_eos_prop_json(void **d, char *buffer, int max) {
 	int code = ptp_read_uint32(d);
 	int data_value = ptp_read_uint32(d);

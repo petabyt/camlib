@@ -14,18 +14,22 @@
 #include <backend.h>
 #include <enum.h>
 
-#define BIND_MAX_PARAM 32
-
 static int connected = 0;
 static int initialized = 0;
 
+#define BIND_MAX_PARAM 5
+#define BIND_MAX_NAME 64
+#define BIND_MAX_STRING 32
+
 struct BindResp {
 	char *buffer;
+	int max;
+	char name[BIND_MAX_NAME];
+
 	int params[BIND_MAX_PARAM];
 	int params_length;
-	int max;
-	char string[32];
-	int string_length;
+
+	char string[BIND_MAX_STRING];
 };
 
 struct RouteMap {
@@ -121,13 +125,9 @@ int bind_get_storage_info(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = ptp_get_storage_info(r, bind->params[0], &so);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
-	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": {", x);
-	len += sprintf(bind->buffer + len, "\"storage_type\": %u,", so.storage_type);
-	len += sprintf(bind->buffer + len, "\"fs_type\": %u,", so.fs_type);
-	len += sprintf(bind->buffer + len, "\"max_capacity\": %lu,", so.max_capacity);
-	len += sprintf(bind->buffer + len, "\"free_space\": %lu", so.free_space);
-
-	len += sprintf(bind->buffer + len, "}}");
+	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": ", x);
+	len += ptp_storage_info_json(&so, bind->buffer + len, bind->max - len);
+	len += sprintf(bind->buffer + len, "}");
 	return len;
 }
 
@@ -212,7 +212,9 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 	int x = 0;
 
-	if (bind->string_length == 0) {
+	printf("%s, %d\n", bind->string, bind->params[0]);
+
+	if (strlen(bind->string) == 0) {
 		if (ptp_check_prop(r, bind->params[0])) {
 			x = ptp_set_prop_value(r, bind->params[0], bind->params[1]);
 		} else {
@@ -307,7 +309,15 @@ int bind_eos_set_event_mode(struct BindResp *bind, struct PtpRuntime *r) {
 }
 
 int bind_hello_world(struct BindResp *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "\"COol beans %d (%d)\"", bind->params[0], bind->params_length);
+	int len = sprintf(bind->buffer, "{\"name\": \"%s\", \"string\": \"%s\" params: [", bind->name, bind->string);
+	for (int i = 0; i < bind->params_length; i++) {
+		char *comma = "";
+		if (i) comma = ",";
+		len += sprintf(bind->buffer + len, "%s%d", comma, bind->params[i]);
+	}
+
+	len += sprintf(bind->buffer + len, "]}");
+	return len;
 }
 
 int bind_get_enums(struct BindResp *bind, struct PtpRuntime *r) {
@@ -444,27 +454,57 @@ struct RouteMap routes[] = {
 //	{"ptp_custom_cmd", NULL},
 };
 
-static void parseParameters(struct BindResp *bind, char *base) {
-	while (*base != ';') {
-		// Parse string at any place into .string
-		if (*base == '"') {
-			base++;
-			while (*base != '"') {
-				bind->string[bind->string_length] = *base;
-				base++;
-				bind->string_length++;
-				if (bind->string_length > 31) break;
+static int isDigit(char c) {return c >= '0' && c <= '9';}
+void bind_parse(struct BindResp *br, char *req) {
+	br->params_length = 0;
+	memset(br->params, 0, sizeof(int) * BIND_MAX_PARAM);
+	memset(br->name, 0, BIND_MAX_NAME);
+	memset(br->string, 0, BIND_MAX_STRING);
+
+	int c = 0;
+	int s = 0;
+	while (req[c] != '\0') {
+		// Parse request name
+		if (s == 0) {
+			if (c >= BIND_MAX_NAME) return;
+			br->name[c] = req[c];
+		} else if (s == 1) {
+			// Parse base 10 integer
+			if (isDigit(req[c])) {
+				while (isDigit(req[c])) {
+					br->params[br->params_length] *= 10;
+					br->params[br->params_length] += req[c] - '0';
+					c++;
+				}
+				br->params_length++;
+			// Parse string
+			} else if (req[c] == '\"') {
+				c++;
+				int c2 = 0;
+				while (req[c] != '\"') {
+					br->string[c2] = req[c];
+					c2++;
+					c++;
+				}
+				br->string[c2] = '\0';
+				c++;
 			}
-			bind->string[bind->string_length] = '\0';
-			base++;
-		} else {
-			bind->params[bind->params_length] = strtol(base, &base, 0);
-			bind->params_length++;
+		} else if (s == 3) {
+			// Payload
 		}
-		if (*base != ',') break;
-		base++;
+
+		if (req[c] == '\0') return;
+
+		c++;
+
+		if (req[c] == ';') {
+			if (s == 0) {
+				br->name[c] = '\0';
+			}
+
+			s++;
+		}
 	}
-	
 }
 
 // See DOCS.md for documentation
@@ -475,24 +515,13 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 
 	struct BindResp bind;
 	memset(&bind, 0, sizeof(struct BindResp));
-	bind.params_length = 0;
-	bind.string_length = 0;
 	bind.buffer = buffer;
 	bind.max = max;
 
-	// Primitive parameter parsing - See DOCS.md
-	for (int i = 0; req[i] != '\0'; i++) {
-		if (req[i] == ';') {
-			req[i] = '\0'; // tear off for strcmp
-			i++;
-			char *base = req + i;
-			parseParameters(&bind, base);
-			break;
-		}
-	}
+	bind_parse(&bind, req);
 
 	for (int i = 0; i < (int)(sizeof(routes) / sizeof(struct RouteMap)); i++) {
-		if (!strcmp(routes[i].name, req)) {
+		if (!strcmp(routes[i].name, bind.name)) {
 			return routes[i].call(&bind, r);
 		}
 	}

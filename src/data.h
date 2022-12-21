@@ -146,7 +146,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-
+int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
 
 void *ptp_open_eos_events(struct PtpRuntime *r);
