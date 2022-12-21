@@ -212,13 +212,11 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 	int x = 0;
 
-	printf("%s, %d\n", bind->string, bind->params[0]);
-
 	if (strlen(bind->string) == 0) {
-		if (ptp_check_prop(r, bind->params[0])) {
-			x = ptp_set_prop_value(r, bind->params[0], bind->params[1]);
-		} else {
+		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, bind->params[0], bind->params[1]);
+		} else {
+			x = ptp_set_prop_value(r, bind->params[0], bind->params[1]);
 		}
 		return sprintf(bind->buffer, "{\"error\": %d}", x);
 	}
@@ -227,19 +225,19 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 
 	if (!strcmp(bind->string, "aperture")) {
 		if (dev == PTP_DEV_EOS) {
-			x = ptp_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
 		}
 	} else 	if (!strcmp(bind->string, "iso")) {
 		if (dev == PTP_DEV_EOS) {
-			x = ptp_set_prop_value(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
 		}
 	} else 	if (!strcmp(bind->string, "shutter speed")) {
 		if (dev == PTP_DEV_EOS) {
-			x = ptp_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
 		}
 	} else 	if (!strcmp(bind->string, "image format")) {
 		if (dev == PTP_DEV_EOS) {
-			x = ptp_set_prop_value(r, PTP_PC_EOS_ImageFormat, ptp_eos_get_imgformat(value, 1));
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ImageFormat, ptp_eos_get_imgformat(value, 1));
 		}
 	} else {
 		return sprintf(bind->buffer, "{\"error\": %d}", PTP_CAM_ERR);

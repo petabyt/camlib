@@ -34,7 +34,7 @@ int main() {
 	ptp_eos_set_event_mode(&r, 1);
 
 	char buf[1000];
-	bind_run(&r, "ptp_hello_world;\"iso\",6400", buf, 1000);
+	bind_run(&r, "ptp_set_property;\"iso\",6400", buf, 1000);
 	puts(buf);
 
 #if 0
@@ -49,7 +49,7 @@ int main() {
 	printf("Prop2: %d\n", ptp_parse_data(&d, 2));
 #endif
 
-	//ptp_close_session(&r);
+	ptp_close_session(&r);
 	ptp_device_close(&r);
 
 	free(r.data);
