@@ -9,8 +9,8 @@
 // May be slightly inneficient for every frame/action
 // TODO: maybe cache dev type for speed
 int ptp_device_type(struct PtpRuntime *r) {
-	struct PtpDeviceInfo *di = r->di;
 	if (di == NULL) return PTP_DEV_EMPTY;
+	struct PtpDeviceInfo *di = r->di;
 	if (!strcmp(di->manufacturer, "Canon Inc.")) {
 		if (ptp_check_opcode(r, PTP_OC_EOS_GetStorageIDs)) {
 			return PTP_DEV_EOS;
@@ -55,16 +55,26 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	int length = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
 	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-	return 0;
+
+	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		return 0;
+	} else {
+		return PTP_CHECK_CODE;
+	}
 }
 
-// Send a data packet, always after a cmd packet
+// Send a cmd packet, then data packet
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length) {
 	int plength = ptp_new_data_packet(r, cmd);
 	ptp_update_data_length(r, plength + length);
 	if (ptp_send_bulk_packets(r, length) != plength) return PTP_IO_ERR;
 	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-	return 0;
+
+	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		return 0;
+	} else {
+		return PTP_CHECK_CODE;
+	}
 }
 
 int ptp_dump(struct PtpRuntime *r) {

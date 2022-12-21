@@ -240,7 +240,7 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ImageFormat, ptp_eos_get_imgformat(value, 1));
 		}
 	} else {
-		return sprintf(bind->buffer, "{\"error\": %d}", PTP_CAM_ERR);
+		return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);

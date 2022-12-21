@@ -59,7 +59,7 @@ int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
     if (a < 0) {
         return PTP_IO_ERR;
     } else if (ptp_get_return_code(r) != PTP_RC_OK) {
-        return PTP_CAM_ERR;
+        return PTP_CHECK_CODE;
     }
 
     uint8_t *data = ptp_get_payload(r);
@@ -93,12 +93,15 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 // This is weird - need to pause, stop, and resume
 
 int ptp_liveview_init(struct PtpRuntime *r) {
+	int x;
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3)) return PTP_CAM_ERR;
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4)) return PTP_CAM_ERR;
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3);
+		if (x) return x;
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4);
+		if (x) return x;
 		//if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
 		return 0;
 	}
@@ -107,12 +110,15 @@ int ptp_liveview_init(struct PtpRuntime *r) {
 }
 
 int ptp_liveview_deinit(struct PtpRuntime *r) {
+	int x;
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
 		return 0;
 	case PTP_LV_EOS:
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0)) return PTP_CAM_ERR;
-		if (ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2)) return PTP_CAM_ERR;
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
+		if (x) return x;
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2);
+		if (x) return x;
 		return 0;
 	}
 
@@ -127,5 +133,5 @@ int ptp_liveview_frame(struct PtpRuntime *r, void *buffer) {
 		return ptp_liveview_eos(r, (uint8_t *)buffer);
 	}
 
-	return PTP_CAM_ERR;
+	return PTP_UNSUPPORTED;
 }

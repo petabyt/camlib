@@ -28,8 +28,8 @@ enum PtpGeneralError {
 	PTP_OUT_OF_MEM = -4,
 	PTP_IO_ERR = -5,
 	PTP_PARSE_ERR = -6,
-	PTP_CAM_ERR = -7,
-	PTP_UNSUPPORTED = -8,
+	PTP_UNSUPPORTED = -7,
+	PTP_CHECK_CODE = -8,
 };
 
 enum PtpConnType {
