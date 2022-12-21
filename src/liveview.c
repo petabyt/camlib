@@ -15,6 +15,10 @@
 #define PTP_ML_LvWidth 360
 #define PTP_ML_LvHeight 240
 
+#ifndef ML_TRANSPARENCY_PIXEL
+#define ML_TRANSPARENCY_PIXEL 0x0
+#endif
+
 // For debugging
 //#define NO_ML_LV
 
@@ -51,26 +55,26 @@ int ptp_liveview_size(struct PtpRuntime *r) {
 }
 
 int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
-	int a = ptp_custom_recieve(r, PTP_OC_ML_Live360x240);
-	if (a < 0) {
-		return PTP_IO_ERR;
-	} else if (ptp_get_return_code(r) != PTP_RC_OK) {
-		return PTP_CAM_ERR;
-	}
+    int a = ptp_custom_recieve(r, PTP_OC_ML_Live360x240);
+    if (a < 0) {
+        return PTP_IO_ERR;
+    } else if (ptp_get_return_code(r) != PTP_RC_OK) {
+        return PTP_CAM_ERR;
+    }
 
-	uint8_t *data = ptp_get_payload(r);
-	int length = (PTP_ML_LvWidth * PTP_ML_LvHeight);
+    uint8_t *data = ptp_get_payload(r);
+    int length = (PTP_ML_LvWidth * PTP_ML_LvHeight);
 
-	for (int i = 0; i < length; i++) {
-		buffer[0] = data[0];
-		buffer[1] = data[1];
-		buffer[2] = data[2];
-		buffer[3] = 0x0;
-		buffer += 4;
-		data += 3;
-	}
+    for (int i = 0; i < length; i++) {
+        buffer[0] = data[0];
+        buffer[1] = data[1];
+        buffer[2] = data[2];
+        buffer[3] = ML_TRANSPARENCY_PIXEL;
+        buffer += 4;
+        data += 3;
+    }
 
-	return length * 4;
+    return length * 4;
 }
 
 int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
