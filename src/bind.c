@@ -227,17 +227,22 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
 		}
-	} else 	if (!strcmp(bind->string, "iso")) {
+	} else if (!strcmp(bind->string, "iso")) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
 		}
-	} else 	if (!strcmp(bind->string, "shutter speed")) {
+	} else if (!strcmp(bind->string, "shutter speed")) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
 		}
-	} else 	if (!strcmp(bind->string, "image format")) {
+	} else if (!strcmp(bind->string, "image format")) {
 		if (dev == PTP_DEV_EOS) {
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ImageFormat, ptp_eos_get_imgformat(value, 1));
+			int *data = ptp_eos_get_imgformat_data(value);
+			if (value == IMG_FORMAT_RAW_JPEG) {
+				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 9);
+			} else {
+				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 5);
+			}
 		}
 	} else {
 		return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
@@ -376,7 +381,6 @@ int bind_bulb_stop(struct BindResp *bind, struct PtpRuntime *r) {
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_off(r, 2);
 		x |= ptp_eos_remote_release_off(r, 1);
-
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -406,6 +410,7 @@ int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
+// TODO: return parameters also
 int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"code\": %d}", ptp_get_return_code(r));
 }
@@ -468,12 +473,15 @@ void bind_parse(struct BindResp *br, char *req) {
 			br->name[c] = req[c];
 		} else if (s == 1) {
 			// Parse base 10 integer
-			if (isDigit(req[c])) {
+			if (isDigit(req[c]) || req[c] == '-') {
+				int negative = 0;
+				if (req[c] == '-') { negative = 1; c++; }
 				while (isDigit(req[c])) {
 					br->params[br->params_length] *= 10;
 					br->params[br->params_length] += req[c] - '0';
 					c++;
 				}
+				if (negative) br->params[br->params_length] *= -1;
 				br->params_length++;
 			// Parse string
 			} else if (req[c] == '\"') {

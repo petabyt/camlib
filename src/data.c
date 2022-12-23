@@ -210,7 +210,7 @@ const static char *eval_storage_type(int id) {
 
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	int len = sprintf(buffer, "{");
-	len += sprintf(buffer + len, "\"storage_type\": %s,", eval_storage_type(so->storage_type));
+	len += sprintf(buffer + len, "\"storage_type\": \"%s\",", eval_storage_type(so->storage_type));
 	len += sprintf(buffer + len, "\"fs_type\": %u,", so->fs_type);
 	len += sprintf(buffer + len, "\"max_capacity\": %lu,", so->max_capacity);
 	len += sprintf(buffer + len, "\"free_space\": %lu", so->free_space);
@@ -218,7 +218,7 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	return len;
 }
 
-int ptp_eos_prop_json(void **d, char *buffer, int max) {
+int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 	int code = ptp_read_uint32(d);
 	int data_value = ptp_read_uint32(d);
 
@@ -243,10 +243,16 @@ int ptp_eos_prop_json(void **d, char *buffer, int max) {
 		if (data_value == 3) data_value = 4;
 		name = "battery";
 		break;
-	case PTP_PC_EOS_ImageFormat:
-		data_value = ptp_eos_get_imgformat(data_value, 0);
-		name = "image format";
-		break;
+	case PTP_PC_EOS_ImageFormat: {
+			int data[5] = {data_value, ptp_read_uint32(d), ptp_read_uint32(d),
+				ptp_read_uint32(d), ptp_read_uint32(d)};
+			if (data_value == 1) {
+				data_value = ptp_eos_get_imgformat_value(data);
+			} else {
+				data_value = IMG_FORMAT_RAW_JPEG;
+			}
+			name = "image format";
+		} break;
 	case PTP_PC_EOS_VF_Output:
 		name = "mirror";
 		if (data_value == 3) {
@@ -282,7 +288,6 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		void *d = dp;
 		uint32_t size = ptp_read_uint32(&d);
 		uint32_t type = ptp_read_uint32(&d);
-		printf("Code: %X\n", type);
 
 		dp += size;
 
@@ -298,7 +303,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 		switch (type) {
 		case PTP_EC_EOS_PropValueChanged:
-			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr);
+			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr, size);
 			break;
 		// This seems to signal to camera to rerun SetEventMode.
 		// (Some kind of timing issue).
@@ -492,37 +497,30 @@ int ptp_eos_get_aperture(int data, int dir) {
 }
 
 // Lots of confusing types (resolutions, raw+jpeg, superfine, etc)
-// See enum EOSImageFormats
+// Converts to camlib wrapper types (enum ImageFormats)
 struct CanonImageFormats {
 	int value;
-	int data;
+	int data[9];
 }canon_imgformats[] = {
-	{1, 0}, // RAW
-	{3, 1}, // RAW/JPG
-	// 2
-	// 3
-	// 4
-	// 5
-	// 6
-	// 7
-	{2, 8}, // JPG
-	// 9
-	// 10
-	// 11
-	// 12
-	// 13
+	{IMG_FORMAT_RAW, {1, 16, 6, 0, 4}}, // RAW
+	{IMG_FORMAT_STD, {1, 16, 1, 0, 2}}, // STD
+	{IMG_FORMAT_HIGH, {1, 16, 1, 0, 3}}, // HIGH
+	{IMG_FORMAT_RAW_JPEG, {2, 16, 6, 0, 4, 16, 1, 0, 3}}, // RAW + HIGH JPG
 };
 
-int ptp_eos_get_imgformat(int data, int dir) {
+int *ptp_eos_get_imgformat_data(int code) {
 	for (int i = 0; i < sizeof(canon_imgformats) / sizeof(struct CanonImageFormats); i++) {
-		if (dir) {
-			if (canon_imgformats[i].value == data) {
-				return canon_imgformats[i].data;
-			}
-		} else {
-			if (canon_imgformats[i].data == data) {
-				return canon_imgformats[i].value;
-			}
+		if (canon_imgformats[i].value == code) {
+			return canon_imgformats[i].data;
+		}
+	}
+	return NULL;
+}
+
+int ptp_eos_get_imgformat_value(int data[5]) {
+	for (int i = 0; i < sizeof(canon_imgformats) / sizeof(struct CanonImageFormats); i++) {
+		if (!memcmp(canon_imgformats[i].data, data, sizeof(int) * 5)) {
+			return canon_imgformats[i].value;
 		}
 	}
 

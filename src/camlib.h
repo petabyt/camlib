@@ -55,6 +55,15 @@ enum PtpDeviceType {
 	PTP_DEV_PANASONIC = 6,
 };
 
+// Camlib wrapper types for image formats
+enum ImageFormats {
+	IMG_FORMAT_ETC = 0,
+	IMG_FORMAT_RAW = 1,
+	IMG_FORMAT_STD = 2,
+	IMG_FORMAT_HIGH = 3,
+	IMG_FORMAT_RAW_JPEG = 4,
+};
+
 // Holds vital lib info - passed to most functions
 // Initialize all to zero, then set data and data_length
 struct PtpRuntime {

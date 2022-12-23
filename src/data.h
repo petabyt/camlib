@@ -157,15 +157,8 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
 int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);
-int ptp_eos_get_imgformat(int data, int dir);
-
-// Camlib wrapper types for image formats
-enum ImageFormats {
-	IMG_FORMAT_ETC = 0,
-	IMG_FORMAT_RAW = 1,
-	IMG_FORMAT_JPEG = 2,
-	IMG_FORMAT_RAW_JPEG = 3,
-};
+int *ptp_eos_get_imgformat_data(int code);
+int ptp_eos_get_imgformat_value(int data[5]);
 
 #pragma pack(pop)
 

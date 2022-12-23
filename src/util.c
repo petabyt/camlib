@@ -9,8 +9,8 @@
 // May be slightly inneficient for every frame/action
 // TODO: maybe cache dev type for speed
 int ptp_device_type(struct PtpRuntime *r) {
-	if (di == NULL) return PTP_DEV_EMPTY;
 	struct PtpDeviceInfo *di = r->di;
+	if (di == NULL) return PTP_DEV_EMPTY;
 	if (!strcmp(di->manufacturer, "Canon Inc.")) {
 		if (ptp_check_opcode(r, PTP_OC_EOS_GetStorageIDs)) {
 			return PTP_DEV_EOS;
