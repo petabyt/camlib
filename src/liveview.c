@@ -81,6 +81,10 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	int x = ptp_eos_get_viewfinder_data(r);
 	if (x < 0) return x;
 
+	if (ptp_get_return_code(r) == PTP_RC_CANON_NotReady) {
+		return 0;
+	}
+
 	struct PtpEOSViewFinderData *vfd = (struct PtpEOSViewFinderData *)(ptp_get_payload(r));
 	if (MAX_EOS_JPEG_SIZE < vfd->length) {
 		return 0;

@@ -318,6 +318,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		default:
 			// Unknown event, delete the comma
 			curr -= strlen(end);
+			tmp = 0;
 		}
 
 		if (curr >= max) return 0;
