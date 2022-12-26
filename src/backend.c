@@ -36,6 +36,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 		if (x < 0) {
 			PTPLOG("recieve_bulk_packet: %d\n", x);
+			return PTP_IO_ERR;
 		}
 		read += x;
 
