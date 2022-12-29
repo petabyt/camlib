@@ -10,7 +10,6 @@
 #define SIZE 300000
 int main() {
 	struct PtpRuntime r;
-
 	memset(&r, 0, sizeof(struct PtpRuntime));
 	r.data = malloc(SIZE);
 	r.transaction = 0;

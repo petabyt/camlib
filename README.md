@@ -2,34 +2,45 @@
 This is a portable PTP/USB/IP library written in C99. This uses no code from gphoto2, libptp, or libmtp.  
 This is a complete rewrite from the ground up, and corrects the mistakes made in the design of older libraries.  
 
+This library is written primarily for my [CamControl](https://camcontrol.danielc.dev/) Android app.
+
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
 - Core library will perform no memory allocation
 - No platform specific code at the core
-- Try and make it small, and easy to pick and pull out parts
+- Modular design - make it easy to pick and pull out parts
 - No macros, unless it's for debugging - everything is a function that can be accessed from other languages
 
 ## Checklist
-- [x] Generate a valid packet
-- [x] Android USB Backend
-- [x] Basic PTP definition header
-- [x] Stable back and forth communication (Java/android, LibUSB)
-- [x] Parse device info
-- [x] Bindings to other languages or USB/IP backends
-- [x] Real time camera previews
+- [x] Working Linux, Android, and Windows backends
+- [x] Bindings to other languages
+- [x] Real time camera previews (EOS)
 - [x] Complete most EOS/Canon vendor OCs
-- [ ] Transfer files, delete files
-- [x] "Frontend" functions - generic wrappers for vendor specific things
-- [x] Finish common Canon functions
-- [ ] Very primitive support for other cameras, MTP devices
-- [ ] Dummy backend, for testing
+- [x] Take pictures, perform bulb, set properties, and get properties
+- [x] Basic filesystem functionality
+- [x] Finish basic Canon functions
+- [ ] Dummy reciever (a virtual camera for test communication)
+- [ ] Primitive Nikon, Sony, Fuji support
 
-## Compiling
-Compile test binary for Windows:
+## Sample
 ```
-make WIN=1 wintest.exe
-```
-Compile test binary for Linux:
-```
-make optest
+struct PtpRuntime r;
+memset(&r, 0, sizeof(struct PtpRuntime));
+r.data = malloc(CAMLIB_DEFAULT_SIZE);
+r.data_length = CAMLIB_DEFAULT_SIZE;
+
+if (ptp_device_init(&r)) {
+	puts("Device connection error");
+	return 0;
+}
+
+struct PtpDeviceInfo di;
+
+ptp_get_device_info(&r, &di);
+ptp_device_info_json(&di, (char*)r.data, r.data_length);
+printf("%s\n", (char*)r.data);
+
+ptp_device_close(&r);
+
+free(r.data);
 ```
