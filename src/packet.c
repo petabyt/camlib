@@ -81,11 +81,9 @@ int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulk
 	bulk->code = cmd->code;
 	bulk->transaction = r->transaction;
 
-	bulk->param1 = cmd->params[0];
-	bulk->param2 = cmd->params[1];
-	bulk->param3 = cmd->params[2];
-	bulk->param4 = cmd->params[3];
-	bulk->param5 = cmd->params[4];
+	for (int i = 0; i < 5; i++) {
+		bulk->params[i] = cmd->params[i];
+	}
 
 	memcpy(r->data, bulk, size);
 
@@ -144,21 +142,34 @@ uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	}
 }
 
+int ptp_get_param_length(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+
+	// Get response packet, which backend stores after data packet
+	if (bulk->type == PTP_PACKET_TYPE_DATA) {
+		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+		return bulk->code;
+	} else {
+		return bulk->code;
+	}
+
+	return (bulk->length - 12) / 4;
+
+	return 0;
+}
+
 uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
-	switch (index) {
-	case 0:
-		return bulk->param1;
-	case 1:
-		return bulk->param2;
-	case 2:
-		return bulk->param3;
-	case 3:
-		return bulk->param4;
-	case 4:
-		return bulk->param5;
+	// Get response packet, which backend stores after data packet
+	if (bulk->type == PTP_PACKET_TYPE_DATA) {
+		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+		return bulk->code;
+	} else {
+		return bulk->code;
 	}
+
+	return bulk->params[index];
 
 	return 0;
 }

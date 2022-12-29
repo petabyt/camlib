@@ -107,21 +107,20 @@ void ptp_write_string(void **dat, char *string);
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 
-// Gets return code directly from runtime data
 int ptp_get_return_code(struct PtpRuntime *r);
 int ptp_get_data_length(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
+int ptp_get_param_length(struct PtpRuntime *r);
 
 int ptp_device_type(struct PtpRuntime *r);
 int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
-// Get ptr of packet payload, after header
+// Get ptr of packet payload, after header (includes parameters)
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
 // Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
 
 // Packets start with a uint32 representing the length of the packet.

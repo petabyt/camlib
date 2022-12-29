@@ -261,6 +261,9 @@ int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 			value = "down";
 		}
 		break;
+	case PTP_PC_EOS_AEModeDial:
+		name = "mode dial";
+		break;
 	}
 
 	int curr = 0;
@@ -297,7 +300,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		// Don't put comma for last entry
 		char *end = "";
 		if (tmp) end = ",";
-		tmp = 1;
+		tmp++;
 
 		curr += sprintf(buffer + curr, "%s", end);
 
@@ -318,7 +321,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		default:
 			// Unknown event, delete the comma
 			curr -= strlen(end);
-			tmp = 0;
+			if (tmp == 1) tmp = 0;
 		}
 
 		if (curr >= max) return 0;

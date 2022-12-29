@@ -12,6 +12,8 @@
 #include <ptp.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+	//PTPLOG("send_bulk_packets 0x%X\n", ptp_get_return_code(r));
+
 	int sent = 0;
 	while (1) {
 		int x = ptp_send_bulk_packet(r->data + sent, length);

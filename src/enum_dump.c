@@ -263,6 +263,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_DEV_EOS, "ImageFormatCF", 0xD121},
 {PTP_PC, PTP_DEV_EOS, "ImageFormatSD", 0xD122},
 {PTP_PC, PTP_DEV_EOS, "ImageFormatExtHD", 0xD123},
+{PTP_PC, PTP_DEV_EOS, "AEModeDial", 0xD138},
 {PTP_PC, PTP_DEV_EOS, "VF_Output", 0xD1B0},
 {PTP_PC, PTP_DEV_EOS, "EVFMode", 0xD1B1},
 {PTP_PC, PTP_DEV_EOS, "DOFPreview", 0xD1B2},
@@ -321,4 +322,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 319;
+};int ptp_enums_length = 320;

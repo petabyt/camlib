@@ -7,7 +7,7 @@
 #include <ptp.h>
 
 // May be slightly inneficient for every frame/action
-// TODO: maybe cache dev type for speed
+// TODO: maybe 'cache' dev type for speed
 int ptp_device_type(struct PtpRuntime *r) {
 	struct PtpDeviceInfo *di = r->di;
 	if (di == NULL) return PTP_DEV_EMPTY;

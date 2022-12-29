@@ -20,6 +20,7 @@ static int initialized = 0;
 #define BIND_MAX_PARAM 5
 #define BIND_MAX_NAME 64
 #define BIND_MAX_STRING 32
+#define BIND_MAX_BYTES 128
 
 struct BindResp {
 	char *buffer;
@@ -30,6 +31,9 @@ struct BindResp {
 	int params_length;
 
 	char string[BIND_MAX_STRING];
+
+	// TODO: Implement this
+	uint8_t bytes[BIND_MAX_BYTES];
 };
 
 struct RouteMap {
@@ -344,6 +348,7 @@ int bind_shutter_half_press(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_on(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -354,9 +359,12 @@ int bind_take_picture(struct BindResp *bind, struct PtpRuntime *r) {
 	if (ptp_check_opcode(r, PTP_OC_InitiateCapture)) {
 		x = ptp_init_capture(r, 0, 0);
 	} else if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x |= ptp_eos_remote_release_on(r, 2);
+		x = ptp_eos_remote_release_on(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 		x |= ptp_eos_remote_release_off(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 		x |= ptp_eos_remote_release_off(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -368,7 +376,9 @@ int bind_bulb_start(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_on(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 		x |= ptp_eos_remote_release_on(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -380,7 +390,9 @@ int bind_bulb_stop(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_off(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 		x |= ptp_eos_remote_release_off(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -410,9 +422,15 @@ int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-// TODO: return parameters also
 int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": 0, \"code\": %d}", ptp_get_return_code(r));
+	int curr = sprintf(bind->buffer, "{\"error\": 0, \"code\": %d, params: [", ptp_get_return_code(r));
+	for (int i = 0; i < ptp_get_param_length(r); i++) {
+		char *comma = "";
+		if (i) comma = ",";
+		curr += sprintf(bind->buffer + curr, "%s%u", comma, ptp_get_param(r, i));
+	}
+
+	return sprintf(bind->buffer, "]}");
 }
 
 int bind_reset(struct BindResp *bind, struct PtpRuntime *r) {

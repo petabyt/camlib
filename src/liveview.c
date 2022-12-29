@@ -1,6 +1,8 @@
 // Liveview wrappers - headers defined in operations.h
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
+// TODO: ptp_liveview_jpeg will return pointer to jpeg and length
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -93,8 +95,6 @@ int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	memcpy(buffer, ptp_get_payload(r) + 8, vfd->length);
 	return vfd->length;
 }
-
-// This is weird - need to pause, stop, and resume
 
 int ptp_liveview_init(struct PtpRuntime *r) {
 	int x;

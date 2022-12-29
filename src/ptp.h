@@ -23,12 +23,8 @@ struct PtpBulkContainer {
 	uint32_t transaction;
 
 	// Parameters are only included in command packets,
-	// Skipped in data packets
-	uint32_t param1;
-	uint32_t param2;
-	uint32_t param3;
-	uint32_t param4;
-	uint32_t param5;
+	// It is typically considered a part of payload in data packets
+	uint32_t params[5];
 
 	// Payload data follows, if any
 };
@@ -39,9 +35,7 @@ struct PtpEventContainer {
 	uint16_t code;
 	uint32_t transaction;
 
-	uint32_t param1;
-	uint32_t param2;
-	uint32_t param3;
+	uint32_t params[3];
 };
 
 // Standard PTP Operation Codes (OC)
@@ -332,6 +326,7 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_ImageFormatCF		0xD121
 #define PTP_PC_EOS_ImageFormatSD		0xD122
 #define PTP_PC_EOS_ImageFormatExtHD		0xD123
+#define PTP_PC_EOS_AEModeDial			0xD138
 #define PTP_PC_EOS_VF_Output			0xD1B0
 #define PTP_PC_EOS_EVFMode				0xD1B1
 #define PTP_PC_EOS_DOFPreview			0xD1B2
