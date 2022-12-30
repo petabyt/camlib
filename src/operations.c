@@ -163,11 +163,24 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 	return x;
 }
 
+// raw JPEG contents is in the payload
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetThumb;
-	cmd.param_length = 1;
+	cmd.param_length = 2;
+	cmd.params[0] = handle; // -1 to delete all image
+	cmd.params[1] = 0; // Object format code
+
+	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetThumb;
+	cmd.param_length = 3;
 	cmd.params[0] = handle;
+	cmd.params[1] = storage_id;
+	cmd.params[2] = folder;
 
 	return ptp_generic_send(r, &cmd);
 }
@@ -196,17 +209,6 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 	cmd.param_length = 2;
 	cmd.params[0] = handle;
 	cmd.params[1] = format_code;
-
-	return ptp_generic_send(r, &cmd);	
-}
-
-int ptp_move_object(struct PtpRuntime *r, int handle, int storage_id, int parent_handle) {
-	struct PtpCommand cmd;
-	cmd.code = PTP_OC_MoveObject;
-	cmd.param_length = 3;
-	cmd.params[0] = handle;
-	cmd.params[1] = storage_id;
-	cmd.params[2] = parent_handle;
 
 	return ptp_generic_send(r, &cmd);	
 }

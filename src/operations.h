@@ -13,6 +13,9 @@ int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
 int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a);
 int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi);
+int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder);
+int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
+int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);

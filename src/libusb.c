@@ -135,8 +135,20 @@ int ptp_recieve_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_int(void *to, int length) {
-	return usb_bulk_read(
+	int x = usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_int,
-		(char *)to, length, PTP_TIMEOUT);	
+		(char *)to, length, 50);
+
+	// Error generally means pipe is empty
+	if (x == -110 || x == -16 || x == -5) {
+		return 0;
+	}
+
+	return x;
+}
+
+int reset_int() {
+	return usb_control_msg(ptp_backend.devh, USB_RECIP_ENDPOINT, USB_REQ_CLEAR_FEATURE,
+		0, ptp_backend.endpoint_int, NULL, 0, PTP_TIMEOUT);
 }
