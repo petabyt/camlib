@@ -1,8 +1,11 @@
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 // Generic text bindings to PTP functions
 // - The only function that is exposed is bind_run(), which returns
 // valid JSON from a generic text like request
-// - This is not part of the core library, will use malloc()
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// - This is not part of the core library, and will use malloc()
+
+// TODO: check for initialization for IO functions, can cause segfault
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -423,7 +426,7 @@ int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
 }
 
 int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
-	int curr = sprintf(bind->buffer, "{\"error\": 0, \"code\": %d, params: [", ptp_get_return_code(r));
+	int curr = sprintf(bind->buffer, "{\"error\": 0, \"code\": %d, \"params\": [", ptp_get_return_code(r));
 	for (int i = 0; i < ptp_get_param_length(r); i++) {
 		char *comma = "";
 		if (i) comma = ",";
@@ -435,6 +438,29 @@ int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
 
 int bind_reset(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_device_reset(r));
+}
+
+int bind_get_thumbnail(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = ptp_get_thumbnail(r, bind->params[0]);
+
+	if (x) {
+		return sprintf(bind->buffer, "{\"error\": %d}", x);
+	}
+
+	if (ptp_get_payload_length(r) <= 0) {
+		return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
+	}
+
+	int curr = sprintf(bind->buffer, "{\"error\": 0, \"jpeg\": [");
+
+	for (int i = 0; i < ptp_get_payload_length(r); i++) {
+		char *comma = "";
+		if (i) comma = ",";
+		curr += sprintf(bind->buffer + curr, "%s%u", comma, ((uint8_t *)ptp_get_payload(r))[i]);		
+	}
+
+	curr += sprintf(bind->buffer + curr, "]}");
+	return curr;
 }
 
 struct RouteMap routes[] = {
@@ -471,6 +497,7 @@ struct RouteMap routes[] = {
 	{"ptp_get_storage_info", bind_get_storage_info},
 	{"ptp_get_object_handles", bind_get_object_handles},
 	{"ptp_get_object_info", bind_get_object_info},
+	{"ptp_get_thumbnail", bind_get_thumbnail},
 //	{"ptp_custom_send", NULL},
 //	{"ptp_custom_cmd", NULL},
 };

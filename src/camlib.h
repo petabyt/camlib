@@ -119,6 +119,8 @@ int ptp_check_prop(struct PtpRuntime *r, int code);
 // Get ptr of packet payload, after header (includes parameters)
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
+int ptp_get_payload_length(struct PtpRuntime *r);
+
 // Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);

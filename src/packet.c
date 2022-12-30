@@ -136,10 +136,16 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
+		// TODO: return NULL?
 		return r->data;
 	} else {
 		return r->data + 12;
 	}
+}
+
+int ptp_get_payload_length(struct PtpRuntime *r) {
+	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	return bulk->length - 12;
 }
 
 int ptp_get_param_length(struct PtpRuntime *r) {
