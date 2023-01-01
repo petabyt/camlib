@@ -87,7 +87,9 @@ int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulk
 
 	memcpy(r->data, bulk, size);
 
+	// TODO: Should this line move?
 	r->transaction++;
+
 	return size;
 }
 

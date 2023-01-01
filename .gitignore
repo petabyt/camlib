@@ -4,3 +4,4 @@ DUMP*
 build/
 config.mak
 *.exe
+*.txt

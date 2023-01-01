@@ -33,6 +33,17 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_DEV_EMPTY, "CopyObject", 0x101A},
 {PTP_OC, PTP_DEV_EMPTY, "GetPartialObject", 0x101B},
 {PTP_OC, PTP_DEV_EMPTY, "InitiateOpenCapture", 0x101C},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_GetObjectPropsSupported", 0x9801},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_GetObjectPropDesc", 0x9802},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_GetObjectPropValue", 0x9803},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_SetObjectPropValue", 0x9804},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_GetObjPropList", 0x9805},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_SetObjPropList", 0x9806},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_SendObjectPropList", 0x9808},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_GetObjectReferences", 0x9810},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_SetObjectReferences", 0x9811},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_UpdateDeviceFirmware", 0x9812},
+{PTP_OC, PTP_DEV_EMPTY, "MTP_Skip", 0x9820},
 {PTP_OC, PTP_DEV_NIKON, "Capture", 0x90C0},
 {PTP_OC, PTP_DEV_NIKON, "AfCaptureSDRAM", 0x90CB},
 {PTP_OC, PTP_DEV_NIKON, "StartLiveView", 0x9201},
@@ -322,4 +333,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 320;
+};int ptp_enums_length = 331;

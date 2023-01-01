@@ -36,7 +36,7 @@ struct usb_device *ptp_search() {
 	struct usb_device *dev;
 	while (bus != NULL) {
 		dev = bus->devices;
-		while (dev->next != NULL) {
+		while (dev != NULL) {
 			PTPLOG("Trying %s\n", dev->filename);
 			if (dev->config->interface->altsetting->bInterfaceClass == PTP_CLASS_ID) {
 				PTPLOG("Found PTP device %s\n", dev->filename)

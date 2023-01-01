@@ -34,6 +34,11 @@ ifdef BIND
 FILES+=src/bind.o
 endif
 
+# PTP decoder
+DEC_FILES=src/dec/main.o src/enum.o src/enum_dump.o
+dec: $(DEC_FILES)
+	$(CC) $(DEC_FILES) $(LDFLAGS) $(CFLAGS) -o $@
+
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
 TEST_TARGETS=live script pktest optest test2 evtest wintest.exe bindtest
@@ -58,9 +63,5 @@ wintest.exe: test/wintest.o
 $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
 
-# Compile javascript CLI
-script_test: script
-	./script test/connect.js
-
 clean:
-	$(RM) *.o src/*.o *.out $(TEST_TARGETS) test/*.o *.exe
+	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec

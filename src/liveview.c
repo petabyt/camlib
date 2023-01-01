@@ -79,6 +79,7 @@ int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
     return length * 4;
 }
 
+// TODO: Random faults
 int ptp_liveview_eos(struct PtpRuntime *r, uint8_t *buffer) {
 	int x = ptp_eos_get_viewfinder_data(r);
 	if (x < 0) return x;
