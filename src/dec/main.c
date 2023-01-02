@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 		if (transaction == -1) newline = "";
 
 		if (c->type == PTP_PACKET_TYPE_COMMAND) {
-			if (c->length > sizeof(struct PtpBulkContainer)) {
+			if (c->length > sizeof(struct PtpBulkContainer) || c->length < 12) {
 				goto cnt;
 			}
 
