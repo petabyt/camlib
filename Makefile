@@ -37,7 +37,7 @@ endif
 # PTP decoder
 DEC_FILES=src/dec/main.o src/enum.o src/enum_dump.o
 dec: $(DEC_FILES)
-	$(CC) $(DEC_FILES) $(LDFLAGS) $(CFLAGS) -o $@
+	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list

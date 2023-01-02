@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 
 	FILE *f = fopen(argv[1], "r");
 	if (f == NULL) {
+		puts("error opening file");
 		return 1;
 	}
 
@@ -22,10 +23,15 @@ int main(int argc, char *argv[]) {
 	long size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	char *buffer = malloc(size + 100);
+	if (buffer == NULL) return 1;
 	fread(buffer, 1, size, f);
 	fclose(f);
 
 	f = fopen(argv[2], "w");
+	if (f == NULL) {
+		puts("error creating file");
+		return 1;
+	}
 
 	int transaction = -1; // (Indicates unknown transaction)
 	int last_type = 0;
