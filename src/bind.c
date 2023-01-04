@@ -17,6 +17,8 @@
 #include <backend.h>
 #include <enum.h>
 
+// TODO: shutter half, shutter down, shutter up
+
 static int connected = 0;
 static int initialized = 0;
 
@@ -403,6 +405,46 @@ int bind_bulb_stop(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
+int bind_shutter_half(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_remote_release_off(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		x |= ptp_eos_remote_release_off(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_shutter_half(struct BindResp *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		switch (bind->params[0]) {
+		case 1:
+			x = ptp_eos_remote_release_on(r, 1);
+			break;
+		case 2:
+			x = ptp_eos_remote_release_on(r, 2);
+			break;
+		case 3:
+			x = ptp_eos_remote_release_off(r, 2);
+			break;
+		case 4:
+			x = ptp_eos_remote_release_off(r, 1);
+			break;
+		}
+		
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
 int bind_mirror_up(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
@@ -472,8 +514,15 @@ struct RouteMap routes[] = {
 	{"ptp_disconnect", bind_disconnect},
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
+
+	{"ptp_eos_remote_release", bind_eos_remote_release}
+
+	// Soon obsolete
+	{"ptp_shutter_half_press", bind_shutter_half_press},
+	{"ptp_take_picture", bind_take_picture},
 	{"ptp_bulb_start", bind_bulb_start},
 	{"ptp_bulb_stop", bind_bulb_stop},
+
 	{"ptp_mirror_up", bind_mirror_up},
 	{"ptp_mirror_down", bind_mirror_down},
 	{"ptp_get_device_info", bind_get_device_info},
@@ -490,8 +539,6 @@ struct RouteMap routes[] = {
 	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
 	{"ptp_get_enums", bind_get_enums},
 	{"ptp_get_status", bind_get_status},
-	{"ptp_shutter_half_press", bind_shutter_half_press},
-	{"ptp_take_picture", bind_take_picture},
 	{"ptp_get_return_code", bind_get_return_code},
 	{"ptp_get_storage_ids", bind_get_storage_ids},
 	{"ptp_get_storage_info", bind_get_storage_info},

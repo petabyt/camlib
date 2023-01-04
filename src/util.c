@@ -77,9 +77,11 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int leng
 	}
 }
 
+#ifndef NO_POSIX
 int ptp_dump(struct PtpRuntime *r) {
 	FILE *f = fopen("DUMP", "w");
 	fwrite(r->data, r->data_length, 1, f);
 	fclose(f);
 	return 0;
 }
+#endif

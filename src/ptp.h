@@ -14,8 +14,6 @@
 #define PTP_PACKET_TYPE_RESPONSE	0x3
 #define PTP_PACKET_TYPE_EVENT		0x4
 
-// TODO: convert to params[5]; ?
-
 struct PtpBulkContainer {
 	uint32_t length; // length of packet, in bytes
 	uint16_t type; // See PACKET_TYPE_*
@@ -85,6 +83,7 @@ struct PtpEventContainer {
 #define PTP_OC_NIKON_AfCaptureSDRAM	0x90CB
 #define PTP_OC_NIKON_StartLiveView	0x9201
 #define PTP_OC_NIKON_EndLiveView	0x9202
+#define PTP_OC_NIKON_GetEvent		0x90C7
 
 // Non EOS (Canon point and shoot) operation codes
 #define PTP_OC_CANON_ViewFinderOn		0x900B
@@ -96,6 +95,7 @@ struct PtpEventContainer {
 
 // EOS specific
 #define PTP_OC_EOS_GetStorageIDs		0x9101
+#define PTP_OC_EOS_GetStorageInfo		0x9102
 #define PTP_OC_EOS_SetDevicePropValueEx	0x9110
 #define PTP_OC_EOS_SetRemoteMode		0x9114
 #define PTP_OC_EOS_SetEventMode			0x9115
@@ -293,6 +293,8 @@ struct PtpEventContainer {
 #define PTP_PC_CANON_MacroMode		0xd011
 #define PTP_PC_CANON_FocusingPoint	0xd012
 #define PTP_PC_CANON_WhiteBalance	0xd013
+#define PTP_PC_CANON_AFMode			0xD015
+#define PTP_PC_CANON_Contrast		0xD017
 #define PTP_PC_CANON_ISOSpeed		0xd01c
 #define PTP_PC_CANON_Aperture		0xd01c
 #define PTP_PC_CANON_ShutterSpeed	0xd01e
@@ -344,6 +346,7 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_EVFMode				0xD1B1
 #define PTP_PC_EOS_DOFPreview			0xD1B2
 #define PTP_PC_EOS_VFSharp				0xD1B3
+#define PTP_PC_EOS_FocusInfoEx			0xD1D3
 
 // Storage Types
 #define PTP_ST_Undefined	0x0

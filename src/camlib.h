@@ -55,7 +55,7 @@ enum PtpDeviceType {
 	PTP_DEV_PANASONIC = 6,
 };
 
-// Camlib wrapper types for image formats
+// Camlib wrapper types for vendor specific image formats
 enum ImageFormats {
 	IMG_FORMAT_ETC = 0,
 	IMG_FORMAT_RAW = 1,
@@ -76,6 +76,9 @@ struct PtpRuntime {
 
 	int device_type;
 	struct PtpDeviceInfo *di;
+
+	// TODO: optional additional buffer for
+	// larger files (allocated by caller)
 };
 
 // Generic command structure - not a packet
@@ -102,28 +105,11 @@ int ptp_wide_string(char *buffer, int max, char *input);
 void ptp_write_uint8(void **dat, uint8_t b);
 void ptp_write_string(void **dat, char *string);
 
-// Packet builder functions
-// A command packet is sent first (cmd), followed by a data packet
+// Packet builder functions:
+// Typically, command packet is sent first (cmd), followed by a data packet
+// If any payload is required. The transaction ID
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
-
-int ptp_get_return_code(struct PtpRuntime *r);
-int ptp_get_data_length(struct PtpRuntime *r);
-uint32_t ptp_get_param(struct PtpRuntime *r, int index);
-int ptp_get_param_length(struct PtpRuntime *r);
-
-int ptp_device_type(struct PtpRuntime *r);
-int ptp_check_opcode(struct PtpRuntime *r, int op);
-int ptp_check_prop(struct PtpRuntime *r, int code);
-
-// Get ptr of packet payload, after header (includes parameters)
-uint8_t *ptp_get_payload(struct PtpRuntime *r);
-
-int ptp_get_payload_length(struct PtpRuntime *r);
-
-// Generic cmd send and get response - in place of a macro
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
 
 // Packets start with a uint32 representing the length of the packet.
 // In some cases, we want to append more data to the packet, so the length
@@ -132,6 +118,27 @@ void ptp_update_data_length(struct PtpRuntime *r, int length);
 
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
+
+// Returns info from the response structure currently in the buffer
+int ptp_get_return_code(struct PtpRuntime *r);
+int ptp_get_data_length(struct PtpRuntime *r);
+uint32_t ptp_get_param(struct PtpRuntime *r, int index);
+int ptp_get_param_length(struct PtpRuntime *r);
+int ptp_get_last_transaction();
+
+// Get ptr of packet payload, after header (includes parameters)
+uint8_t *ptp_get_payload(struct PtpRuntime *r);
+int ptp_get_payload_length(struct PtpRuntime *r);
+
+// Generic cmd send and get response - in place of a macro
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
+
+// Will access r->di, a ptr to the device info structure.
+// See tests/ for examples on how to do this.
+int ptp_device_type(struct PtpRuntime *r);
+int ptp_check_opcode(struct PtpRuntime *r, int op);
+int ptp_check_prop(struct PtpRuntime *r, int code);
 
 // Data pack/unpack functions (data.c/data.h)
 #include "data.h"

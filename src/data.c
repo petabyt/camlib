@@ -264,6 +264,14 @@ int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 	case PTP_PC_EOS_AEModeDial:
 		name = "mode dial";
 		break;
+	case PTP_PC_EOS_FocusMode:
+		name = "focus mode";
+		if (data_value == 3) {
+			value = "mf";
+		} else {
+			value = "af";
+		}
+		break;
 	}
 
 	int curr = 0;
