@@ -139,6 +139,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		if (PropVar[1].vt == VT_BSTR)
 			printf("Device Name: %ws\n", PropVar[1].bstrVal);
 		
+		PTPLOG("Building item tree...");
 		x = wia_backend.wia->lpVtbl->CreateDevice(
 			wia_backend.wia, PropVar[0].bstrVal, &wia_backend.item);
 		printf("CreateDevice: %d\n", x);
