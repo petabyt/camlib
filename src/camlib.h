@@ -124,7 +124,7 @@ int ptp_get_return_code(struct PtpRuntime *r);
 int ptp_get_data_length(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 int ptp_get_param_length(struct PtpRuntime *r);
-int ptp_get_last_transaction();
+int ptp_get_last_transaction(struct PtpRuntime *r);
 
 // Get ptr of packet payload, after header (includes parameters)
 uint8_t *ptp_get_payload(struct PtpRuntime *r);

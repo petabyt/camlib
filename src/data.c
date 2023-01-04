@@ -149,7 +149,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 }
 
 const static char *eval_obj_format(int code) {
-	char *x = ptp_get_enum(code);
+	char *x = ptp_get_enum_all(code);
 	switch (code) {
 	case PTP_OF_Association:
 		return "folder";
@@ -222,7 +222,7 @@ int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 	int code = ptp_read_uint32(d);
 	int data_value = ptp_read_uint32(d);
 
-	char *name = ptp_get_enum(code);
+	char *name = ptp_get_enum_all(code);
 	char *value = NULL;
 	switch (code) {
 	case PTP_PC_EOS_Aperture:

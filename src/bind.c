@@ -419,7 +419,7 @@ int bind_shutter_half(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_shutter_half(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_eos_remote_release(struct BindResp *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		switch (bind->params[0]) {
@@ -515,7 +515,7 @@ struct RouteMap routes[] = {
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
 
-	{"ptp_eos_remote_release", bind_eos_remote_release}
+	{"ptp_eos_remote_release", bind_eos_remote_release},
 
 	// Soon obsolete
 	{"ptp_shutter_half_press", bind_shutter_half_press},

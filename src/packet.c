@@ -182,7 +182,7 @@ uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 	return 0;
 }
 
-int ptp_get_last_transaction() {
+int ptp_get_last_transaction(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
