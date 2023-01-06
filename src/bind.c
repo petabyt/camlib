@@ -515,6 +515,8 @@ struct RouteMap routes[] = {
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
 
+	// TODO: start movie capture
+
 	{"ptp_eos_remote_release", bind_eos_remote_release},
 
 	// Soon obsolete

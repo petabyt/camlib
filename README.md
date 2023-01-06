@@ -16,11 +16,11 @@ This library is written primarily for my [CamControl](https://camcontrol.danielc
 - [x] Bindings to other languages
 - [x] Real time camera previews (EOS)
 - [x] Complete most EOS/Canon vendor OCs
-- [x] Take pictures, perform bulb, set properties, and get properties
+- [x] Take pictures, perform bulb, set properties, get properties, poll events
 - [x] Basic filesystem functionality
 - [x] Finish basic Canon functions
-- [ ] Dummy reciever (a virtual camera for test communication)
-- [ ] Primitive Nikon, Sony, Fuji support
+- [ ] Dummy reciever (a virtual camera for test communication, fuzz testing)
+- [ ] Basic Nikon, Sony, Fuji support
 
 ## Sample
 ```
