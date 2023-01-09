@@ -48,11 +48,17 @@ int main(int argc, char *argv[]) {
 		int vendor_oc = c->code >> 8;
 
 		int filter = 1;
-		filter &= c->type == 1 || c->type == 2 || c->type == 3 || c->type == 4;
-		filter &= vendor_oc == 0x10 || vendor_oc == 0x90 || vendor_oc == 0x91 || vendor_oc == 0x92 || vendor_oc == 0x98 || vendor_oc == 0xF0;
+		filter &= c->type == PTP_PACKET_TYPE_COMMAND || c->type == PTP_PACKET_TYPE_DATA
+			|| c->type == PTP_PACKET_TYPE_RESPONSE || c->type == PTP_PACKET_TYPE_EVENT;
 
-		// Filter out EOS GetEvent and GetLiveViewData
-		filter &= c->code != 0x9116 && c->code != 0x9153;
+		if (c->type == PTP_PACKET_TYPE_COMMAND || c->type == PTP_PACKET_TYPE_DATA) {
+			filter &= vendor_oc == 0x10 || vendor_oc == 0x90 || vendor_oc == 0x91 || vendor_oc == 0x92 || vendor_oc == 0x98 || vendor_oc == 0xF0;
+
+			// Filter out EOS GetEvent and GetLiveViewData
+			filter &= c->code != 0x9116 && c->code != 0x9153;
+		} else if (c->type == PTP_PACKET_TYPE_RESPONSE) {
+			filter &= vendor_oc == 0x20;
+		}
 
 		if (!filter) goto cnt;
 
@@ -80,6 +86,9 @@ int main(int argc, char *argv[]) {
 		} else if (c->type == PTP_PACKET_TYPE_RESPONSE) {
 			fprintf(f, "%s--- RESPONSE Container ---\n", newline);
 			type = PTP_RC;
+		} else if (c->type == PTP_PACKET_TYPE_EVENT) {
+			fprintf(f, "%s--- EVENT Container\n", newline);
+			goto cnt;
 		}
 
 		char *enm = ptp_get_enum(type, vendor, c->code);
