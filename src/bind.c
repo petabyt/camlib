@@ -22,35 +22,16 @@
 static int connected = 0;
 static int initialized = 0;
 
-#define BIND_MAX_PARAM 5
-#define BIND_MAX_NAME 64
-#define BIND_MAX_STRING 32
-#define BIND_MAX_BYTES 128
-
-struct BindResp {
-	char *buffer;
-	int max;
-	char name[BIND_MAX_NAME];
-
-	int params[BIND_MAX_PARAM];
-	int params_length;
-
-	char string[BIND_MAX_STRING];
-
-	// TODO: Implement this
-	uint8_t bytes[BIND_MAX_BYTES];
-};
-
 struct RouteMap {
 	char *name;
-	int (*call)(struct BindResp *, struct PtpRuntime *);
+	int (*call)(struct BindReq *, struct PtpRuntime *);
 };
 
-int bind_status(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d}", initialized, connected);
 }
 
-int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	if (initialized) {
 		free(r->data);
 		if (r->di != NULL) free(r->di);
@@ -69,7 +50,7 @@ int bind_init(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
 
-int bind_connect(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_connect(struct BindReq *bind, struct PtpRuntime *r) {
 	// Check if uninitialized
 	if (r->data_length != CAMLIB_DEFAULT_SIZE) {
 		return sprintf(bind->buffer, "{\"error\": %d}", PTP_OUT_OF_MEM);
@@ -83,23 +64,23 @@ int bind_connect(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_disconnect(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_disconnect(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_device_close(r);
 	if (!x) connected = 0;
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_open_session(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_open_session(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_open_session(r);
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_close_session(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_close_session(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_close_session(r);
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_get_device_info(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_device_info(struct BindReq *bind, struct PtpRuntime *r) {
 	if (r->di == NULL) {
 		r->di = malloc(sizeof(struct PtpDeviceInfo));
 	}
@@ -113,7 +94,7 @@ int bind_get_device_info(struct BindResp *bind, struct PtpRuntime *r) {
 	return snprintf(bind->buffer, bind->max, "{\"error\": %d, \"resp\": %s}", x, (char*)r->data);
 }
 
-int bind_get_storage_ids(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_storage_ids(struct BindReq *bind, struct PtpRuntime *r) {
 	struct UintArray *arr;
 	int x = ptp_get_storage_ids(r, &arr);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -129,7 +110,7 @@ int bind_get_storage_ids(struct BindResp *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_get_storage_info(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_storage_info(struct BindReq *bind, struct PtpRuntime *r) {
 	struct PtpStorageInfo so;
 	int x = ptp_get_storage_info(r, bind->params[0], &so);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -140,7 +121,7 @@ int bind_get_storage_info(struct BindResp *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_get_object_handles(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_object_handles(struct BindReq *bind, struct PtpRuntime *r) {
 	struct UintArray *arr;	
 	printf("IN root: %d\n", bind->params[1]);
 	int x = ptp_get_object_handles(r, bind->params[0], 0, bind->params[1], &arr);
@@ -157,7 +138,7 @@ int bind_get_object_handles(struct BindResp *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_get_object_info(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_object_info(struct BindReq *bind, struct PtpRuntime *r) {
 	struct PtpObjectInfo oi;
 	int x = ptp_get_object_info(r, bind->params[0], &oi);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -170,7 +151,7 @@ int bind_get_object_info(struct BindResp *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_custom_cmd(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_custom_cmd(struct BindReq *bind, struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_CloseSession;
 	cmd.param_length = bind->params_length - 1;
@@ -182,13 +163,13 @@ int bind_custom_cmd(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %X}", x, ptp_get_return_code(r));
 }
 
-int bind_drive_lens(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_drive_lens(struct BindReq *bind, struct PtpRuntime *r) {
 	printf("Drive lens %d\n", bind->params[0]);
 	int x = ptp_eos_drive_lens(r, bind->params[0]);
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_get_liveview_frame(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_liveview_frame(struct BindReq *bind, struct PtpRuntime *r) {
 	char *lv = malloc(ptp_liveview_size(r));
 	int x = ptp_liveview_frame(r, lv);
 
@@ -217,7 +198,7 @@ int bind_get_liveview_frame(struct BindResp *bind, struct PtpRuntime *r) {
 	return inc - bind->buffer;
 }
 
-int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 	int x = 0;
 
@@ -260,7 +241,7 @@ int bind_set_property(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_get_events(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 
 	// TODO:
@@ -282,11 +263,11 @@ int bind_get_events(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
 
-int bind_get_liveview_type(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_liveview_type(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_liveview_type(r));
 }
 
-int bind_get_liveview_frame_jpg(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_liveview_frame_jpg(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_liveview_frame(r, bind->buffer);
 
 	if (x < 0) {
@@ -300,27 +281,27 @@ int bind_get_liveview_frame_jpg(struct BindResp *bind, struct PtpRuntime *r) {
 	return x;
 }
 
-int bind_liveview_init(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_liveview_init(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_liveview_init(r));
 }
 
-int bind_liveview_deinit(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_liveview_deinit(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_liveview_deinit(r));
 }
 
-int bind_get_device_type(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_device_type(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_device_type(r));
 }
 
-int bind_eos_set_remote_mode(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_eos_set_remote_mode(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_eos_set_remote_mode(r, bind->params[0]));
 }
 
-int bind_eos_set_event_mode(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_eos_set_event_mode(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_eos_set_event_mode(r, bind->params[0]));
 }
 
-int bind_hello_world(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_hello_world(struct BindReq *bind, struct PtpRuntime *r) {
 	int len = sprintf(bind->buffer, "{\"name\": \"%s\", \"string\": \"%s\" params: [", bind->name, bind->string);
 	for (int i = 0; i < bind->params_length; i++) {
 		char *comma = "";
@@ -332,7 +313,7 @@ int bind_hello_world(struct BindResp *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_get_enums(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_enums(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", 0);
 	char *comma = "";
 	for (int i = 0; i < ptp_enums_length; i++) {
@@ -345,30 +326,46 @@ int bind_get_enums(struct BindResp *bind, struct PtpRuntime *r) {
 	return x;
 }
 
-int bind_get_status(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_status(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"connected\": %d}", connected);
 }
 
-int bind_shutter_half_press(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_bulb_start(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_on(r, 1);
+		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(0, 0));
 		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		x = ptp_eos_bulb_start(r);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+	} else {
+		x = PTP_UNSUPPORTED;
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_take_picture(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_bulb_stop(struct BindReq *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_bulb_stop(r);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_take_picture(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_check_opcode(r, PTP_OC_InitiateCapture)) {
 		x = ptp_init_capture(r, 0, 0);
 	} else if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_on(r, 2);
 		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x |= ptp_eos_remote_release_off(r, 2);
+		x = ptp_eos_remote_release_off(r, 2);
 		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x |= ptp_eos_remote_release_off(r, 1);
+		x = ptp_eos_remote_release_off(r, 1);
 		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	} else {
 		x = PTP_UNSUPPORTED;
@@ -377,49 +374,17 @@ int bind_take_picture(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_bulb_start(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_shutter_half_press(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_on(r, 1);
 		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x |= ptp_eos_remote_release_on(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-	} else {
-		x = PTP_UNSUPPORTED;
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_bulb_stop(struct BindResp *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_off(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x |= ptp_eos_remote_release_off(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-	} else {
-		x = PTP_UNSUPPORTED;
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
-}
-
-int bind_shutter_half(struct BindResp *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_off(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x |= ptp_eos_remote_release_off(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-	} else {
-		x = PTP_UNSUPPORTED;
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
-}
-
-int bind_eos_remote_release(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_eos_remote_release(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		switch (bind->params[0]) {
@@ -445,7 +410,7 @@ int bind_eos_remote_release(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_mirror_up(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_mirror_up(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3);
@@ -456,7 +421,7 @@ int bind_mirror_up(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_mirror_down(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
@@ -467,7 +432,7 @@ int bind_mirror_down(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
-int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_return_code(struct BindReq *bind, struct PtpRuntime *r) {
 	int curr = sprintf(bind->buffer, "{\"error\": 0, \"code\": %d, \"params\": [", ptp_get_return_code(r));
 	for (int i = 0; i < ptp_get_param_length(r); i++) {
 		char *comma = "";
@@ -478,11 +443,11 @@ int bind_get_return_code(struct BindResp *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "]}");
 }
 
-int bind_reset(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_reset(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", ptp_device_reset(r));
 }
 
-int bind_get_thumbnail(struct BindResp *bind, struct PtpRuntime *r) {
+int bind_get_thumbnail(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_get_thumbnail(r, bind->params[0]);
 
 	if (x) {
@@ -552,7 +517,7 @@ struct RouteMap routes[] = {
 };
 
 static int isDigit(char c) {return c >= '0' && c <= '9';}
-void bind_parse(struct BindResp *br, char *req) {
+void bind_parse(struct BindReq *br, char *req) {
 	br->params_length = 0;
 	memset(br->params, 0, sizeof(int) * BIND_MAX_PARAM);
 	memset(br->name, 0, BIND_MAX_NAME);
@@ -613,8 +578,8 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 		return -1;
 	}
 
-	struct BindResp bind;
-	memset(&bind, 0, sizeof(struct BindResp));
+	struct BindReq bind;
+	memset(&bind, 0, sizeof(struct BindReq));
 	bind.buffer = buffer;
 	bind.max = max;
 
@@ -627,4 +592,18 @@ int bind_run(struct PtpRuntime *r, char *req, char *buffer, int max) {
 	}
 
 	return -1;
+}
+
+int bind_run_req(struct PtpRuntime *r, struct BindReq *bind, char *buffer, int max) {
+	if (buffer == NULL) {
+		return -1;
+	}
+
+	for (int i = 0; i < (int)(sizeof(routes) / sizeof(struct RouteMap)); i++) {
+		if (!strcmp(routes[i].name, bind->name)) {
+			return routes[i].call(bind, r);
+		}
+	}
+
+	return -1;	
 }

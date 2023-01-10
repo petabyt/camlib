@@ -48,6 +48,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_DEV_NIKON, "AfCaptureSDRAM", 0x90CB},
 {PTP_OC, PTP_DEV_NIKON, "StartLiveView", 0x9201},
 {PTP_OC, PTP_DEV_NIKON, "EndLiveView", 0x9202},
+{PTP_OC, PTP_DEV_NIKON, "GetEvent", 0x90C7},
 {PTP_OC, PTP_DEV_CANON, "ViewFinderOn", 0x900B},
 {PTP_OC, PTP_DEV_CANON, "ViewFinderOff", 0x900C},
 {PTP_OC, PTP_DEV_CANON, "InitCaptureInRAM", 0x901A},
@@ -55,6 +56,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_DEV_CANON, "LockUI", 0x9004},
 {PTP_OC, PTP_DEV_CANON, "UnlockUI", 0x9005},
 {PTP_OC, PTP_DEV_EOS, "GetStorageIDs", 0x9101},
+{PTP_OC, PTP_DEV_EOS, "GetStorageInfo", 0x9102},
 {PTP_OC, PTP_DEV_EOS, "SetDevicePropValueEx", 0x9110},
 {PTP_OC, PTP_DEV_EOS, "SetRemoteMode", 0x9114},
 {PTP_OC, PTP_DEV_EOS, "SetEventMode", 0x9115},
@@ -230,6 +232,8 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_DEV_CANON, "MacroMode", 0xd011},
 {PTP_PC, PTP_DEV_CANON, "FocusingPoint", 0xd012},
 {PTP_PC, PTP_DEV_CANON, "WhiteBalance", 0xd013},
+{PTP_PC, PTP_DEV_CANON, "AFMode", 0xD015},
+{PTP_PC, PTP_DEV_CANON, "Contrast", 0xD017},
 {PTP_PC, PTP_DEV_CANON, "ISOSpeed", 0xd01c},
 {PTP_PC, PTP_DEV_CANON, "Aperture", 0xd01c},
 {PTP_PC, PTP_DEV_CANON, "ShutterSpeed", 0xd01e},
@@ -279,6 +283,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_PC, PTP_DEV_EOS, "EVFMode", 0xD1B1},
 {PTP_PC, PTP_DEV_EOS, "DOFPreview", 0xD1B2},
 {PTP_PC, PTP_DEV_EOS, "VFSharp", 0xD1B3},
+{PTP_PC, PTP_DEV_EOS, "FocusInfoEx", 0xD1D3},
 {PTP_ST, PTP_DEV_EMPTY, "Undefined", 0x0},
 {PTP_ST, PTP_DEV_EMPTY, "FixedROM", 0x1},
 {PTP_ST, PTP_DEV_EMPTY, "RemovableROM", 0x2},
@@ -333,4 +338,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 331;
+};int ptp_enums_length = 336;

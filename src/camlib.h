@@ -143,12 +143,6 @@ int ptp_check_prop(struct PtpRuntime *r, int code);
 // Data pack/unpack functions (data.c/data.h)
 #include "data.h"
 
-// Recommended buffer size for bind_run
-#define PTP_BIND_DEFAULT_SIZE 5000000
-
-// Run a binding - from bind.c
-int bind_run(struct PtpRuntime *r, char *req, char *buffer, int size);
-
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
 

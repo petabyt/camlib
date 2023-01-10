@@ -316,10 +316,9 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		case PTP_EC_EOS_PropValueChanged:
 			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr, size);
 			break;
-		// This seems to signal to camera to rerun SetEventMode.
-		// (Some kind of timing issue).
 		case PTP_EC_EOS_InfoCheckComplete:
-			curr += sprintf(buffer + curr, "[%u, %u]\n", type, type);
+		case PTP_PC_EOS_FocusInfoEx:
+			curr += sprintf(buffer + curr, "[%s, %u]\n", ptp_get_enum_all(type), type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
 			int a = ptp_read_uint32(&d);
