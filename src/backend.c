@@ -47,10 +47,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			return PTP_OUT_OF_MEM;
 		}
 
-		if (x < 0) {
-			PTPLOG("recieve_bulk_packets: ptp_bulk_read < 0, IO error\n");
-			return PTP_IO_ERR;
-		} else if (x != r->max_packet_size) {
+		if (x != r->max_packet_size) {
 			PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
 			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 
@@ -61,12 +58,84 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			}
 
 			PTPLOG("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
-			//PTPLOG("recieve_bulk_packets: Param1: 0x%X\n", ptp_get_param(r, 0));
 
-			// No more more packets to read
 			return read;
 		}
 	}
+}
+
+int ptp_send_file_packets(struct PtpRuntime *r, int length, FILE *stream) {
+	//PTPLOG("send_bulk_packets 0x%X\n", ptp_get_return_code(r));
+
+	int x = ptp_send_bulk_packet(r->data, length);
+	if (x < 0) {
+		PTPLOG("send_bulk_packet: %d\n", x);
+		return PTP_IO_ERR;
+	}
+
+	int sent = x;
+	
+	while (1) {
+		x = fread(r->data, 1, r->max_packet_size, stream);
+		if (x <= 0) {
+			PTPLOG("fread: %d", x);
+			return PTP_IO_ERR;
+		}
+
+		int x = ptp_send_bulk_packet(r->data, x);
+		if (x < 0) {
+			PTPLOG("send_bulk_packet: %d\n", x);
+			return PTP_IO_ERR;
+		}
+		
+		sent += x;
+		
+		if (sent >= length) {
+			PTPLOG("send_bulk_packet: Sent %d bytes\n", sent);
+			return sent;
+		}
+	}
+}
+
+// TODO: add length to skip bytes
+int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream) {
+	int read = 0;
+
+	int type = -1;
+
+	while (1) {
+		int x = ptp_recieve_bulk_packet(r->data, r->max_packet_size);
+		if (x < 0) {
+			PTPLOG("recieve_bulk_packet: %d\n", x);
+			return PTP_IO_ERR;
+		}
+
+		if (type == -1) {
+			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+			type = c->type;
+		}
+
+		int fr = fwrite(r->data, 1, x, stream);
+		if (fr <= 0) {
+			PTPLOG("fwrite: %d\n", fr);
+		}
+		
+		read += x;
+
+		if (x != r->max_packet_size) {
+			PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
+
+			// Read the response packet if only a data packet was sent
+			if (type == PTP_PACKET_TYPE_DATA) {
+				x = ptp_recieve_bulk_packet(r->data, r->max_packet_size);
+				PTPLOG("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+			} else {
+				// TODO: Why send a small packet with stream reader?
+			}
+
+			return read;
+		}
+	}	
 }
 
 int ptp_read_int(struct PtpRuntime *r) {

@@ -103,6 +103,23 @@ int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si
 	}
 }
 
+int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max, void **ptr) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetPartialObject;
+	cmd.param_length = 3;
+	cmd.params[0] = handle;
+	cmd.params[0] = offset;
+	cmd.params[0] = max;
+
+	int x = ptp_generic_send(r, &cmd);
+	if (x) {
+		return x;
+	} else {
+		*ptr = ptp_get_payload(r);
+		return 0;
+	}
+}
+
 int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetObjectInfo;
