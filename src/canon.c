@@ -26,6 +26,13 @@ int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode) {
 	return ptp_generic_send(r, &cmd);
 }
 
+int ptp_eos_cancel_af(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_AfCancel;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);
+}
+
 // Add 0x8000 to param1 change direction
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
 	if (steps < 0) {

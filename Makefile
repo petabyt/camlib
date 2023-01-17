@@ -19,6 +19,8 @@ endif
 
 CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
 
+all: $(FILES)
+
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -29,11 +31,6 @@ src/enum_dump.o: src/ptp.h src/stringify.py
 	$(CC) -c src/enum_dump.c $(CFLAGS) -o src/enum_dump.o
 endif
 
-# Defining BIND will compile JSON bindings (bind.c)
-ifdef BIND
-FILES+=src/bind.o
-endif
-
 # PTP decoder
 DEC_FILES=src/dec/main.o src/enum.o src/enum_dump.o
 dec: $(DEC_FILES)
@@ -41,7 +38,7 @@ dec: $(DEC_FILES)
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
-TEST_TARGETS=live script pktest optest test2 evtest wintest.exe bindtest
+TEST_TARGETS=live script pktest optest test2 evtest wintest.exe bindtest fh
 script: ../mjs/mjs.o test/script.o
 script: FILES+=../mjs/mjs.o test/script.o
 pktest: test/pktest.o
@@ -59,9 +56,14 @@ live: FILES+=test/live.o
 live: CFLAGS+=-lX11
 wintest.exe: FILES+=test/wintest.o
 wintest.exe: test/wintest.o
+fh: FILES+=test/fh.o
+fh: test/fh.o
+
 
 $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
 
 clean:
 	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec
+
+.PHONY: all clean

@@ -76,6 +76,7 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_DEV_EOS, "TerminateViewfinder", 0x9152},
 {PTP_OC, PTP_DEV_EOS, "GetViewFinderData", 0x9153},
 {PTP_OC, PTP_DEV_EOS, "DoAutoFocus", 0x9154},
+{PTP_OC, PTP_DEV_EOS, "AfCancel", 0x9160},
 {PTP_OC, PTP_DEV_EOS, "SetDefaultSetting", 0x91BE},
 {PTP_ENUM, 0, "EOS_DESTINATION_CAM", 0x2},
 {PTP_ENUM, 0, "EOS_DESTINATION_PC", 0x4},
@@ -338,4 +339,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 336;
+};int ptp_enums_length = 337;

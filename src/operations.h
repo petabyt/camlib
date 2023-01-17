@@ -32,6 +32,7 @@ int ptp_eos_bulb_start(struct PtpRuntime *r);
 int ptp_eos_bulb_stop(struct PtpRuntime *r);
 int ptp_eos_set_ui_lock(struct PtpRuntime *r);
 int ptp_eos_reset_ui_lock(struct PtpRuntime *r);
+int ptp_eos_cancel_af(struct PtpRuntime *r);
 
 // steps can be between -3 and 3
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps);

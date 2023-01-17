@@ -385,6 +385,18 @@ int bind_shutter_half_press(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
+int bind_cancel_af(struct BindReq *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_check_opcode(r, PTP_OC_EOS_AfCancel)) {
+		x = ptp_eos_cancel_af(r);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
 int bind_eos_remote_release(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
@@ -490,6 +502,8 @@ struct RouteMap routes[] = {
 	{"ptp_take_picture", bind_take_picture},
 	{"ptp_bulb_start", bind_bulb_start},
 	{"ptp_bulb_stop", bind_bulb_stop},
+
+	{"ptp_cancel_af", bind_cancel_af},
 
 	{"ptp_mirror_up", bind_mirror_up},
 	{"ptp_mirror_down", bind_mirror_down},

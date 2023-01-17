@@ -10,9 +10,10 @@
 #include <camlib.h>
 #include <backend.h>
 #include <ptp.h>
+#include <enum.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	//PTPLOG("send_bulk_packets 0x%X\n", ptp_get_return_code(r));
+	PTPLOG("send_bulk_packets 0x%X (%s)\n", ptp_get_return_code(r), ptp_get_enum_all(ptp_get_return_code(r)));
 
 	int sent = 0;
 	while (1) {
@@ -37,8 +38,17 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 	while (1) {
 		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 		if (x < 0) {
-			PTPLOG("recieve_bulk_packet: %d\n", x);
-			return PTP_IO_ERR;
+			// Check if first time reading, try again
+			if (read == 0) {
+				PTPLOG("Failed to recieve packet, trying again...\n");
+				CAMLIB_SLEEP(100);
+				x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
+			}
+
+			if (x < 0) {
+				PTPLOG("recieve_bulk_packet: %d\n", x);
+				return PTP_IO_ERR;
+			}
 		}
 		read += x;
 

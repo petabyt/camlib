@@ -7,6 +7,10 @@
 // Max timeout for response
 #define PTP_TIMEOUT 1000
 
+#ifndef CAMLIB_SLEEP
+#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
+#endif
+
 // Optional debug logging
 //#define VERBOSE
 #ifdef VERBOSE

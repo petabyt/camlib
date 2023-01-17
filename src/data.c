@@ -267,9 +267,9 @@ int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 	case PTP_PC_EOS_FocusMode:
 		name = "focus mode";
 		if (data_value == 3) {
-			value = "mf";
+			value = "MF";
 		} else {
-			value = "af";
+			value = "AF";
 		}
 		break;
 	}
@@ -318,7 +318,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			break;
 		case PTP_EC_EOS_InfoCheckComplete:
 		case PTP_PC_EOS_FocusInfoEx:
-			curr += sprintf(buffer + curr, "[%s, %u]\n", ptp_get_enum_all(type), type);
+			curr += sprintf(buffer + curr, "[\"%s\", %u]\n", ptp_get_enum_all(type), type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
 			int a = ptp_read_uint32(&d);
