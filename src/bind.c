@@ -334,10 +334,10 @@ int bind_get_status(struct BindReq *bind, struct PtpRuntime *r) {
 int bind_bulb_start(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(0, 0));
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
-		x = ptp_eos_bulb_start(r);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		x = ptp_eos_remote_release_on(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
+		x = ptp_eos_remote_release_on(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -348,10 +348,22 @@ int bind_bulb_start(struct BindReq *bind, struct PtpRuntime *r) {
 int bind_bulb_stop(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_bulb_stop(r);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		x = ptp_eos_remote_release_off(r, 2);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
+		x = ptp_eos_remote_release_off(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
+	}
+
+	return sprintf(bind->buffer, "{\"error\": %d}", x);
+}
+
+int bind_pre_take_picture(struct BindReq *bind, struct PtpRuntime *r) {
+	int x = 0;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_remote_release_on(r, 1);
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -363,23 +375,13 @@ int bind_take_picture(struct BindReq *bind, struct PtpRuntime *r) {
 		x = ptp_init_capture(r, 0, 0);
 	} else if (ptp_device_type(r) == PTP_DEV_EOS) {
 		x = ptp_eos_remote_release_on(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 		x = ptp_eos_remote_release_off(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 		x = ptp_eos_remote_release_off(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
-}
-
-int bind_shutter_half_press(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_on(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -389,7 +391,7 @@ int bind_cancel_af(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_check_opcode(r, PTP_OC_EOS_AfCancel)) {
 		x = ptp_eos_cancel_af(r);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -415,7 +417,7 @@ int bind_eos_remote_release(struct BindReq *bind, struct PtpRuntime *r) {
 			break;
 		}
 		
-		if (ptp_get_return_code(r) != PTP_RC_OK) return PTP_CHECK_CODE;
+		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -498,8 +500,9 @@ struct RouteMap routes[] = {
 	{"ptp_eos_remote_release", bind_eos_remote_release},
 
 	// Soon obsolete
-	{"ptp_shutter_half_press", bind_shutter_half_press},
+	{"ptp_pre_take_picture", bind_pre_take_picture},
 	{"ptp_take_picture", bind_take_picture},
+
 	{"ptp_bulb_start", bind_bulb_start},
 	{"ptp_bulb_stop", bind_bulb_stop},
 

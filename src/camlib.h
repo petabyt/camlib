@@ -1,4 +1,5 @@
 // CamLib specific code, not PTP ISO standard definitions
+// Override preprocessor directives by -include ing a custom header
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
 
@@ -8,6 +9,7 @@
 #define PTP_TIMEOUT 1000
 
 #ifndef CAMLIB_SLEEP
+#include <unistd.h>
 #define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
