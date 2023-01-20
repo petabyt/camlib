@@ -157,6 +157,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
 int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);
+int ptp_eos_get_white_balance(int data, int dir);
 int *ptp_eos_get_imgformat_data(int code);
 int ptp_eos_get_imgformat_value(int data[5]);
 

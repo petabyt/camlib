@@ -226,6 +226,11 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
 		}
+	} else if (!strcmp(bind->string, "white balance")) {
+		if (dev == PTP_DEV_EOS) {
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_WhiteBalance, ptp_eos_get_white_balance(value, 1));
+			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
+		}
 	} else if (!strcmp(bind->string, "image format")) {
 		if (dev == PTP_DEV_EOS) {
 			int *data = ptp_eos_get_imgformat_data(value);

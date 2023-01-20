@@ -347,6 +347,7 @@ struct PtpEventContainer {
 #define PTP_PC_EOS_EVFMode				0xD1B1
 #define PTP_PC_EOS_DOFPreview			0xD1B2
 #define PTP_PC_EOS_VFSharp				0xD1B3
+#define PTP_PC_EOS_EVFWBMode			0xD1B4
 #define PTP_PC_EOS_FocusInfoEx			0xD1D3
 
 // Storage Types

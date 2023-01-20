@@ -272,6 +272,10 @@ int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
 			value = "AF";
 		}
 		break;
+	case PTP_PC_EOS_WhiteBalance:
+		name = "white balance";
+		data_value = ptp_eos_get_white_balance(data_value, 0);
+		break;
 	}
 
 	int curr = 0;
@@ -450,6 +454,33 @@ int ptp_eos_get_iso(int data, int dir) {
 		} else {
 			if (canon_iso[i].data == data) {
 				return canon_iso[i].value;
+			}
+		}
+	}
+
+	return data;
+}
+
+struct CanonWhiteBalance {
+	int value;
+	int data;
+}canon_white_balance[] = {
+	{0, 0}, // AUTO
+	{1, 1}, // Daylight
+	{2, 8}, // Shade
+	{3, 3}, // Tungsten/Incandescent
+	{4, 4}, // White florescent
+};
+
+int ptp_eos_get_white_balance(int data, int dir) {
+	for (int i = 0; i < sizeof(struct CanonWhiteBalance) / sizeof(struct CanonWhiteBalance); i++) {
+		if (dir) {
+			if (canon_white_balance[i].value == data) {
+				return canon_white_balance[i].data;
+			}
+		} else {
+			if (canon_white_balance[i].data == data) {
+				return canon_white_balance[i].value;
 			}
 		}
 	}
