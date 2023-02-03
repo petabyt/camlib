@@ -10,7 +10,7 @@
 #include <camlib.h>
 #include <backend.h>
 #include <ptp.h>
-#include <enum.h>
+#include <enums.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	PTPLOG("send_bulk_packets 0x%X (%s)\n", ptp_get_return_code(r), ptp_get_enum_all(ptp_get_return_code(r)));
@@ -74,7 +74,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 	}
 }
 
-int ptp_send_file_packets(struct PtpRuntime *r, int length, FILE *stream) {
+int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
 	//PTPLOG("send_bulk_packets 0x%X\n", ptp_get_return_code(r));
 
 	int x = ptp_send_bulk_packet(r->data, length);
@@ -107,12 +107,11 @@ int ptp_send_file_packets(struct PtpRuntime *r, int length, FILE *stream) {
 	}
 }
 
-// TODO: add length to skip bytes
-int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream) {
+int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
 	int read = 0;
 
+	// Since the data is written to file, we must remember the packet type
 	int type = -1;
-
 	while (1) {
 		int x = ptp_recieve_bulk_packet(r->data, r->max_packet_size);
 		if (x < 0) {
@@ -125,7 +124,8 @@ int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream) {
 			type = c->type;
 		}
 
-		int fr = fwrite(r->data, 1, x, stream);
+		int fr = fwrite(r->data + of, 1, x - of, stream);
+		of = 0;
 		if (fr <= 0) {
 			PTPLOG("fwrite: %d\n", fr);
 		}

@@ -8,6 +8,7 @@
 // Max timeout for response
 #define PTP_TIMEOUT 1000
 
+// Conforms to POSIX 2001, some compilers may not have it
 #ifndef CAMLIB_SLEEP
 #include <unistd.h>
 #define CAMLIB_SLEEP(ms) usleep(ms * 1000)
@@ -24,8 +25,7 @@
 // 2mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 2000000
 
-// Generic IO error, not PTP return codes
-// TODO: Disconnect error?
+// Generic Camlib errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
 	PTP_NO_DEVICE = -1,
@@ -50,8 +50,8 @@ enum PtpLiveViewType {
 	PTP_LV_ML = 3,
 };
 
-// TODO: Rename to vendor type?
-enum PtpDeviceType {
+// Detect device type - each category should have similar opcodes
+enum PtpVendors {
 	PTP_DEV_EMPTY = 0,
 	PTP_DEV_EOS = 1,
 	PTP_DEV_CANON = 2,
@@ -61,7 +61,7 @@ enum PtpDeviceType {
 	PTP_DEV_PANASONIC = 6,
 };
 
-// Camlib wrapper types for vendor specific image formats
+// Wrapper types for vendor specific image formats
 enum ImageFormats {
 	IMG_FORMAT_ETC = 0,
 	IMG_FORMAT_RAW = 1,
@@ -70,21 +70,23 @@ enum ImageFormats {
 	IMG_FORMAT_RAW_JPEG = 4,
 };
 
-// Holds vital lib info - passed to most functions
-// Initialize all to zero, then set data and data_length
 struct PtpRuntime {
-	int transaction; // transaction ID
-	int session; // session ID
-    uint8_t *data;
-    int data_length;
-	int max_packet_size;
 	int active_connection;
 
+	// The transaction ID and session ID is managed by the
+	// packet generator functions
+	int transaction;
+	int session;
+
+    uint8_t *data;
+    int data_length;
+
+	// 512 is common, although sometimes the backend can manage more
+	int max_packet_size;
+
+	// Info about current connection, used to detect the vendor, supported opodes
 	int device_type;
 	struct PtpDeviceInfo *di;
-
-	// TODO: optional additional buffer for
-	// larger files (allocated by caller)
 };
 
 // Generic command structure - not a packet
@@ -139,6 +141,9 @@ int ptp_get_payload_length(struct PtpRuntime *r);
 // Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
+
+// Generic runtime setup - allocate default memory
+void ptp_generic_init(struct PtpRuntime *r);
 
 // Will access r->di, a ptr to the device info structure.
 // See tests/ for examples on how to do this.

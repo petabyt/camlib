@@ -1,10 +1,20 @@
-// Generic misc things
+// Helper/convenient functions
 
-#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <camlib.h>
 #include <backend.h>
 #include <ptp.h>
+
+void ptp_generic_init(struct PtpRuntime *r) {
+	r->active_connection = 0;
+	r->transaction = 0;
+	r->session = 0;
+	r->data = malloc(CAMLIB_DEFAULT_SIZE);
+	r->data_length = CAMLIB_DEFAULT_SIZE;
+	r->max_packet_size = 512;
+}
 
 // May be slightly inneficient for every frame/action
 // TODO: maybe 'cache' dev type for speed
@@ -77,11 +87,9 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int leng
 	}
 }
 
-#ifndef NO_POSIX
 int ptp_dump(struct PtpRuntime *r) {
 	FILE *f = fopen("DUMP", "w");
 	fwrite(r->data, r->data_length, 1, f);
 	fclose(f);
 	return 0;
 }
-#endif

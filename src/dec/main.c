@@ -3,7 +3,7 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <enum.h>
+#include <enums.h>
 
 int main(int argc, char *argv[]) {
 	if (argc < 3) {

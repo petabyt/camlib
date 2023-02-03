@@ -1,4 +1,3 @@
-// TODO: Rename to ptpenum.h?
 #ifndef PTPENUM_H
 #define PTPENUM_H
 

@@ -18,239 +18,246 @@
 #include <winuser.h>
 #include <devpkey.h>
 #include <initguid.h>
-#include <wia.h>
 
-#include <winptp.h>
+//#include <winptp.h>
 
 #include <camlib.h>
 #include <backend.h>
 #include <ptp.h>
 
-#define MAX_DATA_IN 0x10000
-#define MAX_DATA_OUT 0x1000000
+#include <PortableDeviceApi.h>      // Include this header for Windows Portable Device API interfaces
+#include <PortableDevice.h>         // Include this header for Windows Portable Device definitions
+#include <WpdMtpExtensions.h>
 
-struct WiaBackend {
-	IWiaDevMgr *wia;
-	IEnumWIA_DEV_INFO *info;
+#pragma comment(lib,"PortableDeviceGUIDs.lib")
 
-	IUnknown *dev_connected;
-	IWiaEventCallback *callback;
+#define CLIENT_NAME         L"WPD Services Sample Application"
+#define CLIENT_MAJOR_VER    1
+#define CLIENT_MINOR_VER    0
+#define CLIENT_REVISION     0
 
-	IWiaPropertyStorage *storage;
-	IWiaItem *item;
-	IWiaItemExtras *extras;
+HRESULT OpenDevice(LPCWSTR wszPnPDeviceID) {
+    HRESULT                hr = S_OK;
+    IPortableDeviceValues* pClientInformation = NULL;
+    IPortableDevice* pDevice = NULL;
 
-	PTP_VENDOR_DATA_IN *pDataIn;
-	PTP_VENDOR_DATA_OUT *pDataOut;
+    if ((wszPnPDeviceID == NULL))
+    {
+        hr = E_INVALIDARG;
+        return hr;
+    }
 
-	DWORD dwActualDataOutSize;
-}wia_backend;
+    HRESULT ClientInfoHR = S_OK;
 
-HRESULT _ImageEventCallback(IWiaEventCallback *This,const GUID *pEventGUID,BSTR bstrEventDescription,BSTR bstrDeviceID,BSTR bstrDeviceDescription,DWORD dwDeviceType,BSTR bstrFullItemName,ULONG *pulEventType,ULONG ulReserved) {
-	PTPLOG("_ImageEventCallback\n");
-	return 1;
-}
-HRESULT _QueryInterface(IWiaEventCallback *This,REFIID riid,void **ppvObject) {
-	PTPLOG("_QueryInterface\n");
-	return E_NOINTERFACE;
-}
-ULONG _AddRef(IWiaEventCallback *This) {
-	PTPLOG("_AddRef\n");
-	return 1;
-}
-ULONG _Release(IWiaEventCallback *This) {
-	PTPLOG("_Release\n");
-	return 1;
-}
+    // CoCreate an IPortableDeviceValues interface to hold the client information.
+    hr = CoCreateInstance(CLSID_PortableDeviceValues,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_IPortableDeviceValues,
+        (VOID**)&pClientInformation);
+    if (SUCCEEDED(hr))
+    {
 
-int ptp_device_init(struct PtpRuntime *r) {
-	memset(&wia_backend, 0, sizeof(wia_backend));
+        // Attempt to set all properties for client information. If we fail to set
+        // any of the properties below it is OK. Failing to set a property in the
+        // client information isn't a fatal error.
+        ClientInfoHR = pClientInformation->SetStringValue(WPD_CLIENT_NAME, CLIENT_NAME);
+        if (FAILED(ClientInfoHR))
+        {
+            // Failed to set WPD_CLIENT_NAME
+            printf("Error %d\n", GetLastError());
+        }
 
-	// Data sent to device
-	wia_backend.pDataIn = (PTP_VENDOR_DATA_IN *)malloc(MAX_DATA_IN);
-	if (!wia_backend.pDataIn) {
-		return PTP_IO_ERR;
-	}
+        ClientInfoHR = pClientInformation->SetUnsignedIntegerValue(WPD_CLIENT_MAJOR_VERSION, CLIENT_MAJOR_VER);
+        if (FAILED(ClientInfoHR))
+        {
+            // Failed to set WPD_CLIENT_MAJOR_VERSION
+        }
 
-	// Data recieved from device
-	wia_backend.pDataOut = (PTP_VENDOR_DATA_OUT *)malloc(MAX_DATA_OUT);
-	if (!wia_backend.pDataOut) {
-		return PTP_IO_ERR;
-	}
+        ClientInfoHR = pClientInformation->SetUnsignedIntegerValue(WPD_CLIENT_MINOR_VERSION, CLIENT_MINOR_VER);
+        if (FAILED(ClientInfoHR))
+        {
+            // Failed to set WPD_CLIENT_MINOR_VERSION
+        }
 
-	HRESULT x = CoInitialize(NULL);
-	PTPLOG("CoInitialize(): %d\n", x);
+        ClientInfoHR = pClientInformation->SetUnsignedIntegerValue(WPD_CLIENT_REVISION, CLIENT_REVISION);
+        if (FAILED(ClientInfoHR))
+        {
+            // Failed to set WPD_CLIENT_REVISION
+            printf("Error %d\n", GetLastError());
+        }
+    }
+    else
+    {
+        // Failed to CoCreateInstance CLSID_PortableDeviceValues for client information
+        printf("Error %d\n", GetLastError());
+    }
 
-	x = CoCreateInstance(
-		&CLSID_WiaDevMgr,
-		NULL,
-		CLSCTX_LOCAL_SERVER,
-		&IID_IWiaDevMgr,
-		(LPVOID *)&wia_backend.wia
-	);
+    ClientInfoHR = pClientInformation->SetUnsignedIntegerValue(WPD_CLIENT_SECURITY_QUALITY_OF_SERVICE, SECURITY_IMPERSONATION);
+    if (FAILED(ClientInfoHR))
+    {
+        // Failed to set WPD_CLIENT_SECURITY_QUALITY_OF_SERVICE
+        printf("Error %d\n", GetLastError());
+    }
 
-	PTPLOG("CoCreateInstance(): %d\n", x);
-	if (x != S_OK) return PTP_NO_DEVICE;
+    if (SUCCEEDED(hr))
+    {
+        // CoCreate an IPortableDevice interface
+        hr = CoCreateInstance(CLSID_PortableDeviceFTM,
+            NULL,
+            CLSCTX_INPROC_SERVER,
+            IID_IPortableDevice,
+            (VOID**)&pDevice);
 
-#if 0
-	// Set up a PTP event listener	
-	IWiaEventCallback *callback;
-	callback->lpVtbl->ImageEventCallback = _ImageEventCallback;
-	callback->lpVtbl->QueryInterface = _QueryInterface;
-	callback->lpVtbl->AddRef = _AddRef;
-	callback->lpVtbl->Release = _Release;
-	x = wia_backend.wia->lpVtbl->RegisterEventCallbackInterface(
-		wia_backend.wia,
-		0,
-		NULL,
-		&WIA_EVENT_DEVICE_CONNECTED,
-		callback,
-		&wia_backend.dev_connected
-	);
+        if (SUCCEEDED(hr))
+        {
+            // Attempt to open the device using the PnPDeviceID string given
+            // to this function and the newly created client information.
+            // Note that we're attempting to open the device the first 
+            // time using the default (read/write) access. If this fails
+            // with E_ACCESSDENIED, we'll attempt to open a second time
+            // with read-only access.
+            hr = pDevice->Open(wszPnPDeviceID, pClientInformation);
+            if (hr == E_ACCESSDENIED)
+            {
+                // Attempt to open for read-only access
+                pClientInformation->SetUnsignedIntegerValue(
+                    WPD_CLIENT_DESIRED_ACCESS,
+                    GENERIC_READ);
+                hr = pDevice->Open(wszPnPDeviceID, pClientInformation);
+            }
+            if (SUCCEEDED(hr))
+            {
+                printf("Success opening\n");
 
-	PTPLOG("RegisterEventCallbackInterface(): %d\n", x);
-	if (x != S_OK) return PTP_NO_DEVICE;
-#endif
+                HANDLE foo = CreateEvent(nullptr, false, false, nullptr);
 
-	x = wia_backend.wia->lpVtbl->EnumDeviceInfo(wia_backend.wia, WIA_DEVINFO_ENUM_LOCAL, &wia_backend.info);
-	printf("EnumDeviceInfo(): %d\n", x);
-	if (x != S_OK) return PTP_NO_DEVICE;
+                PROPERTYKEY opType = WPD_COMMAND_MTP_EXT_EXECUTE_COMMAND_WITH_DATA_TO_READ;
 
-	int curr = 0;
-	while (1) {
-		x = wia_backend.info->lpVtbl->Next(wia_backend.info, 1, &wia_backend.storage, NULL);
-		printf("Next(): %d\n", x);
-		if (x != S_OK) break;
-		
-		PROPSPEC PropSpec[2] = {0};
-		PROPVARIANT PropVar[2] = {0};
+                IPortableDeviceValues* pDevValues;
+                hr = CoCreateInstance(CLSID_PortableDeviceValues,
+                    nullptr,
+                    CLSCTX_INPROC_SERVER,
+                    IID_PPV_ARGS(&pDevValues));
 
-		PropSpec[0].ulKind = PRSPEC_PROPID;
-		PropSpec[0].propid = WIA_DIP_DEV_ID;
+                hr = pDevValues->SetGuidValue(WPD_PROPERTY_COMMON_COMMAND_CATEGORY,
+                    opType.fmtid);
 
-		PropSpec[1].ulKind = PRSPEC_PROPID;
-		PropSpec[1].propid = WIA_DIP_DEV_NAME;
-		
-		x = wia_backend.storage->lpVtbl->ReadMultiple(
-			wia_backend.storage, 2, PropSpec, PropVar);
-		if (PropVar[0].vt == VT_BSTR)
-			printf("Device ID: %ws\n", PropVar[0].bstrVal);
-		
-		if (PropVar[1].vt == VT_BSTR)
-			printf("Device Name: %ws\n", PropVar[1].bstrVal);
-		
-		PTPLOG("Building item tree...");
-		x = wia_backend.wia->lpVtbl->CreateDevice(
-			wia_backend.wia, PropVar[0].bstrVal, &wia_backend.item);
-		printf("CreateDevice: %d\n", x);
+                hr = pDevValues->SetUnsignedIntegerValue(WPD_PROPERTY_COMMON_COMMAND_ID,
+                    opType.pid);
 
-		x = wia_backend.item->lpVtbl->QueryInterface(
-			wia_backend.item, &IID_IWiaItemExtras, (void **)&wia_backend.extras);
-		printf("QueryInterface: %X\n", x);
+                hr = pDevValues->SetUnsignedIntegerValue(WPD_PROPERTY_MTP_EXT_OPERATION_CODE,
+                    (ULONG)0x1001);
 
-		//FreePropVariantArray(2, PropVar);
-		return 0;
-	}
+                if (SUCCEEDED(hr))
+                {
+                    printf("Success opcode\n");
+                }
 
-	return PTP_NO_DEVICE;
-}
+                IPortableDevicePropVariantCollection* spMtpParams = nullptr;
+                hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection,
+                    NULL,
+                    CLSCTX_INPROC_SERVER,
+                    IID_PPV_ARGS(&spMtpParams));
 
-int ptp_device_close(struct PtpRuntime *r) {
-	wia_backend.extras->lpVtbl->Release(wia_backend.extras);
-	wia_backend.item->lpVtbl->Release(wia_backend.item);
-	wia_backend.storage->lpVtbl->Release(wia_backend.storage);
-	wia_backend.info->lpVtbl->Release(wia_backend.info);
-	wia_backend.wia->lpVtbl->Release(wia_backend.wia);
-	r->active_connection = 0;
-	return 0;
-}
+                if (SUCCEEDED(hr))
+                {
+                    printf("Success param\n");
+                }
 
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	PTPLOG("ptp_send_bulk_packets()\n");
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+                hr = pDevValues->SetIPortableDevicePropVariantCollectionValue(
+                    WPD_PROPERTY_MTP_EXT_OPERATION_PARAMS, spMtpParams);
 
-	DWORD dwDataInSize = sizeof(PTP_VENDOR_DATA_IN) - 1;
-	DWORD dwDataOutSize = sizeof(PTP_VENDOR_DATA_OUT) - 1 + MAX_DATA_OUT;
-	
-	printf("Type: %X\n", bulk->type);
+                if (SUCCEEDED(hr))
+                {
+                    printf("Success set param\n");
+                }
 
-	if (bulk->type == PTP_PACKET_TYPE_DATA) {
-		if (wia_backend.pDataIn->NextPhase == PTP_NEXTPHASE_READ_DATA) {
-			PTPLOG("Data phase after command\n");
-		}
+                IPortableDeviceValues* spResults = nullptr;
 
-		wia_backend.pDataIn->NextPhase = PTP_NEXTPHASE_WRITE_DATA;
-	} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-		memset(wia_backend.pDataIn, 0, dwDataInSize);
-		memset(wia_backend.pDataOut, 0, dwDataOutSize);
+                hr = pDevice->SendCommand(0, pDevValues, &spResults);
 
-		wia_backend.pDataIn->OpCode = bulk->code;
-		wia_backend.pDataIn->SessionId = 0;
-		wia_backend.pDataIn->TransactionId = 0;
+                if (SUCCEEDED(hr))
+                {
+                    printf("Success send\n");
 
-		wia_backend.pDataIn->NextPhase = PTP_NEXTPHASE_READ_DATA;
+                    ULONG cbOptimalDataSize = 0;
+                    hr = spResults->GetUnsignedIntegerValue(WPD_PROPERTY_MTP_EXT_TRANSFER_TOTAL_DATA_SIZE,
+                        &cbOptimalDataSize);
+                    printf("Data size: %d\n", cbOptimalDataSize);
+                }
+            }
+        }
+        else
+        {
+            // Failed to CoCreateInstance CLSID_PortableDevice
+            printf("Error %d\n", GetLastError());
+        }
+    }
 
-		wia_backend.pDataIn->NumParams = (bulk->length - 12) / 4;
-		wia_backend.pDataOut->Params[0] = bulk->param1;
-		wia_backend.pDataOut->Params[1] = bulk->param2;
-		wia_backend.pDataOut->Params[2] = bulk->param3;
-		wia_backend.pDataOut->Params[3] = bulk->param4;
-		wia_backend.pDataOut->Params[4] = bulk->param5;
-		
-		PTPLOG("Nparams: %d\n", wia_backend.pDataIn->NumParams);
-	}
+    // Release the IPortableDevice when finished
+    if (pDevice != NULL)
+    {
+        pDevice->Release();
+        pDevice = NULL;
+    }
 
-	return length;
-}
+    // Release the IPortableDeviceValues that contains the client information when finished
+    if (pClientInformation != NULL)
+    {
+        pClientInformation->Release();
+        pClientInformation = NULL;
+    }
 
-int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
-	PTPLOG("ptp_recieve_bulk_packets()\n");
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-
-	DWORD dwDataInSize = sizeof(PTP_VENDOR_DATA_IN) - 1;
-	DWORD dwDataOutSize = sizeof(PTP_VENDOR_DATA_OUT) - 1 + MAX_DATA_OUT;
-
-	HRESULT x = wia_backend.extras->lpVtbl->Escape(
-		wia_backend.extras, ESCAPE_PTP_VENDOR_COMMAND,
-		(BYTE *)wia_backend.pDataIn, dwDataInSize,
-		(BYTE *)wia_backend.pDataOut, dwDataOutSize,
-		&wia_backend.dwActualDataOutSize
-	);
-
-	PTPLOG("Escape(): %X\n", x);
-	if (x != S_OK) {
-		return PTP_IO_ERR;
-	}
-
-	bulk->length = wia_backend.dwActualDataOutSize - 18;
-	bulk->code = wia_backend.pDataOut->ResponseCode;
-	bulk->transaction = wia_backend.pDataOut->TransactionId;
-	if (bulk->length == 12) {
-		bulk->type = PTP_PACKET_TYPE_RESPONSE;
-	} else {
-		bulk->type = PTP_PACKET_TYPE_DATA;
-		
-		// Copy in the 
-		struct PtpBulkContainer *bulk2 = (struct PtpBulkContainer*)(r->data + bulk->length);
-		bulk2->length = 12;
-		bulk2->transaction = wia_backend.pDataOut->TransactionId;
-		bulk2->type = PTP_PACKET_TYPE_RESPONSE;
-		bulk2->code = wia_backend.pDataOut->ResponseCode;
-		
-		bulk2->param1 = wia_backend.pDataOut->Params[0];
-		bulk2->param2 = wia_backend.pDataOut->Params[1];
-		bulk2->param3 = wia_backend.pDataOut->Params[2];
-		bulk2->param4 = wia_backend.pDataOut->Params[3];
-		bulk2->param5 = wia_backend.pDataOut->Params[4];
-	}
-
-	PTPLOG("Recieved %d bytes, code %X\n", bulk->length, wia_backend.pDataOut->ResponseCode);
-
-	memcpy((uint8_t *)(bulk) + 12, wia_backend.pDataOut->VendorReadData, bulk->length - 12);
-
-	return 0;
+    return hr;
 }
 
-int ptp_recieve_int(char *to, int length) {
-	return 0;
+
+int main() {
+    CoInitialize(nullptr);
+
+    IPortableDevice *m_device;
+    IPortableDeviceManager* pPortableDeviceManager = nullptr;
+
+    HRESULT hr = CoCreateInstance(CLSID_PortableDeviceManager,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&pPortableDeviceManager));
+
+    if (SUCCEEDED(hr)) {
+        puts("Yay");
+    }
+    else {
+        printf("Error %d\n", GetLastError());
+    }
+    DWORD numDevices = 0;
+
+    hr = pPortableDeviceManager->GetDevices(NULL, &numDevices);
+
+    if (SUCCEEDED(hr)) {
+        puts("Yay");
+    } // https://github.com/dougforpres/SonyCamera/blob/b4249942cd5dd1817da395856b514e1103e8c854/SonyMTPCamera/CameraManager.cpp
+    else {
+        printf("Error %d\n", GetLastError());
+    }
+
+    printf("Devices: %d\n", numDevices);
+
+    for (int i = 0; i < numDevices; i++) {
+        PWSTR pPnpDeviceIDs[1];
+        DWORD len = numDevices;
+        hr = pPortableDeviceManager->GetDevices(pPnpDeviceIDs, &len);
+        if (SUCCEEDED(hr)) {
+            puts("Yay");
+            printf("%d\n", len);
+
+            std::wstring deviceId = (WCHAR*)pPnpDeviceIDs[0];
+            printf("Device ID: %ls\n", deviceId.c_str());
+            OpenDevice((LPCWSTR)deviceId.c_str());
+        }
+        else {
+            printf("Error %d\n", GetLastError());
+        }
+    }
+
 }

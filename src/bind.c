@@ -15,7 +15,7 @@
 #include <camlib.h>
 #include <operations.h>
 #include <backend.h>
-#include <enum.h>
+#include <enums.h>
 #include <bind.h>
 
 // TODO: shutter half, shutter down, shutter up

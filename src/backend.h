@@ -12,6 +12,8 @@ int ptp_device_init(struct PtpRuntime *r);
 int ptp_send_bulk_packet(void *to, int length);
 int ptp_recieve_bulk_packet(void *to, int length);
 int ptp_recieve_int(void *to, int length);
+
+// Reset the pipe, can clear issues
 int ptp_device_reset(struct PtpRuntime *r);
 
 // Recieve all packets, and whatever else (common logic for all backends)
@@ -19,5 +21,11 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
 int ptp_recieve_bulk_packets(struct PtpRuntime *r);
 
 int ptp_device_close(struct PtpRuntime *r);
+
+// Upload file data as packets, but upload r->data till length first
+int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
+
+// Reads the incoming packet to file, starting after an optional offset
+int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
 
 #endif

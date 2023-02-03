@@ -1,6 +1,7 @@
 // Easy to use operation (OC) functions. Requires backend.
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
+#include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 
