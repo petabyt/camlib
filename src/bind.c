@@ -42,12 +42,14 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 	r->di = NULL;
+	initialized = 1;
 
 	if (connected) {
 		ptp_close_session(r);
 		//ptp_device_close(r);
 		connected = 0;
-	}	
+	}
+
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
 
