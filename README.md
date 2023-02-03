@@ -8,7 +8,7 @@ This library is written primarily for my [CamControl](https://camcontrol.danielc
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
 - Core library will perform no memory allocation
 - No platform specific code at the core
-- Modular design - make it easy to pick and pull out parts
+- Modular design - easy to pick and pull out parts
 - No macros, unless it's for debugging - everything is a function that can be accessed from other languages
 
 ## Checklist
