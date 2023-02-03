@@ -25,7 +25,7 @@ void print_bytes(uint8_t *bytes, int n) {
 int main() {
 	struct PtpRuntime r;
 
-	memset(&r, sizeof(struct PtpRuntime), 0);
+	memset(&r, 0, sizeof(struct PtpRuntime));
 	r.data = malloc(SIZE);
 	r.transaction = 0;
 	r.session = 0;
@@ -34,11 +34,16 @@ int main() {
 	struct PtpDeviceInfo di;
 
 	if (ptp_device_init(&r)) {
-		puts("Device connection error");
+		puts("Couldn't find a device.");
 		return 0;
 	}
-	
-	if (ptp_open_session(&r)) return 1;
+
+	if (ptp_open_session(&r)) {
+		printf("IO error\n");
+		return 1;
+	}
+
+	printf("Opened session, rcode: %X\n", ptp_get_return_code(&r));
 
 	if (ptp_get_device_info(&r, &di)) {
 		puts("IO ERR");
@@ -54,4 +59,3 @@ int main() {
 
 	return 0;
 }
-

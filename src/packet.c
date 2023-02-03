@@ -156,9 +156,6 @@ int ptp_get_param_length(struct PtpRuntime *r) {
 	// Get response packet, which backend stores after data packet
 	if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
-		return bulk->code;
-	} else {
-		return bulk->code;
 	}
 
 	return (bulk->length - 12) / 4;

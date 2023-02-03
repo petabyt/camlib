@@ -6,12 +6,12 @@ PYTHON3?=python3
 # All platforms need these object files
 FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o)
 
-# Basic support for MinGW
-# backend.o is unusable for Windows WIA, so it can't be linked in.
+# Basic support for MinGW and libwpd
 ifdef WIN
+$(shell cp /mnt/c/Users/brikb/source/repos/libwpd/x64/Debug/libwpd.dll .)
 FILES+=src/winapi.o
 CC=x86_64-w64-mingw32-gcc
-LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid
+LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
 else
 LDFLAGS=-lusb
 FILES+=src/libusb.o src/backend.o
@@ -64,6 +64,6 @@ $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
 
 clean:
-	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec
+	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec *.dll
 
 .PHONY: all clean
