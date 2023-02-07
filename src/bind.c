@@ -44,11 +44,9 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	r->di = NULL;
 	initialized = 1;
 
-	if (connected) {
-		ptp_close_session(r);
+	//if (connected) {
 		//ptp_device_close(r);
-		connected = 0;
-	}
+	//}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
@@ -167,8 +165,13 @@ int bind_custom_cmd(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_drive_lens(struct BindReq *bind, struct PtpRuntime *r) {
-	printf("Drive lens %d\n", bind->params[0]);
-	int x = ptp_eos_drive_lens(r, bind->params[0]);
+	int x;
+	if (ptp_device_type(r) == PTP_DEV_EOS) {
+		x = ptp_eos_drive_lens(r, bind->params[0]);
+	} else {
+		x = PTP_UNSUPPORTED;
+	}
+
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
@@ -252,10 +255,6 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 
-	// TODO:
-	//struct PtpEventContainer ec;
-	//ptp_get_event(r, &ec);
-
 	if (dev == PTP_DEV_EOS) {
 		int x = ptp_eos_get_event(r);
 		if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -266,6 +265,14 @@ int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
 		len += snprintf(bind->buffer + len, bind->max - len, "}");
 
 		return len;
+	} else {
+		struct PtpEventContainer ec;
+		int x = ptp_get_event(r, &ec);
+		if (x == 0) {
+			return sprintf(bind->buffer, "{\"error\": 0, \"resp\": []}");
+		} else if (x < 0) {
+			return sprintf(bind->buffer, "{\"error\": %d}", x);
+		}
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);

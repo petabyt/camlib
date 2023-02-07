@@ -87,6 +87,10 @@ struct PtpRuntime {
 	// Info about current connection, used to detect the vendor, supported opodes
 	int device_type;
 	struct PtpDeviceInfo *di;
+
+	// For Windows compatibility, this is set to indicate a data packet
+	// will be sent  after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
+	int data_phase_intended;
 };
 
 // Generic command structure - not a packet

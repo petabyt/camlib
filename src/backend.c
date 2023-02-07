@@ -1,5 +1,6 @@
-// Common IO backend code
-// This is incompatible with Win32 - don't link this in for Windows
+// Common IO backend code - only applies to platforms that have generic
+// USB packet IO access
+
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
@@ -146,13 +147,4 @@ int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
 			return read;
 		}
 	}	
-}
-
-int ptp_read_int(struct PtpRuntime *r) {
-	int x = ptp_recieve_int(r->data, r->max_packet_size);
-	if (x < 0) {
-		return PTP_IO_ERR;
-	}
-
-	return x;
 }

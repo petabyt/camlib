@@ -11,9 +11,14 @@
 
 // Technically not an OC, but fits snug here
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
-	ptp_recieve_int(r->data, r->max_packet_size);
-	memcpy(ec, r->data, sizeof(struct PtpEventContainer));
-	return 0;
+	int x = ptp_recieve_int(r->data, r->max_packet_size);
+	if (x < 0) {
+		return x;
+	} else {
+		memcpy(ec, r->data, sizeof(struct PtpEventContainer));
+	}
+
+	return x;
 }
 
 int ptp_custom_recieve(struct PtpRuntime *r, int code) {

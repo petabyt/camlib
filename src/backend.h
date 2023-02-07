@@ -11,7 +11,6 @@ int ptp_device_init(struct PtpRuntime *r);
 // Bare IO, send a single 512 byte packet. Return negative or NULL on error.
 int ptp_send_bulk_packet(void *to, int length);
 int ptp_recieve_bulk_packet(void *to, int length);
-int ptp_recieve_int(void *to, int length);
 
 // Reset the pipe, can clear issues
 int ptp_device_reset(struct PtpRuntime *r);

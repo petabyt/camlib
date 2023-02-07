@@ -73,11 +73,36 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	}
 }
 
-// Send a cmd packet, then data packet
+#if 0
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length) {
 	int plength = ptp_new_data_packet(r, cmd);
 	ptp_update_data_length(r, plength + length);
 	if (ptp_send_bulk_packets(r, length) != plength) return PTP_IO_ERR;
+	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+
+	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		return 0;
+	} else {
+		return PTP_CHECK_CODE;
+	}
+}
+#endif
+
+// Send a cmd packet, then data packet
+// New thing
+// Perform a generic operation with a data phase to the camera
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+	int plength = ptp_new_cmd_packet(r, cmd);
+
+	r->data_phase_intended = 1;
+	if (ptp_send_bulk_packets(r, plength) != plength) return PTP_IO_ERR;
+	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+
+	plength = ptp_new_data_packet(r, cmd);
+	memcpy(ptp_get_payload(r), data, length);
+	ptp_update_data_length(r, plength + length);
+
+	if (ptp_send_bulk_packets(r, plength + length) != plength) return PTP_IO_ERR;
 	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {

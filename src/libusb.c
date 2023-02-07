@@ -109,11 +109,21 @@ int ptp_device_init(struct PtpRuntime *r) {
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
-	int x = usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber);
-	x = usb_reset(ptp_backend.devh);
-	x = usb_close(ptp_backend.devh);
+	if (usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber)) {
+		return 1;
+	}
+
+	if (usb_reset(ptp_backend.devh)) {
+		return 1;
+	}
+
+	if (usb_close(ptp_backend.devh)) {
+		return 1;
+	}
+
 	r->active_connection = 0;
-	return x;
+
+	return 0;
 }
 
 int ptp_device_reset(struct PtpRuntime *r) {
@@ -138,11 +148,13 @@ int ptp_recieve_int(void *to, int length) {
 	int x = usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_int,
-		(char *)to, length, 50);
+		(char *)to, length, 10);
 
 	// Error generally means pipe is empty
 	if (x == -110 || x == -16 || x == -5) {
 		return 0;
+	} else if (x == -19) {
+		return PTP_IO_ERR;
 	}
 
 	return x;
