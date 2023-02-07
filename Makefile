@@ -32,7 +32,7 @@ src/enum_dump.o: src/ptp.h src/stringify.py
 endif
 
 # PTP decoder
-DEC_FILES=src/dec/main.o src/enum.o src/enum_dump.o
+DEC_FILES=src/dec/main.o src/enums.o src/enum_dump.o
 dec: $(DEC_FILES)
 	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
 

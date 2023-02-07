@@ -14,6 +14,7 @@ void ptp_generic_init(struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 	r->max_packet_size = 512;
+	r->data_phase_length = 0;
 }
 
 // May be slightly inneficient for every frame/action
@@ -73,30 +74,15 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	}
 }
 
-#if 0
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length) {
-	int plength = ptp_new_data_packet(r, cmd);
-	ptp_update_data_length(r, plength + length);
-	if (ptp_send_bulk_packets(r, length) != plength) return PTP_IO_ERR;
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-
-	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		return 0;
-	} else {
-		return PTP_CHECK_CODE;
-	}
-}
-#endif
-
 // Send a cmd packet, then data packet
 // New thing
 // Perform a generic operation with a data phase to the camera
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
 	int plength = ptp_new_cmd_packet(r, cmd);
 
-	r->data_phase_intended = 1;
+	r->data_phase_length = length;
 	if (ptp_send_bulk_packets(r, plength) != plength) return PTP_IO_ERR;
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	//if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 
 	plength = ptp_new_data_packet(r, cmd);
 	memcpy(ptp_get_payload(r), data, length);

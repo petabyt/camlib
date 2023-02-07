@@ -7,10 +7,32 @@
 #include <backend.h>
 #include <ptp.h>
 #include <operations.h>
-
 #include <winapi.h>
 
 struct WpdStruct backend_wpd;
+
+#if 0
+int wpdfoo() {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
+	cmd.param_length = 0;
+	int ret = wpd_send_do_command(&backend_wpd, &cmd, 12);
+	puts("Send do command");
+	if (ret) {
+		printf("IO error, %d\n", ret);
+		return 1;
+	}
+
+	uint32_t *data = malloc(12);
+	data[0] = 0xc;
+	data[1] = PTP_PC_EOS_ISOSpeed;
+	data[2] = ptp_eos_get_iso(6400, 1);
+	ret = wpd_send_do_data(&backend_wpd, &cmd, data, 12);
+	if (ret) {
+		printf("IO error, %d\n", ret);
+	}
+}
+#endif
 
 int ptp_device_init(struct PtpRuntime *r) {
 	wpd_init(1, L"Camlib WPD");
@@ -36,14 +58,32 @@ int ptp_device_init(struct PtpRuntime *r) {
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	struct PtpCommand cmd;
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+
+	cmd.code = bulk->code;
+	cmd.param_length = ptp_get_param_length(r);
+	for (int i = 0; i < cmd.param_length; i++) {
+		cmd.params[i] = ptp_get_param(r, i);
+	}
+
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-		cmd.code = bulk->code;
-		cmd.param_length = ptp_get_param_length(r);
-		for (int i = 0; i < cmd.param_length; i++) {
-			cmd.params[i] = ptp_get_param(r, i);
+		int ret;
+		if (r->data_phase_length) {
+			printf("data phase %X %d\n", cmd.code, r->data_phase_length);
+			ret = wpd_send_do_command(&backend_wpd, &cmd, r->data_phase_length);
+			r->data_phase_length = 0;
+		} else {
+			ret = wpd_recieve_do_command(&backend_wpd, &cmd);
 		}
 
-		int ret = wpd_recieve_do_command(&backend_wpd, &cmd);
+		if (ret) {
+			return PTP_IO_ERR;
+		} else {
+			return length;
+		}
+	} else if (bulk->type == PTP_PACKET_TYPE_DATA) {
+		cmd.param_length = 0;
+		printf("Data packet send %d\n", length);
+		int ret = wpd_send_do_data(&backend_wpd, &cmd, ptp_get_payload(r), length - 12);
 		if (ret) {
 			return PTP_IO_ERR;
 		} else {

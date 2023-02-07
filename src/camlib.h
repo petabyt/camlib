@@ -88,9 +88,9 @@ struct PtpRuntime {
 	int device_type;
 	struct PtpDeviceInfo *di;
 
-	// For Windows compatibility, this is set to indicate a data packet
-	// will be sent  after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
-	int data_phase_intended;
+	// For Windows compatibility, this is set to indicate lenth for a data packet
+	// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
+	int data_phase_length;
 };
 
 // Generic command structure - not a packet
@@ -144,7 +144,7 @@ int ptp_get_payload_length(struct PtpRuntime *r);
 
 // Generic cmd send and get response - in place of a macro
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, int length);
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 // Generic runtime setup - allocate default memory
 void ptp_generic_init(struct PtpRuntime *r);

@@ -170,8 +170,6 @@ uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 	if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
 		return bulk->code;
-	} else {
-		return bulk->code;
 	}
 
 	return bulk->params[index];

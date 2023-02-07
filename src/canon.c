@@ -87,49 +87,22 @@ int ptp_eos_get_prop_value(struct PtpRuntime *r, int code) {
 int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
-	cmd.param_length = 3;
-	
-	cmd.params[0] = 0xc;
-	cmd.params[1] = code;
-	cmd.params[2] = value;
+	cmd.param_length = 0;
 
-	// cmd and data packets should be the same
+	uint32_t dat[] = {0xc, code, value};
 
-	int length = ptp_new_cmd_packet(r, &cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-
-	length = ptp_new_data_packet(r, &cmd);
-
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-	return 0;
+	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 // This is the same operation as ptp_eos_set_prop_value, but is more spiffy
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
-	cmd.param_length = 3;
-	
-	cmd.params[0] = 0x10 + dlength;
-	cmd.params[1] = code;
-	cmd.params[2] = ((uint32_t *)data)[0];
+	cmd.param_length = 0;
 
-	// CMD packet should only be 12 bytes long (?)
+	uint32_t dat[] = {0x10 + dlength, code, ((uint32_t *)data)[0]};
 
-	int length = ptp_new_cmd_packet(r, &cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-
-	length = ptp_new_data_packet(r, &cmd);
-	length += dlength - 4;
-	ptp_update_data_length(r, length);
-	memcpy(ptp_get_payload(r) + 8, data, dlength);
-
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
-	return 0;
+	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 

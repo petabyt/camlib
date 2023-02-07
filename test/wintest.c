@@ -7,6 +7,7 @@
 #include <backend.h>
 #include <ptp.h>
 #include <operations.h>
+#include <winapi.h>
 
 void print_bytes(uint8_t *bytes, int n) {
 	for (int i = 0; i < n; i++) {
@@ -25,10 +26,8 @@ void print_bytes(uint8_t *bytes, int n) {
 int main() {
 	struct PtpRuntime r;
 
-	memset(&r, 0, sizeof(struct PtpRuntime));
+	ptp_generic_init(&r);
 	r.data = malloc(SIZE);
-	r.transaction = 0;
-	r.session = 0;
 	r.data_length = SIZE;
 
 	struct PtpDeviceInfo di;
@@ -45,13 +44,10 @@ int main() {
 
 	printf("Opened session, rcode: %X\n", ptp_get_return_code(&r));
 
-	if (ptp_get_device_info(&r, &di)) {
-		puts("IO ERR");
-	} else {
-		printf("Return Code: %X\n", ptp_get_return_code(&r));
-		ptp_device_info_json(&di, (char*)r.data, r.data_length);
-		printf("%s\n", (char*)r.data);
-	}
+	ptp_eos_set_event_mode(&r, 1);
+	ptp_eos_set_remote_mode(&r, 1);
+
+	ptp_eos_set_prop_value(&r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(6400, 1));
 
 	ptp_device_close(&r);
 

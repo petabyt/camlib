@@ -215,15 +215,9 @@ int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	int x = ptp_generic_send(r, &cmd);
-	if (x) return x;
+	uint32_t dat[] = {value};
 
-	// Send just value as the data packet
-	uint32_t *t = (uint32_t*)ptp_get_payload(r);
-	t[0] = (uint32_t)value;
-	cmd.param_length = 0;
-	ptp_generic_send_data(r, &cmd, 4);
-	return x;
+	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
