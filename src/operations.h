@@ -1,6 +1,8 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
+int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
+
 int ptp_open_session(struct PtpRuntime *r);
 int ptp_close_session(struct PtpRuntime *r);
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
@@ -16,6 +18,7 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectI
 int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder);
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
+int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);

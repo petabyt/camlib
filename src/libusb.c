@@ -24,7 +24,9 @@ struct PtpBackend {
 	int fd;
 	struct usb_dev_handle *devh;
 	struct usb_device *dev;
-}ptp_backend;
+}ptp_backend = {
+	0, 0, 0, 0, NULL, NULL
+};
 
 struct usb_device *ptp_search() {
 	PTPLOG("Initializing USB...\n");
@@ -127,10 +129,12 @@ int ptp_device_close(struct PtpRuntime *r) {
 }
 
 int ptp_device_reset(struct PtpRuntime *r) {
+	if (ptp_backend.devh == NULL) return -1;
 	return usb_control_msg(ptp_backend.devh, USB_TYPE_CLASS | USB_RECIP_INTERFACE, USB_REQ_RESET, 0, 0, NULL, 0, PTP_TIMEOUT);
 }
 
 int ptp_send_bulk_packet(void *to, int length) {
+	if (ptp_backend.devh == NULL) return -1;
 	return usb_bulk_write(
 		ptp_backend.devh,
 		ptp_backend.endpoint_out,
@@ -138,6 +142,7 @@ int ptp_send_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_bulk_packet(void *to, int length) {
+	if (ptp_backend.devh == NULL) return -1;
 	return usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_in,
@@ -145,6 +150,7 @@ int ptp_recieve_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_int(void *to, int length) {
+	if (ptp_backend.devh == NULL) return -1;
 	int x = usb_bulk_read(
 		ptp_backend.devh,
 		ptp_backend.endpoint_int,
@@ -161,6 +167,7 @@ int ptp_recieve_int(void *to, int length) {
 }
 
 int reset_int() {
+	if (ptp_backend.devh == NULL) return -1;
 	return usb_control_msg(ptp_backend.devh, USB_RECIP_ENDPOINT, USB_REQ_CLEAR_FEATURE,
 		0, ptp_backend.endpoint_int, NULL, 0, PTP_TIMEOUT);
 }
