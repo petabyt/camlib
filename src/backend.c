@@ -39,7 +39,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 	while (1) {
 		int x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 		if (x < 0) {
-			// Check if first time reading, try again
+			// Check if first time reading, try again once
 			if (read == 0) {
 				PTPLOG("Failed to recieve packet, trying again...\n");
 				CAMLIB_SLEEP(100);

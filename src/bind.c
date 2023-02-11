@@ -278,6 +278,16 @@ int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d}", 0);
 }
 
+int bind_get_all_props(struct BindReq *bind, struct PtpRuntime *r) {
+	int dev = ptp_device_type(r);
+	if (dev == PTP_DEV_EOS) {
+		return bind_get_events(bind, r);
+	} else {
+		return sprintf(bind->buffer, "{\"error\": 0, \"resp\": []}");
+		// TODO: loop through all camera devinfo properties
+	}
+}
+
 int bind_get_liveview_type(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %d}", 0, ptp_liveview_type(r));
 }
@@ -499,6 +509,58 @@ int bind_get_thumbnail(struct BindReq *bind, struct PtpRuntime *r) {
 	return curr;
 }
 
+int bind_get_partial_object(struct BindReq *bind, struct PtpRuntime *r) {
+	int x = ptp_get_partial_object(r, bind->params[0], bind->params[1], bind->params[2]);
+
+	if (x) {
+		return sprintf(bind->buffer, "{\"error\": %d}", x);
+	}
+
+	if (ptp_get_payload_length(r) <= 0) {
+		return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
+	}
+
+	int curr = sprintf(bind->buffer, "{\"error\": 0, \"data\": [");
+
+	for (int i = 0; i < ptp_get_payload_length(r); i++) {
+		char *comma = "";
+		if (i) comma = ",";
+		curr += sprintf(bind->buffer + curr, "%s%u", comma, ((uint8_t *)ptp_get_payload(r))[i]);		
+	}
+
+	curr += sprintf(bind->buffer + curr, "]}");
+	return curr;
+}
+
+#define MAX_PARTIAL_OBJECT 10000
+int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
+	int handle = bind->params[0];
+
+	FILE *f = fopen(bind->string, "w");
+	if (f == NULL) {
+		return sprintf(bind->buffer, "{\"error\": %d}", -1);
+	}
+
+	int read = 0;
+	while (1) {
+		bind->params[0] = handle;
+		bind->params[1] = read;
+		bind->params[2] = MAX_PARTIAL_OBJECT;
+		int x = bind_get_partial_object(bind, r);
+		if (x) {
+			return sprintf(bind->buffer, "{\"error\": %d}", x);
+			break;
+		}
+		
+		if (ptp_get_payload_length(r) < MAX_PARTIAL_OBJECT) {
+			return sprintf(bind->buffer, "{\"error\": 0, \"read\": %d}", read);
+			break;
+		}
+
+		read += ptp_get_payload_length(r);
+	}
+}
+
 struct RouteMap routes[] = {
 	{"ptp_hello_world", bind_hello_world},
 	{"ptp_status", bind_status},
@@ -533,6 +595,7 @@ struct RouteMap routes[] = {
 	{"ptp_deinit_liveview", bind_liveview_deinit},
 	{"ptp_get_device_type", bind_get_device_type},
 	{"ptp_get_events", bind_get_events},
+	{"ptp_get_all_props", bind_get_all_props},
 	{"ptp_set_property", bind_set_property},
 	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
 	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
@@ -544,6 +607,7 @@ struct RouteMap routes[] = {
 	{"ptp_get_object_handles", bind_get_object_handles},
 	{"ptp_get_object_info", bind_get_object_info},
 	{"ptp_get_thumbnail", bind_get_thumbnail},
+	{"ptp_get_partial_object", bind_get_partial_object}
 //	{"ptp_custom_send", NULL},
 //	{"ptp_custom_cmd", NULL},
 };

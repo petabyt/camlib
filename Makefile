@@ -17,7 +17,7 @@ LDFLAGS=-lusb
 FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -Wextra -g
 
 all: $(FILES)
 
