@@ -59,16 +59,15 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	struct PtpCommand cmd;
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
-	cmd.code = bulk->code;
-	cmd.param_length = ptp_get_param_length(r);
-	for (int i = 0; i < cmd.param_length; i++) {
-		cmd.params[i] = ptp_get_param(r, i);
-	}
-
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
+		cmd.code = bulk->code;
+		cmd.param_length = ptp_get_param_length(r);
+		for (int i = 0; i < cmd.param_length; i++) {
+			cmd.params[i] = ptp_get_param(r, i);
+		}
+	
 		int ret;
 		if (r->data_phase_length) {
-			printf("data phase %X %d\n", cmd.code, r->data_phase_length);
 			ret = wpd_send_do_command(&backend_wpd, &cmd, r->data_phase_length);
 			r->data_phase_length = 0;
 		} else {
@@ -82,11 +81,18 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		}
 	} else if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		cmd.param_length = 0;
-		printf("Data packet send %d\n", length);
 		int ret = wpd_send_do_data(&backend_wpd, &cmd, ptp_get_payload(r), length - 12);
-		if (ret) {
+		if (ret < 0) {
 			return PTP_IO_ERR;
 		} else {
+			// Signal for ptp_recieve_bulk_packets, finished command already sent
+			r->data_phase_length = ret;
+
+			bulk->length = 12;
+			bulk->type = PTP_PACKET_TYPE_RESPONSE;
+			bulk->code = cmd.code;
+			bulk->transaction = r->transaction + 1;
+			
 			return length;
 		}
 	} else {
@@ -97,6 +103,12 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 }
 
 int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
+	// Don't do anything if the data phase was already sent
+	if (r->data_phase_length) {
+		r->data_phase_length = 0;
+		return 12;
+	}
+
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
 		struct PtpCommand cmd;

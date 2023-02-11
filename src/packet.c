@@ -159,8 +159,6 @@ int ptp_get_param_length(struct PtpRuntime *r) {
 	}
 
 	return (bulk->length - 12) / 4;
-
-	return 0;
 }
 
 uint32_t ptp_get_param(struct PtpRuntime *r, int index) {

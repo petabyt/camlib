@@ -88,7 +88,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	memcpy(ptp_get_payload(r), data, length);
 	ptp_update_data_length(r, plength + length);
 
-	if (ptp_send_bulk_packets(r, plength + length) != plength) return PTP_IO_ERR;
+	if (ptp_send_bulk_packets(r, plength + length) != plength + length) return PTP_IO_ERR;
 	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
