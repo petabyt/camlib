@@ -9,7 +9,7 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <backend.h>
+#include <ptpbackend.h>
 
 // Apperantly usb-dev_handle must be defined?
 struct usb_dev_handle {

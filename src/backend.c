@@ -9,9 +9,9 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <backend.h>
 #include <ptp.h>
-#include <enums.h>
+#include <ptpbackend.h>
+#include <ptpenum.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	PTPLOG("send_bulk_packets 0x%X (%s)\n", ptp_get_return_code(r), ptp_get_enum_all(ptp_get_return_code(r)));

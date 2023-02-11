@@ -1,3 +1,4 @@
+// Header for libwpd
 #ifndef PTP_WPD_H
 #define PTP_WPD_H
 

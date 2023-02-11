@@ -14,9 +14,9 @@
 #include <ptp.h>
 #include <camlib.h>
 #include <operations.h>
-#include <backend.h>
-#include <enums.h>
-#include <bind.h>
+#include <ptpbackend.h>
+#include <ptpenum.h>
+#include <ptpbind.h>
 
 // TODO: shutter half, shutter down, shutter up
 

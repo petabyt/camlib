@@ -156,7 +156,7 @@ int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
 // Data pack/unpack functions (data.c/data.h)
-#include "data.h"
+#include "ptpdata.h"
 
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);

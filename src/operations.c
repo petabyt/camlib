@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include <ptp.h>
-#include <backend.h>
+#include <ptpbackend.h>
 #include <camlib.h>
 
 // Technically not an OC, but fits snug here

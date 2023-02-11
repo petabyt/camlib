@@ -7,7 +7,7 @@
 #include <backend.h>
 #include <ptp.h>
 #include <operations.h>
-#include <enum.h>
+#include <ptpenum.h>
 
 struct PtpRuntime r;
 

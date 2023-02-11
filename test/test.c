@@ -5,8 +5,7 @@
 
 #include <piclib.h>
 #include <ptp.h>
-#include <deviceinfo.h>
-#include <backend.h>
+#include <ptpbackend.h>
 
 struct PtpRuntime r;
 

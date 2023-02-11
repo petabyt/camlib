@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <backend.h>
+#include <ptpbackend.h>
 #include <ptp.h>
 #include <operations.h>
 

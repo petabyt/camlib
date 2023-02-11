@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <camlib.h>
-#include <backend.h>
+#include <ptpbackend.h>
 #include <ptp.h>
 
 void ptp_generic_init(struct PtpRuntime *r) {
