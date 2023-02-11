@@ -140,10 +140,14 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 }
 
 int ptp_recieve_int(void *to, int length) {
-	return PTP_IO_ERR;
+	return 0;
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
 	wpd_close_device(&backend_wpd);
+	return 0;
+}
+
+int ptp_device_reset(struct PtpRuntime *r) {
 	return 0;
 }
