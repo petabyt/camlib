@@ -1,5 +1,5 @@
 #include <string.h>
-#include <enums.h>
+#include <ptpenum.h>
 
 char *enum_null = "(null)";
 

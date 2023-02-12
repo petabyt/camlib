@@ -101,7 +101,7 @@ int bind_get_storage_ids(struct BindReq *bind, struct PtpRuntime *r) {
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
 	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", x);
-	for (int i = 0; i < arr->length; i++) {
+	for (int i = 0; i < (int)arr->length; i++) {
 		char *comma = "";
 		if (i) comma = ",";
 		len += sprintf(bind->buffer + len, "%s%u", comma, arr->data[i]);
@@ -129,7 +129,7 @@ int bind_get_object_handles(struct BindReq *bind, struct PtpRuntime *r) {
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
 	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", x);
-	for (int i = 0; i < arr->length; i++) {
+	for (int i = 0; i < (int)arr->length; i++) {
 		char *comma = "";
 		if (i) comma = ",";
 		len += sprintf(bind->buffer + len, "%s%u", comma, arr->data[i]);
