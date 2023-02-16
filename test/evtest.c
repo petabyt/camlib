@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <backend.h>
+#include <ptpbackend.h>
 #include <ptp.h>
 #include <operations.h>
 #include <ptpenum.h>
@@ -49,12 +49,16 @@ int main() {
 	ptp_eos_set_remote_mode(&r, 1);
 	ptp_eos_set_event_mode(&r, 1);
 
-	ptp_eos_get_event(&r);
-	ptp_dump(&r);
+	while (1) {
+		ptp_eos_get_event(&r);
+		ptp_dump(&r);
 
-	char buffer[50000];
-	ptp_eos_events_json(&r, buffer, 50000);
-	puts(buffer);
+		char buffer[50000];
+		ptp_eos_events_json(&r, buffer, 50000);
+		puts(buffer);
+
+		usleep(1000 * 1000);
+	}
 
 	ptp_device_close(&r);
 

@@ -329,7 +329,13 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			int b = ptp_read_uint32(&d);
 			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
 			} break;
+		case PTP_EC_EOS_ObjectAddedEx: {
+			int a = ptp_read_uint32(&d);
+			int b = ptp_read_uint32(&d);
+			curr += sprintf(buffer + curr, "[\"new object\", %u, %u]\n", a, b);
+			} break;
 		default:
+			printf("Unknown event code 0x%X\n", type);
 			// Unknown event, delete the comma
 			curr -= strlen(end);
 			if (tmp == 1) tmp = 0;
