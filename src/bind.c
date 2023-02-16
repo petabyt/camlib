@@ -20,8 +20,8 @@
 
 // TODO: shutter half, shutter down, shutter up
 
-static int connected = 0;
-static int initialized = 0;
+int bind_connected = 0;
+int bind_initialized = 0;
 
 struct RouteMap {
 	char *name;
@@ -29,11 +29,11 @@ struct RouteMap {
 };
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d}", initialized, connected);
+	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d}", bind_initialized, bind_connected);
 }
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
-	if (initialized) {
+	if (bind_initialized) {
 		free(r->data);
 		if (r->di != NULL) free(r->di);
 	}
@@ -42,7 +42,7 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 	r->di = NULL;
-	initialized = 1;
+	bind_initialized = 1;
 
 	//if (connected) {
 		//ptp_device_close(r);
@@ -61,13 +61,13 @@ int bind_connect(struct BindReq *bind, struct PtpRuntime *r) {
 	r->session = 0;
 
 	int x = ptp_device_init(r);
-	if (!x) connected = 1;
+	if (!x) bind_connected = 1;
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
 int bind_disconnect(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = ptp_device_close(r);
-	if (!x) connected = 0;
+	if (!x) bind_connected = 0;
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
 
@@ -352,7 +352,7 @@ int bind_get_enums(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_get_status(struct BindReq *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": 0, \"connected\": %d}", connected);
+	return sprintf(bind->buffer, "{\"error\": 0, \"connected\": %d}", bind_connected);
 }
 
 int bind_bulb_start(struct BindReq *bind, struct PtpRuntime *r) {
