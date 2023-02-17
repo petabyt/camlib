@@ -17,7 +17,7 @@ LDFLAGS=-lusb
 FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -Wextra -g
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
 
 all: $(FILES)
 
@@ -58,7 +58,6 @@ wintest.exe: FILES+=test/wintest.o
 wintest.exe: test/wintest.o
 fh: FILES+=test/fh.o
 fh: test/fh.o
-
 
 $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@

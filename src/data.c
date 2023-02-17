@@ -149,7 +149,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	return curr;
 }
 
-const static char *eval_obj_format(int code) {
+const char *eval_obj_format(int code) {
 	char *x = ptp_get_enum_all(code);
 	switch (code) {
 	case PTP_OF_Association:
@@ -160,7 +160,7 @@ const static char *eval_obj_format(int code) {
 	}
 }
 
-const static char *eval_protection(int code) {
+const char *eval_protection(int code) {
 	switch (code) {
 	case 0x0:
 		return "none";
@@ -177,24 +177,24 @@ const static char *eval_protection(int code) {
 
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	int curr = sprintf(buffer, "{");
-	curr += sprintf(buffer + curr, "\"storage_id\": %u,", so->storage_id);
-	curr += sprintf(buffer + curr, "\"parent\": %u,", so->parent_obj);
-	curr += sprintf(buffer + curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
-	curr += sprintf(buffer + curr, "\"format_int\": %u,", so->obj_format);
-	curr += sprintf(buffer + curr, "\"protection\": \"%s\",", eval_protection(so->protection));
-	curr += sprintf(buffer + curr, "\"filename\": \"%s\",", so->filename);
+	curr += snprintf(buffer + curr, max - curr, "\"storage_id\": %u,", so->storage_id);
+	curr += snprintf(buffer + curr, max - curr, "\"parent\": %u,", so->parent_obj);
+	curr += snprintf(buffer + curr, max - curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
+	curr += snprintf(buffer + curr, max - curr, "\"format_int\": %u,", so->obj_format);
+	curr += snprintf(buffer + curr, max - curr, "\"protection\": \"%s\",", eval_protection(so->protection));
+	curr += snprintf(buffer + curr, max - curr, "\"filename\": \"%s\",", so->filename);
 	if (so->compressed_size != 0) {
-		curr += sprintf(buffer + curr, "\"img_width\": %u,", so->img_width);
-		curr += sprintf(buffer + curr, "\"img_height\": %u,", so->img_height);
+		curr += snprintf(buffer + curr, max - curr, "\"img_width\": %u,", so->img_width);
+		curr += snprintf(buffer + curr, max - curr, "\"img_height\": %u,", so->img_height);
 	}
-	curr += sprintf(buffer + curr, "\"date_created\": \"%s\",", so->date_created);
-	curr += sprintf(buffer + curr, "\"date_modified\": \"%s\"", so->date_modified);
-	curr += sprintf(buffer + curr, "}");
+	curr += snprintf(buffer + curr, max - curr, "\"date_created\": \"%s\",", so->date_created);
+	curr += snprintf(buffer + curr, max - curr, "\"date_modified\": \"%s\"", so->date_modified);
+	curr += snprintf(buffer + curr, max - curr, "}");
 
 	return curr;
 }
 
-const static char *eval_storage_type(int id) {
+const char *eval_storage_type(int id) {
 	switch (id) {
 	case 1:
 		return "FixedROM";
@@ -211,15 +211,15 @@ const static char *eval_storage_type(int id) {
 
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	int len = sprintf(buffer, "{");
-	len += sprintf(buffer + len, "\"storage_type\": \"%s\",", eval_storage_type(so->storage_type));
-	len += sprintf(buffer + len, "\"fs_type\": %u,", so->fs_type);
-	len += sprintf(buffer + len, "\"max_capacity\": %lu,", so->max_capacity);
-	len += sprintf(buffer + len, "\"free_space\": %lu", so->free_space);
-	len += sprintf(buffer + len, "}");
+	len += snprintf(buffer + len, max - len, "\"storage_type\": \"%s\",", eval_storage_type(so->storage_type));
+	len += snprintf(buffer + len, max - len, "\"fs_type\": %u,", so->fs_type);
+	len += snprintf(buffer + len, max - len, "\"max_capacity\": %lu,", so->max_capacity);
+	len += snprintf(buffer + len, max - len, "\"free_space\": %lu", so->free_space);
+	len += snprintf(buffer + len, max - len, "}");
 	return len;
 }
 
-int ptp_eos_prop_json(void **d, char *buffer, int max, int size) {
+int ptp_eos_prop_json(void **d, char *buffer, int max) {
 	int code = ptp_read_uint32(d);
 	int data_value = ptp_read_uint32(d);
 
@@ -319,7 +319,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 		switch (type) {
 		case PTP_EC_EOS_PropValueChanged:
-			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr, size);
+			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr);
 			break;
 		case PTP_EC_EOS_InfoCheckComplete:
 		case PTP_PC_EOS_FocusInfoEx:
@@ -413,7 +413,7 @@ struct CanonShutterSpeed {
 };
 
 int ptp_eos_get_shutter(int data, int dir) {
-	for (int i = 0; i < sizeof(canon_shutter) / sizeof(struct CanonShutterSpeed); i++) {
+	for (int i = 0; i < (int)(sizeof(canon_shutter) / sizeof(struct CanonShutterSpeed)); i++) {
 		if (dir) {
 			if (canon_shutter[i].value == data) {
 				return canon_shutter[i].data;
@@ -453,7 +453,7 @@ struct CanonISO {
 };
 
 int ptp_eos_get_iso(int data, int dir) {
-	for (int i = 0; i < sizeof(canon_iso) / sizeof(struct CanonISO); i++) {
+	for (int i = 0; i < (int)(sizeof(canon_iso) / sizeof(struct CanonISO)); i++) {
 		if (dir) {
 			if (canon_iso[i].value == data) {
 				return canon_iso[i].data;
@@ -480,7 +480,7 @@ struct CanonWhiteBalance {
 };
 
 int ptp_eos_get_white_balance(int data, int dir) {
-	for (int i = 0; i < sizeof(struct CanonWhiteBalance) / sizeof(struct CanonWhiteBalance); i++) {
+	for (int i = 0; i < (int)(sizeof(struct CanonWhiteBalance) / sizeof(struct CanonWhiteBalance)); i++) {
 		if (dir) {
 			if (canon_white_balance[i].value == data) {
 				return canon_white_balance[i].data;
@@ -531,7 +531,7 @@ struct CanonAperture {
 };
 
 int ptp_eos_get_aperture(int data, int dir) {
-	for (int i = 0; i < sizeof(canon_aperture) / sizeof(struct CanonAperture); i++) {
+	for (int i = 0; i < (int)(sizeof(canon_aperture) / sizeof(struct CanonAperture)); i++) {
 		if (dir) {
 			if (canon_aperture[i].value == data) {
 				return canon_aperture[i].data;
@@ -559,7 +559,7 @@ struct CanonImageFormats {
 };
 
 int *ptp_eos_get_imgformat_data(int code) {
-	for (int i = 0; i < sizeof(canon_imgformats) / sizeof(struct CanonImageFormats); i++) {
+	for (int i = 0; i < (int)(sizeof(canon_imgformats) / sizeof(struct CanonImageFormats)); i++) {
 		if (canon_imgformats[i].value == code) {
 			return canon_imgformats[i].data;
 		}
@@ -568,7 +568,7 @@ int *ptp_eos_get_imgformat_data(int code) {
 }
 
 int ptp_eos_get_imgformat_value(int data[5]) {
-	for (int i = 0; i < sizeof(canon_imgformats) / sizeof(struct CanonImageFormats); i++) {
+	for (int i = 0; i < (int)(sizeof(canon_imgformats) / sizeof(struct CanonImageFormats)); i++) {
 		if (!memcmp(canon_imgformats[i].data, data, sizeof(int) * 5)) {
 			return canon_imgformats[i].value;
 		}

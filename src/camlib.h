@@ -3,9 +3,10 @@
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
 
+#include <stdio.h>
 #include <stdint.h>
 
-#include <ptp.h>
+#include "ptp.h"
 
 // Max timeout for response
 #define PTP_TIMEOUT 1000
@@ -159,10 +160,11 @@ int ptp_device_type(struct PtpRuntime *r);
 int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
-// Data pack/unpack functions (data.c/data.h)
-#include "ptpdata.h"
-
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
+
+#include "ptpdata.h"
+#include "ptpbackend.h"
+#include "operations.h"
 
 #endif

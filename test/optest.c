@@ -4,9 +4,6 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
-#include <ptp.h>
-#include <operations.h>
 
 #define SIZE 300000
 int main() {
@@ -31,10 +28,10 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	ptp_eos_remote_release_on(&r, 1);
-	ptp_eos_remote_release_on(&r, 2);
-	ptp_eos_remote_release_off(&r, 2);
-	ptp_eos_remote_release_off(&r, 1);
+	// ptp_eos_remote_release_on(&r, 1);
+	// ptp_eos_remote_release_on(&r, 2);
+	// ptp_eos_remote_release_off(&r, 2);
+	// ptp_eos_remote_release_off(&r, 1);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);
