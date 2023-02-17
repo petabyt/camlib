@@ -141,6 +141,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
 	curr += snprintf(buffer + curr, max - curr, "    \"manufacturer\": \"%s\",\n", di->manufacturer);
+	curr += snprintf(buffer + curr, max - curr, "    \"extensions\": \"%s\",\n", di->extensions);
 	curr += snprintf(buffer + curr, max - curr, "    \"model\": \"%s\",\n", di->model);
 	curr += snprintf(buffer + curr, max - curr, "    \"device_version\": \"%s\",\n", di->device_version);
 	curr += snprintf(buffer + curr, max - curr, "    \"serial_number\": \"%s\"\n", di->serial_number);

@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#include <ptp.h>
+
 // Max timeout for response
 #define PTP_TIMEOUT 1000
 
@@ -148,6 +150,8 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 
 // Generic runtime setup - allocate default memory
 void ptp_generic_init(struct PtpRuntime *r);
+
+int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 
 // Will access r->di, a ptr to the device info structure.
 // See tests/ for examples on how to do this.

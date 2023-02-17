@@ -35,7 +35,7 @@ int wpdfoo() {
 #endif
 
 int ptp_device_init(struct PtpRuntime *r) {
-	wpd_init(1, L"Camlib WPD");
+	wpd_init(0, L"Camlib WPD");
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
 

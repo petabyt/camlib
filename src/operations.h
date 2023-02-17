@@ -1,8 +1,6 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
-
 int ptp_open_session(struct PtpRuntime *r);
 int ptp_close_session(struct PtpRuntime *r);
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
