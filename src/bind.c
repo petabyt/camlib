@@ -48,7 +48,7 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 		//ptp_device_close(r);
 	//}
 
-	return sprintf(bind->buffer, "{\"error\": %d}", 0);
+	return sprintf(bind->buffer, "{\"error\": %d, \"buffer\": %d}", 0, r->data_length);
 }
 
 int bind_connect(struct BindReq *bind, struct PtpRuntime *r) {
