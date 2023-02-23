@@ -18,11 +18,18 @@
 #endif
 
 // Optional debug logging
-//#define VERBOSE
 #ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
 	#define PTPLOG(...) /* */
+#endif
+
+#ifndef CAMLIB_PLATFORM
+	#ifdef WIN32
+		#define CAMLIB_PLATFORM "windows"
+	#else
+		#define CAMLIB_PLATFORM "linux"
+	#endif
 #endif
 
 // 2mb recommended default buffer size

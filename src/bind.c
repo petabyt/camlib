@@ -19,6 +19,7 @@
 #include <ptpbind.h>
 
 // TODO: shutter half, shutter down, shutter up
+// TODO: Detect Windows, Linux, Android
 
 int bind_connected = 0;
 int bind_initialized = 0;
@@ -29,7 +30,8 @@ struct RouteMap {
 };
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d}", bind_initialized, bind_connected);
+	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, \"platform\": \"%s\"}",
+		bind_initialized, bind_connected, CAMLIB_PLATFORM);
 }
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
