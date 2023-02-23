@@ -532,8 +532,8 @@ int bind_get_partial_object(struct BindReq *bind, struct PtpRuntime *r) {
 	return curr;
 }
 
-#define MAX_PARTIAL_OBJECT 10000
 int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
+	int max = 100000;
 	int handle = bind->params[0];
 
 	FILE *f = fopen(bind->string, "w");
@@ -543,16 +543,16 @@ int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
 
 	int read = 0;
 	while (1) {
-		bind->params[0] = handle;
-		bind->params[1] = read;
-		bind->params[2] = MAX_PARTIAL_OBJECT;
-		int x = bind_get_partial_object(bind, r);
+		int x = ptp_get_partial_object(r, handle, read, max);
+		puts("PTP GOT PARTIAL OBJ");
 		if (x) {
 			return sprintf(bind->buffer, "{\"error\": %d}", x);
 			break;
 		}
+
+		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
 		
-		if (ptp_get_payload_length(r) < MAX_PARTIAL_OBJECT) {
+		if (ptp_get_payload_length(r) < max) {
 			return sprintf(bind->buffer, "{\"error\": 0, \"read\": %d}", read);
 			break;
 		}
@@ -570,23 +570,26 @@ struct RouteMap routes[] = {
 	{"ptp_disconnect", bind_disconnect},
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
+	{"ptp_get_device_info", bind_get_device_info},
 
 	// TODO: start movie capture
 
+	// TODO: soon obsolete
 	{"ptp_eos_remote_release", bind_eos_remote_release},
 
-	// Soon obsolete
 	{"ptp_pre_take_picture", bind_pre_take_picture},
 	{"ptp_take_picture", bind_take_picture},
 
 	{"ptp_bulb_start", bind_bulb_start},
 	{"ptp_bulb_stop", bind_bulb_stop},
 
+	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
+	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
+
 	{"ptp_cancel_af", bind_cancel_af},
 
 	{"ptp_mirror_up", bind_mirror_up},
 	{"ptp_mirror_down", bind_mirror_down},
-	{"ptp_get_device_info", bind_get_device_info},
 	{"ptp_drive_lens", bind_drive_lens},
 	{"ptp_get_liveview_frame", bind_get_liveview_frame},
 	{"ptp_get_liveview_type", bind_get_liveview_type},
@@ -597,8 +600,6 @@ struct RouteMap routes[] = {
 	{"ptp_get_events", bind_get_events},
 	{"ptp_get_all_props", bind_get_all_props},
 	{"ptp_set_property", bind_set_property},
-	{"ptp_eos_set_remote_mode", bind_eos_set_remote_mode},
-	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
 	{"ptp_get_enums", bind_get_enums},
 	{"ptp_get_status", bind_get_status},
 	{"ptp_get_return_code", bind_get_return_code},
@@ -607,7 +608,8 @@ struct RouteMap routes[] = {
 	{"ptp_get_object_handles", bind_get_object_handles},
 	{"ptp_get_object_info", bind_get_object_info},
 	{"ptp_get_thumbnail", bind_get_thumbnail},
-	{"ptp_get_partial_object", bind_get_partial_object}
+	{"ptp_get_partial_object", bind_get_partial_object},
+	{"ptp_download_file", bind_download_file},
 //	{"ptp_custom_send", NULL},
 //	{"ptp_custom_cmd", NULL},
 };

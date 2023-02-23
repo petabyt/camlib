@@ -114,8 +114,8 @@ int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, in
 	cmd.code = PTP_OC_GetPartialObject;
 	cmd.param_length = 3;
 	cmd.params[0] = handle;
-	cmd.params[0] = offset;
-	cmd.params[0] = max;
+	cmd.params[1] = offset;
+	cmd.params[2] = max;
 
 	// What was the **ptr for?
 

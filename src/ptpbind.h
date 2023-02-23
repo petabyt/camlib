@@ -6,7 +6,7 @@
 
 #define BIND_MAX_PARAM 5
 #define BIND_MAX_NAME 64
-#define BIND_MAX_STRING 32
+#define BIND_MAX_STRING 64
 #define BIND_MAX_BYTES 128
 
 struct BindReq {
@@ -20,7 +20,7 @@ struct BindReq {
 	char string[BIND_MAX_STRING];
 
 	// TODO: Implement this
-	uint8_t bytes[BIND_MAX_BYTES];
+	unsigned char bytes[BIND_MAX_BYTES];
 };
 
 // Run a binding - will return JSON
