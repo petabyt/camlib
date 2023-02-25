@@ -84,6 +84,9 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	if (ptp_send_bulk_packets(r, plength) != plength) return PTP_IO_ERR;
 	//if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 
+	// TODO: Put this functionality in packet.c
+	cmd->param_length = 0;
+
 	plength = ptp_new_data_packet(r, cmd);
 	memcpy(ptp_get_payload(r), data, length);
 	ptp_update_data_length(r, plength + length);
