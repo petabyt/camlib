@@ -331,9 +331,8 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
 			} break;
 		case PTP_EC_EOS_ObjectAddedEx: {
-			int a = ptp_read_uint32(&d);
-			int b = ptp_read_uint32(&d);
-			curr += sprintf(buffer + curr, "[\"new object\", %u, %u]\n", a, b);
+			struct PtpEOSObject *obj = (struct PtpEOSObject *)d;
+			curr += sprintf(buffer + curr, "[\"new object\", %u]\n", obj->a);
 			} break;
 		default:
 			printf("Unknown event code 0x%X\n", type);

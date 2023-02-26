@@ -141,6 +141,14 @@ struct PtpEOSViewFinderData {
 	// standard JPG follows
 };
 
+struct PtpEOSObject {
+	uint32_t a;
+	uint32_t b;
+	uint32_t c;
+	uint32_t d;
+	uint32_t e;
+};
+
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);

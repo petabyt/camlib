@@ -17,7 +17,7 @@ uint16_t ptp_read_uint16(void **dat) {
 	return x;
 }
 
-uint16_t ptp_read_uint32(void **dat) {
+uint32_t ptp_read_uint32(void **dat) {
 	uint32_t x = *((uint32_t*)(dat[0]));
 	dat[0] += 4;
 	return x;
