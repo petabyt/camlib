@@ -117,7 +117,7 @@ struct PtpCommand {
 // Helper packet reader functions
 uint8_t ptp_read_uint8(void **dat);
 uint16_t ptp_read_uint16(void **dat);
-uint16_t ptp_read_uint32(void **dat);
+uint32_t ptp_read_uint32(void **dat);
 void ptp_read_string(void **dat, char *string, int max);
 int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
 int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
