@@ -5,8 +5,6 @@
 // valid JSON from a generic text like request
 // - This is not part of the core library, and will use malloc()
 
-// TODO: check for initialization for IO functions, can cause segfault
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,9 +15,6 @@
 #include <ptpbackend.h>
 #include <ptpenum.h>
 #include <ptpbind.h>
-
-// TODO: shutter half, shutter down, shutter up
-// TODO: Detect Windows, Linux, Android
 
 int bind_connected = 0;
 int bind_initialized = 0;
@@ -535,8 +530,8 @@ int bind_get_partial_object(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = ptp_download_file(r, handle, bind->params[0], bind->string)
-	if (f < 0) {
+	int x = ptp_download_file(r, bind->params[0], bind->string);
+	if (x < 0) {
 		return sprintf(bind->buffer, "{\"error\": %d}", -1);
 	} else {
 		return sprintf(bind->buffer, "{\"error\": 0, \"read\": %d}", x);
