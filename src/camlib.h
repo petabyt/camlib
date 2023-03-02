@@ -24,6 +24,7 @@
 	#define PTPLOG(...) /* */
 #endif
 
+// Optional, used by frontend in bindings
 #ifndef CAMLIB_PLATFORM
 	#ifdef WIN32
 		#define CAMLIB_PLATFORM "windows"
@@ -43,7 +44,7 @@ enum PtpGeneralError {
 	PTP_OPEN_FAIL = -3,
 	PTP_OUT_OF_MEM = -4,
 	PTP_IO_ERR = -5,
-	PTP_PARSE_ERR = -6,
+	PTP_RUNTIME_ERR = -6,
 	PTP_UNSUPPORTED = -7,
 	PTP_CHECK_CODE = -8,
 };

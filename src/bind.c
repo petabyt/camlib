@@ -535,31 +535,11 @@ int bind_get_partial_object(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
-	int max = 100000;
-	int handle = bind->params[0];
-
-	FILE *f = fopen(bind->string, "w");
-	if (f == NULL) {
+	int x = ptp_download_file(r, handle, bind->params[0], bind->string)
+	if (f < 0) {
 		return sprintf(bind->buffer, "{\"error\": %d}", -1);
-	}
-
-	int read = 0;
-	while (1) {
-		int x = ptp_get_partial_object(r, handle, read, max);
-		puts("PTP GOT PARTIAL OBJ");
-		if (x) {
-			return sprintf(bind->buffer, "{\"error\": %d}", x);
-			break;
-		}
-
-		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
-		
-		if (ptp_get_payload_length(r) < max) {
-			return sprintf(bind->buffer, "{\"error\": 0, \"read\": %d}", read);
-			break;
-		}
-
-		read += ptp_get_payload_length(r);
+	} else {
+		return sprintf(bind->buffer, "{\"error\": 0, \"read\": %d}", x);
 	}
 }
 
@@ -576,8 +556,7 @@ struct RouteMap routes[] = {
 
 	// TODO: start movie capture
 
-	// TODO: soon obsolete
-	{"ptp_eos_remote_release", bind_eos_remote_release},
+	//{"ptp_eos_remote_release", bind_eos_remote_release},
 
 	{"ptp_pre_take_picture", bind_pre_take_picture},
 	{"ptp_take_picture", bind_take_picture},

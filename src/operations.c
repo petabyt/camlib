@@ -226,3 +226,29 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 
 	return ptp_generic_send(r, &cmd);	
 }
+
+int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
+	int max = r->data_length;
+
+	FILE *f = fopen(file, "w");
+	if (f == NULL) {
+		return PTP_RUNTIME_ERR;
+	}
+
+	int read = 0;
+	while (1) {
+		int x = ptp_get_partial_object(r, handle, read, max);
+		puts("PTP GOT PARTIAL OBJ");
+		if (x) {
+			return x;
+		}
+
+		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
+		
+		if (ptp_get_payload_length(r) < max) {
+			return read;
+		}
+
+		read += ptp_get_payload_length(r);
+	}
+}

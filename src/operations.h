@@ -17,6 +17,7 @@ int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
+int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
