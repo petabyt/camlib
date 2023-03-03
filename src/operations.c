@@ -228,7 +228,8 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 }
 
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
-	int max = r->data_length;
+	int max = r->data_length - (r->max_packet_size * 2);
+	printf("%d\n", max);
 
 	FILE *f = fopen(file, "w");
 	if (f == NULL) {
@@ -238,7 +239,6 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 	int read = 0;
 	while (1) {
 		int x = ptp_get_partial_object(r, handle, read, max);
-		puts("PTP GOT PARTIAL OBJ");
 		if (x) {
 			return x;
 		}
