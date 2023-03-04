@@ -243,6 +243,10 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 			return x;
 		}
 
+		if (ptp_get_payload_length(r) == 0) {
+			return read;
+		}
+
 		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
 		
 		if (ptp_get_payload_length(r) < max) {

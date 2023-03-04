@@ -13,8 +13,8 @@
 
 // Conforms to POSIX 2001, some compilers may not have it
 #ifndef CAMLIB_SLEEP
-#include <unistd.h>
-#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
+	#include <unistd.h>
+	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
 // Optional debug logging
@@ -171,6 +171,7 @@ int ptp_check_prop(struct PtpRuntime *r, int code);
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
 
+// Badly named header files
 #include "ptpdata.h"
 #include "ptpbackend.h"
 #include "operations.h"
