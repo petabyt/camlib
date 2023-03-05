@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 
-	FILE *f = fopen(argv[1], "r");
+	FILE *f = fopen(argv[1], "rb");
 	if (f == NULL) {
 		puts("error opening file");
 		return 1;
