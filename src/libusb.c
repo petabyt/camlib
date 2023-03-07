@@ -1,20 +1,13 @@
 // Bindings to libusb
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
-#include <sys/ioctl.h>
 #include <errno.h>
-#include <usb.h>
-#include <linux/usbdevice_fs.h>
 #include <stdio.h>
+#include <libusb-1.0/libusb.h>
 
 #include <camlib.h>
 #include <ptp.h>
 #include <ptpbackend.h>
-
-// Apperantly usb-dev_handle must be defined?
-struct usb_dev_handle {
-	int fd;
-};
 
 struct PtpBackend {
 	uint32_t endpoint_in;
@@ -22,85 +15,102 @@ struct PtpBackend {
 	uint32_t endpoint_int;
 
 	int fd;
-	struct usb_dev_handle *devh;
-	struct usb_device *dev;
+	libusb_context *ctx;
+	libusb_device_handle *handle;
 }ptp_backend = {
 	0, 0, 0, 0, NULL, NULL
 };
 
-struct usb_device *ptp_search() {
+int ptp_device_init(struct PtpRuntime *r) {
 	PTPLOG("Initializing USB...\n");
-	usb_init();
-	usb_find_busses();
-	usb_find_devices();
+	libusb_init(&ptp_backend.ctx);
 
-	struct usb_bus *bus = usb_get_busses();
-	struct usb_device *dev;
-	while (bus != NULL) {
-		dev = bus->devices;
-		while (dev != NULL) {
-			PTPLOG("Trying %s\n", dev->filename);
-			if (dev->config->interface->altsetting->bInterfaceClass == PTP_CLASS_ID) {
-				PTPLOG("Found PTP device %s\n", dev->filename)
-				return dev;
-			}
+	libusb_device **list;
+	ssize_t count = libusb_get_device_list(ptp_backend.ctx, &list);
 
-			dev = dev->next;
+	struct libusb_device_descriptor desc;
+	struct libusb_config_descriptor *config;
+	const struct libusb_interface *interf;
+	const struct libusb_interface_descriptor *interf_desc;
+
+	libusb_device *dev = NULL;
+	for (int i = 0; i < (int)count; i++) {
+		int r = libusb_get_device_descriptor(list[i], &desc);
+
+		if (desc.bNumConfigurations == 0) {
+			continue;
+		} 
+
+		r = libusb_get_config_descriptor(list[i], 0, &config);
+		if (config->bNumInterfaces == 0) {
+			continue;
 		}
 
-		bus = bus->next;
+		interf = &config->interface[0];
+		if (interf->num_altsetting == 0) {
+			continue;
+		}
+
+		interf_desc = &interf->altsetting[0];
+
+		PTPLOG("Vendor ID: %d, Product ID: %d, Class %d\n",
+			desc.idVendor, desc.idProduct, interf_desc->bInterfaceClass);
+
+		if (interf_desc->bInterfaceClass == LIBUSB_CLASS_IMAGE) {
+			dev = list[i];
+
+			libusb_free_config_descriptor(config);
+			break;
+		}
+
+		libusb_free_config_descriptor(config);
 	}
 
-	PTPLOG("No PTP devices found\n");
-
-	return NULL;
-}
-
-int ptp_device_init(struct PtpRuntime *r) {
-	struct usb_device *dev = ptp_search();
-	ptp_backend.dev = dev;
 	if (dev == NULL) {
 		return PTP_NO_DEVICE;
 	}
 
 	r->max_packet_size = 512;
 
-	struct usb_endpoint_descriptor *ep = dev->config->interface->altsetting->endpoint;
-	int endpoints = dev->config->interface->altsetting->bNumEndpoints;
-
-	PTPLOG("Device has %d endpoints.\n", endpoints);
-	PTPLOG("Vendor ID: %d, Product ID: %d\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
+	struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
+	int endpoints = interf_desc->bNumEndpoints;
 
 	for (int i = 0; i < endpoints; i++) {
-		if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_BULK) {
-			if ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK)) {
+		if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
+			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
+				if (ep[i].bEndpointAddress == 0) break; // ?
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
 			}
-		} else {
-			if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_INTERRUPT) {
-				ptp_backend.endpoint_int = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
-			}
+		} else if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT) {
+			ptp_backend.endpoint_int = ep[i].bEndpointAddress;
+			PTPLOG("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
 		}
 	}
 
-	ptp_backend.devh = usb_open(dev);
-	if (ptp_backend.devh == NULL) {
+	int rc = libusb_open(dev, &ptp_backend.handle);
+	libusb_free_device_list(list, 0);
+	if (rc) {
 		perror("usb_open() failure");
 		return PTP_OPEN_FAIL;
 	} else {
-		if (usb_set_configuration(ptp_backend.devh, dev->config->bConfigurationValue)) {
-			perror("usb_set_configuration() failure");
-			usb_close(ptp_backend.devh);
+		if (libusb_set_auto_detach_kernel_driver(ptp_backend.handle, 0)) {
+			perror("libusb_set_auto_detach_kernel_driver");
 			return PTP_OPEN_FAIL;
 		}
-		if (usb_claim_interface(ptp_backend.devh, 0)) {
+
+		// if (libusb_set_configuration(ptp_backend.handle, 1)) {
+			// perror("usb_set_configuration() failure");
+			// libusb_close(ptp_backend.handle);
+			// return PTP_OPEN_FAIL;
+		// }
+
+		if (libusb_claim_interface(ptp_backend.handle, 0)) {
 			perror("usb_claim_interface() failure");
-			usb_close(ptp_backend.devh);
+			libusb_close(ptp_backend.handle);
 			return PTP_OPEN_FAIL;
 		}
 	}
@@ -111,17 +121,11 @@ int ptp_device_init(struct PtpRuntime *r) {
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
-	if (usb_release_interface(ptp_backend.devh, ptp_backend.dev->config->interface->altsetting->bInterfaceNumber)) {
+	if (libusb_release_interface(ptp_backend.handle, 0)) {
 		return 1;
 	}
 
-	if (usb_reset(ptp_backend.devh)) {
-		return 1;
-	}
-
-	if (usb_close(ptp_backend.devh)) {
-		return 1;
-	}
+	libusb_close(ptp_backend.handle);
 
 	r->active_connection = 0;
 
@@ -129,45 +133,50 @@ int ptp_device_close(struct PtpRuntime *r) {
 }
 
 int ptp_device_reset(struct PtpRuntime *r) {
-	if (ptp_backend.devh == NULL) return -1;
-	return usb_control_msg(ptp_backend.devh, USB_TYPE_CLASS | USB_RECIP_INTERFACE, USB_REQ_RESET, 0, 0, NULL, 0, PTP_TIMEOUT);
+	return -1;
 }
 
 int ptp_send_bulk_packet(void *to, int length) {
-	if (ptp_backend.devh == NULL) return -1;
-	return usb_bulk_write(
-		ptp_backend.devh,
+	int transferred;
+	int r = libusb_bulk_transfer(
+		ptp_backend.handle,
 		ptp_backend.endpoint_out,
-		(char *)to, length, PTP_TIMEOUT);
+		(unsigned char *)to, length, &transferred, PTP_TIMEOUT);
+	if (r) {
+		return -1;
+	}
+
+	return transferred;
 }
 
 int ptp_recieve_bulk_packet(void *to, int length) {
-	if (ptp_backend.devh == NULL) return -1;
-	return usb_bulk_read(
-		ptp_backend.devh,
+	int transferred;
+	int r = libusb_bulk_transfer(
+		ptp_backend.handle,
 		ptp_backend.endpoint_in,
-		(char *)to, length, PTP_TIMEOUT);
+		(unsigned char *)to, length, &transferred, PTP_TIMEOUT);
+	if (r) {
+		return -1;
+	}
+
+	return transferred;
 }
 
 int ptp_recieve_int(void *to, int length) {
-	if (ptp_backend.devh == NULL) return -1;
-	int x = usb_bulk_read(
-		ptp_backend.devh,
-		ptp_backend.endpoint_int,
-		(char *)to, length, 10);
-
-	// Error generally means pipe is empty
-	if (x == -110 || x == -16 || x == -5) {
-		return 0;
-	} else if (x == -19) {
+	int transferred;
+	int r = libusb_bulk_transfer(
+		ptp_backend.handle,
+		ptp_backend.endpoint_out,
+		(unsigned char *)to, length, &transferred, 10);
+	if (r == LIBUSB_ERROR_NO_DEVICE) {
 		return PTP_IO_ERR;
+	} else if (r == LIBUSB_ERROR_TIMEOUT) {
+		return 0;
 	}
 
-	return x;
+	return transferred;
 }
 
 int reset_int() {
-	if (ptp_backend.devh == NULL) return -1;
-	return usb_control_msg(ptp_backend.devh, USB_RECIP_ENDPOINT, USB_REQ_CLEAR_FEATURE,
-		0, ptp_backend.endpoint_int, NULL, 0, PTP_TIMEOUT);
+	return -1;
 }

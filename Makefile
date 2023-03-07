@@ -13,7 +13,7 @@ FILES+=src/winapi.o
 CC=x86_64-w64-mingw32-gcc
 LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
 else
-LDFLAGS=-lusb
+LDFLAGS=-lusb-1.0
 FILES+=src/libusb.o src/backend.o
 endif
 
