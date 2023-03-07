@@ -59,7 +59,6 @@ int ptp_device_init(struct PtpRuntime *r) {
 		if (interf_desc->bInterfaceClass == LIBUSB_CLASS_IMAGE) {
 			dev = list[i];
 
-			libusb_free_config_descriptor(config);
 			break;
 		}
 
@@ -77,7 +76,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 
 	for (int i = 0; i < endpoints; i++) {
 		if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
-			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) {
+			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
@@ -91,6 +90,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		}
 	}
 
+	libusb_free_config_descriptor(config);
 	int rc = libusb_open(dev, &ptp_backend.handle);
 	libusb_free_device_list(list, 0);
 	if (rc) {
