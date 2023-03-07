@@ -35,13 +35,22 @@ int ptp_device_init(struct PtpRuntime *r) {
 
 	libusb_device *dev = NULL;
 	for (int i = 0; i < (int)count; i++) {
-		int r = libusb_get_device_descriptor(list[i], &desc);
+		int rc = libusb_get_device_descriptor(list[i], &desc);
+		if (rc) {
+			perror("libusb_get_device_descriptor");
+			return PTP_NO_DEVICE;
+		}
 
 		if (desc.bNumConfigurations == 0) {
 			continue;
 		} 
 
-		r = libusb_get_config_descriptor(list[i], 0, &config);
+		rc = libusb_get_config_descriptor(list[i], 0, &config);
+		if (rc) {
+			perror("libusb_get_config_descriptor");
+			return PTP_NO_DEVICE;
+		}
+
 		if (config->bNumInterfaces == 0) {
 			continue;
 		}
@@ -53,12 +62,10 @@ int ptp_device_init(struct PtpRuntime *r) {
 
 		interf_desc = &interf->altsetting[0];
 
-		PTPLOG("Vendor ID: %d, Product ID: %d, Class %d\n",
-			desc.idVendor, desc.idProduct, interf_desc->bInterfaceClass);
+		PTPLOG("Vendor ID: %X, Product ID: %X\n", desc.idVendor, desc.idProduct);
 
 		if (interf_desc->bInterfaceClass == LIBUSB_CLASS_IMAGE) {
 			dev = list[i];
-
 			break;
 		}
 
@@ -71,16 +78,13 @@ int ptp_device_init(struct PtpRuntime *r) {
 
 	r->max_packet_size = 512;
 
-	struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
-	int endpoints = interf_desc->bNumEndpoints;
-
-	for (int i = 0; i < endpoints; i++) {
+	const struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
+	for (int i = 0; i < interf_desc->bNumEndpoints; i++) {
 		if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
 			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
-				if (ep[i].bEndpointAddress == 0) break; // ?
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
 				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
 			}
@@ -101,12 +105,6 @@ int ptp_device_init(struct PtpRuntime *r) {
 			perror("libusb_set_auto_detach_kernel_driver");
 			return PTP_OPEN_FAIL;
 		}
-
-		// if (libusb_set_configuration(ptp_backend.handle, 1)) {
-			// perror("usb_set_configuration() failure");
-			// libusb_close(ptp_backend.handle);
-			// return PTP_OPEN_FAIL;
-		// }
 
 		if (libusb_claim_interface(ptp_backend.handle, 0)) {
 			perror("usb_claim_interface() failure");
