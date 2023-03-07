@@ -208,7 +208,7 @@ int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder
 // Untested, nothing to test on (?)
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
-	cmd.code = PTP_OC_GetDevicePropValue;
+	cmd.code = PTP_OC_SetDevicePropValue;
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
