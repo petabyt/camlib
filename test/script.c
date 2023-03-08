@@ -5,9 +5,7 @@
 #include <dlfcn.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
 
 #include <mjs.h>
 

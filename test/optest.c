@@ -8,12 +8,7 @@
 #define SIZE 300000
 int main() {
 	struct PtpRuntime r;
-
-	memset(&r, 0, sizeof(struct PtpRuntime));
-	r.data = malloc(SIZE);
-	r.transaction = 0;
-	r.session = 0;
-	r.data_length = SIZE;
+	ptp_generic_init(&r);
 
 	struct PtpDeviceInfo di;
 
@@ -24,14 +19,11 @@ int main() {
 
 	ptp_open_session(&r);
 
+	// Generate JSON data in packet buffer because I'm too lazy
+	// to allocate a buffer (should be around 1-10kb of text)
 	ptp_get_device_info(&r, &di);
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
-
-	// ptp_eos_remote_release_on(&r, 1);
-	// ptp_eos_remote_release_on(&r, 2);
-	// ptp_eos_remote_release_off(&r, 2);
-	// ptp_eos_remote_release_off(&r, 1);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

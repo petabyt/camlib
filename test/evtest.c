@@ -4,10 +4,7 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
-#include <ptpenum.h>
 
 struct PtpRuntime r;
 
@@ -26,11 +23,7 @@ void print_bytes(uint8_t *bytes, int n) {
 void test();
 
 int main() {
-	r.data = malloc(10000);
-	r.data_length = 10000;
-	r.transaction = 0;
-	r.session = 0;
-	r.active_connection = 0;
+	ptp_generic_init(&r);
 
 	if (ptp_device_init(&r)) {
 		puts("Device connection error");

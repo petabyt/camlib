@@ -4,11 +4,7 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
-
-struct PtpRuntime r;
 
 void print_bytes(uint8_t *bytes, int n) {
 	for (int i = 0; i < n; i++) {
@@ -25,6 +21,9 @@ void print_bytes(uint8_t *bytes, int n) {
 #define SIZE 5000000
 
 void info() {
+	struct PtpRuntime r;
+	ptp_generic_init(&r);
+
 	struct PtpDeviceInfo di;
 
 	if (ptp_device_init(&r)) {

@@ -56,8 +56,6 @@ live: FILES+=test/live.o
 live: CFLAGS+=-lX11
 wintest.exe: FILES+=test/wintest.o
 wintest.exe: test/wintest.o
-fh: FILES+=test/fh.o
-fh: test/fh.o
 
 $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@

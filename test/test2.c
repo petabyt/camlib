@@ -4,20 +4,11 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
-
-#define SIZE 3000000
 
 int main() {
 	struct PtpRuntime r;
-
-	memset(&r, 0, sizeof(struct PtpRuntime));
-	r.data = malloc(SIZE);
-	r.transaction = 0;
-	r.session = 0;
-	r.data_length = SIZE;
+	ptp_generic_init(&r);
 
 	if (ptp_device_init(&r)) {
 		puts("Device connection error");
@@ -37,6 +28,7 @@ int main() {
 	ptp_eos_set_remote_mode(&r, 1);
 	ptp_eos_set_event_mode(&r, 1);
 
+	// Poll EOS events in a loop
 	while (1) {
 		ptp_eos_get_event(&r);
 		ptp_dump(&r);

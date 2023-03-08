@@ -1,9 +1,7 @@
 #include <stdio.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
 #include <string.h>
 
 // ptp_connect;
