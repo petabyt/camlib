@@ -25,9 +25,7 @@ This library is written primarily for my [CamControl](https://camcontrol.danielc
 ## Sample
 ```
 struct PtpRuntime r;
-memset(&r, 0, sizeof(struct PtpRuntime));
-r.data = malloc(CAMLIB_DEFAULT_SIZE);
-r.data_length = CAMLIB_DEFAULT_SIZE;
+ptp_generic_init(&r);
 
 if (ptp_device_init(&r)) {
 	puts("Device connection error");
@@ -41,6 +39,5 @@ ptp_device_info_json(&di, (char*)r.data, r.data_length);
 printf("%s\n", (char*)r.data);
 
 ptp_device_close(&r);
-
-free(r.data);
+ptp_generic_close(&r);
 ```

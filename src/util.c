@@ -15,6 +15,7 @@ void ptp_generic_init(struct PtpRuntime *r) {
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 	r->max_packet_size = 512;
 	r->data_phase_length = 0;
+	r->di = NULL;
 }
 
 void ptp_generic_close(struct PtpRuntime *r) {

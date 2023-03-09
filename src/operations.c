@@ -78,7 +78,26 @@ int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format) {
 	cmd.code = PTP_OC_InitiateCapture;
 	cmd.param_length = 2;
 	cmd.params[0] = storage_id;
-	cmd.params[0] = object_format;
+	cmd.params[1] = object_format;
+
+	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_format) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_InitiateOpenCapture;
+	cmd.param_length = 2;
+	cmd.params[0] = storage_id;
+	cmd.params[1] = object_format;
+
+	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_terminate_open_capture(struct PtpRuntime *r, int trans) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_TerminateOpenCapture;
+	cmd.param_length = 1;
+	cmd.params[0] = trans;
 
 	return ptp_generic_send(r, &cmd);
 }

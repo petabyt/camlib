@@ -37,15 +37,11 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	r->di = NULL;
 	bind_initialized = 1;
 
-	//if (connected) {
-		//ptp_device_close(r);
-	//}
-
 	return sprintf(bind->buffer, "{\"error\": %d, \"buffer\": %d}", 0, r->data_length);
 }
 
 int bind_connect(struct BindReq *bind, struct PtpRuntime *r) {
-	// Check if uninitialized
+	// Sanity check if uninitialized
 	if (r->data_length != CAMLIB_DEFAULT_SIZE) {
 		return sprintf(bind->buffer, "{\"error\": %d}", PTP_OUT_OF_MEM);
 	}
@@ -201,6 +197,7 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 	int dev = ptp_device_type(r);
 	int x = 0;
 
+	// Set a raw property value
 	if (strlen(bind->string) == 0) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, bind->params[0], bind->params[1]);
@@ -210,8 +207,8 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 		return sprintf(bind->buffer, "{\"error\": %d}", x);
 	}
 
+	// Set by string value
 	int value = bind->params[0];
-
 	if (!strcmp(bind->string, "aperture")) {
 		if (dev == PTP_DEV_EOS) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
@@ -262,6 +259,7 @@ int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
 		struct PtpEventContainer ec;
 		int x = ptp_get_event(r, &ec);
 		if (x == 0) {
+			// TODO: None of my devices get events
 			return sprintf(bind->buffer, "{\"error\": 0, \"resp\": []}");
 		} else if (x < 0) {
 			return sprintf(bind->buffer, "{\"error\": %d}", x);
@@ -589,20 +587,24 @@ struct RouteMap routes[] = {
 static int isDigit(char c) {return c >= '0' && c <= '9';}
 void bind_parse(struct BindReq *br, char *req) {
 	br->params_length = 0;
+	br->bytes_length = 0;
+
 	memset(br->params, 0, sizeof(int) * BIND_MAX_PARAM);
 	memset(br->name, 0, BIND_MAX_NAME);
+	memset(br->bytes, 0, BIND_MAX_BYTES);
 	memset(br->string, 0, BIND_MAX_STRING);
 
 	int c = 0;
 	int s = 0;
 	while (req[c] != '\0') {
-		// Parse request name
 		if (s == 0) {
+			// Parse request name
 			if (c >= BIND_MAX_NAME) return;
 			br->name[c] = req[c];
 		} else if (s == 1) {
-			// Parse base 10 integer
 			if (isDigit(req[c]) || req[c] == '-') {
+				// Parse base 10 integer
+				if (br->params_length >= BIND_MAX_PARAM) { return -1; }
 				int negative = 0;
 				if (req[c] == '-') { negative = 1; c++; }
 				while (isDigit(req[c])) {
@@ -612,25 +614,31 @@ void bind_parse(struct BindReq *br, char *req) {
 				}
 				if (negative) br->params[br->params_length] *= -1;
 				br->params_length++;
-			// Parse string
+				//c--;
 			} else if (req[c] == '\"') {
+				// Parse string
 				c++;
 				int c2 = 0;
 				while (req[c] != '\"') {
 					br->string[c2] = req[c];
 					c2++;
 					c++;
+					if (c2 >= BIND_MAX_STRING) { return -1; }
 				}
 				br->string[c2] = '\0';
 				c++;
 			}
-		} else if (s == 3) {
-			// Payload
+		} else if (s == 2) {
+			if (br->params_length >= BIND_MAX_BYTES) { return -1; }
+			while (isDigit(req[c])) {
+				br->bytes[br->params_length] *= 10;
+				br->bytes[br->bytes_length] += req[c] - '0';
+				c++;
+			}
+			br->bytes_length++;
 		}
 
 		if (req[c] == '\0') return;
-
-		c++;
 
 		if (req[c] == ';') {
 			if (s == 0) {
@@ -638,7 +646,10 @@ void bind_parse(struct BindReq *br, char *req) {
 			}
 
 			s++;
+			printf("%d\n", s);
 		}
+
+		c++;
 	}
 }
 

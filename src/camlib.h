@@ -178,5 +178,6 @@ int ptp_dump(struct PtpRuntime *r);
 #include "ptpbackend.h"
 #include "operations.h"
 #include "ptpenum.h"
+#include "ptpbind.h"
 
 #endif

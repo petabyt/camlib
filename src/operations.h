@@ -7,6 +7,8 @@ int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a);
 int ptp_custom_recieve(struct PtpRuntime *r, int code);
 int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format);
+int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_format);
+int ptp_terminate_open_capture(struct PtpRuntime *r, int trans);
 int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si);
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);

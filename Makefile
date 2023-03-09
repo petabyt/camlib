@@ -4,7 +4,7 @@ CD?=cd
 PYTHON3?=python3
 
 # All platforms need these object files
-FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o)
+FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o)
 
 # Basic support for MinGW and libwpd
 ifdef WIN
