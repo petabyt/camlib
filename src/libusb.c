@@ -134,6 +134,7 @@ int ptp_device_reset(struct PtpRuntime *r) {
 }
 
 int ptp_send_bulk_packet(void *to, int length) {
+	if (ptp_backend.handle == NULL) return -1;
 	int transferred;
 	int r = libusb_bulk_transfer(
 		ptp_backend.handle,
@@ -147,6 +148,7 @@ int ptp_send_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_bulk_packet(void *to, int length) {
+	if (ptp_backend.handle == NULL) return -1;
 	int transferred = 0;
 	int r = libusb_bulk_transfer(
 		ptp_backend.handle,

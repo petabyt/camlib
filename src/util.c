@@ -80,16 +80,14 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 }
 
 // Send a cmd packet, then data packet
-// New thing
 // Perform a generic operation with a data phase to the camera
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
 	int plength = ptp_new_cmd_packet(r, cmd);
 
 	r->data_phase_length = length;
 	if (ptp_send_bulk_packets(r, plength) != plength) return PTP_IO_ERR;
-	//if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
 
-	// TODO: Put this functionality in packet.c
+	// TODO: Put this functionality in packet.c?
 	cmd->param_length = 0;
 
 	plength = ptp_new_data_packet(r, cmd);

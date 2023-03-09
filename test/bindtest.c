@@ -12,7 +12,7 @@
 
 int main() {
 	struct BindReq x;
-	bind_parse(&x, "FOO_Bar;\"Hello, World\",12,-13;0,1,2,3,4,5,6,7,8,9;");
+	bind_parse(&x, "ptp_custom;12345;");
 	printf("Name: %s\n", x.name);
 	printf("String: %s\n", x.string);
 	for (int i = 0; i < x.params_length; i++) {

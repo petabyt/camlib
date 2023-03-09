@@ -141,16 +141,34 @@ int bind_get_object_info(struct BindReq *bind, struct PtpRuntime *r) {
 	return len;
 }
 
-int bind_custom_cmd(struct BindReq *bind, struct PtpRuntime *r) {
+int bind_custom(struct BindReq *bind, struct PtpRuntime *r) {
 	struct PtpCommand cmd;
-	cmd.code = PTP_OC_CloseSession;
+	cmd.code = bind->params[0];
 	cmd.param_length = bind->params_length - 1;
 	for (int i = 0; i < cmd.param_length; i++) {
-		cmd.params[i] = bind->params[i];
+		cmd.params[i] = bind->params[i + 1];
 	}
 
-	int x = ptp_generic_send(r, &cmd);
-	return sprintf(bind->buffer, "{\"error\": %d, \"resp\": %X}", x, ptp_get_return_code(r));
+	int x = 0;
+	if (bind->bytes_length) {
+		x = ptp_generic_send_data(r, &cmd, bind->bytes, bind->bytes_length);
+	} else {
+		x = ptp_generic_send(r, &cmd);
+	}
+
+	if (x) {
+		return sprintf(bind->buffer, "{\"error\": %d}", x);
+	}
+
+	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": %X, bytes: [");
+	for (int i = 0; i < ptp_get_payload_length(r); i++) {
+		char *comma = "";
+		if (i) comma = ",";
+		len += sprintf(bind->buffer + len, "%s%u", comma, ptp_get_payload(r)[i]);
+	}
+
+	len += sprintf(bind->buffer + len, "]}");
+	return len;
 }
 
 int bind_drive_lens(struct BindReq *bind, struct PtpRuntime *r) {
@@ -580,8 +598,7 @@ struct RouteMap routes[] = {
 	{"ptp_get_thumbnail", bind_get_thumbnail},
 	{"ptp_get_partial_object", bind_get_partial_object},
 	{"ptp_download_file", bind_download_file},
-//	{"ptp_custom_send", NULL},
-//	{"ptp_custom_cmd", NULL},
+	{"ptp_custom", bind_custom},
 };
 
 static int isDigit(char c) {return c >= '0' && c <= '9';}
@@ -604,7 +621,7 @@ void bind_parse(struct BindReq *br, char *req) {
 		} else if (s == 1) {
 			if (isDigit(req[c]) || req[c] == '-') {
 				// Parse base 10 integer
-				if (br->params_length >= BIND_MAX_PARAM) { return -1; }
+				if (br->params_length >= BIND_MAX_PARAM) { return; }
 				int negative = 0;
 				if (req[c] == '-') { negative = 1; c++; }
 				while (isDigit(req[c])) {
@@ -623,13 +640,13 @@ void bind_parse(struct BindReq *br, char *req) {
 					br->string[c2] = req[c];
 					c2++;
 					c++;
-					if (c2 >= BIND_MAX_STRING) { return -1; }
+					if (c2 >= BIND_MAX_STRING) { return; }
 				}
 				br->string[c2] = '\0';
 				c++;
 			}
 		} else if (s == 2) {
-			if (br->params_length >= BIND_MAX_BYTES) { return -1; }
+			if (br->params_length >= BIND_MAX_BYTES) { return; }
 			while (isDigit(req[c])) {
 				br->bytes[br->params_length] *= 10;
 				br->bytes[br->bytes_length] += req[c] - '0';
@@ -646,7 +663,6 @@ void bind_parse(struct BindReq *br, char *req) {
 			}
 
 			s++;
-			printf("%d\n", s);
 		}
 
 		c++;
