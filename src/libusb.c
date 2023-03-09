@@ -1,4 +1,4 @@
-// Bindings to libusb
+// Bindings to libusb v1.0 (2008)
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <errno.h>
@@ -7,7 +7,6 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <ptpbackend.h>
 
 struct PtpBackend {
 	uint32_t endpoint_in;
@@ -148,7 +147,7 @@ int ptp_send_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_bulk_packet(void *to, int length) {
-	int transferred;
+	int transferred = 0;
 	int r = libusb_bulk_transfer(
 		ptp_backend.handle,
 		ptp_backend.endpoint_in,
@@ -161,7 +160,7 @@ int ptp_recieve_bulk_packet(void *to, int length) {
 }
 
 int ptp_recieve_int(void *to, int length) {
-	int transferred;
+	int transferred = 0;
 	int r = libusb_bulk_transfer(
 		ptp_backend.handle,
 		ptp_backend.endpoint_out,

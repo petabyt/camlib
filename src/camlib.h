@@ -1,5 +1,5 @@
-// CamLib specific code, not PTP ISO standard definitions
-// Override preprocessor directives by -include ing a custom header
+// Main header file for Camlib - these are not Standard PTP definitions
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
 

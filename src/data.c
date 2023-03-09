@@ -6,7 +6,6 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <ptpenum.h>
 
 int ptp_get_data_size(void *d, int type) {
 	switch (type) {

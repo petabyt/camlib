@@ -11,10 +11,6 @@
 
 #include <ptp.h>
 #include <camlib.h>
-#include <operations.h>
-#include <ptpbackend.h>
-#include <ptpenum.h>
-#include <ptpbind.h>
 
 int bind_connected = 0;
 int bind_initialized = 0;

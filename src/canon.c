@@ -5,9 +5,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <ptp.h>
-#include <ptpbackend.h>
 #include <camlib.h>
+#include <ptp.h>
 
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 	struct PtpCommand cmd;

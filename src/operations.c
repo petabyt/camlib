@@ -5,9 +5,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#include <ptp.h>
-#include <ptpbackend.h>
 #include <camlib.h>
+#include <ptp.h>
 
 // Technically not an OC, but fits snug here
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {

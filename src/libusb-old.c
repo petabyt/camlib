@@ -1,4 +1,4 @@
-// Bindings to libusb
+// Bindings to libusb v0.1
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <sys/ioctl.h>
@@ -9,7 +9,6 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <ptpbackend.h>
 
 // Apperantly usb-dev_handle must be defined?
 struct usb_dev_handle {

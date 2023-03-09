@@ -1,4 +1,4 @@
-// This file implements Picture Transfer Protocol (ISO 15740)
+// This file describes Picture Transfer Protocol (ISO 15740)
 // Written by Daniel Cook, licensed under GPL2.0 or later
 
 #ifndef PTP_H

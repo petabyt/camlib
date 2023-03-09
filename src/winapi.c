@@ -4,35 +4,10 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <ptpbackend.h>
 #include <ptp.h>
-#include <operations.h>
 #include <winapi.h>
 
 struct WpdStruct backend_wpd;
-
-#if 0
-int wpdfoo() {
-	struct PtpCommand cmd;
-	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
-	cmd.param_length = 0;
-	int ret = wpd_send_do_command(&backend_wpd, &cmd, 12);
-	puts("Send do command");
-	if (ret) {
-		printf("IO error, %d\n", ret);
-		return 1;
-	}
-
-	uint32_t *data = malloc(12);
-	data[0] = 0xc;
-	data[1] = PTP_PC_EOS_ISOSpeed;
-	data[2] = ptp_eos_get_iso(6400, 1);
-	ret = wpd_send_do_data(&backend_wpd, &cmd, data, 12);
-	if (ret) {
-		printf("IO error, %d\n", ret);
-	}
-}
-#endif
 
 int ptp_device_init(struct PtpRuntime *r) {
 	wpd_init(0, L"Camlib WPD");
@@ -42,12 +17,20 @@ int ptp_device_init(struct PtpRuntime *r) {
 	if (length == 0) return PTP_NO_DEVICE;
 
 	for (int i = 0; i < length; i++) {
-		wprintf(L"Device: %s\n", devices[i]);
-	}
+		wprintf(L"Trying device: %s\n", devices[i]);
 
-	int ret = wpd_open_device(&backend_wpd, devices[0]);
-	if (ret) {
-		return PTP_OPEN_FAIL;
+		int ret = wpd_open_device(&backend_wpd, devices[0]);
+		if (ret) {
+			return PTP_OPEN_FAIL;
+		}
+
+		int type = wpd_get_device_type(&backend_wpd);
+		PTPLOG("Found device of type: %d\n", type);
+		if (type == WPD_DEVICE_TYPE_CAMERA) {
+			return 0;
+		}
+
+		wpd_close_device(&backend_wpd);
 	}
 
 	//free(devices);

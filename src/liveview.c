@@ -7,9 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ptp.h>
 #include <camlib.h>
-#include <operations.h>
+#include <ptp.h>
 
 #define MAX_EOS_JPEG_SIZE 500000
 
