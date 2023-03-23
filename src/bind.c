@@ -563,8 +563,6 @@ struct RouteMap routes[] = {
 
 	// TODO: start movie capture
 
-	//{"ptp_eos_remote_release", bind_eos_remote_release},
-
 	{"ptp_pre_take_picture", bind_pre_take_picture},
 	{"ptp_take_picture", bind_take_picture},
 
@@ -631,9 +629,8 @@ void bind_parse(struct BindReq *br, char *req) {
 				}
 				if (negative) br->params[br->params_length] *= -1;
 				br->params_length++;
-				//c--;
 			} else if (req[c] == '\"') {
-				// Parse string
+				// Parse string, wherever it is
 				c++;
 				int c2 = 0;
 				while (req[c] != '\"') {

@@ -118,6 +118,9 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
 
+#define PTP_OC_FUJI_SendObjectInfo	0x900c
+#define PTP_OC_FUJI_SendObject		0x901d
+
 #define EOS_DESTINATION_CAM		0x2
 #define EOS_DESTINATION_PC		0x4
 #define EOS_DESTINATION_BOTH	0x6
