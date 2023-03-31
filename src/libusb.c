@@ -3,7 +3,7 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <libusb-1.0/libusb.h>
+#include <libusb.h>
 
 #include <camlib.h>
 #include <ptp.h>
