@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt install libusb-1.0-0-dev
+
+    - name: Build
+      run: make
+  macOS-build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: brew install libusb
+
+    - name: Build
+      run: make
