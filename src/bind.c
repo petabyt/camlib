@@ -21,8 +21,9 @@ struct RouteMap {
 };
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
-	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, \"platform\": \"%s\"}",
-		bind_initialized, bind_connected, CAMLIB_PLATFORM);
+	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, "
+	"\"platform\": \"%s\", \"version\": \"%s\"}",
+		bind_initialized, bind_connected, CAMLIB_PLATFORM, CAMLIB_VERSION);
 }
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
@@ -113,7 +114,6 @@ int bind_get_storage_info(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_get_object_handles(struct BindReq *bind, struct PtpRuntime *r) {
 	struct UintArray *arr;	
-	printf("IN root: %d\n", bind->params[1]);
 	int x = ptp_get_object_handles(r, bind->params[0], 0, bind->params[1], &arr);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
@@ -160,7 +160,7 @@ int bind_custom(struct BindReq *bind, struct PtpRuntime *r) {
 		return sprintf(bind->buffer, "{\"error\": %d}", x);
 	}
 
-	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": %X, bytes: [");
+	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": %X, bytes: [", x, ptp_get_payload_length(r));
 	for (int i = 0; i < ptp_get_payload_length(r); i++) {
 		char *comma = "";
 		if (i) comma = ",";

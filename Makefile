@@ -19,6 +19,9 @@ endif
 
 CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
 
+# TODO: implement as CAMLIB_VERSION
+COMMIT=$(shell git rev-parse HEAD)
+
 all: $(FILES)
 
 %.o: %.c src/*.h

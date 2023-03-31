@@ -8,6 +8,10 @@
 
 #include "ptp.h"
 
+#ifndef CAMLIB_VERSION
+	#define CAMLIB_VERSION __DATE__
+#endif
+
 // Max timeout for response
 #define PTP_TIMEOUT 1000
 

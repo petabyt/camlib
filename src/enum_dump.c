@@ -78,6 +78,8 @@ struct PtpEnum ptp_enums[] = {
 {PTP_OC, PTP_DEV_EOS, "DoAutoFocus", 0x9154},
 {PTP_OC, PTP_DEV_EOS, "AfCancel", 0x9160},
 {PTP_OC, PTP_DEV_EOS, "SetDefaultSetting", 0x91BE},
+{PTP_OC, PTP_DEV_FUJI, "SendObjectInfo", 0x900c},
+{PTP_OC, PTP_DEV_FUJI, "SendObject", 0x901d},
 {PTP_ENUM, 0, "EOS_DESTINATION_CAM", 0x2},
 {PTP_ENUM, 0, "EOS_DESTINATION_PC", 0x4},
 {PTP_ENUM, 0, "EOS_DESTINATION_BOTH", 0x6},
@@ -340,4 +342,4 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
 
-};int ptp_enums_length = 338;
+};int ptp_enums_length = 340;
