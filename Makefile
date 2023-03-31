@@ -13,11 +13,11 @@ FILES+=src/winapi.o
 CC=x86_64-w64-mingw32-gcc
 LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
 else
-LDFLAGS=-lusb-1.0
+CFLAGS = $(shell pkg-config --cflags --libs libusb-1.0)
 FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g
+CFLAGS += -Isrc/ -I../mjs/ -DVERBOSE -Wall -g
 
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)
