@@ -10,7 +10,7 @@
 struct WpdStruct backend_wpd;
 
 int ptp_device_init(struct PtpRuntime *r) {
-	wpd_init(0, L"Camlib WPD");
+	wpd_init(1, L"Camlib WPD");
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
 
@@ -19,7 +19,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 	for (int i = 0; i < length; i++) {
 		wprintf(L"Trying device: %s\n", devices[i]);
 
-		int ret = wpd_open_device(&backend_wpd, devices[0]);
+		int ret = wpd_open_device(&backend_wpd, devices[i]);
 		if (ret) {
 			return PTP_OPEN_FAIL;
 		}
@@ -33,9 +33,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		wpd_close_device(&backend_wpd);
 	}
 
-	//free(devices);
-
-	return 0;
+	return PTP_NO_DEVICE;
 }
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
