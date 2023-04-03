@@ -8,13 +8,13 @@ FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o c
 
 # Basic support for MinGW and libwpd
 ifdef WIN
-$(shell cp /mnt/c/Users/brikb/source/repos/libwpd/x64/Debug/libwpd.dll .)
-FILES+=src/winapi.o
-CC=x86_64-w64-mingw32-gcc
-LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
+  #$(shell cp /mnt/c/Users/brikb/source/repos/libwpd/x64/Debug/libwpd.dll .)
+  FILES+=src/winapi.o
+  CC=x86_64-w64-mingw32-gcc
+  LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
 else
-CFLAGS = $(shell pkg-config --cflags --libs libusb-1.0)
-FILES+=src/libusb.o src/backend.o
+  CFLAGS=$(shell pkg-config --cflags --libs libusb-1.0)
+  FILES+=src/libusb.o src/backend.o
 endif
 
 CFLAGS += -Isrc/ -I../mjs/ -DVERBOSE -Wall -g

@@ -130,7 +130,7 @@ int ptp_device_close(struct PtpRuntime *r) {
 }
 
 int ptp_device_reset(struct PtpRuntime *r) {
-	return -1;
+	return 0;
 }
 
 int ptp_send_bulk_packet(void *to, int length) {

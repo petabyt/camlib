@@ -246,7 +246,11 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 		}
 	} else if (!strcmp(bind->string, "image format")) {
 		if (dev == PTP_DEV_EOS) {
-			int *data = ptp_eos_get_imgformat_data(value);
+			void *data = ptp_eos_get_imgformat_data(value);
+			if (data == NULL) {
+				return sprintf(bind->buffer, "{\"error\": 0}");
+			}
+
 			if (value == IMG_FORMAT_RAW_JPEG) {
 				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 9);
 			} else {
