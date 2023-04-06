@@ -453,7 +453,7 @@ int bind_eos_remote_release(struct BindReq *bind, struct PtpRuntime *r) {
 			x = ptp_eos_remote_release_off(r, 1);
 			break;
 		}
-		
+
 		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;

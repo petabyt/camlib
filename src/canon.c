@@ -2,8 +2,10 @@
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <camlib.h>
 #include <ptp.h>
@@ -38,8 +40,6 @@ int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
 		steps = 0x8000 + (steps * -1);
 	}
 	
-	printf("%X\n", steps);
-
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_DriveLens;
 	cmd.param_length = 1;
@@ -168,4 +168,45 @@ int ptp_eos_reset_ui_lock(struct PtpRuntime *r) {
 	cmd.code = PTP_OC_EOS_ResetUILock;
 	cmd.param_length = 0;
 	return ptp_generic_send(r, &cmd);	
+}
+
+#define EOS_NAME_LEN 32
+#define EOS_FIRM_MAX 0x200000
+
+int ptp_eos_update_firmware(struct PtpRuntime *r, FILE *f, char *name) {
+	if (strlen(name) > EOS_NAME_LEN) {
+		return -1;
+	}
+
+	struct stat s;
+	fstat(fileno(f), &s);
+
+	char *payload = malloc(EOS_FIRM_MAX);
+
+	int sent = 0;
+	while (1) {
+		struct PtpCommand cmd;
+		cmd.code = PTP_OC_EOS_UpdateFirmware;
+		cmd.param_length = 2;
+		cmd.params[0] = s.st_size;
+		cmd.params[1] = sent;
+
+		int size = EOS_FIRM_MAX;
+
+		memset(payload, 0, EOS_NAME_LEN);
+		strcpy(payload, name);
+		fread(payload + EOS_NAME_LEN, size - EOS_NAME_LEN, 1, f);
+
+		if (sent + size > s.st_size) size -= s.st_size - sent;
+
+		int rc = ptp_generic_send_data(r, &cmd, payload, size);
+		if (rc) {
+			return rc;
+		}
+
+		sent += size - EOS_FIRM_MAX;
+		if (sent >= s.st_size) {
+			return 0;
+		}
+	}
 }

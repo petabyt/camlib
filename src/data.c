@@ -276,6 +276,9 @@ int ptp_eos_prop_json(void **d, char *buffer, int max) {
 		name = "white balance";
 		data_value = ptp_eos_get_white_balance(data_value, 0);
 		break;
+	case PTP_PC_EOS_FocusInfoEx:
+		name = "focused";
+		break;
 	}
 
 	int curr = 0;
