@@ -85,6 +85,11 @@ enum ImageFormats {
 	IMG_FORMAT_RAW_JPEG = 4,
 };
 
+enum BindCaptureType {
+	PTP_CAPTURE_REMOTE = 1,
+	PTP_CAPTURE_CAMERA = 2,
+};
+
 struct PtpRuntime {
 	int active_connection;
 

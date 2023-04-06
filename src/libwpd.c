@@ -5,7 +5,7 @@
 
 #include <camlib.h>
 #include <ptp.h>
-#include <winapi.h>
+#include <libwpd.h>
 
 struct WpdStruct backend_wpd;
 

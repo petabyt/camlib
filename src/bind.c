@@ -14,6 +14,7 @@
 
 int bind_connected = 0;
 int bind_initialized = 0;
+int bind_capture_type = 0;
 
 struct RouteMap {
 	char *name;
@@ -257,6 +258,8 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 5);
 			}
 		}
+	} else if (!strcmp(bind->string, "destination")) {
+		bind_capture_type = value;
 	} else {
 		return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
 	}
