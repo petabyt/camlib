@@ -1,3 +1,4 @@
+// Test basic opcode, get device properties
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -16,8 +17,6 @@ int main() {
 		puts("Device connection error");
 		return 0;
 	}
-
-	ptp_open_session(&r);
 
 	// Generate JSON data in packet buffer because I'm too lazy
 	// to allocate a buffer (should be around 1-10kb of text)
