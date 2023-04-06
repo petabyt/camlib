@@ -16,7 +16,11 @@ jobs:
       run: sudo apt install libusb-1.0-0-dev
 
     - name: Build
-      run: make
+      run: |
+        make
+        # Test the decoding tool also builds.
+        make dec
+
   macOS-build:
     runs-on: macos-latest
     steps:
@@ -26,4 +30,7 @@ jobs:
       run: brew install libusb
 
     - name: Build
-      run: make
+      run: |
+        make
+        # Test the decoding tool also builds.
+        make dec
