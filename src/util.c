@@ -7,15 +7,19 @@
 #include <camlib.h>
 #include <ptp.h>
 
-void ptp_generic_init(struct PtpRuntime *r) {
+void ptp_generic_reset(struct PtpRuntime *r) {
 	r->active_connection = 0;
 	r->transaction = 0;
-	r->session = 0;
-	r->data = malloc(CAMLIB_DEFAULT_SIZE);
-	r->data_length = CAMLIB_DEFAULT_SIZE;
+	r->session = 0;	
 	r->max_packet_size = 512;
 	r->data_phase_length = 0;
 	r->di = NULL;
+}
+
+void ptp_generic_init(struct PtpRuntime *r) {
+	ptp_generic_reset(r);
+	r->data = malloc(CAMLIB_DEFAULT_SIZE);
+	r->data_length = CAMLIB_DEFAULT_SIZE;
 }
 
 void ptp_generic_close(struct PtpRuntime *r) {

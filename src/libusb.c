@@ -21,6 +21,7 @@ struct PtpBackend {
 };
 
 int ptp_device_init(struct PtpRuntime *r) {
+	ptp_generic_reset();
 	PTPLOG("Initializing USB...\n");
 	libusb_init(&ptp_backend.ctx);
 

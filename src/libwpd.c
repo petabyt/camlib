@@ -10,6 +10,7 @@
 struct WpdStruct backend_wpd;
 
 int ptp_device_init(struct PtpRuntime *r) {
+	ptp_generic_reset();
 	wpd_init(1, L"Camlib WPD");
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
