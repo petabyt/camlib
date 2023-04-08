@@ -8,6 +8,7 @@
 
 #define SIZE 300000
 int main() {
+for (int i = 0; i < 10; i++) {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
 
@@ -28,7 +29,7 @@ int main() {
 	ptp_device_close(&r);
 
 	free(r.data);
-
+}
 	return 0;
 }
 

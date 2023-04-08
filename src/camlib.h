@@ -8,8 +8,13 @@
 
 #include "ptp.h"
 
+// Used in bindings, can be set to Git stamp
 #ifndef CAMLIB_VERSION
-	#define CAMLIB_VERSION __DATE__
+	#ifdef __DATE__
+		#define CAMLIB_VERSION __DATE__
+	#else
+		#define CAMLIB_VERSION "Unknown"
+	#endif
 #endif
 
 // Max timeout for response
@@ -21,7 +26,7 @@
 	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
-// Optional debug logging
+// Optional debug logging on compile time
 #ifdef VERBOSE
 	#define PTPLOG(...) printf(__VA_ARGS__);
 #else
@@ -167,6 +172,7 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 // Generic runtime setup - allocate default memory
+void ptp_generic_reset(struct PtpRuntime *r);
 void ptp_generic_init(struct PtpRuntime *r);
 void ptp_generic_close(struct PtpRuntime *r);
 

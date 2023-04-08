@@ -39,3 +39,4 @@ int wpd_send_do_command(struct WpdStruct* wpd, struct PtpCommand* cmd, int lengt
 int wpd_send_do_data(struct WpdStruct* wpd, struct PtpCommand* cmd, uint8_t *buffer, int length);
 
 #endif
+
