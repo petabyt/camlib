@@ -21,7 +21,7 @@ struct PtpBackend {
 };
 
 int ptp_device_init(struct PtpRuntime *r) {
-	ptp_generic_reset();
+	ptp_generic_reset(r);
 	PTPLOG("Initializing USB...\n");
 	libusb_init(&ptp_backend.ctx);
 
@@ -167,7 +167,7 @@ int ptp_recieve_int(void *to, int length) {
 	int transferred = 0;
 	int r = libusb_bulk_transfer(
 		ptp_backend.handle,
-		ptp_backend.endpoint_out,
+		ptp_backend.endpoint_int,
 		(unsigned char *)to, length, &transferred, 10);
 	if (r == LIBUSB_ERROR_NO_DEVICE) {
 		return PTP_IO_ERR;
