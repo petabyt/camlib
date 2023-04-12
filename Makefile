@@ -8,7 +8,6 @@ FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o c
 
 # Basic support for MinGW and libwpd
 ifdef WIN
-  #$(shell cp /mnt/c/Users/brikb/source/repos/libwpd/x64/Debug/libwpd.dll .)
   FILES+=src/libwpd.o
   CC=x86_64-w64-mingw32-gcc
   LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
@@ -17,12 +16,13 @@ else
   FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS += -Isrc/ -I../mjs/ -DVERBOSE -Wall -g
+CFLAGS+=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
 
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)
 
-all: $(FILES)
+libcl.so: $(FILES)
+	$(CC) -shared $(FILES) -o libcl.so
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -64,6 +64,6 @@ $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
 
 clean:
-	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec *.dll
+	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec *.dll *.so
 
 .PHONY: all clean

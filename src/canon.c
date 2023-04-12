@@ -170,9 +170,9 @@ int ptp_eos_reset_ui_lock(struct PtpRuntime *r) {
 	return ptp_generic_send(r, &cmd);	
 }
 
+// Credit to lclevy/miniPtp for implementation
 #define EOS_NAME_LEN 32
 #define EOS_FIRM_MAX 0x200000
-
 int ptp_eos_update_firmware(struct PtpRuntime *r, FILE *f, char *name) {
 	if (strlen(name) > EOS_NAME_LEN) {
 		return -1;
