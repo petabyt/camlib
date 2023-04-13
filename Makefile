@@ -6,23 +6,25 @@ PYTHON3?=python3
 # All platforms need these object files
 FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o)
 
+CFLAGS = -Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
+
 # Basic support for MinGW and libwpd
 ifdef WIN
   FILES+=src/libwpd.o
   CC=x86_64-w64-mingw32-gcc
   LDFLAGS=-lhid -lole32 -luser32 -lgdi32 -luuid libwpd.dll
 else
-  CFLAGS=$(shell pkg-config --cflags --libs libusb-1.0)
+  CFLAGS += $(shell pkg-config --cflags libusb-1.0)
+  LDFLAGS += $(shell pkg-config --libs libusb-1.0)
   FILES+=src/libusb.o src/backend.o
 endif
 
-CFLAGS+=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
 
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)
 
 libcl.so: $(FILES)
-	$(CC) -shared $(FILES) -o libcl.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(FILES) -o libcl.so
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
