@@ -7,6 +7,7 @@ PYTHON3?=python3
 FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o)
 
 CFLAGS = -Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
+SONAME = libcl.so
 
 # Basic support for MinGW and libwpd
 ifdef WIN
@@ -24,7 +25,7 @@ endif
 COMMIT=$(shell git rev-parse HEAD)
 
 libcl.so: $(FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(FILES) -o libcl.so
+	$(CC) -shared -Wl,-soname,$(SONAME) $(FILES) $(LDFLAGS) -o $(SONAME)
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
