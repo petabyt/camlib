@@ -42,8 +42,8 @@
 	#endif
 #endif
 
-// 2mb recommended default buffer size
-#define CAMLIB_DEFAULT_SIZE 2000000
+// 4mb recommended default buffer size
+#define CAMLIB_DEFAULT_SIZE 4000000
 
 // Generic Camlib errors, not PTP return codes
 enum PtpGeneralError {

@@ -95,6 +95,12 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	cmd->param_length = 0;
 
 	plength = ptp_new_data_packet(r, cmd);
+
+	if (plength + length > r->data_length) {
+		PTPLOG("ptp_generic_send_data: Not enough memory\n");
+		return PTP_OUT_OF_MEM;
+	}
+	
 	memcpy(ptp_get_payload(r), data, length);
 	ptp_update_data_length(r, plength + length);
 
