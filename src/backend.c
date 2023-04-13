@@ -91,7 +91,7 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
 			return PTP_IO_ERR;
 		}
 
-		int x = ptp_send_bulk_packet(r->data, x);
+		x = ptp_send_bulk_packet(r->data, x);
 		if (x < 0) {
 			PTPLOG("send_bulk_packet: %d\n", x);
 			return PTP_IO_ERR;
