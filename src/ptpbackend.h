@@ -28,4 +28,9 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
 // Reads the incoming packet to file, starting after an optional offset
 int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
 
+int ptpip_connect(struct PtpRuntime *r, char *addr, int port);
+int ptpip_send_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes);
+int ptpip_recieve_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes);
+int ptpip_close(struct PtpRuntime *r);
+
 #endif

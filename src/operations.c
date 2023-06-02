@@ -20,6 +20,17 @@ int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
 	return x;
 }
 
+int ptpip_ping(struct PtpRuntime *r) {
+	struct PtpIpHeader h;
+	h.length = 8;
+	h.type = PTPIP_PING;
+	if (ptpip_send_bulk_packet(r, r->data, 8) != 8) {
+		return PTP_IO_ERR;
+	}
+
+	return 0;
+}
+
 int ptp_custom_recieve(struct PtpRuntime *r, int code) {
 	struct PtpCommand cmd;
 	cmd.code = code;

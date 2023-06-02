@@ -104,7 +104,7 @@ int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 // Page 281 of MTP 1.1 spec
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	struct PtpBulkContainer bulk;
-	cmd->data_length = 0;
+	cmd->data_length = 0; // TODO: This does nothing?
 	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_COMMAND);
 	return length;
 }
@@ -138,8 +138,9 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
-		// TODO: return NULL?
-		return r->data;
+		return r->data + 12;
+	} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
+		return r->data + 28;
 	} else {
 		return r->data + 12;
 	}

@@ -14,6 +14,7 @@ void ptp_generic_reset(struct PtpRuntime *r) {
 	r->max_packet_size = 512;
 	r->data_phase_length = 0;
 	r->di = NULL;
+	r->connection_type = PTP_USB;
 }
 
 void ptp_generic_init(struct PtpRuntime *r) {

@@ -36,6 +36,11 @@ struct PtpEventContainer {
 	uint32_t params[3];
 };
 
+struct PtpIpHeader {
+	uint32_t length;
+	uint32_t type;
+};
+
 // Standard PTP Operation Codes (OC)
 #define PTP_OC_GetDeviceInfo		0x1001
 #define PTP_OC_OpenSession			0x1002
@@ -117,9 +122,6 @@ struct PtpEventContainer {
 #define PTP_OC_EOS_DoAutoFocus			0x9154
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
-
-#define PTP_OC_FUJI_SendObjectInfo	0x900c
-#define PTP_OC_FUJI_SendObject		0x901d
 
 #define EOS_DESTINATION_CAM		0x2
 #define EOS_DESTINATION_PC		0x4

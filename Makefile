@@ -4,9 +4,9 @@ CD?=cd
 PYTHON3?=python3
 
 # All platforms need these object files
-FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o)
+FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o)
 
-CFLAGS = -Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
 
 # Basic support for MinGW and libwpd
 ifdef WIN
@@ -19,7 +19,6 @@ else
   FILES+=src/libusb.o src/backend.o
 endif
 
-
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)
 
@@ -29,7 +28,6 @@ libcl.so: $(FILES)
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-# Defining NOPYTHON will prevent Python from generating a new file
 ifndef NOPYTHON
 src/enum_dump.o: src/ptp.h src/stringify.py
 	$(CD) src && $(PYTHON3) stringify.py
@@ -41,17 +39,23 @@ DEC_FILES=src/dec/main.o src/enums.o src/enum_dump.o
 dec: $(DEC_FILES)
 	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
 
+# Some custom stuff for PTP/IP
+connect:
+	systemctl stop NetworkManager
+	iwconfig wlp0s20f3 essid "FUJIFILM-X-A2-5DBC"
+	dhclient wlp0s20f3
+fix:
+	systemctl start NetworkManager
+
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
-TEST_TARGETS=live script pktest optest test2 evtest wintest.exe bindtest fh
-script: ../mjs/mjs.o test/script.o
-script: FILES+=../mjs/mjs.o test/script.o
+TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi
 pktest: test/pktest.o
 pktest: FILES+=test/pktest.o
+wifi: test/wifi.o
+wifi: FILES+=test/wifi.o
 optest: test/optest.o
 optest: FILES+=test/optest.o
-test2: test/test2.o
-test2: FILES+=test/test2.o
 evtest: test/evtest.o
 evtest: FILES+=test/evtest.o
 bindtest: test/bindtest.o

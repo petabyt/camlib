@@ -7,20 +7,6 @@
 #include <camlib.h>
 #include <ptp.h>
 
-void print_bytes(uint8_t *bytes, int n) {
-	for (int i = 0; i < n; i++) {
-		if (bytes[i] > 31 && bytes[i] < 128) {
-			printf("'%c' ", bytes[i]);
-		} else {
-			printf("%02X ", bytes[i]);
-		}
-	}
-
-	puts("");
-}
-
-#define SIZE 3000000
-
 int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);

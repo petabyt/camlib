@@ -1,80 +1,111 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
+#include <arpa/inet.h>
 
-#include "ptp.h"
+#include <camlib.h>
+#include <ptp.h>
 
-int ip_connect(char *address, int port) {
-	int sockfd;
-	struct sockaddr_in serv_addr;
-	struct hostent *server;
+int set_nonblocking_io(int sockfd, int enable) {
+	int flags = fcntl(sockfd, F_GETFL, 0);
+	if (flags == -1)
+		return -1;
 
-	// create socket
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (enable)
+		flags |= O_NONBLOCK;
+	else
+		flags &= ~O_NONBLOCK;
+
+	return fcntl(sockfd, F_SETFL, flags);
+}
+
+int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
-		perror("ERROR opening socket");
+		PTPLOG("Failed to create socket\n");
 		return -1;
 	}
 
-	// get server address
-	server = gethostbyname(address);
-
-	if (server == NULL) {
-		fprintf(stderr, "ERROR, no such host\n");
+	if (set_nonblocking_io(sockfd, 1) < 0) {
+		close(sockfd);
+		PTPLOG("Failed to set non-blocking IO\n");
 		return -1;
 	}
 
-	// set up server address
-	memset(&serv_addr, 0, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
-	serv_addr.sin_port = htons(port);
-
-	// connect to server
-	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-		perror("ERROR connecting");
+	struct sockaddr_in sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(port);
+	if (inet_pton(AF_INET, addr, &(sa.sin_addr)) <= 0) {
+		close(sockfd);
+		PTPLOG("Failed to convert IP address\n");
 		return -1;
 	}
 
-	return sockfd;
-}
-
-int ip_recieve() {
-	
-}
-
-int ip_init_requests(int socket) {
-	struct PtpInitReq req;
-	memset(&req, 0, sizeof(struct PtpInitReq));
-	req.header.length = sizeof(struct PtpInitReq);
-	req.header.type = PTPIP_INIT_COMMAND_REQ;
-	strcpy(req.guid, "cl_temp_guid");
-
-	int rc = send(socket, &req, req.header.length, 0);
-	if (rc == (int)req.header.length) {
-		return 1;
+	if (connect(sockfd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
+		if (errno != EINPROGRESS) {
+			close(sockfd);
+			PTPLOG("Failed to connect\n");
+			return -1;
+		}
 	}
 
-	return 0;
-}
+	// timeout handling
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(sockfd, &fdset);
+	struct timeval tv;
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
 
-int ptpip_device_init(struct PtpRuntime *r) {
-	for (int i = 0; i < 30; i++) {
-		char buf[64];
-		snprintf(buf, 64, "192.168.2.%d" , i);
-		int fd = ip_connect(buf, 15740);
-		if (fd == -1) {
-			printf("Fail %s\n", buf);
-		} else {
-			printf("Connected to %s\n", buf);
+	if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
+		int so_error = 0;
+		socklen_t len = sizeof(so_error);
+		if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
+			close(sockfd);
+			PTPLOG("Failed to get socket options\n");
+			return -1;
+		}
+
+		if (so_error == 0) {
+			PTPLOG("Connection established %s:%d (%d)\n", addr, port, sockfd);
+			set_nonblocking_io(sockfd, 0);
+			r->fd = sockfd;
 			return 0;
 		}
 	}
 
+	close(sockfd);
+	PTPLOG("Failed to connect\n");
+	return -1;
+}
+
+int ptpip_close(struct PtpRuntime *r) {
+	close(r->fd);
 	return 0;
+}
+
+int ptpip_send_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes) {
+	int result = write(r->fd, data, sizeBytes);
+	if (result < 0) {
+		return -1;
+	} else {
+		return result;
+	}
+}
+
+int ptpip_recieve_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes) {
+	int result = read(r->fd, data, sizeBytes);
+	if (result < 0) {
+		return -1;
+	} else {
+		return result;
+	}
 }

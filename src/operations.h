@@ -20,6 +20,7 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
+int ptpip_ping(struct PtpRuntime *r);
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
@@ -52,5 +53,8 @@ int ptp_liveview_deinit(struct PtpRuntime *r);
 int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);
 
 int ptp_liveview_type(struct PtpRuntime *r);
+
+int ptp_fuji_wait_unlocked(struct PtpRuntime *r);
+int ptp_fuji_init(struct PtpRuntime *r, char *device_name);
 
 #endif

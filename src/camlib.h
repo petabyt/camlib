@@ -58,11 +58,6 @@ enum PtpGeneralError {
 	PTP_CHECK_CODE = -8,
 };
 
-enum PtpConnType {
-	PTP_IP,
-	PTP_USB,
-};
-
 enum PtpLiveViewType {
 	PTP_LV_NONE = 0,
 	PTP_LV_EOS = 1,
@@ -95,8 +90,14 @@ enum BindCaptureType {
 	PTP_CAPTURE_CAMERA = 2,
 };
 
+enum PtpConnType {
+	PTP_IP,
+	PTP_USB,
+};
+
 struct PtpRuntime {
 	int active_connection;
+	int connection_type;
 
 	// The transaction ID and session ID is managed by the
 	// packet generator functions
@@ -116,6 +117,9 @@ struct PtpRuntime {
 	// For Windows compatibility, this is set to indicate lenth for a data packet
 	// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
 	int data_phase_length;
+
+	// For networking
+	int fd;
 };
 
 // Generic command structure - not a packet
