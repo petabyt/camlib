@@ -339,5 +339,11 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "USB_RECIP_INTERFACE", 0x01},
 {PTP_ENUM, 0, "USB_RECIP_ENDPOINT", 0x02},
 {PTP_ENUM, 0, "USB_TYPE_CLASS", 0x20},
+{PTP_ENUM, 0, "FUJI_PROTOCOL_VERSION", 0x8f53e4f2},
+{PTP_OC, PTP_DEV_FUJI, "SendObjectInfo", 0x900c},
+{PTP_OC, PTP_DEV_FUJI, "SendObject", 0x901d},
+{PTP_PC, PTP_DEV_EMPTY, "Fuji_Unlocked", 0xd212},
+{PTP_PC, PTP_DEV_EMPTY, "Fuji_TransferMode", 0xdf22},
+{PTP_PC, PTP_DEV_EMPTY, "Fuji_Mode", 0xdf01},
 
-};int ptp_enums_length = 338;
+};int ptp_enums_length = 344;

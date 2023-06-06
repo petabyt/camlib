@@ -20,7 +20,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		if (r->connection_type == PTP_USB) {
 			x = ptp_send_bulk_packet(r->data + sent, length);
 		} else if (r->connection_type == PTP_IP) {
-			x = ptpip_send_bulk_packet(r, r->data + sent, length);
+			x = ptpip_cmd_write(r, r->data + sent, length);
 		}
 
 		if (x < 0) {
@@ -44,7 +44,22 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 		if (r->connection_type == PTP_USB) {
 			x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 		} else if (r->connection_type == PTP_IP) {
-			x = ptpip_recieve_bulk_packet(r, r->data + read, r->max_packet_size);
+			x = ptpip_cmd_read(r, r->data + read, r->max_packet_size);
+
+			if (x > 0 && read == 0) {
+				// If we recieve an event on the wrong pipe, assume error
+				uint32_t *test = (uint32_t *)r->data;
+				if (test[0] == PTPIP_EVENT) {
+					// Shutdown event
+					if (test[1] == 0xffffffff) {
+						PTPLOG("Recieved shutdown event");
+						return PTP_IO_ERR;
+					}
+
+					// TODO: Might be possible to skip events
+					return PTP_IO_ERR;
+				}
+			}
 		}
 
 		if (x < 0) {
@@ -55,7 +70,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 				if (r->connection_type == PTP_USB) {
 					x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 				} else if (r->connection_type == PTP_IP) {
-					x = ptpip_recieve_bulk_packet(r, r->data + read, r->max_packet_size);
+					x = ptpip_cmd_read(r, r->data + read, r->max_packet_size);
 				}
 			}
 
@@ -81,7 +96,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 				if (r->connection_type == PTP_USB) {
 					x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 				} else if (r->connection_type == PTP_IP) {
-					x = ptpip_recieve_bulk_packet(r, r->data + read, r->max_packet_size);
+					x = ptpip_cmd_read(r, r->data + read, r->max_packet_size);
 				}
 
 				PTPLOG("recieve_bulk_packets: Recieved extra packet %d bytes\n", x);
@@ -115,7 +130,7 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
 		if (r->connection_type == PTP_USB) {
 			x = ptp_send_bulk_packet(r->data, x);
 		} else if (r->connection_type == PTP_IP) {
-			x = ptpip_send_bulk_packet(r, r->data, x);
+			x = ptpip_cmd_write(r, r->data, x);
 		}
 
 		if (x < 0) {

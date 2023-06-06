@@ -70,6 +70,6 @@ $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
 
 clean:
-	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe *.txt dec *.dll *.so
+	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe dec *.dll *.so
 
 .PHONY: all clean

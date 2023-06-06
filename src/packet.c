@@ -72,6 +72,31 @@ void ptp_write_string(void **dat, char *string) {
 	}
 }
 
+// Write non-PTP standard unicode string
+int ptp_write_unicode_string(char *dat, char *string) {
+	int i;
+	for (i = 0; string[i] != '\0'; i++) {
+		dat[i * 2] = string[i];
+		dat[i * 2 + 1] = '\0';
+	}
+	dat[i * 2 + 1] = '\0';
+	return i;
+}
+
+int ptp_read_unicode_string(char *buffer, char *dat, int max) {
+	int i;
+	for (i = 0; dat[i] != '\0'; i += 2) {
+		buffer[i / 2] = dat[i];
+		if (i >= max) {
+			buffer[(i / 2) + 1] = '\0';
+			return i;
+		}
+	}
+
+	buffer[(i / 2)] = '\0';
+	return i / 2;
+}
+
 // Generate a BulkContainer packet
 int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulkContainer *bulk, int type) {
 	int size = 12 + (sizeof(uint32_t) * cmd->param_length);

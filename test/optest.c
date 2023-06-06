@@ -8,7 +8,6 @@
 
 #define SIZE 300000
 int main() {
-for (int i = 0; i < 10; i++) {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
 
@@ -25,11 +24,12 @@ for (int i = 0; i < 10; i++) {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
+	//printf("Try: %d\n", ptp_set_prop_value(&r, 0xd407, 2));
+
 	ptp_close_session(&r);
 	ptp_device_close(&r);
 
 	free(r.data);
-}
 	return 0;
 }
 

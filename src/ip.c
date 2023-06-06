@@ -1,3 +1,6 @@
+// PTP/IP implementation - 
+// Copyright by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +28,7 @@ int set_nonblocking_io(int sockfd, int enable) {
 	return fcntl(sockfd, F_SETFL, flags);
 }
 
-int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
+int ptpip_new_timeout_socket(char *addr, int port) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
@@ -63,7 +66,7 @@ int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 	FD_SET(sockfd, &fdset);
 	struct timeval tv;
 	tv.tv_sec = 1;
-	tv.tv_usec = 0;
+	tv.tv_usec = 1000 * 1000;
 
 	if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
 		int so_error = 0;
@@ -77,8 +80,7 @@ int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 		if (so_error == 0) {
 			PTPLOG("Connection established %s:%d (%d)\n", addr, port, sockfd);
 			set_nonblocking_io(sockfd, 0);
-			r->fd = sockfd;
-			return 0;
+			return sockfd;
 		}
 	}
 
@@ -87,13 +89,36 @@ int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 	return -1;
 }
 
+// We need to establish two sockets - one for commands, one for listening to events
+int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
+	int fd = ptpip_new_timeout_socket(addr, port);
+	if (fd > 0) {
+		r->fd = fd;
+		return 0;
+	} else {
+		r->fd = 0;
+		return fd;
+	}
+}
+
+int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port) {
+	int fd = ptpip_new_timeout_socket(addr, port);
+	if (fd > 0) {
+		r->evfd = fd;
+		return 0;
+	} else {
+		r->evfd = 0;
+		return fd;
+	}
+}
+
 int ptpip_close(struct PtpRuntime *r) {
 	close(r->fd);
 	return 0;
 }
 
-int ptpip_send_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes) {
-	int result = write(r->fd, data, sizeBytes);
+int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
+	int result = write(r->fd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {
@@ -101,8 +126,26 @@ int ptpip_send_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes) {
 	}
 }
 
-int ptpip_recieve_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes) {
-	int result = read(r->fd, data, sizeBytes);
+int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
+	int result = read(r->fd, data, size);
+	if (result < 0) {
+		return -1;
+	} else {
+		return result;
+	}
+}
+
+int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
+	int result = write(r->evfd, data, size);
+	if (result < 0) {
+		return -1;
+	} else {
+		return result;
+	}
+}
+
+int ptpip_event_read(struct PtpRuntime *r, void *data, int size) {
+	int result = read(r->evfd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {

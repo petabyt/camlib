@@ -54,7 +54,8 @@ int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);
 
 int ptp_liveview_type(struct PtpRuntime *r);
 
-int ptp_fuji_wait_unlocked(struct PtpRuntime *r);
-int ptp_fuji_init(struct PtpRuntime *r, char *device_name);
+int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
+int ptp_fuji_ping(struct PtpRuntime *r);
+int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);
 
 #endif

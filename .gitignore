@@ -5,3 +5,7 @@ build/
 config.mak
 *.exe
 *.txt
+dec
+optest
+wifi
+dump*

@@ -20,13 +20,16 @@ int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
 	return x;
 }
 
-int ptpip_ping(struct PtpRuntime *r) {
+int ptpip_init_events(struct PtpRuntime *r) {
 	struct PtpIpHeader h;
-	h.length = 8;
-	h.type = PTPIP_PING;
-	if (ptpip_send_bulk_packet(r, r->data, 8) != 8) {
+	h.length = 12;
+	h.type = PTPIP_INIT_EVENT_REQ;
+	h.params[0] = 0;
+	if (ptpip_event_send(r, &h, 12) != 12) {
 		return PTP_IO_ERR;
 	}
+
+	//printf("Trying read: %d\n", ptpip_event_read(r, r->data, 12));
 
 	return 0;
 }
@@ -212,7 +215,7 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 	return x;
 }
 
-// raw JPEG contents is in the payload
+// NOTE: raw JPEG contents is in the payload
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetThumb;
@@ -234,7 +237,6 @@ int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder
 	return ptp_generic_send(r, &cmd);
 }
 
-// Untested, nothing to test on (?)
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_SetDevicePropValue;
@@ -244,6 +246,15 @@ int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	uint32_t dat[] = {value};
 
 	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+}
+
+int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_SetDevicePropValue;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+
+	return ptp_generic_send_data(r, &cmd, data, length);
 }
 
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {

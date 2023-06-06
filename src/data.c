@@ -49,6 +49,20 @@ int ptp_parse_data(void **d, int type) {
 	return ptp_get_data_size(*d, type);
 }
 
+int ptp_parse_prop_value(struct PtpRuntime *r) {
+	void *d = ptp_get_payload(r);
+	switch (ptp_get_payload_length(r)) {
+	case 1:
+		return (int)(((uint8_t *)d)[0]);
+	case 2:
+		return (int)(((uint16_t *)d)[0]);
+	case 4:
+		return (int)(((uint32_t *)d)[0]);
+	}
+
+	return -1;
+}
+
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
 	void *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
@@ -574,6 +588,19 @@ int ptp_eos_get_imgformat_value(int data[5]) {
 			return canon_imgformats[i].value;
 		}
 	}
+
+	return 0;
+}
+
+int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
+	void *dat = ptp_get_payload(r);
+
+	resp->x1 = ptp_read_uint32(&dat);
+	resp->x2 = ptp_read_uint32(&dat);
+	resp->x3 = ptp_read_uint32(&dat);
+	resp->x4 = ptp_read_uint32(&dat);
+
+	ptp_read_unicode_string(resp->cam_name, (char *)(ptp_get_payload(r) + 16), sizeof(resp->cam_name));
 
 	return 0;
 }

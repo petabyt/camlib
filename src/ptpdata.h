@@ -1,7 +1,7 @@
 // Data packets - some very similar to the exact MTP/PTP spec,
 // but can have variable size arrays in them, so it isn't compliant
-#ifndef DATA_H
-#define DATA_H
+#ifndef PTPDATA_H
+#define PTPDATA_H
 
 // Try and check for compatibility with 32 bit stuff
 // uint64_t is only used once
@@ -128,6 +128,8 @@ struct PtpObjPropDesc {
 	// mystery data type follows if form_flag == 0
 };
 
+int ptp_parse_prop_value(struct PtpRuntime *r);
+
 struct PtpCanonEvent {
 	int type;
 	int code;
@@ -168,6 +170,17 @@ int ptp_eos_get_aperture(int data, int dir);
 int ptp_eos_get_white_balance(int data, int dir);
 int *ptp_eos_get_imgformat_data(int code);
 int ptp_eos_get_imgformat_value(int data[5]);
+
+// Response to struct FujiInitPacket
+struct PtpFujiInitResp {
+	uint32_t x1;
+	uint32_t x2;
+	uint32_t x3;
+	uint32_t x4;
+	char cam_name[54];
+};
+
+int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);
 
 #pragma pack(pop)
 

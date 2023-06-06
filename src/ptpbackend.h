@@ -29,8 +29,10 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
 int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
 
 int ptpip_connect(struct PtpRuntime *r, char *addr, int port);
-int ptpip_send_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes);
-int ptpip_recieve_bulk_packet(struct PtpRuntime *r, void *data, int sizeBytes);
+int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size);
+int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size);
+int ptpip_event_send(struct PtpRuntime *r, void *data, int size);
+int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
 int ptpip_close(struct PtpRuntime *r);
 
 #endif

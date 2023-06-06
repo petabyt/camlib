@@ -39,6 +39,8 @@ struct PtpEventContainer {
 struct PtpIpHeader {
 	uint32_t length;
 	uint32_t type;
+
+	uint32_t params[3];
 };
 
 // Standard PTP Operation Codes (OC)
@@ -391,10 +393,13 @@ struct PtpIpHeader {
 #define PTP_TC_UINT64ARRAY	0x4008
 #define PTP_TC_STRING	0xFFFF
 
+// Used for socket initialization
 #define PTPIP_INIT_COMMAND_REQ	0x1
 #define PTPIP_INIT_COMMAND_ACK	0x2
 #define PTPIP_INIT_EVENT_REQ	0x3
 #define PTPIP_INIT_EVENT_ACK	0x4
+
+// Packet type extensions for sockets
 #define PTPIP_INIT_FAIL			0x5
 #define PTPIP_COMMAND_REQUEST	0x6
 #define PTPIP_COMMAND_RESPONSE	0x7
@@ -430,6 +435,28 @@ struct PtpIpHeader {
 #ifndef USB_TYPE_CLASS
 #define USB_TYPE_CLASS 0x20
 #endif
+
+#define FUJI_PROTOCOL_VERSION 0x8f53e4f2
+
+struct FujiInitPacket {
+	uint32_t length;
+	uint32_t type;
+	uint32_t version;
+	uint32_t guid1;
+	uint32_t guid2;
+	uint32_t guid3;
+	uint32_t guid4;
+	char device_name[54];
+};
+
+#define FUJI_CMD_IP_PORT 55740
+
+#define PTP_OC_FUJI_SendObjectInfo	0x900c
+#define PTP_OC_FUJI_SendObject		0x901d
+
+#define PTP_PC_Fuji_Unlocked		0xd212
+#define PTP_PC_Fuji_TransferMode	0xdf22
+#define PTP_PC_Fuji_Mode			0xdf01
 
 #pragma pack(pop)
 

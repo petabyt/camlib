@@ -120,6 +120,7 @@ struct PtpRuntime {
 
 	// For networking
 	int fd;
+	int evfd;
 };
 
 // Generic command structure - not a packet
@@ -145,6 +146,9 @@ int ptp_wide_string(char *buffer, int max, char *input);
 // Helper packet writer functions
 void ptp_write_uint8(void **dat, uint8_t b);
 void ptp_write_string(void **dat, char *string);
+
+int ptp_write_unicode_string(char *dat, char *string);
+int ptp_read_unicode_string(char *buffer, char *dat, int max);
 
 // Packet builder functions:
 // Typically, command packet is sent first (cmd), followed by a data packet
