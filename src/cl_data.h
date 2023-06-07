@@ -1,7 +1,7 @@
 // Data packets - some very similar to the exact MTP/PTP spec,
 // but can have variable size arrays in them, so it isn't compliant
-#ifndef PTPDATA_H
-#define PTPDATA_H
+#ifndef CL_DATA_H
+#define CL_DATA_H
 
 // Try and check for compatibility with 32 bit stuff
 // uint64_t is only used once

@@ -1,7 +1,5 @@
-#ifndef PTPENUM_H
-#define PTPENUM_H
-
-#include <camlib.h>
+#ifndef CL_ENUM_H
+#define CL_ENUM_H
 
 #define MAX_ENUM_LENGTH 64
 

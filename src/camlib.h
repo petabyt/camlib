@@ -195,12 +195,10 @@ int ptp_check_prop(struct PtpRuntime *r, int code);
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
 
-// Badly named header files will be included in case
-// there is interference in the future
-#include "ptpdata.h"
-#include "ptpbackend.h"
-#include "operations.h"
-#include "ptpenum.h"
-#include "ptpbind.h"
+#include "cl_data.h"
+#include "cl_backend.h"
+#include "cl_ops.h"
+#include "cl_enum.h"
+#include "cl_bind.h"
 
 #endif

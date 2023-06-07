@@ -1,5 +1,5 @@
-#ifndef BIND_H
-#define BIND_H
+#ifndef CL_BIND_H
+#define CL_BIND_H
 
 // Recommended buffer size for bind_run
 #define PTP_BIND_DEFAULT_SIZE 5000000

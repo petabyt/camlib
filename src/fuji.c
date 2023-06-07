@@ -2,8 +2,6 @@
 #include <camlib.h>
 #include <ptp.h>
 
-#include <fuji.h>
-
 int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 	struct FujiInitPacket *p = (struct FujiInitPacket *)r->data;
 	memset(p, 0, sizeof(struct FujiInitPacket));

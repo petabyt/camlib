@@ -1,9 +1,7 @@
-#ifndef BINDINGS_H
-#define BINDINGS_H
+#ifndef CL_BACKEND_H
+#define CL_BACKEND_H
 
 #define PTP_TIMEOUT 1000
-
-#include <camlib.h>
 
 // Connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);
