@@ -20,10 +20,11 @@ int set_nonblocking_io(int sockfd, int enable) {
 	if (flags == -1)
 		return -1;
 
-	if (enable)
+	if (enable) {
 		flags |= O_NONBLOCK;
-	else
+	} else {
 		flags &= ~O_NONBLOCK;
+	}
 
 	return fcntl(sockfd, F_SETFL, flags);
 }
@@ -55,7 +56,7 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	if (connect(sockfd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
 		if (errno != EINPROGRESS) {
 			close(sockfd);
-			PTPLOG("Failed to connect\n");
+			PTPLOG("Failed to connect to socket\n");
 			return -1;
 		}
 	}

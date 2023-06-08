@@ -180,7 +180,6 @@ int ptp_eos_update_firmware(struct PtpRuntime *r, FILE *f, char *name) {
 
 	struct stat s;
 	fstat(fileno(f), &s);
-	printf("File size: %d\n", s.st_size);
 
 	char *payload = malloc(EOS_FIRM_MAX);
 

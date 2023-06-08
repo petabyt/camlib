@@ -226,8 +226,8 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	int len = sprintf(buffer, "{");
 	len += snprintf(buffer + len, max - len, "\"storage_type\": \"%s\",", eval_storage_type(so->storage_type));
 	len += snprintf(buffer + len, max - len, "\"fs_type\": %u,", so->fs_type);
-	len += snprintf(buffer + len, max - len, "\"max_capacity\": %llu,", so->max_capacity);
-	len += snprintf(buffer + len, max - len, "\"free_space\": %llu", so->free_space);
+	len += snprintf(buffer + len, max - len, "\"max_capacity\": %lu,", so->max_capacity);
+	len += snprintf(buffer + len, max - len, "\"free_space\": %lu", so->free_space);
 	len += snprintf(buffer + len, max - len, "}");
 	return len;
 }

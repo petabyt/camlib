@@ -5,13 +5,11 @@
 #include <string.h>
 
 #include <camlib.h>
-#include <fuji.h>
 
 int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
 	r.connection_type = PTP_IP;
-
 	if (ptpip_connect(&r, "192.168.0.1", FUJI_CMD_IP_PORT)) {
 		puts("Device connection error");
 		return 0;

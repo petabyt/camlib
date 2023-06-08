@@ -29,8 +29,8 @@ libcl.so: $(FILES)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 ifndef NOPYTHON
-src/enum_dump.o: src/ptp.h src/stringify.py
-	$(CD) src && $(PYTHON3) stringify.py
+src/enum_dump.o: src/ptp.h stringify.py
+	$(PYTHON3) stringify.py
 	$(CC) -c src/enum_dump.c $(CFLAGS) -o src/enum_dump.o
 endif
 
