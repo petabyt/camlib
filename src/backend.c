@@ -37,7 +37,46 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	}
 }
 
+int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
+	int read = 0;
+	// Read in packet length
+	int rc = ptpip_cmd_read(r, r->data + read, 8);
+	if (rc != 8) {
+		return PTP_IO_ERR;
+	}
+
+	read += rc;
+
+	// Check for socket kill signal (?)
+	uint32_t *test = (uint32_t *)r->data;
+	if (test[0] == 0x8 && test[1] == 0xffffffff) {
+		return PTP_IO_ERR;
+	}
+
+	// Read in remaining data
+	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+	rc = ptpip_cmd_read(r, r->data + read, c->length - read);
+	if (rc != test[0] - read) {
+		return PTP_IO_ERR;
+	}
+
+	read += rc;
+
+	if (c->type == PTP_PACKET_TYPE_DATA) {
+		rc = ptpip_cmd_read(r, r->data + read, 12);
+		if (rc != 12) {
+			return PTP_IO_ERR;
+		}
+	}
+
+	return read;
+}
+
 int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
+	if (r->connection_type == PTP_IP) {
+		return ptpip_recieve_bulk_packets(r);
+	}
+
 	int read = 0;
 	int x;
 	while (1) {
