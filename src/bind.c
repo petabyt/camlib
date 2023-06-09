@@ -261,7 +261,17 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 	} else if (!strcmp(bind->string, "destination")) {
 		bind_capture_type = value;
 	} else {
-		return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
+		// Set by enum
+		int try_enum = ptp_enum_all(bind->string);
+		if (try_enum == -1) {
+			return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
+		} else {
+			if (dev == PTP_DEV_EOS) {
+				x = ptp_eos_set_prop_value(r, try_enum, value);
+			} else {
+				x = ptp_set_prop_value(r, try_enum, value);
+			}
+		}
 	}
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
