@@ -40,9 +40,17 @@ int ptp_fuji_ping(struct PtpRuntime *r) {
 
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 	while (1) {
-		int rc = ptp_get_prop_value(r, PTP_PC_Fuji_Unlocked);
+		int rc = ptp_get_prop_value(r, PTP_PC_Fuji_EventsList);
 		if (rc) {
 			return rc;
+		}
+
+		struct PtpFujiEvents *ev = (struct PtpFujiEvents *)(ptp_get_payload(r));
+		for (int i = 0; i < ev->length; i++) {
+			// Check for unlocked change
+			if (ev->events[i].code == PTP_PC_Fuji_Unlocked && ev->events[i].value == 0x2) {
+				return 0;
+			}
 		}
 
 		struct PtpDevPropDesc *pc = (struct PtpDevPropDesc *)(ptp_get_payload(r));

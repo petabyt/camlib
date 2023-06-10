@@ -128,8 +128,6 @@ struct PtpObjPropDesc {
 	// mystery data type follows if form_flag == 0
 };
 
-int ptp_parse_prop_value(struct PtpRuntime *r);
-
 struct PtpCanonEvent {
 	int type;
 	int code;
@@ -151,6 +149,7 @@ struct PtpEOSObject {
 	uint32_t e;
 };
 
+int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
@@ -178,6 +177,15 @@ struct PtpFujiInitResp {
 	uint32_t x3;
 	uint32_t x4;
 	char cam_name[54];
+};
+
+// Appears to be an array for events
+struct PtpFujiEvents {
+	uint16_t length;
+	struct Events {
+		uint16_t code;
+		uint32_t value;
+	}events[];
 };
 
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);

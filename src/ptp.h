@@ -231,7 +231,7 @@ struct PtpIpHeader {
 
 // Object Formats (OF)
 #define PTP_OF_Undefined		0x3000
-#define PTP_OF_Association		0x3001
+#define PTP_OF_Association		0x3001 // Aka Folder
 #define PTP_OF_Script			0x3002
 #define PTP_OF_Executable		0x3003
 #define PTP_OF_Text				0x3004
@@ -243,25 +243,26 @@ struct PtpIpHeader {
 #define PTP_OF_AVI				0x300A
 #define PTP_OF_MPEG				0x300B
 #define PTP_OF_ASF				0x300C
-#define PTP_OF_UndefinedImage	0x300D
-#define PTP_OF_EXIF				0x300E
-#define PTP_OF_TIFF_EP			0x300F
-#define PTP_OF_FlashPix			0x3010
-#define PTP_OF_BMP				0x3011
-#define PTP_OF_CIFF				0x3012
-#define PTP_OF_Reserved0		0x3013
-#define PTP_OF_GIF				0x3014
-#define PTP_OF_JFIF				0x3015
-#define PTP_OF_CD				0x3016
-#define PTP_OF_PICT				0x3017
-#define PTP_OF_PNG				0x3018
-#define PTP_OF_Reserved1		0x3019
-#define PTP_OF_TIFF_IT			0x301A
-#define PTP_OF_JP2				0x301B
-#define PTP_OF_JPX				0x301C
-#define PTP_OF_Firmware			0xb802
-#define PTP_OF_WIF				0xb881
-#define PTP_OF_Audio			0xb900
+#define PTP_OF_MOV				0x300D // guessing
+#define PTP_OF_JPEG				0x3801
+#define PTP_OF_TIFF_EP			0x3802
+#define PTP_OF_FlashPix			0x3803
+#define PTP_OF_BMP				0x3804
+#define PTP_OF_CIFF				0x3805
+#define PTP_OF_Reserved2		0x3806
+#define PTP_OF_GIF				0x3807
+#define PTP_OF_JFIF				0x3808
+#define PTP_OF_PCD				0x3809
+#define PTP_OF_PICT				0x380A
+#define PTP_OF_PNG				0x380B
+#define PTP_OF_Reserved1		0x380C
+#define PTP_OF_TIFF				0x380D
+#define PTP_OF_TIFF_IT			0x380E
+#define PTP_OF_JP2				0x380F
+#define PTP_OF_JPX				0x3810
+#define PTP_OF_Firmware			0xB802
+#define PTP_OF_WIF				0xB881
+#define PTP_OF_Audio			0xB900
 #define PTP_OF_WMA				0xb901
 #define PTP_OF_OGG				0xb902
 #define PTP_OF_AAC				0xb903
@@ -274,8 +275,9 @@ struct PtpIpHeader {
 #define PTP_OF_3GP				0xb984
 #define PTP_OF_MP2				0xb983
 
+// Multple vendors appear to use these
 #define PTP_OF_CANON_CRW	0xb101
-#define PTP_OF_CANON_CR2	0xb103
+#define PTP_OF_RAW			0xb103
 #define PTP_OF_CANON_MOV	0xb104
 
 // Association types
@@ -454,8 +456,10 @@ struct FujiInitPacket {
 #define PTP_OC_FUJI_SendObjectInfo	0x900c
 #define PTP_OC_FUJI_SendObject		0x901d
 
-#define PTP_PC_Fuji_Unlocked		0xd212
+#define PTP_PC_Fuji_EventsList		0xd212
+#define PTP_PC_FUJI_Unknown2		0xd222
 #define PTP_PC_Fuji_TransferMode	0xdf22
+#define PTP_PC_Fuji_Unlocked		0xdf00 // changed when unlocked
 #define PTP_PC_Fuji_Mode			0xdf01
 
 #pragma pack(pop)
