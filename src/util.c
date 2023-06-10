@@ -27,6 +27,13 @@ void ptp_generic_close(struct PtpRuntime *r) {
 	free(r->data);
 }
 
+struct UintArray * ptp_dup_uint_array(struct UintArray *arr) {
+	struct UintArray *arr2 = malloc(4 + arr->length * 4);
+	if (arr2 == NULL) return NULL;
+	memcpy(arr2, arr, 4 + arr->length * 4);
+	return arr2;
+}
+
 // May be slightly inneficient for every frame/action
 // TODO: maybe 'cache' dev type for speed
 int ptp_device_type(struct PtpRuntime *r) {

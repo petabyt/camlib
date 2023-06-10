@@ -13,6 +13,11 @@ int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
+// Gets a list of object handles in a storage device or folder.
+// id: storage ID
+// format: Can specify file format ID, or zero for all
+// in: Can be folder object ID, or 0 for recursive all
+// Output array is a pointer to data packet, and will be overwritten by new operations
 int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a);
 int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi);
 int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder);

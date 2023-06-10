@@ -164,6 +164,9 @@ void ptp_update_data_length(struct PtpRuntime *r, int length);
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
 
+// Duplicate array, return malloc'd buffer
+struct UintArray * ptp_dup_uint_array(struct UintArray *arr);
+
 // Returns info from the response structure currently in the buffer
 int ptp_get_return_code(struct PtpRuntime *r);
 int ptp_get_data_length(struct PtpRuntime *r);
