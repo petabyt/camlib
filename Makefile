@@ -49,7 +49,9 @@ fix:
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
-TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi
+TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage
+storage: test/storage.o
+storage: FILES+=test/storage.o
 pktest: test/pktest.o
 pktest: FILES+=test/pktest.o
 wifi: test/wifi.o
