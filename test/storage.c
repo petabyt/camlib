@@ -29,7 +29,9 @@ int main() {
 	for (int i = 0; i < arr->length; i++) {
 		struct PtpObjectInfo oi;
 		ptp_get_object_info(&r, arr->data[i], &oi);
+
 		printf("Filename: %s\n", oi.filename);
+		printf("File size: %u\n", oi.compressed_size);
 	}
 
 	free(arr);

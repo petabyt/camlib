@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
 		fprintf(f, "Offset:\t0x%lX\n", addr);
 		fprintf(f, "Code:\t(0x%X) %s\n", c->code, enm);
-		fprintf(f, "Trans:\t(0x%X)\n", c->transaction);
+		fprintf(f, "Length:\t(%u)\n", c->length);
 
 		if (c->type == PTP_PACKET_TYPE_COMMAND) {
 			fprintf(f, "Params:\t");

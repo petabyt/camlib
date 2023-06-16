@@ -39,9 +39,11 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 
 int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
+
 	// Read in packet length
 	int rc = ptpip_cmd_read(r, r->data + read, 8);
 	if (rc != 8) {
+		PTPLOG("Failed to read 8 bytes\n");
 		return PTP_IO_ERR;
 	}
 
@@ -50,24 +52,34 @@ int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 	// Check for socket kill signal (?)
 	uint32_t *test = (uint32_t *)r->data;
 	if (test[0] == 0x8 && test[1] == 0xffffffff) {
+		PTPLOG("Recieved kill sig\n");
 		return PTP_IO_ERR;
 	}
 
 	// Read in remaining data
 	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
-	rc = ptpip_cmd_read(r, r->data + read, c->length - read);
-	if (rc != test[0] - read) {
-		return PTP_IO_ERR;
-	}
+	while (read != c->length) {
+		rc = ptpip_cmd_read(r, r->data + read, c->length - read);
+		if (rc < 0) return PTP_IO_ERR;
 
-	read += rc;
+		read += rc;
+
+		if (read > c->length) {
+			PTPLOG("Catastrophic error - read too many bytes\n");
+			return PTP_IO_ERR;
+		}
+	}
 
 	if (c->type == PTP_PACKET_TYPE_DATA) {
 		rc = ptpip_cmd_read(r, r->data + read, 12);
 		if (rc != 12) {
 			return PTP_IO_ERR;
 		}
+		read += 12;
 	}
+
+	PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
+	PTPLOG("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 	return read;
 }

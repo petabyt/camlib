@@ -115,7 +115,8 @@ int bind_get_storage_info(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_get_object_handles(struct BindReq *bind, struct PtpRuntime *r) {
 	struct UintArray *arr;
-	int x = ptp_get_object_handles(r, bind->params[0], 0, bind->params[1], &arr);
+	#warning "TODO: Fix wrong order of parameters"
+	int x = ptp_get_object_handles(r, bind->params[0], bind->params[2], bind->params[1], &arr);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
 	int len = sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", x);

@@ -87,7 +87,7 @@ struct PtpObjectInfo {
 	uint16_t obj_format;
 	uint16_t protection;
 	uint32_t compressed_size;
-	uint16_t thumb_size;
+	uint16_t thumb_format;
 	uint32_t thumb_compressed_size;
 	uint32_t thumb_width;
 	uint32_t thumb_height;
@@ -188,8 +188,36 @@ struct PtpFujiEvents {
 	}events[];
 };
 
-int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);
+// Looks very similar to standard ISO ObjectInfo, but random bits moved around.
+// variable data starts at same location.
+struct PtpFujiObjectInfo {
+	uint32_t storage_id;
+	uint16_t obj_format;
+	uint16_t protection;
+	uint32_t fuji_max_partial_size;
+	uint8_t fuji_unknown2;
+	uint32_t compressed_size;
+	uint16_t fuji_unknown3;
+	uint16_t fuji_unknown4;
+	uint8_t fuji_unknown5;
+	uint32_t img_width;
+	uint32_t img_height;
+	uint32_t img_bit_depth;
+	uint32_t parent_obj;
+	uint16_t assoc_type;
+	uint32_t assoc_desc;
+	uint32_t sequence_num;
 
+	#define PTP_FUJI_OBJ_INFO_VAR_START 52
+
+	char filename[64];
+	char date_created[32];
+	char settings[32];
+	// Some more crap after this
+};
+
+int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);
+int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi);
 #pragma pack(pop)
 
 #endif

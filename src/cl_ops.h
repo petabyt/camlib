@@ -1,6 +1,8 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
+// Standard PTP operation code functions
+
 int ptp_open_session(struct PtpRuntime *r);
 int ptp_close_session(struct PtpRuntime *r);
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
@@ -26,6 +28,8 @@ int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
 int ptpip_ping(struct PtpRuntime *r);
+
+// EOS Only functions - not for Canon point and shoot
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
@@ -59,8 +63,11 @@ int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);
 
 int ptp_liveview_type(struct PtpRuntime *r);
 
+// Fujifilm PTP/IP functions, not for use over USB
+
 int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
 int ptp_fuji_ping(struct PtpRuntime *r);
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);
+int ptpip_fuji_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpFujiObjectInfo *oi);
 
 #endif

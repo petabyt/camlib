@@ -29,8 +29,6 @@ int ptpip_init_events(struct PtpRuntime *r) {
 		return PTP_IO_ERR;
 	}
 
-	//printf("Trying read: %d\n", ptpip_event_read(r, r->data, 12));
-
 	return 0;
 }
 
@@ -215,7 +213,7 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 	return x;
 }
 
-// NOTE: raw JPEG contents is in the payload
+// NOTE: raw JPEG contents is directly in the payload
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetThumb;
@@ -267,10 +265,23 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 	return ptp_generic_send(r, &cmd);	
 }
 
-int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
-	int max = r->data_length - (r->max_packet_size * 2);
-	printf("%d\n", max);
+int ptp_get_object(struct PtpRuntime *r, int handle) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetObject;
+	cmd.param_length = 1;
+	cmd.params[0] = handle;
 
+	return ptp_generic_send(r, &cmd);	
+}
+
+int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
+	int max = r->data_length - 12;
+
+	struct PtpObjectInfo oi;
+	if (ptp_get_object_info(r, handle, &oi)) {
+		return 0;
+	}
+	
 	FILE *f = fopen(file, "w");
 	if (f == NULL) {
 		return PTP_RUNTIME_ERR;
@@ -280,19 +291,21 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 	while (1) {
 		int x = ptp_get_partial_object(r, handle, read, max);
 		if (x) {
+			fclose(f);
 			return x;
 		}
 
 		if (ptp_get_payload_length(r) == 0) {
-			return read;
+			fclose(f);
+			return 0;
 		}
 
 		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
-		
-		if (ptp_get_payload_length(r) < max) {
-			return read;
-		}
 
 		read += ptp_get_payload_length(r);
+
+		if (read == oi.compressed_size) {
+			return 0;
+		}
 	}
 }

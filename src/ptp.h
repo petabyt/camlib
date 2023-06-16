@@ -393,7 +393,7 @@ struct PtpIpHeader {
 #define PTP_TC_UINT16ARRAY	0x4004
 #define PTP_TC_UINT32ARRAY	0x4006
 #define PTP_TC_UINT64ARRAY	0x4008
-#define PTP_TC_STRING	0xFFFF
+#define PTP_TC_STRING		0xFFFF
 
 // Used for socket initialization
 #define PTPIP_INIT_COMMAND_REQ	0x1
@@ -453,14 +453,23 @@ struct FujiInitPacket {
 
 #define FUJI_CMD_IP_PORT 55740
 
-#define PTP_OC_FUJI_SendObjectInfo	0x900c
-#define PTP_OC_FUJI_SendObject		0x901d
+// USB Standard commands
+#define PTP_OC_FUJI_SendObjectInfo	0x900c // create file
+#define PTP_OC_FUJI_SendObject2		0x900d // Appears to be the same as 901d
+#define PTP_OC_FUJI_SendObject		0x901d // write to file
 
 #define PTP_PC_Fuji_EventsList		0xd212
+#define PTP_PC_FUJI_Unknown3		0xd220
 #define PTP_PC_FUJI_Unknown2		0xd222
+#define PTP_PC_FUJI_Compression		0xD226
+#define PTP_PC_FUJI_CompressionInfo	0xD227
+#define PTP_PC_FUJI_PartialSize		0xD235
+#define PTP_PC_FUJI_CardStatus		0xd244
+#define PTP_PC_FUJI_Unknown3		0xdc04
+#define PTP_PC_FUJI_DriveMode		0xd246
 #define PTP_PC_Fuji_TransferMode	0xdf22
 #define PTP_PC_Fuji_Unlocked		0xdf00 // changed when unlocked
-#define PTP_PC_Fuji_Mode			0xdf01
+#define PTP_PC_Fuji_Mode			0xdf01 // function mode
 
 #pragma pack(pop)
 

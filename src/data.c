@@ -191,6 +191,7 @@ const char *eval_protection(int code) {
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	int curr = sprintf(buffer, "{");
 	curr += snprintf(buffer + curr, max - curr, "\"storage_id\": %u,", so->storage_id);
+	curr += snprintf(buffer + curr, max - curr, "\"compressed_size\": %u,", so->compressed_size);
 	curr += snprintf(buffer + curr, max - curr, "\"parent\": %u,", so->parent_obj);
 	curr += snprintf(buffer + curr, max - curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
 	curr += snprintf(buffer + curr, max - curr, "\"format_int\": %u,", so->obj_format);
@@ -592,6 +593,7 @@ int ptp_eos_get_imgformat_value(int data[5]) {
 	return 0;
 }
 
+// TODO: Rename to ptp_fuji_get_init_info
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
 	void *dat = ptp_get_payload(r);
 
@@ -601,6 +603,23 @@ int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
 	resp->x4 = ptp_read_uint32(&dat);
 
 	ptp_read_unicode_string(resp->cam_name, (char *)(ptp_get_payload(r) + 16), sizeof(resp->cam_name));
+
+	return 0;
+}
+
+int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi) {
+	void *d = ptp_get_payload(r);
+	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
+	d += PTP_FUJI_OBJ_INFO_VAR_START;
+	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
+
+	/* TODO: Figure out payload later:
+		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00
+		00 00 10 32 00 30 00 31 00 35 00 30 00 35 00 32 00 34 00 54 00 30 00 31 00
+		31 00 37 00 31 00 30 00 00 00 00 0E 4F 00 72 00 69 00 65 00 6E 00 74 00 61
+		00 74 00 69 00 6F 00 6E 00 3A 00 31 00 00 00 0C 00 00 00 03 00 01 20 0E 00
+		00 00 00
+	*/
 
 	return 0;
 }

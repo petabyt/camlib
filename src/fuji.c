@@ -32,7 +32,7 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 	}
 }
 
-// Dummy pinger
+// Dummy pinger (should be ptp_fuji_get_events)
 int ptp_fuji_ping(struct PtpRuntime *r) {
 	int rc = ptp_get_prop_value(r, PTP_PC_Fuji_Unlocked);
 	return rc;
@@ -61,5 +61,19 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		}
 
 		CAMLIB_SLEEP(100);
+	}
+}
+
+int ptpip_fuji_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpFujiObjectInfo *oi) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_GetObjectInfo;
+	cmd.param_length = 1;
+	cmd.params[0] = handle;
+
+	int x = ptp_generic_send(r, &cmd);
+	if (x) {
+		return x;
+	} else {
+		return ptp_fuji_parse_object_info(r, oi);
 	}
 }

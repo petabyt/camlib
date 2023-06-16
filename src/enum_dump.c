@@ -343,10 +343,16 @@ struct PtpEnum ptp_enums[] = {
 {PTP_ENUM, 0, "FUJI_PROTOCOL_VERSION", 0x8f53e4f2},
 {PTP_OC, 5, "SendObjectInfo", 0x900c},
 {PTP_OC, 5, "SendObject", 0x901d},
-{PTP_PC, 0, "Fuji_Unlocked", 0xd212},
+{PTP_PC, 0, "Fuji_EventsList", 0xd212},
 {PTP_PC, 5, "Unknown2", 0xd222},
+{PTP_PC, 5, "Compression", 0xD226},
+{PTP_PC, 5, "CompressionInfo", 0xD227},
+{PTP_PC, 5, "PartialSize", 0xD235},
+{PTP_PC, 5, "CardStatus", 0xd244},
+{PTP_PC, 5, "Unknown3", 0xdc04},
+{PTP_PC, 5, "DriveMode", 0xd246},
 {PTP_PC, 0, "Fuji_TransferMode", 0xdf22},
-{PTP_PC, 0, "Fuji_Unknown1", 0xdf00},
+{PTP_PC, 0, "Fuji_Unlocked", 0xdf00},
 {PTP_PC, 0, "Fuji_Mode", 0xdf01},
 
-};int ptp_enums_length = 347;
+};int ptp_enums_length = 353;

@@ -38,13 +38,39 @@ int main() {
 
 	ptpip_fuji_wait_unlocked(&r);
 
-	ptp_set_prop_value(&r, PTP_PC_Fuji_Mode, 2);
-	ptp_set_prop_value(&r, PTP_PC_Fuji_TransferMode, 2);
+	ptp_set_prop_value(&r, PTP_PC_Fuji_Mode, 2); // set 16 bit
+	ptp_set_prop_value(&r, PTP_PC_Fuji_TransferMode, 2); // set 32 bit
+
+	struct UintArray *arr;
+	int rc = ptp_get_storage_ids(&r, &arr);
+	int id = arr->data[0];
+
+	rc = ptp_get_object_handles(&r, id, PTP_OF_JPEG, 0, &arr);
+	arr = ptp_dup_uint_array(arr);
+
+	for (int i = 0; i < arr->length; i++) {
+		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 2);
+		struct PtpObjectInfo oi;
+		if (ptp_get_object_info(&r, arr->data[i], &oi)) {
+			return 0;
+		}
+
+		printf("File size: %d\n", oi.compressed_size);
+		printf("Filename: %s\n", oi.filename);
+
+		if (ptp_download_file(&r, arr->data[i], oi.filename)) {
+			return 0;
+		}
+
+		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 0);
+	}
+
+	free(arr);
 
 	for (int i = 0; i < 100; i++) {
 		puts("Pinging");
 		if (ptp_fuji_ping(&r)) break;
-		usleep(1000 * 1000);
+		CAMLIB_SLEEP(1000);
 	}
 
 	// Camera shuts down after disconnect, would be nice to prevent that

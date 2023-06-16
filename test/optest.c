@@ -6,7 +6,6 @@
 
 #include <camlib.h>
 
-#define SIZE 300000
 int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
