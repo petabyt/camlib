@@ -281,6 +281,8 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 	if (ptp_get_object_info(r, handle, &oi)) {
 		return 0;
 	}
+
+	max = oi.compressed_size;
 	
 	FILE *f = fopen(file, "w");
 	if (f == NULL) {

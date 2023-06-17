@@ -451,6 +451,7 @@ struct FujiInitPacket {
 	char device_name[54];
 };
 
+// Ports 51540, 51541, and 51542 may or may not also have something
 #define FUJI_CMD_IP_PORT 55740
 
 // USB Standard commands

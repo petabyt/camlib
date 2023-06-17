@@ -37,17 +37,18 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	}
 }
 
+// This is a more optimized version for sockets
 int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
 
-	// Read in packet length
+	// Read in at least the packet header to get packet length
 	int rc = ptpip_cmd_read(r, r->data + read, 8);
 	if (rc != 8) {
 		PTPLOG("Failed to read 8 bytes\n");
 		return PTP_IO_ERR;
+	} else {
+		read += rc;
 	}
-
-	read += rc;
 
 	// Check for socket kill signal (?)
 	uint32_t *test = (uint32_t *)r->data;
@@ -70,12 +71,15 @@ int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 		}
 	}
 
+	// Read in response packet
 	if (c->type == PTP_PACKET_TYPE_DATA) {
-		rc = ptpip_cmd_read(r, r->data + read, 12);
-		if (rc != 12) {
-			return PTP_IO_ERR;
-		}
-		read += 12;
+		struct PtpBulkContainer *c2 = (struct PtpBulkContainer *)(r->data + read);
+		rc = ptpip_cmd_read(r, r->data + read, 4);
+		if (rc != 4) return PTP_IO_ERR;
+		read += rc;
+		rc = ptpip_cmd_read(r, r->data + read, c2->length - 4);
+		if (rc < 0) return PTP_IO_ERR;
+		read += rc;
 	}
 
 	PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
@@ -141,7 +145,7 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 			PTPLOG("recieve_bulk_packets: Read %d bytes\n", read);
 			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 
-			// Read the response packet if only a data packet was sent
+			// Read the response packet if only a data packet was sent (may be larger than 0xc bytes sometimes)
 			if (c->type == PTP_PACKET_TYPE_DATA) {
 				puts("Trying to read a response packet...");
 				if (r->connection_type == PTP_USB) {

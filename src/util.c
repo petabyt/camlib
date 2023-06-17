@@ -108,7 +108,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 		PTPLOG("ptp_generic_send_data: Not enough memory\n");
 		return PTP_OUT_OF_MEM;
 	}
-	
+
 	memcpy(ptp_get_payload(r), data, length);
 	ptp_update_data_length(r, plength + length);
 
