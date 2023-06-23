@@ -2,11 +2,11 @@
 This is a portable PTP/USB library written in C99. This isn't a fork of gphoto2, libptp, or libmtp.  
 This is a complete rewrite from the ground up, and is written to be maintainable and platform independent.  
 
-This library is currently being used in [mlinstall](https://github.com/petabyt/mlinstall), [CamControl](https://camcontrol.danielc.dev/), and [EOS Intervalometer](https://play.google.com/store/apps/details?id=dev.petabyt.caminterv).
+This library is currently being used in [mlinstall](https://github.com/petabyt/mlinstall), [CamControl](https://camcontrol.danielc.dev/), [EOS Intervalometer](https://play.google.com/store/apps/details?id=dev.petabyt.caminterv), and the [Fujihack Project](https://github.com/fujihack/fujihack/tree/master/ptp).
 
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
-- Core library will perform almost no memory allocation, to avoid memory leaks
+- Core library will perform almost no memory allocation, to reduce complexity
 - No platform specific code at the core
 - No macros, only clean C API - everything is a function that can be accessed from other languages
 
@@ -16,7 +16,7 @@ This library is currently being used in [mlinstall](https://github.com/petabyt/m
 - [x] JSON bindings for high level languages
 - [x] Real time camera previews (EOS, ML)
 - [x] Complete most EOS/Canon vendor OCs
-- [x] PTP/IP WiFi Implementation
+- [x] PTP/IP WiFi implementation
 - [x] Fuji WiFi support
 - [ ] Sony support
 
