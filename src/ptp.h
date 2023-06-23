@@ -359,6 +359,10 @@ struct PtpIpHeader {
 #define PTP_PC_EOS_EVFWBMode			0xD1B4
 #define PTP_PC_EOS_FocusInfoEx			0xD1D3
 
+// Magic Lantern opcodes
+#define PTP_OC_ML_LiveBmpRam 0x9996
+#define PTP_OC_ML_Live360x240 0x9997
+
 // Storage Types
 #define PTP_ST_Undefined	0x0
 #define PTP_ST_FixedROM		0x1
@@ -459,18 +463,20 @@ struct FujiInitPacket {
 #define PTP_OC_FUJI_SendObject2		0x900d // Appears to be the same as 901d
 #define PTP_OC_FUJI_SendObject		0x901d // write to file
 
-#define PTP_PC_Fuji_EventsList		0xd212
+// WiFi only codes
+#define PTP_PC_FUJI_EventsList		0xd212
 #define PTP_PC_FUJI_Unknown3		0xd220
-#define PTP_PC_FUJI_Unknown2		0xd222
+#define PTP_PC_FUJI_ObjectCount		0xd222
 #define PTP_PC_FUJI_Compression		0xD226
 #define PTP_PC_FUJI_CompressionInfo	0xD227
 #define PTP_PC_FUJI_PartialSize		0xD235
 #define PTP_PC_FUJI_CardStatus		0xd244
-#define PTP_PC_FUJI_Unknown3		0xdc04
+#define PTP_PC_FUJI_ObjectCount2	0xd401
+#define PTP_PC_FUJI_Unknown2		0xdc04
 #define PTP_PC_FUJI_DriveMode		0xd246
-#define PTP_PC_Fuji_TransferMode	0xdf22
-#define PTP_PC_Fuji_Unlocked		0xdf00 // changed when unlocked
-#define PTP_PC_Fuji_Mode			0xdf01 // function mode
+#define PTP_PC_FUJI_TransferMode	0xdf22
+#define PTP_PC_FUJI_Unlocked		0xdf00 // changed when unlocked
+#define PTP_PC_FUJI_Mode			0xdf01 // function mode
 
 #pragma pack(pop)
 
