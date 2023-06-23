@@ -1,3 +1,6 @@
+// Implementations of Fujifilm WiFi and USB functions
+// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <string.h>
 #include <camlib.h>
 #include <ptp.h>
@@ -34,13 +37,22 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 
 // Dummy pinger (should be ptp_fuji_get_events)
 int ptp_fuji_ping(struct PtpRuntime *r) {
-	int rc = ptp_get_prop_value(r, PTP_PC_Fuji_Unlocked);
+	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_Unlocked);
 	return rc;
 }
 
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
+	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_Unlocked);
+	if (rc) {
+		return rc;
+	}
+
+	if (ptp_parse_prop_value(r) != 0) {
+		return 0;
+	}
+
 	while (1) {
-		int rc = ptp_get_prop_value(r, PTP_PC_Fuji_EventsList);
+		rc = ptp_get_prop_value(r, PTP_PC_FUJI_EventsList);
 		if (rc) {
 			return rc;
 		}
@@ -48,7 +60,7 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		struct PtpFujiEvents *ev = (struct PtpFujiEvents *)(ptp_get_payload(r));
 		for (int i = 0; i < ev->length; i++) {
 			// Check for unlocked change
-			if (ev->events[i].code == PTP_PC_Fuji_Unlocked && ev->events[i].value == 0x2) {
+			if (ev->events[i].code == PTP_PC_FUJI_Unlocked && (ev->events[i].value == 0x2)) {
 				return 0;
 			}
 		}

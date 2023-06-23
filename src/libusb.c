@@ -76,7 +76,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		return PTP_NO_DEVICE;
 	}
 
-	r->max_packet_size = 512;
+	r->max_packet_size = 512*4;
 
 	const struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
 	for (int i = 0; i < interf_desc->bNumEndpoints; i++) {

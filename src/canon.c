@@ -104,7 +104,6 @@ int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlengt
 	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
-
 int ptp_eos_get_event(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetEvent;

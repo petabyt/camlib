@@ -31,7 +31,7 @@ for i in matches:
             vendor = str(PTP_DEV_NIKON)
         elif vendor == "FUJI":
             vendor = str(PTP_DEV_FUJI)
-        output += "{PTP_" + t[0][0] + ", " + vendor + ", " + "\"" + t[0][2] + "\", " + i[1] + "},\n"
+        output += "{PTP_" + t[0][0] + ", " + vendor + ", " + "\"" + i[0] + "\", " + i[1] + "},\n"
 output += "\n};"
 
 output += "int ptp_enums_length = " + str(len(matches)) + ";\n"

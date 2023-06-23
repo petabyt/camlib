@@ -71,6 +71,7 @@ int ptp_close_session(struct PtpRuntime *r) {
 }
 
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
+	// Assumes di is allocated - will be used during runtime later
 	r->di = di;
 
 	struct PtpCommand cmd;
@@ -147,8 +148,6 @@ int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, in
 	cmd.params[1] = offset;
 	cmd.params[2] = max;
 
-	// What was the **ptr for?
-
 	int x = ptp_generic_send(r, &cmd);
 	return x;
 }
@@ -165,6 +164,20 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectI
 	} else {
 		return ptp_parse_object_info(r, oi);
 	}
+}
+
+int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struct PtpObjectInfo *oi) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_SendObjectInfo;
+	cmd.param_length = 2;
+	cmd.params[0] = storage_id;
+	cmd.params[1] = handle;
+
+	char temp[1024];
+	void *data = temp;
+	int length = ptp_pack_object_info(r, oi, &data);
+
+	return ptp_generic_send_data(r, &cmd, temp, length);
 }
 
 int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a) {
@@ -307,6 +320,7 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 		read += ptp_get_payload_length(r);
 
 		if (read == oi.compressed_size) {
+			fclose(f);
 			return 0;
 		}
 	}

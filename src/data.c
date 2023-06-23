@@ -86,17 +86,17 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	return 0;
 }
 
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
-	void *d = ptp_get_payload(r);
-	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
-	d += PTP_OBJ_INFO_VAR_START;
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d) {
+	void *b = *d;
+	memcpy(oi, *d, PTP_OBJ_INFO_VAR_START);
+	*d += PTP_OBJ_INFO_VAR_START;
 
-	ptp_write_string(&d, oi->filename);
-	ptp_write_string(&d, oi->date_created);
-	ptp_write_string(&d, oi->date_modified);
-	ptp_write_string(&d, oi->keywords);
+	ptp_write_string(d, oi->filename);
+	ptp_write_string(d, oi->date_created);
+	ptp_write_string(d, oi->date_modified);
+	ptp_write_string(d, oi->keywords);
 
-	return 0;
+	return (int)(*d - b);
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
@@ -352,7 +352,6 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 			curr += sprintf(buffer + curr, "[\"new object\", %u]\n", obj->a);
 			} break;
 		default:
-			printf("Unknown event code 0x%X\n", type);
 			// Unknown event, delete the comma
 			curr -= strlen(end);
 			if (tmp == 1) tmp = 0;

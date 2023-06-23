@@ -1,5 +1,5 @@
 // PTP/IP implementation - 
-// Copyright by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 

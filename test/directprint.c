@@ -1,4 +1,4 @@
-// Test basic opcode, get device properties
+// Scan filesystem
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -19,16 +19,21 @@ int main() {
 
 	ptp_open_session(&r);
 
-	// Generate JSON data in packet buffer because I'm too lazy
-	// to allocate a buffer (should be around 1-10kb of text)
-	ptp_get_device_info(&r, &di);
-	ptp_device_info_json(&di, (char*)r.data, r.data_length);
-	printf("%s\n", (char*)r.data);
+	struct UintArray *arr;
+	int rc = ptp_get_storage_ids(&r, &arr);
+	int id = arr->data[0];
+
+	struct PtpObjectInfo oi;
+	memset(&oi, 0, sizeof(oi));
+	oi.obj_format = 0x3002;
+	strcpy(oi.filename, "HDISCVRY.DPS");
+	
+	ptp_send_object_info(&r, id, 0, &oi);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);
+	ptp_generic_close(&r);
 
-	free(r.data);
 	return 0;
 }
 

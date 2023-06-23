@@ -62,7 +62,7 @@ void ptp_write_uint8(void **dat, uint8_t b) {
 	*((uint8_t*)(dat[0]++)) = b;
 }
 
-void ptp_write_string(void **dat, char *string) {
+int ptp_write_string(void **dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
 
@@ -70,6 +70,8 @@ void ptp_write_string(void **dat, char *string) {
 		ptp_write_uint8(dat, string[i]);
 		dat[0] += 2;
 	}
+
+	return (length * 2) + 2;
 }
 
 // Write non-PTP standard unicode string

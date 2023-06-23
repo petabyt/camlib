@@ -6,6 +6,17 @@
 
 #include <camlib.h>
 
+int ptp_set_prop_value_16(struct PtpRuntime *r, int code, int value) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_SetDevicePropValue;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+
+	uint16_t dat[] = {(uint16_t)value};
+
+	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+}
+
 int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
@@ -49,8 +60,9 @@ int main() {
 	arr = ptp_dup_uint_array(arr);
 
 	for (int i = 0; i < arr->length; i++) {
-		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 2);
+		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 1);
 		struct PtpObjectInfo oi;
+
 		if (ptp_get_object_info(&r, arr->data[i], &oi)) {
 			return 0;
 		}
@@ -58,11 +70,19 @@ int main() {
 		printf("File size: %d\n", oi.compressed_size);
 		printf("Filename: %s\n", oi.filename);
 
+		ptp_get_prop_value(&r, PTP_PC_FUJI_PartialSize);
+
 		if (ptp_download_file(&r, arr->data[i], oi.filename)) {
 			return 0;
 		}
 
+		if (ptp_get_object_info(&r, arr->data[i], &oi)) {
+			return 0;
+		}
+
+
 		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 0);
+		break;
 	}
 
 	free(arr);

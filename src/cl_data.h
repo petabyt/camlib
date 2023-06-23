@@ -1,10 +1,11 @@
-// Data packets - some very similar to the exact MTP/PTP spec,
-// but can have variable size arrays in them, so it isn't compliant
+// PTP data structures - some very similar to the exact MTP/PTP spec.
+// Variable sized arrays are replaced with fixed arrays, to allow structure
+// packing and unpacking.
 #ifndef CL_DATA_H
 #define CL_DATA_H
 
 // Try and check for compatibility with 32 bit stuff
-// uint64_t is only used once
+// uint64_t is only used once, in PtpStorageInfo
 #include <stdint.h>
 #if UINTPTR_MAX == 0xffffffff
 #define BITS_32
@@ -149,12 +150,13 @@ struct PtpEOSObject {
 	uint32_t e;
 };
 
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d);
+
 int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
 
@@ -169,6 +171,24 @@ int ptp_eos_get_aperture(int data, int dir);
 int ptp_eos_get_white_balance(int data, int dir);
 int *ptp_eos_get_imgformat_data(int code);
 int ptp_eos_get_imgformat_value(int data[5]);
+
+struct PtpMlLvInfo {
+	uint32_t lv_pitch;
+	uint32_t lv_width;
+	uint32_t lcd_palette[256];
+};
+
+struct PtpMlLvHeader {
+	uint8_t digic;
+	uint8_t v1;
+	uint8_t v2;
+	uint8_t v3;
+};
+
+enum PtpMlBmpLvOption {
+	PTP_ML_BMP_LV_GET_FRAME = 0,
+	PTP_ML_BMP_LV_GET_SPEC = 1,
+};
 
 // Response to struct FujiInitPacket
 struct PtpFujiInitResp {
@@ -218,6 +238,7 @@ struct PtpFujiObjectInfo {
 
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);
 int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi);
+
 #pragma pack(pop)
 
 #endif

@@ -147,7 +147,6 @@ int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
 
 			// Read the response packet if only a data packet was sent (may be larger than 0xc bytes sometimes)
 			if (c->type == PTP_PACKET_TYPE_DATA) {
-				puts("Trying to read a response packet...");
 				if (r->connection_type == PTP_USB) {
 					x = ptp_recieve_bulk_packet(r->data + read, r->max_packet_size);
 				} else if (r->connection_type == PTP_IP) {

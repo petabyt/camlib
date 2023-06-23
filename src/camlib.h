@@ -23,6 +23,7 @@
 // Conforms to POSIX 2001, some compilers may not have it
 #ifndef CAMLIB_SLEEP
 	#include <unistd.h>
+	//int usleep(unsigned int usec);
 	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
@@ -43,7 +44,14 @@
 #endif
 
 // 4mb recommended default buffer size
-#define CAMLIB_DEFAULT_SIZE 4000000
+#define CAMLIB_DEFAULT_SIZE 8000000
+
+#ifdef ML_TRANSPARENCY_PIXEL
+	#error "replace ML_TRANSPARENCY_PIXEL with PTP_LV_TRANSPARENCY_PIXEL"
+#endif
+#ifndef PTP_LV_TRANSPARENCY_PIXEL
+	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
+#endif
 
 // Generic Camlib errors, not PTP return codes
 enum PtpGeneralError {
@@ -63,6 +71,7 @@ enum PtpLiveViewType {
 	PTP_LV_EOS = 1,
 	PTP_LV_CANON = 2,
 	PTP_LV_ML = 3,
+	PTP_LV_EOS_ML_BMP = 4,
 };
 
 // Detect device type - each category should have similar opcodes
@@ -145,7 +154,7 @@ int ptp_wide_string(char *buffer, int max, char *input);
 
 // Helper packet writer functions
 void ptp_write_uint8(void **dat, uint8_t b);
-void ptp_write_string(void **dat, char *string);
+int ptp_write_string(void **dat, char *string);
 
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);

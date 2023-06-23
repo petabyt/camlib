@@ -5,6 +5,8 @@
 // valid JSON from a generic text like request
 // - This is not part of the core library, and will use malloc()
 
+// TODO: bind_get_property
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -210,6 +212,33 @@ int bind_get_liveview_frame(struct BindReq *bind, struct PtpRuntime *r) {
 	inc += sprintf(inc, "]}");
 
 	free(lv);
+	return inc - bind->buffer;
+}
+
+int bind_ml_init_bmp_lv(struct BindReq *bind, struct PtpRuntime *r) {
+	return sprintf(bind->buffer, "{\"error\": %d}",
+		ptp_ml_init_bmp_lv(r)
+	);
+}
+
+int bind_ml_get_bmp_lv(struct BindReq *bind, struct PtpRuntime *r) {
+	uint32_t *buffer = 0;
+	int x = ptp_ml_get_bmp_lv(r, &buffer);
+
+	char *inc = bind->buffer + sprintf(bind->buffer, "{\"error\": %d, \"resp\": [", x);
+
+	int size = 720 * 480;
+	for (int i = 0; i < size; i++) {
+		if (i > size - 2) {
+			inc += sprintf(inc, "%u", buffer[i]);
+		} else {
+			inc += sprintf(inc, "%u,", buffer[i]);
+		}
+	}
+
+	inc += sprintf(inc, "]}");
+
+	free(buffer);
 	return inc - bind->buffer;
 }
 
@@ -598,6 +627,8 @@ struct RouteMap routes[] = {
 	{"ptp_get_liveview_frame", bind_get_liveview_frame},
 	{"ptp_get_liveview_type", bind_get_liveview_type},
 	{"ptp_get_liveview_frame.jpg", bind_get_liveview_frame_jpg},
+	{"ptp_ml_get_bmp_lv", bind_ml_get_bmp_lv},
+	{"ptp_ml_init_bmp_lv", bind_ml_init_bmp_lv},
 	{"ptp_init_liveview", bind_liveview_init},
 	{"ptp_deinit_liveview", bind_liveview_deinit},
 	{"ptp_get_device_type", bind_get_device_type},

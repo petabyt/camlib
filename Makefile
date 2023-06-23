@@ -4,9 +4,9 @@ CD?=cd
 PYTHON3?=python3
 
 # All platforms need these object files
-FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o)
+FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o)
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -Wall -g -fpic
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE_ -g -fpic -Wall -Wshadow -Wcast-qual
 
 # Basic support for MinGW and libwpd
 ifdef WIN
@@ -49,9 +49,11 @@ fix:
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
-TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage
+TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage directprint
 storage: test/storage.o
 storage: FILES+=test/storage.o
+directprint: test/directprint.o
+directprint: FILES+=test/directprint.o
 pktest: test/pktest.o
 pktest: FILES+=test/pktest.o
 wifi: test/wifi.o
@@ -63,8 +65,8 @@ evtest: FILES+=test/evtest.o
 bindtest: test/bindtest.o
 bindtest: FILES+=test/bindtest.o
 live: test/live.o
-live: FILES+=test/live.o
-live: CFLAGS+=-lX11
+live: FILES+=test/live.o ../tigr/tigr.o
+live: CFLAGS+=-lGLU -lGL -lX11 -ljpeg
 wintest.exe: FILES+=test/wintest.o
 wintest.exe: test/wintest.o
 

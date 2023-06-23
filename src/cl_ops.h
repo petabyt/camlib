@@ -61,6 +61,10 @@ int ptp_liveview_deinit(struct PtpRuntime *r);
 // Get a frame directly into buffer, can be JPEG or raw data
 int ptp_liveview_frame(struct PtpRuntime *r, void *buffer);
 
+// Get Magic Lantern transparent menus buffer
+int ptp_ml_init_bmp_lv(struct PtpRuntime *r);
+int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr);
+
 int ptp_liveview_type(struct PtpRuntime *r);
 
 // Fujifilm PTP/IP functions, not for use over USB
