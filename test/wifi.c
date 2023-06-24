@@ -49,14 +49,25 @@ int main() {
 
 	ptpip_fuji_wait_unlocked(&r);
 
-	ptp_set_prop_value(&r, PTP_PC_Fuji_Mode, 2); // set 16 bit
-	ptp_set_prop_value(&r, PTP_PC_Fuji_TransferMode, 2); // set 32 bit
+	ptp_set_prop_value(&r, PTP_PC_FUJI_Mode, 2); // set 16 bit
+	ptp_set_prop_value(&r, PTP_PC_FUJI_TransferMode, 2); // set 32 bit
 
+	for (int i = 0; i < 0xffff; i++) {
+		int rc = ptp_get_prop_value(&r, i);
+		if (rc == 0) {
+			printf("Valid prop code %X\n", i);
+		} else {
+			printf(".");
+		}
+	}
+
+#if 0
 	struct UintArray *arr;
 	int rc = ptp_get_storage_ids(&r, &arr);
+	if (rc) return 1;
 	int id = arr->data[0];
 
-	rc = ptp_get_object_handles(&r, id, PTP_OF_JPEG, 0, &arr);
+	rc = ptp_get_object_handles(&r, id, 0, 0, &arr);
 	arr = ptp_dup_uint_array(arr);
 
 	for (int i = 0; i < arr->length; i++) {
@@ -67,25 +78,27 @@ int main() {
 			return 0;
 		}
 
+		printf("Handle: %d\n", arr->data[i]);
 		printf("File size: %d\n", oi.compressed_size);
 		printf("Filename: %s\n", oi.filename);
 
-		ptp_get_prop_value(&r, PTP_PC_FUJI_PartialSize);
-
-		if (ptp_download_file(&r, arr->data[i], oi.filename)) {
-			return 0;
-		}
-
-		if (ptp_get_object_info(&r, arr->data[i], &oi)) {
-			return 0;
-		}
-
-
+		// ptp_get_prop_value(&r, PTP_PC_FUJI_PartialSize);
+// 
+		// if (ptp_download_file(&r, arr->data[i], oi.filename)) {
+			// return 0;
+		// }
+// 
+		// if (ptp_get_object_info(&r, arr->data[i], &oi)) {
+			// return 0;
+		// }
+// 
+// 
 		ptp_set_prop_value(&r, PTP_PC_FUJI_Compression, 0);
-		break;
+		// break;
 	}
 
 	free(arr);
+#endif
 
 	for (int i = 0; i < 100; i++) {
 		puts("Pinging");
