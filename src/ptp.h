@@ -458,7 +458,7 @@ struct FujiInitPacket {
 // Ports 51540, 51541, and 51542 may or may not also have something
 #define FUJI_CMD_IP_PORT 55740
 
-// USB Standard commands
+// Fuji USB and IP extensions
 #define PTP_OC_FUJI_SendObjectInfo	0x900c // create file
 #define PTP_OC_FUJI_SendObject2		0x900d // Appears to be the same as 901d
 #define PTP_OC_FUJI_SendObject		0x901d // write to file
@@ -469,14 +469,25 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_ObjectCount		0xd222
 #define PTP_PC_FUJI_Compression		0xD226
 #define PTP_PC_FUJI_CompressionInfo	0xD227
+#define PTP_PC_FUJI_Unknown4		0xD228
 #define PTP_PC_FUJI_PartialSize		0xD235
 #define PTP_PC_FUJI_CardStatus		0xd244
 #define PTP_PC_FUJI_ObjectCount2	0xd401
 #define PTP_PC_FUJI_Unknown2		0xdc04
 #define PTP_PC_FUJI_DriveMode		0xd246
-#define PTP_PC_FUJI_TransferMode	0xdf22
+#define PTP_PC_FUJI_Unknown7		0xd406
+#define PTP_PC_FUJI_Unknown8		0xd407
+#define PTP_PC_FUJI_Unknown5		0xd500
+#define PTP_PC_FUJI_Unknown6		0xd52f
 #define PTP_PC_FUJI_Unlocked		0xdf00 // changed when unlocked
 #define PTP_PC_FUJI_Mode			0xdf01 // function mode
+#define PTP_PC_FUJI_PhotoGetVersion	0xdf21
+#define PTP_PC_FUJI_FunctionVersion	0xdf22
+#define PTP_PC_FUJI_Unknown10		0xdf23
+#define PTP_PC_FUJI_RemoteVersion	0xdf24
+#define PTP_PC_FUJI_RemotePhotoViewVersion	0xdf25
+#define PTP_PC_FUJI_PhotoRecieveReservedVersion	0xdf26
+#define PTP_PC_FUJI_VersionGPS		0xdf31
 
 #pragma pack(pop)
 
