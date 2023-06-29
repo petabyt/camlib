@@ -12,6 +12,7 @@ int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format);
 int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_format);
 int ptp_terminate_open_capture(struct PtpRuntime *r, int trans);
 int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si);
+int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struct PtpObjectInfo *oi);
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
@@ -67,8 +68,11 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr);
 
 int ptp_liveview_type(struct PtpRuntime *r);
 
-// Fujifilm PTP/IP functions, not for use over USB
+// Fuji vendor version of SendObjectInfo - same as standard, but no parameters
+int ptp_fuji_send_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+int ptp_fuji_send_object(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *data, int length);
 
+// IP-only functions
 int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
 int ptp_fuji_ping(struct PtpRuntime *r);
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);

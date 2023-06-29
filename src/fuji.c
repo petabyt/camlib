@@ -5,6 +5,31 @@
 #include <camlib.h>
 #include <ptp.h>
 
+// PTP vendor version of SendObjectInfo (USB & IP)
+int ptp_fuji_send_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_FUJI_SendObjectInfo;
+	cmd.param_length = 0;
+
+	char temp[1024];
+	void *data = temp;
+	int length = ptp_pack_object_info(r, oi, &data, sizeof(temp));
+	if (length == 0) {
+		return PTP_OUT_OF_MEM;
+	}
+
+	return ptp_generic_send_data(r, &cmd, temp, length);
+}
+
+// PTP vendor version of SendObject (USB & IP)
+int ptp_fuji_send_object(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *data, int length) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_FUJI_SendObject;
+	cmd.param_length = 0;
+
+	return ptp_generic_send_data(r, &cmd, data, length);
+}
+
 int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 	struct FujiInitPacket *p = (struct FujiInitPacket *)r->data;
 	memset(p, 0, sizeof(struct FujiInitPacket));
@@ -36,7 +61,7 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 }
 
 // Dummy pinger (should be ptp_fuji_get_events)
-int ptp_fuji_ping(struct PtpRuntime *r) {
+int ptpip_fuji_get_events(struct PtpRuntime *r) {
 	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_Unlocked);
 	return rc;
 }

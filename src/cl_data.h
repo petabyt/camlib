@@ -150,7 +150,7 @@ struct PtpEOSObject {
 	uint32_t e;
 };
 
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d);
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max);
 
 int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
