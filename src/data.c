@@ -86,15 +86,24 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	return 0;
 }
 
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d) {
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max) {
+	if (1024 > max) {
+		return 0;
+	}
+
 	void *b = *d;
-	memcpy(oi, *d, PTP_OBJ_INFO_VAR_START);
+	memcpy(*d, oi, PTP_OBJ_INFO_VAR_START);
 	*d += PTP_OBJ_INFO_VAR_START;
 
-	ptp_write_string(d, oi->filename);
-	ptp_write_string(d, oi->date_created);
-	ptp_write_string(d, oi->date_modified);
-	ptp_write_string(d, oi->keywords);
+	// If the string is empty, don't add it to the packet
+	if (oi->filename[0] != '\0')
+		ptp_write_string(d, oi->filename);
+	if (oi->date_created[0] != '\0')
+		ptp_write_string(d, oi->date_created);
+	if (oi->date_modified[0] != '\0')
+		ptp_write_string(d, oi->date_modified);
+	if (oi->keywords[0] != '\0')
+		ptp_write_string(d, oi->keywords);
 
 	return (int)(*d - b);
 }
