@@ -6,7 +6,7 @@ PYTHON3?=python3
 # All platforms need these object files
 FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o)
 
-CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE_ -g -fpic -Wall -Wshadow -Wcast-qual
+CFLAGS=-Isrc/ -I../mjs/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual
 
 # Basic support for MinGW and libwpd
 ifdef WIN
@@ -22,8 +22,8 @@ endif
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)
 
-libcl.so: $(FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(FILES) -o libcl.so
+libcamlib.so: $(FILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(FILES) -o libcamlib.so
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -39,13 +39,23 @@ DEC_FILES=src/dec/main.o src/enums.o src/enum_dump.o
 dec: $(DEC_FILES)
 	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
 
-# Some custom stuff for PTP/IP
+# Some temp custom stuff for PTP/IP
 connect:
 	systemctl stop NetworkManager
 	iwconfig wlp0s20f3 essid "FUJIFILM-X-A2-5DBC"
 	dhclient wlp0s20f3
 fix:
 	systemctl start NetworkManager
+
+clean:
+	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe dec *.dll *.so
+
+install: libcamlib.so
+	cp libcamlib.so /usr/lib/
+	-mkdir /usr/include/camlib
+	cp src/*.h /usr/include/camlib/
+
+.PHONY: all clean
 
 # Some basic tests - files need to be added as a dependency
 # and also added to the FILES object list
@@ -72,8 +82,3 @@ wintest.exe: test/wintest.o
 
 $(TEST_TARGETS): $(FILES)
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
-
-clean:
-	$(RM) *.o src/*.o src/dec/*.o *.out $(TEST_TARGETS) test/*.o *.exe dec *.dll *.so
-
-.PHONY: all clean
