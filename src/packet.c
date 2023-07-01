@@ -68,8 +68,10 @@ int ptp_write_string(void **dat, char *string) {
 
 	for (int i = 0; i < length; i++) {
 		ptp_write_uint8(dat, string[i]);
-		dat[0] += 2;
+		ptp_write_uint8(dat, '\0');
 	}
+
+	ptp_write_uint8(dat, '\0');
 
 	return (length * 2) + 2;
 }
