@@ -28,7 +28,7 @@ struct PtpBackend {
 };
 
 struct usb_device *ptp_search() {
-	PTPLOG("Initializing USB...\n");
+	ptp_verbose_log("Initializing USB...\n");
 	usb_init();
 	usb_find_busses();
 	usb_find_devices();
@@ -38,9 +38,9 @@ struct usb_device *ptp_search() {
 	while (bus != NULL) {
 		dev = bus->devices;
 		while (dev != NULL) {
-			PTPLOG("Trying %s\n", dev->filename);
+			ptp_verbose_log("Trying %s\n", dev->filename);
 			if (dev->config->interface->altsetting->bInterfaceClass == PTP_CLASS_ID) {
-				PTPLOG("Found PTP device %s\n", dev->filename)
+				ptp_verbose_log("Found PTP device %s\n", dev->filename)
 				return dev;
 			}
 
@@ -50,7 +50,7 @@ struct usb_device *ptp_search() {
 		bus = bus->next;
 	}
 
-	PTPLOG("No PTP devices found\n");
+	ptp_verbose_log("No PTP devices found\n");
 
 	return NULL;
 }
@@ -67,22 +67,22 @@ int ptp_device_init(struct PtpRuntime *r) {
 	struct usb_endpoint_descriptor *ep = dev->config->interface->altsetting->endpoint;
 	int endpoints = dev->config->interface->altsetting->bNumEndpoints;
 
-	PTPLOG("Device has %d endpoints.\n", endpoints);
-	PTPLOG("Vendor ID: %d, Product ID: %d\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
+	ptp_verbose_log("Device has %d endpoints.\n", endpoints);
+	ptp_verbose_log("Vendor ID: %d, Product ID: %d\n", dev->descriptor.idVendor, dev->descriptor.idProduct);
 
 	for (int i = 0; i < endpoints; i++) {
 		if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_BULK) {
 			if ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK)) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
+				ptp_verbose_log("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
+				ptp_verbose_log("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
 			}
 		} else {
 			if (ep[i].bmAttributes == USB_ENDPOINT_TYPE_INTERRUPT) {
 				ptp_backend.endpoint_int = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
+				ptp_verbose_log("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
 			}
 		}
 	}

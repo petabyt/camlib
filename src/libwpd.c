@@ -26,7 +26,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		}
 
 		int type = wpd_get_device_type(&backend_wpd);
-		PTPLOG("Found device of type: %d\n", type);
+		ptp_verbose_log("Found device of type: %d\n", type);
 		if (type == WPD_DEVICE_TYPE_CAMERA) {
 			return 0;
 		}

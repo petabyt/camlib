@@ -60,9 +60,8 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 	}
 }
 
-// Dummy pinger (should be ptp_fuji_get_events)
 int ptpip_fuji_get_events(struct PtpRuntime *r) {
-	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_Unlocked);
+	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_EventsList);
 	return rc;
 }
 
@@ -72,6 +71,7 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		return rc;
 	}
 
+	// If PTP_PC_FUJI_Unlocked is non-zero, that means it's probably unlocked
 	if (ptp_parse_prop_value(r) != 0) {
 		return 0;
 	}
@@ -82,9 +82,9 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 			return rc;
 		}
 
+		// Apply events structure to payload, and check for unlocked event
 		struct PtpFujiEvents *ev = (struct PtpFujiEvents *)(ptp_get_payload(r));
 		for (int i = 0; i < ev->length; i++) {
-			// Check for unlocked change
 			if (ev->events[i].code == PTP_PC_FUJI_Unlocked && (ev->events[i].value == 0x2)) {
 				return 0;
 			}

@@ -105,7 +105,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	plength = ptp_new_data_packet(r, cmd);
 
 	if (plength + length > r->data_length) {
-		PTPLOG("ptp_generic_send_data: Not enough memory\n");
+		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
 		return PTP_OUT_OF_MEM;
 	}
 

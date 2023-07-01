@@ -27,12 +27,10 @@
 	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
-// Optional debug logging on compile time
-#ifdef VERBOSE
-	#define PTPLOG(...) printf(__VA_ARGS__);
-#else
-	#define PTPLOG(...) /* */
-#endif
+// Logging mechanism, define it yourself or link in log.c
+void ptp_verbose_log(char *fmt, ...);
+
+#define PTPLOG dont_use_me_im_deprecated
 
 // Optional, used by frontend in bindings
 #ifndef CAMLIB_PLATFORM

@@ -483,7 +483,7 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_Mode			0xdf01 // function mode
 #define PTP_PC_FUJI_PhotoGetVersion	0xdf21
 #define PTP_PC_FUJI_FunctionVersion	0xdf22
-#define PTP_PC_FUJI_Unknown10		0xdf23
+#define PTP_PC_FUJI_Unknown10		0xdf23 // another version prop 
 #define PTP_PC_FUJI_RemoteVersion	0xdf24
 #define PTP_PC_FUJI_RemotePhotoViewVersion	0xdf25
 #define PTP_PC_FUJI_PhotoRecieveReservedVersion	0xdf26

@@ -22,7 +22,7 @@ struct PtpBackend {
 
 int ptp_device_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
-	PTPLOG("Initializing USB...\n");
+	ptp_verbose_log("Initializing USB...\n");
 	libusb_init(&ptp_backend.ctx);
 
 	libusb_device **list;
@@ -62,7 +62,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 
 		interf_desc = &interf->altsetting[0];
 
-		PTPLOG("Vendor ID: %X, Product ID: %X\n", desc.idVendor, desc.idProduct);
+		ptp_verbose_log("Vendor ID: %X, Product ID: %X\n", desc.idVendor, desc.idProduct);
 
 		if (interf_desc->bInterfaceClass == LIBUSB_CLASS_IMAGE) {
 			dev = list[i];
@@ -76,6 +76,7 @@ int ptp_device_init(struct PtpRuntime *r) {
 		return PTP_NO_DEVICE;
 	}
 
+	// libusb 1.0 has no specificed limit for reads/writes
 	r->max_packet_size = 512*4;
 
 	const struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
@@ -83,14 +84,14 @@ int ptp_device_init(struct PtpRuntime *r) {
 		if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
 			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
 				ptp_backend.endpoint_in = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
+				ptp_verbose_log("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 			} else {
 				ptp_backend.endpoint_out = ep[i].bEndpointAddress;
-				PTPLOG("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
+				ptp_verbose_log("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
 			}
 		} else if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT) {
 			ptp_backend.endpoint_int = ep[i].bEndpointAddress;
-			PTPLOG("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
+			ptp_verbose_log("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
 		}
 	}
 

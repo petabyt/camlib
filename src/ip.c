@@ -34,13 +34,13 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if (sockfd < 0) {
-		PTPLOG("Failed to create socket\n");
+		ptp_verbose_log("Failed to create socket\n");
 		return -1;
 	}
 
 	if (set_nonblocking_io(sockfd, 1) < 0) {
 		close(sockfd);
-		PTPLOG("Failed to set non-blocking IO\n");
+		ptp_verbose_log("Failed to set non-blocking IO\n");
 		return -1;
 	}
 
@@ -50,14 +50,14 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	sa.sin_port = htons(port);
 	if (inet_pton(AF_INET, addr, &(sa.sin_addr)) <= 0) {
 		close(sockfd);
-		PTPLOG("Failed to convert IP address\n");
+		ptp_verbose_log("Failed to convert IP address\n");
 		return -1;
 	}
 
 	if (connect(sockfd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
 		if (errno != EINPROGRESS) {
 			close(sockfd);
-			PTPLOG("Failed to connect to socket\n");
+			ptp_verbose_log("Failed to connect to socket\n");
 			return -1;
 		}
 	}
@@ -75,19 +75,19 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 		socklen_t len = sizeof(so_error);
 		if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
 			close(sockfd);
-			PTPLOG("Failed to get socket options\n");
+			ptp_verbose_log("Failed to get socket options\n");
 			return -1;
 		}
 
 		if (so_error == 0) {
-			PTPLOG("Connection established %s:%d (%d)\n", addr, port, sockfd);
+			ptp_verbose_log("Connection established %s:%d (%d)\n", addr, port, sockfd);
 			set_nonblocking_io(sockfd, 0);
 			return sockfd;
 		}
 	}
 
 	close(sockfd);
-	PTPLOG("Failed to connect\n");
+	ptp_verbose_log("Failed to connect\n");
 	return -1;
 }
 
