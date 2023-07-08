@@ -5,6 +5,10 @@
 #include <camlib.h>
 #include <ptp.h>
 
+#define FUJI_PROTOCOL_VERSION 0x8f53e4f2
+
+// TODO: 902b device info implementation
+
 // PTP vendor version of SendObjectInfo (USB & IP)
 int ptp_fuji_send_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	struct PtpCommand cmd;
@@ -71,9 +75,12 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		return rc;
 	}
 
-	// If PTP_PC_FUJI_Unlocked is non-zero, that means it's probably unlocked
-	if (ptp_parse_prop_value(r) != 0) {
-		return 0;
+	// If PTP_PC_FUJI_Unlocked is non-zero, that means it doesn't need to be polled
+	int value = ptp_parse_prop_value(r);
+	if (value != 0) {
+		// Set the value back to let the camera know the software supports it
+		int rc = ptp_set_prop_value(r, PTP_PC_FUJI_Unlocked, value);
+		return rc;
 	}
 
 	while (1) {
@@ -82,7 +89,7 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 			return rc;
 		}
 
-		// Apply events structure to payload, and check for unlocked event
+		// Apply events structure to payload, and check for unlocked event (PTP_PC_FUJI_Unlocked)
 		struct PtpFujiEvents *ev = (struct PtpFujiEvents *)(ptp_get_payload(r));
 		for (int i = 0; i < ev->length; i++) {
 			if (ev->events[i].code == PTP_PC_FUJI_Unlocked && (ev->events[i].value == 0x2)) {
@@ -91,12 +98,6 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		}
 
 		struct PtpDevPropDesc *pc = (struct PtpDevPropDesc *)(ptp_get_payload(r));
-		if (pc->code == 0xFFFF) {
-			return PTP_IO_ERR;
-		} else if (pc->code == 0x2) {
-			return 0;
-		}
-
 		CAMLIB_SLEEP(100);
 	}
 }

@@ -442,8 +442,6 @@ struct PtpIpHeader {
 #define USB_TYPE_CLASS 0x20
 #endif
 
-#define FUJI_PROTOCOL_VERSION 0x8f53e4f2
-
 struct FujiInitPacket {
 	uint32_t length;
 	uint32_t type;
