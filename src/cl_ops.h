@@ -76,7 +76,7 @@ int ptp_fuji_send_object(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *d
 
 // Fujifilm IP-only functions
 int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
-int ptp_fuji_ping(struct PtpRuntime *r);
+int ptpip_fuji_get_events(struct PtpRuntime *r);
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);
 int ptpip_fuji_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpFujiObjectInfo *oi);
 
