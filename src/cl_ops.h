@@ -17,6 +17,7 @@ int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si
 int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struct PtpObjectInfo *oi);
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
+int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
 // Gets a list of object handles in a storage device or folder.
 // id: storage ID
