@@ -656,6 +656,24 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_PhotoRecieveReservedVersion	0xdf26
 #define PTP_PC_FUJI_VersionGPS		0xdf31
 
+// Mostly from libgphoto2
+#define PTP_OC_FUJI_InitiateMovieCapture		0x9020
+#define PTP_OC_FUJI_TerminateMovieCapture		0x9021
+#define PTP_OC_FUJI_GetCapturePreview			0x9022
+#define PTP_OC_FUJI_StepZoom 0x9023
+#define PTP_OC_FUJI_StartZoom 0x9024
+#define PTP_OC_FUJI_StopZoom 0x9025
+#define PTP_OC_FUJI_LockS1Lock			0x9026
+#define PTP_OC_FUJI_UnlockS1Lock			0x9027
+#define PTP_OC_FUJI_GetDeviceInfo			0x902B
+#define PTP_OC_FUJI_StepShutterSpeed			0x902C
+#define PTP_OC_FUJI_StepFNumber				0x902D
+#define PTP_OC_FUJI_StepExposureBias		0x902E
+#define PTP_OC_FUJI_CancelInitiateCapture		0x9030
+#define PTP_OC_FUJI_FmSendObjectInfo			0x9040
+#define PTP_OC_FUJI_FmSendObject			0x9041
+#define PTP_OC_FUJI_FmSendPartialObject			0x9042
+
 #pragma pack(pop)
 
 #endif
