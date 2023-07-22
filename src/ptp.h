@@ -611,6 +611,19 @@ struct PtpIpHeader {
 #define USB_TYPE_CLASS 0x20
 #endif
 
+struct CanonInitPacket {
+	uint32_t length;
+	uint32_t type;
+	uint32_t version;
+	uint32_t guid1;
+	uint32_t guid2;
+	uint32_t guid3;
+	uint32_t guid4;
+	char device_name[54]; // Size ??
+	uint16_t major_ver;
+	uint16_t minor_ver;
+};
+
 struct FujiInitPacket {
 	uint32_t length;
 	uint32_t type;
@@ -619,7 +632,7 @@ struct FujiInitPacket {
 	uint32_t guid2;
 	uint32_t guid3;
 	uint32_t guid4;
-	char device_name[54];
+	char device_name[54]; // unicode string
 };
 
 // Ports 51540, 51541, and 51542 may or may not also have something
@@ -632,9 +645,9 @@ struct FujiInitPacket {
 
 // WiFi only codes
 #define PTP_PC_FUJI_EventsList		0xd212
-#define PTP_PC_FUJI_Unknown3		0xd220
-#define PTP_PC_FUJI_ObjectCount		0xd222
-#define PTP_PC_FUJI_Compression		0xD226
+#define PTP_PC_FUJI_SelectedImgsMode	0xd220
+#define PTP_PC_FUJI_ObjSelectedHandle	0xd222
+#define PTP_PC_FUJI_Compression		0xD226 // forced compression
 #define PTP_PC_FUJI_CompressionInfo	0xD227
 #define PTP_PC_FUJI_Unknown4		0xD228
 #define PTP_PC_FUJI_PartialSize		0xD235
@@ -647,14 +660,15 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_Unknown5		0xd500
 #define PTP_PC_FUJI_Unknown6		0xd52f
 #define PTP_PC_FUJI_Unlocked		0xdf00 // changed when unlocked
-#define PTP_PC_FUJI_Mode			0xdf01 // function mode
+#define PTP_PC_FUJI_Mode			0xdf01 // function mode 
 #define PTP_PC_FUJI_PhotoGetVersion	0xdf21
-#define PTP_PC_FUJI_FunctionVersion	0xdf22
+#define PTP_PC_FUJI_FunctionVersion	0xdf22 // (Formerly TransferMode) should be PhotoViewVersion
 #define PTP_PC_FUJI_Unknown10		0xdf23 // another version prop 
 #define PTP_PC_FUJI_RemoteVersion	0xdf24
 #define PTP_PC_FUJI_RemotePhotoViewVersion	0xdf25
 #define PTP_PC_FUJI_PhotoRecieveReservedVersion	0xdf26
 #define PTP_PC_FUJI_VersionGPS		0xdf31
+#define PTP_PC_FUJI_Unknown11		0xdf44
 
 // Mostly from libgphoto2
 #define PTP_OC_FUJI_InitiateMovieCapture		0x9020
