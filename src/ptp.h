@@ -646,9 +646,9 @@ struct FujiInitPacket {
 // WiFi only codes
 #define PTP_PC_FUJI_EventsList		0xd212
 #define PTP_PC_FUJI_SelectedImgsMode	0xd220
-#define PTP_PC_FUJI_ObjSelectedHandle	0xd222
-#define PTP_PC_FUJI_Compression		0xD226 // forced compression
-#define PTP_PC_FUJI_CompressionInfo	0xD227
+#define PTP_PC_FUJI_ObjectCount		0xd222
+#define PTP_PC_FUJI_CompressSmall	0xD226 // compress into 400-800kb
+#define PTP_PC_FUJI_NoCompression	0xD227 // Enable full image download
 #define PTP_PC_FUJI_Unknown4		0xD228
 #define PTP_PC_FUJI_PartialSize		0xD235
 #define PTP_PC_FUJI_CardStatus		0xd244
