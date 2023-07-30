@@ -77,7 +77,7 @@ int ptpip_fuji_get_events(struct PtpRuntime *r) {
 }
 
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
-	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_Unlocked);
+	int rc = ptp_get_prop_value(r, PTP_PC_FUJI_CameraState);
 	if (rc) {
 		return rc;
 	}
@@ -86,7 +86,7 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 	int value = ptp_parse_prop_value(r);
 	if (value != 0) {
 		// Set the value back to let the camera know the software supports it
-		rc = ptp_set_prop_value(r, PTP_PC_FUJI_Unlocked, value);
+		rc = ptp_set_prop_value(r, PTP_PC_FUJI_CameraState, value);
 		return rc;
 	}
 
@@ -99,7 +99,7 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 		// Apply events structure to payload, and check for unlocked event (PTP_PC_FUJI_Unlocked)
 		struct PtpFujiEvents *ev = (struct PtpFujiEvents *)(ptp_get_payload(r));
 		for (int i = 0; i < ev->length; i++) {
-			if (ev->events[i].code == PTP_PC_FUJI_Unlocked && (ev->events[i].value != 0x0)) {
+			if (ev->events[i].code == PTP_PC_FUJI_CameraState && (ev->events[i].value != 0x0)) {
 				return 0;
 			}
 		}
