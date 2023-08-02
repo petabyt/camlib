@@ -647,30 +647,10 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_EventsList		0xd212
 #define PTP_PC_FUJI_SelectedImgsMode	0xd220
 #define PTP_PC_FUJI_ObjectCount		0xd222
-#define PTP_PC_FUJI_CompressSmall	0xD226 // compress into 400-800kb
-#define PTP_PC_FUJI_NoCompression	0xD227 // Enable full image download
-#define PTP_PC_FUJI_Unknown4		0xD228
-#define PTP_PC_FUJI_PartialSize		0xD235
-#define PTP_PC_FUJI_CardStatus		0xd244
-#define PTP_PC_FUJI_DriveMode		0xd246
-#define PTP_PC_FUJI_ObjectCount2	0xd401
-#define PTP_PC_FUJI_Unknown2		0xdc04
-#define PTP_PC_FUJI_DriveMode		0xd246
-#define PTP_PC_FUJI_Unknown7		0xd406
-#define PTP_PC_FUJI_Unknown8		0xd407
-#define PTP_PC_FUJI_Unknown5		0xd500
-#define PTP_PC_FUJI_Unknown6		0xd52f
 #define PTP_PC_FUJI_CameraState		0xdf00 // formerly Unlocked 
 #define PTP_PC_FUJI_FunctionMode	0xdf01 // formerly Mode
-#define PTP_PC_FUJI_PhotoGetVersion	0xdf21
-#define PTP_PC_FUJI_PhotoViewVersion	0xdf22 // (Formerly TransferMode and FunctionVersion)
-#define PTP_PC_FUJI_Unknown10		0xdf23 // another version prop 
-#define PTP_PC_FUJI_RemoteVersion	0xdf24
-#define PTP_PC_FUJI_RemotePhotoViewVersion	0xdf25
-#define PTP_PC_FUJI_PhotoGetLimitedVersion	0xdf26
-#define PTP_PC_FUJI_FirmwareTransferVersion	0xdf27
-#define PTP_PC_FUJI_VersionGPS		0xdf31
-#define PTP_PC_FUJI_Unknown11		0xdf44
+#define PTP_PC_FUJI_CompressSmall	0xD226 // compress into 400-800kb
+#define PTP_PC_FUJI_NoCompression	0xD227 // Enable full image download
 
 // Mostly from libgphoto2
 #define PTP_OC_FUJI_InitiateMovieCapture		0x9020
