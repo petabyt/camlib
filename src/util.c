@@ -21,6 +21,12 @@ void ptp_generic_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
+
+	r->mutex = malloc(sizeof(pthread_mutex_t));
+	if (pthread_mutex_init(r->mutex, NULL)) {
+		free(r->mutex);
+		r->mutex = NULL;
+	}
 }
 
 void ptp_generic_close(struct PtpRuntime *r) {
@@ -80,13 +86,23 @@ int ptp_check_prop(struct PtpRuntime *r, int code) {
 
 // Perform a "generic" command type transaction. Could be a macro, but macros suck
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
+	pthread_mutex_lock(r->mutex);
 	int length = ptp_new_cmd_packet(r, cmd);
-	if (ptp_send_bulk_packets(r, length) != length) return PTP_IO_ERR;
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	if (ptp_send_bulk_packets(r, length) != length) {
+		pthread_mutex_unlock(r->mutex);
+		return PTP_IO_ERR;
+	}
+
+	if (ptp_recieve_bulk_packets(r) < 0) {
+		pthread_mutex_unlock(r->mutex);
+		return PTP_IO_ERR;
+	}
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		pthread_mutex_unlock(r->mutex);
 		return 0;
 	} else {
+		pthread_mutex_unlock(r->mutex);
 		return PTP_CHECK_CODE;
 	}
 }
@@ -94,10 +110,14 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 // Send a cmd packet, then data packet
 // Perform a generic operation with a data phase to the camera
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+	pthread_mutex_lock(r->mutex);
 	int plength = ptp_new_cmd_packet(r, cmd);
 
 	r->data_phase_length = length;
-	if (ptp_send_bulk_packets(r, plength) != plength) return PTP_IO_ERR;
+	if (ptp_send_bulk_packets(r, plength) != plength) {
+		pthread_mutex_unlock(r->mutex);
+		return PTP_IO_ERR;
+	}
 
 	// TODO: Put this functionality in packet.c?
 	cmd->param_length = 0;
@@ -106,18 +126,28 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 
 	if (plength + length > r->data_length) {
 		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
+		pthread_mutex_unlock(r->mutex);
 		return PTP_OUT_OF_MEM;
 	}
 
 	memcpy(ptp_get_payload(r), data, length);
 	ptp_update_data_length(r, plength + length);
 
-	if (ptp_send_bulk_packets(r, plength + length) != plength + length) return PTP_IO_ERR;
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
+		pthread_mutex_unlock(r->mutex);
+		return PTP_IO_ERR;
+	}
+
+	if (ptp_recieve_bulk_packets(r) < 0) {
+		pthread_mutex_unlock(r->mutex);
+		return PTP_IO_ERR;
+	}
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		pthread_mutex_unlock(r->mutex);
 		return 0;
 	} else {
+		pthread_mutex_unlock(r->mutex);
 		return PTP_CHECK_CODE;
 	}
 }

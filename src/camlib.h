@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <pthread.h>
 
 #include "ptp.h"
 
@@ -128,6 +129,8 @@ struct PtpRuntime {
 	// For networking
 	int fd;
 	int evfd;
+
+	pthread_mutex_t *mutex;
 };
 
 // Generic command structure - not a packet
