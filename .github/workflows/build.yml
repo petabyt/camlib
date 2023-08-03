@@ -17,7 +17,7 @@ jobs:
 
     - name: Build
       run: |
-        make
+        make libcamlib.so
         # Test the decoding tool also builds.
         make dec
         sh test/ci.sh
@@ -32,6 +32,6 @@ jobs:
 
     - name: Build
       run: |
-        make
+        make libcamlib.so
         # Test the decoding tool also builds.
         make dec
