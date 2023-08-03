@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cp test/config.mak .
-#git clone https://github.com/petabyt/libusb-fake-ptp
+git clone https://github.com/petabyt/libusb-fake-ptp
 cd libusb-fake-ptp
 make libusb.so
 mv libusb.so libvusb.so

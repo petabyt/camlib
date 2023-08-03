@@ -14,7 +14,7 @@ int main() {
 
 	if (ptp_device_init(&r)) {
 		puts("Device connection error");
-		return rc;
+		return 1;
 	}
 
 	ptp_open_session(&r);

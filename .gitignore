@@ -1,3 +1,4 @@
+build
 DUMP*
 *.o
 .xmake/
@@ -5,7 +6,8 @@ build/
 config.mak
 *.exe
 *.txt
-dec
 optest
 wifi
 dump*
+test-ci
+libusb-fake-ptp

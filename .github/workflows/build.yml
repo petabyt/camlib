@@ -20,6 +20,7 @@ jobs:
         make
         # Test the decoding tool also builds.
         make dec
+        sh test/ci.sh
 
   macOS-build:
     runs-on: macos-latest
