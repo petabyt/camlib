@@ -138,7 +138,7 @@ int main() {
 			}
 		}
 
-		if (!(counter & 1) || lv_is_inactive) {
+		if (!(counter % 4) || lv_is_inactive) {
 			if (buffer != NULL) {
 				free(buffer);
 			}

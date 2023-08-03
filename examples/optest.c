@@ -25,6 +25,15 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_MTP_GetObjPropList;
+	cmd.param_length = 1;
+	cmd.params[0] = PTP_OF_JPEG;
+
+	int rc = ptp_generic_send(&r, &cmd);
+
+	ptp_dump(&r);
+
 	ptp_close_session(&r);
 	ptp_device_close(&r);
 
