@@ -95,6 +95,10 @@ int ptp_device_init(struct PtpRuntime *r) {
 		}
 	}
 
+	if (interf_desc->bNumEndpoints < 2) {
+		return PTP_OPEN_FAIL;
+	}
+
 	libusb_free_config_descriptor(config);
 	int rc = libusb_open(dev, &ptp_backend.handle);
 	libusb_free_device_list(list, 0);

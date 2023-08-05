@@ -104,7 +104,6 @@ int ptpip_fuji_wait_unlocked(struct PtpRuntime *r) {
 			}
 		}
 
-		struct PtpDevPropDesc *pc = (struct PtpDevPropDesc *)(ptp_get_payload(r));
 		CAMLIB_SLEEP(100);
 	}
 }

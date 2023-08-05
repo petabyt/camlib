@@ -131,6 +131,18 @@ struct PtpRuntime {
 	int evfd;
 
 	pthread_mutex_t *mutex;
+
+	// For when the caller intends to do long-term data processing on the data buffer,
+	// setting this to 1 allows the caller to unlock the packet read/write mutex. For quick
+	// data processing, this should never matter because reading a packet takes *much* longer.
+	uint8_t caller_unlocks_mutex;
+};
+
+struct PtpGenericProp {
+	uint16_t code;
+	const char *name;
+	int value;
+	const char *str_value;
 };
 
 // Generic command structure - not a packet

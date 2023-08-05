@@ -1,11 +1,10 @@
 # Unix only makefile
 -include config.mak
 
-
 CFLAGS=-Isrc/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual
 
 # All platforms need these object files
-FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o)
+FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o conv.o)
 
 # Unix-specific
 CFLAGS+=$(shell pkg-config --cflags libusb-1.0)

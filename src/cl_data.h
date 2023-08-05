@@ -165,6 +165,7 @@ void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce)
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
 
+// Standard property value converters conv.c
 int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);

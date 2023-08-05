@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <camlib.h>
 #include <ptp.h>
@@ -327,4 +328,37 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 			return 0;
 		}
 	}
+}
+
+int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericProp **s, int *length) {
+	uint16_t *props = r->di->props_supported;
+	int plength = r->di->props_supported_length;
+	*length = plength;
+
+	*s = malloc(sizeof(struct PtpGenericProp) * plength);
+
+	for (int i = 0; i < plength; i++) {
+		struct PtpGenericProp *cur = &((*s)[i]);
+		memset(cur, 0, sizeof(struct PtpGenericProp));
+
+		cur->code = props[i];
+
+		int rc = ptp_get_prop_value(r, props[i]);
+		if (rc) return rc;
+
+		int v = ptp_parse_prop_value(r);
+		cur->value = v;
+		if (v == -1) {
+			continue;
+		}
+
+		switch (props[i]) {
+		case PTP_PC_BatteryLevel:
+			cur->name = "battery";
+			cur->value = v;
+			break;
+		}
+	}
+
+	return 0;
 }

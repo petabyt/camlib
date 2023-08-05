@@ -94,7 +94,10 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	uint32_t *frame = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
 	if (frame == NULL) return PTP_RUNTIME_ERR;
 
-	struct PtpMlLvHeader *header = (struct PtpMlLvHeader *)(ptp_get_payload(r));
+	// TODO: parse ver info from header
+	//struct PtpMlLvHeader *header = (struct PtpMlLvHeader *)(ptp_get_payload(r));
+
+
 	uint8_t *bmp = (uint8_t *)(ptp_get_payload(r));
 
 	int i = 0;
