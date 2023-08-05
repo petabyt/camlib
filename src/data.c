@@ -360,8 +360,6 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 
 	(*p) = malloc(sizeof(struct PtpGenericProp) * length);
 
-	printf("Length: %d\n", length);
-
 	dp = ptp_get_payload(r);
 	int i = 0;
 	while (dp != NULL) {
