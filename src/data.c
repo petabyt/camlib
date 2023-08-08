@@ -312,10 +312,11 @@ int ptp_eos_prop_next(void **d, struct PtpGenericProp *p) {
 		p->name = name;
 	}
 
+	p->value = value;
 	if (str_value == NULL) {
 		p->str_value = NULL;
 	} else {
-		p->value = value;
+		p->str_value = str_value;
 	}
 
 	return 0;
