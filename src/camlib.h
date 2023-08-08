@@ -9,7 +9,7 @@
 
 #include "ptp.h"
 
-// Used in bindings, can be set to Git stamp
+// Used in dumps, should be set to the git commit hash
 #ifndef CAMLIB_VERSION
 	#ifdef __DATE__
 		#define CAMLIB_VERSION __DATE__
@@ -18,7 +18,7 @@
 	#endif
 #endif
 
-// Max timeout for response
+// Max timeout for command read/writes
 #define PTP_TIMEOUT 1000
 
 // Conforms to POSIX 2001, some compilers may not have it
@@ -30,8 +30,6 @@
 
 // Logging mechanism, define it yourself or link in log.c
 void ptp_verbose_log(char *fmt, ...);
-
-#define PTPLOG dont_use_me_im_deprecated
 
 // Optional, used by frontend in bindings
 #ifndef CAMLIB_PLATFORM
@@ -45,9 +43,7 @@ void ptp_verbose_log(char *fmt, ...);
 // 4mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 8000000
 
-#ifdef ML_TRANSPARENCY_PIXEL
-	#error "replace ML_TRANSPARENCY_PIXEL with PTP_LV_TRANSPARENCY_PIXEL"
-#endif
+// Transparency pixel used in ML liveview processor
 #ifndef PTP_LV_TRANSPARENCY_PIXEL
 	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
 #endif
@@ -69,11 +65,11 @@ enum PtpLiveViewType {
 	PTP_LV_NONE = 0,
 	PTP_LV_EOS = 1,
 	PTP_LV_CANON = 2,
-	PTP_LV_ML = 3,
-	PTP_LV_EOS_ML_BMP = 4,
+	PTP_LV_ML = 3, // ptplv v1
+	PTP_LV_EOS_ML_BMP = 4, // ptplv v2
 };
 
-// Detect device type - each category should have similar opcodes
+// Detect device type - each type should have similar opcodes and behavior
 enum PtpVendors {
 	PTP_DEV_EMPTY = 0,
 	PTP_DEV_EOS = 1,
@@ -84,7 +80,7 @@ enum PtpVendors {
 	PTP_DEV_PANASONIC = 6,
 };
 
-// Wrapper types for vendor specific image formats
+// Wrapper types for vendor specific capture modes
 enum ImageFormats {
 	IMG_FORMAT_ETC = 0,
 	IMG_FORMAT_RAW = 1,
@@ -104,7 +100,10 @@ enum PtpConnType {
 };
 
 struct PtpRuntime {
+	// Managed by libusb/WPD
 	int active_connection;
+
+	// Is set to USB by default
 	int connection_type;
 
 	// The transaction ID and session ID is managed by the
@@ -112,6 +111,7 @@ struct PtpRuntime {
 	int transaction;
 	int session;
 
+	// Global buffer for data reading and writing
     uint8_t *data;
     int data_length;
 
@@ -155,6 +155,10 @@ struct PtpCommand {
 
 	int data_length;
 };
+
+void ptp_mutex_unlock(struct PtpRuntime *r);
+void ptp_mutex_keep_locked(struct PtpRuntime *r);
+void ptp_mutex_lock(struct PtpRuntime *r);
 
 // Helper packet reader functions
 uint8_t ptp_read_uint8(void **dat);

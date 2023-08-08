@@ -1,4 +1,5 @@
 // Helper/convenient functions
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,6 +28,19 @@ void ptp_generic_init(struct PtpRuntime *r) {
 		free(r->mutex);
 		r->mutex = NULL;
 	}
+}
+
+void ptp_mutex_lock(struct PtpRuntime *r) {
+	pthread_mutex_lock(r->mutex);
+}
+
+void ptp_mutex_keep_locked(struct PtpRuntime *r) {
+	r->caller_unlocks_mutex = 1;
+}
+
+void ptp_mutex_unlock(struct PtpRuntime *r) {
+	pthread_mutex_unlock(r->mutex);
+	r->caller_unlocks_mutex = 0;
 }
 
 void ptp_generic_close(struct PtpRuntime *r) {
@@ -86,23 +100,24 @@ int ptp_check_prop(struct PtpRuntime *r, int code) {
 
 // Perform a "generic" command type transaction. Could be a macro, but macros suck
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	pthread_mutex_lock(r->mutex);
+	pthread_mutex_lock(r);
+
 	int length = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, length) != length) {
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_recieve_bulk_packets(r) < 0) {
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		pthread_mutex_unlock(r->mutex);
+		if (!r->caller_unlocks_mutex) pthread_mutex_unlock(r);
 		return 0;
 	} else {
-		pthread_mutex_unlock(r->mutex);
+		if (!r->caller_unlocks_mutex) pthread_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
 }
@@ -110,12 +125,12 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 // Send a cmd packet, then data packet
 // Perform a generic operation with a data phase to the camera
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
-	pthread_mutex_lock(r->mutex);
+	pthread_mutex_lock(r);
 	int plength = ptp_new_cmd_packet(r, cmd);
 
 	r->data_phase_length = length;
 	if (ptp_send_bulk_packets(r, plength) != plength) {
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
@@ -126,7 +141,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 
 	if (plength + length > r->data_length) {
 		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_OUT_OF_MEM;
 	}
 
@@ -134,20 +149,20 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	ptp_update_data_length(r, plength + length);
 
 	if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_recieve_bulk_packets(r) < 0) {
-		pthread_mutex_unlock(r->mutex);
+		pthread_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		pthread_mutex_unlock(r->mutex);
+		if (!r->caller_unlocks_mutex) pthread_mutex_unlock(r);
 		return 0;
 	} else {
-		pthread_mutex_unlock(r->mutex);
+		if (!r->caller_unlocks_mutex) pthread_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
 }

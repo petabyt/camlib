@@ -34,8 +34,8 @@ int ptp_eos_cancel_af(struct PtpRuntime *r) {
 	return ptp_generic_send(r, &cmd);
 }
 
-// Add 0x8000 to param1 change direction
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
+	// Add 0x8000 to param1 change direction
 	if (steps < 0) {
 		steps = 0x8000 + (steps * -1);
 	}

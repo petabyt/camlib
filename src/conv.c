@@ -1,3 +1,6 @@
+// proprietary vendor property data conversion to standard simple formats
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+
 #include <stdio.h>
 #include <string.h>
 
