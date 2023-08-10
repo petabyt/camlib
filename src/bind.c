@@ -31,14 +31,11 @@ int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	if (bind_initialized) {
-		free(r->data);
+		ptp_generic_close();
 		if (r->di != NULL) free(r->di);
 	}
 
-	memset(r, 0, sizeof(struct PtpRuntime));
-	r->data = malloc(CAMLIB_DEFAULT_SIZE);
-	r->data_length = CAMLIB_DEFAULT_SIZE;
-	r->di = NULL;
+	ptp_generic_init(r);
 	bind_initialized = 1;
 
 	return sprintf(bind->buffer, "{\"error\": %d, \"buffer\": %d}", 0, r->data_length);
