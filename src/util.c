@@ -16,6 +16,7 @@ void ptp_generic_reset(struct PtpRuntime *r) {
 	r->data_phase_length = 0;
 	r->di = NULL;
 	r->connection_type = PTP_USB;
+	r->caller_unlocks_mutex = 0;
 }
 
 void ptp_generic_init(struct PtpRuntime *r) {
