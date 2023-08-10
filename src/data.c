@@ -243,8 +243,8 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 }
 
 int ptp_eos_prop_next(void **d, struct PtpGenericProp *p) {
-	int code = ptp_read_uint32(d);
-	int value = ptp_read_uint32(d);
+	uint32_t code = ptp_read_uint32(d);
+	uint32_t value = ptp_read_uint32(d);
 
 	const char *name = ptp_get_enum_all(code);
 	const char *str_value = NULL;
@@ -279,10 +279,10 @@ int ptp_eos_prop_next(void **d, struct PtpGenericProp *p) {
 		} break;
 	case PTP_PC_EOS_VF_Output:
 		name = "mirror";
-		if (value == 3) {
-			str_value = "up";
+		if (value == 0) {
+			str_value = "finder";
 		} else {
-			str_value = "down";
+			str_value = "open";
 		}
 		break;
 	case PTP_PC_EOS_AEModeDial:
