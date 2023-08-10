@@ -17,6 +17,7 @@ void ptp_generic_reset(struct PtpRuntime *r) {
 	r->di = NULL;
 	r->connection_type = PTP_USB;
 	r->caller_unlocks_mutex = 0;
+	r->mutex = NULL;
 }
 
 void ptp_generic_init(struct PtpRuntime *r) {
@@ -24,14 +25,18 @@ void ptp_generic_init(struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 
+	#ifndef CAMLIB_DONT_USE_MUTEX
 	r->mutex = malloc(sizeof(pthread_mutex_t));
 	if (pthread_mutex_init(r->mutex, NULL)) {
+		ptp_verbose_log("Failed to init mutex\n");
 		free(r->mutex);
 		r->mutex = NULL;
 	}
+	#endif
 }
 
 void ptp_mutex_lock(struct PtpRuntime *r) {
+	if (r->mutex == NULL) return;
 	pthread_mutex_lock(r->mutex);
 }
 
@@ -40,6 +45,7 @@ void ptp_mutex_keep_locked(struct PtpRuntime *r) {
 }
 
 void ptp_mutex_unlock(struct PtpRuntime *r) {
+	if (r->mutex == NULL) return;
 	pthread_mutex_unlock(r->mutex);
 	r->caller_unlocks_mutex = 0;
 }

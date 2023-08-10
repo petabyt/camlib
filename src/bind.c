@@ -31,7 +31,7 @@ int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	if (bind_initialized) {
-		ptp_generic_close();
+		ptp_generic_close(r);
 		if (r->di != NULL) free(r->di);
 	}
 
