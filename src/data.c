@@ -347,23 +347,25 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 
 	int length = 0;
 	while (dp != NULL) {
+		if (dp >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) break;
 		void *d = dp;
 		uint32_t size = ptp_read_uint32(&d);
 		uint32_t type = ptp_read_uint32(&d);
 
 		dp += size;
 
-		length++;
-
+		// TODO: length is 1 when props list is invalid/empty
 		if (type == 0) break;
-		if (dp >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) break;
+
+		length++;
 	}
+
+	if (length == 0) return 0;
 
 	(*p) = malloc(sizeof(struct PtpGenericProp) * length);
 
 	dp = ptp_get_payload(r);
-	int i = 0;
-	while (dp != NULL) {
+	for (int i = 0; i < length; i++) {
 		struct PtpGenericProp *cur = &((*p)[i]);
 		memset(cur, 0, sizeof(struct PtpGenericProp));
 
@@ -372,12 +374,8 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 		uint32_t size = ptp_read_uint32(&d);
 		uint32_t type = ptp_read_uint32(&d);
 
-		// Move dp over for the next entry
-		dp += size;
-
 		// Detect termination or overflow
 		if (type == 0) break;
-		if (dp >= (void *)ptp_get_payload(r) + ptp_get_data_length(r)) break;
 
 		switch (type) {
 		case PTP_EC_EOS_PropValueChanged:
@@ -402,7 +400,8 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 			// if (tmp == 1) tmp = 0;
 		}
 
-		i++;
+		// Move dp over for the next entry
+		dp += size;
 	}
 
 	return length;
