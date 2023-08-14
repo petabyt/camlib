@@ -234,9 +234,8 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetThumb;
-	cmd.param_length = 2;
-	cmd.params[0] = handle; // -1 to delete all image
-	cmd.params[1] = 0; // Object format code
+	cmd.param_length = 1;
+	cmd.params[0] = handle;
 
 	return ptp_generic_send(r, &cmd);
 }
