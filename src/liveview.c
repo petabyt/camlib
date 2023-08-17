@@ -11,7 +11,7 @@
 #include <camlib.h>
 #include <ptp.h>
 
-#define MAX_EOS_JPEG_SIZE 500000
+#define MAX_EOS_JPEG_SIZE 550000
 
 #define PTP_ML_LvWidth 360
 #define PTP_ML_LvHeight 240
@@ -117,17 +117,18 @@ int ptp_liveview_deinit(struct PtpRuntime *r) {
 	int x;
 	switch (ptp_liveview_type(r)) {
 	case PTP_LV_ML:
+	case PTP_LV_EOS_ML_BMP:
 		return 0;
 	case PTP_LV_EOS:
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
-		if (x) return x;
+		// x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
+		// if (x) return x;
 		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2);
 		if (x) return x;
 		ptp_eos_hdd_capacity_push(r);
 		return 0;
 	}
 
-	return 1;
+	return PTP_RUNTIME_ERR;
 }
 
 int ptp_liveview_frame(struct PtpRuntime *r, void *buffer) {

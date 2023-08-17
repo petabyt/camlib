@@ -42,13 +42,25 @@ int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
 
 	// Read in at least the packet header to get packet length
+	// A packet header can also be 8 bytes (for kill signal)
 	int rc = ptpip_cmd_read(r, r->data + read, 8);
 	if (rc != 8) {
 		ptp_verbose_log("Failed to read 8 bytes\n");
+
+		for (int i = 0; i < r->wait_for_response; i++) {
+			rc = ptpip_cmd_read(r, r->data + read, 8);
+			if (rc == 8) {
+				goto finally_read;
+			}
+		}
+
 		return PTP_IO_ERR;
 	} else {
+		finally_read:;
 		read += rc;
 	}
+
+	r->wait_for_response = 0;
 
 	// Check for socket kill signal (?)
 	uint32_t *test = (uint32_t *) r->data;

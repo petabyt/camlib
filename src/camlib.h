@@ -136,6 +136,9 @@ struct PtpRuntime {
 	// setting this to 1 allows the caller to unlock the packet read/write mutex. For quick
 	// data processing, this should never matter because reading a packet takes *much* longer.
 	uint8_t caller_unlocks_mutex;
+
+	// Optionally wait up to 256 seonds for a response. Some PTP operations require this, such as EOS capture.
+	uint8_t wait_for_response;
 };
 
 struct PtpGenericProp {
