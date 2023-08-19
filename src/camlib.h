@@ -141,7 +141,8 @@ struct PtpRuntime {
 	uint8_t wait_for_response;
 };
 
-struct PtpGenericProp {
+// Generic event / property
+struct PtpGenericEvent {
 	uint16_t code;
 	const char *name;
 	int value;

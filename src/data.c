@@ -242,7 +242,7 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	return len;
 }
 
-int ptp_eos_prop_next(void **d, struct PtpGenericProp *p) {
+int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
 	uint32_t code = ptp_read_uint32(d);
 	uint32_t value = ptp_read_uint32(d);
 
@@ -323,7 +323,7 @@ int ptp_eos_prop_next(void **d, struct PtpGenericProp *p) {
 }
 
 int ptp_eos_prop_json(void **d, char *buffer, int max) {
-	struct PtpGenericProp p;
+	struct PtpGenericEvent p;
 
 	ptp_eos_prop_next(d, &p);
 
@@ -341,7 +341,7 @@ int ptp_eos_prop_json(void **d, char *buffer, int max) {
 	return curr;
 }
 
-int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
+int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 	//struct PtpCanonEvent ce;
 	void *dp = ptp_get_payload(r);
 
@@ -362,12 +362,12 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 
 	if (length == 0) return 0;
 
-	(*p) = malloc(sizeof(struct PtpGenericProp) * length);
+	(*p) = malloc(sizeof(struct PtpGenericEvent) * length);
 
 	dp = ptp_get_payload(r);
 	for (int i = 0; i < length; i++) {
-		struct PtpGenericProp *cur = &((*p)[i]);
-		memset(cur, 0, sizeof(struct PtpGenericProp));
+		struct PtpGenericEvent *cur = &((*p)[i]);
+		memset(cur, 0, sizeof(struct PtpGenericEvent));
 
 		// Read header
 		void *d = dp;
@@ -381,23 +381,22 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericProp **p) {
 		case PTP_EC_EOS_PropValueChanged:
 			ptp_eos_prop_next(&d, cur);
 			break;
-		// case PTP_EC_EOS_InfoCheckComplete:
-		// case PTP_PC_EOS_FocusInfoEx:
-			// curr += sprintf(buffer + curr, "[\"%s\", %u]\n", ptp_get_enum_all(type), type);
-			// break;
-		// case PTP_EC_EOS_RequestObjectTransfer: {
-			// int a = ptp_read_uint32(&d);
-			// int b = ptp_read_uint32(&d);
-			// curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
-			// } break;
-		// case PTP_EC_EOS_ObjectAddedEx: {
-			// struct PtpEOSObject *obj = (struct PtpEOSObject *)d;
-			// curr += sprintf(buffer + curr, "[\"new object\", %u]\n", obj->a);
-			// } break;
-		// default:
-			// // Unknown event, delete the comma
-			// curr -= strlen(end);
-			// if (tmp == 1) tmp = 0;
+		case PTP_EC_EOS_InfoCheckComplete:
+		case PTP_PC_EOS_FocusInfoEx:
+			cur->name = ptp_get_enum_all(type);
+			break;
+		case PTP_EC_EOS_RequestObjectTransfer: {
+			int a = ptp_read_uint32(&d);
+			int b = ptp_read_uint32(&d);
+			cur->name = "request object transfer";
+			cur->code = a;
+			cur->value = b;
+			} break;
+		case PTP_EC_EOS_ObjectAddedEx: {
+			struct PtpEOSObject *obj = (struct PtpEOSObject *)d;
+			cur->name = "new object";
+			cur->value = obj->a;
+			} break;
 		}
 
 		// Move dp over for the next entry

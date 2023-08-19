@@ -329,16 +329,16 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 	}
 }
 
-int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericProp **s, int *length) {
+int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length) {
 	uint16_t *props = r->di->props_supported;
 	int plength = r->di->props_supported_length;
 	*length = plength;
 
-	*s = malloc(sizeof(struct PtpGenericProp) * plength);
+	*s = malloc(sizeof(struct PtpGenericEvent) * plength);
 
 	for (int i = 0; i < plength; i++) {
-		struct PtpGenericProp *cur = &((*s)[i]);
-		memset(cur, 0, sizeof(struct PtpGenericProp));
+		struct PtpGenericEvent *cur = &((*s)[i]);
+		memset(cur, 0, sizeof(struct PtpGenericEvent));
 
 		cur->code = props[i];
 

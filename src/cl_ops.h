@@ -36,7 +36,7 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
 // Run an opcode - For debugging and prototyping only
 int ptp_custom_recieve(struct PtpRuntime *r, int code);
 // Recieve a generic list of all properties recieved in DeviceInfo - caller must free s
-int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericProp **s, int *length);
+int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length);
 
 // EOS Only functions - not for Canon point and shoot
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
