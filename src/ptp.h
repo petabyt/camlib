@@ -14,6 +14,7 @@
 #define PTP_PACKET_TYPE_RESPONSE	0x3
 #define PTP_PACKET_TYPE_EVENT		0x4
 
+// Standard USB-only packet
 struct PtpBulkContainer {
 	uint32_t length; // length of packet, in bytes
 	uint16_t type; // See PACKET_TYPE_*
@@ -39,8 +40,32 @@ struct PtpEventContainer {
 struct PtpIpHeader {
 	uint32_t length;
 	uint32_t type;
-
 	uint32_t params[3];
+};
+
+// TODO: Rename to ptp request container
+struct PtpIpBulkContainer {
+	uint32_t length;
+	uint32_t type;
+	uint32_t data_phase;
+	uint16_t code;
+	uint32_t transaction;
+	uint32_t params[5];	
+};
+
+struct PtpIpResponseContainer {
+	uint32_t length;
+	uint32_t type;
+	uint16_t code;
+	uint32_t transaction;
+	uint32_t params[5];
+};
+
+struct PtpIpStartDataPacket {
+	uint32_t length;
+	uint32_t type;
+	uint32_t transaction;
+	uint64_t data_phase_length;
 };
 
 // Standard PTP Operation Codes (OC)
@@ -574,7 +599,7 @@ struct PtpIpHeader {
 #define PTPIP_INIT_EVENT_REQ	0x3
 #define PTPIP_INIT_EVENT_ACK	0x4
 
-// Packet type extensions for sockets
+// Packet type extensions for PTP/IP
 #define PTPIP_INIT_FAIL			0x5
 #define PTPIP_COMMAND_REQUEST	0x6
 #define PTPIP_COMMAND_RESPONSE	0x7
@@ -611,15 +636,14 @@ struct PtpIpHeader {
 #define USB_TYPE_CLASS 0x20
 #endif
 
-struct CanonInitPacket {
+struct PtpIpInitPacket {
 	uint32_t length;
 	uint32_t type;
-	uint32_t version;
 	uint32_t guid1;
 	uint32_t guid2;
 	uint32_t guid3;
 	uint32_t guid4;
-	char device_name[54]; // Size ??
+	char device_name[8]; // Size ??
 	uint16_t major_ver;
 	uint16_t minor_ver;
 };

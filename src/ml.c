@@ -69,10 +69,10 @@ int ptp_ml_init_bmp_lv(struct PtpRuntime *r) {
 	return 0;
 }
 
-static int toggle = 0;
-
 int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	buffer_ptr[0] = NULL;
+
+	static int toggle = 0;
 
 	toggle++;
 	if (toggle > 100) {
@@ -144,5 +144,5 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 
 	buffer_ptr[0] = frame;
 
-	return rc;
+	return 0;
 }

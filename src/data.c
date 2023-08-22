@@ -347,7 +347,7 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 
 	int length = 0;
 	while (dp != NULL) {
-		if (dp >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) break;
+		if (dp >= (void*)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
 		void *d = dp;
 		uint32_t size = ptp_read_uint32(&d);
 		uint32_t type = ptp_read_uint32(&d);
@@ -420,7 +420,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 		dp += size;
 
 		if (type == 0) break;
-		if (dp >= (void*)ptp_get_payload(r) + ptp_get_data_length(r)) break;
+		if (dp >= (void*)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
 
 		// Don't put comma for last entry
 		char *end = "";
@@ -459,16 +459,15 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 	return curr;
 }
 
-// TODO: Rename to ptp_fuji_get_init_info
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
-	void *dat = ptp_get_payload(r);
+	void *dat = r->data + 12;
 
 	resp->x1 = ptp_read_uint32(&dat);
 	resp->x2 = ptp_read_uint32(&dat);
 	resp->x3 = ptp_read_uint32(&dat);
 	resp->x4 = ptp_read_uint32(&dat);
 
-	ptp_read_unicode_string(resp->cam_name, (char *)(ptp_get_payload(r) + 16), sizeof(resp->cam_name));
+	ptp_read_unicode_string(resp->cam_name, (char *)(dat + 6), sizeof(resp->cam_name));
 
 	return 0;
 }

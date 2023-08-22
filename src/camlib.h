@@ -96,6 +96,7 @@ enum BindCaptureType {
 
 enum PtpConnType {
 	PTP_IP,
+	PTP_IP_USB, // TCP-based, but using USB-style packets (Fujifilm)
 	PTP_USB,
 };
 
@@ -199,7 +200,6 @@ struct UintArray * ptp_dup_uint_array(struct UintArray *arr);
 
 // Returns info from the response structure currently in the buffer
 int ptp_get_return_code(struct PtpRuntime *r);
-int ptp_get_data_length(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 int ptp_get_param_length(struct PtpRuntime *r);
 int ptp_get_last_transaction(struct PtpRuntime *r);

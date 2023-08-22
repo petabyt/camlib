@@ -101,116 +101,211 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	return i / 2;
 }
 
-// Generate a BulkContainer packet
-int ptp_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, struct PtpBulkContainer *bulk, int type) {
-	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
-	bulk->type = type;
-	bulk->length = size;
-	bulk->length += cmd->data_length;
-	bulk->code = cmd->code;
-	bulk->transaction = r->transaction;
+// PTP/IP-specific packet
+int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
+	struct PtpIpBulkContainer bulk;
+	int size = 18 + (sizeof(uint32_t) * cmd->param_length);
+	bulk.length = size;
+	bulk.type = type;
+	bulk.length += cmd->data_length;
+	bulk.code = cmd->code;
+	bulk.transaction = r->transaction;
 
-	for (int i = 0; i < 5; i++) {
-		bulk->params[i] = cmd->params[i];
+	if (r->data_phase_length == 0) {
+		bulk.data_phase = 1;
+	} else {
+		bulk.data_phase = 2;
 	}
 
-	memcpy(r->data, bulk, size);
+	for (int i = 0; i < 5; i++) {
+		bulk.params[i] = cmd->params[i];
+	}
 
-	// TODO: Should this line move?
-	r->transaction++;
+	memcpy(r->data, &bulk, size);
 
 	return size;
 }
 
-// Generate a data container packet
+// Generate a USB-only BulkContainer packet
+int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
+	struct PtpBulkContainer bulk;
+	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
+
+	bulk.length = size;
+	bulk.type = type;
+	bulk.length += cmd->data_length;
+	bulk.code = cmd->code;
+	bulk.transaction = r->transaction;
+
+	for (int i = 0; i < 5; i++) {
+		bulk.params[i] = cmd->params[i];
+	}
+
+	memcpy(r->data, &bulk, size);
+
+	return size;
+}
+
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	struct PtpBulkContainer bulk;
-	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_DATA);
+	cmd->param_length = 0;
+	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
 	return length;
 }
 
-// Generate a short "command" container packet
-// Page 281 of MTP 1.1 spec
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	struct PtpBulkContainer bulk;
-	cmd->data_length = 0; // TODO: This does nothing?
-	int length = ptp_bulk_packet(r, cmd, &bulk, PTP_PACKET_TYPE_COMMAND);
-	return length;
-}
-
-// TODO: Sometimes 12 is not the exact size? Maybe ptp_get_payload_offset
-int ptp_get_data_length(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	return bulk->length - 12;
+	cmd->data_length = 0;
+	if (r->connection_type == PTP_IP) {
+		int length = ptpip_bulk_packet(r, cmd, PTPIP_COMMAND_REQUEST);
+		return length;
+	} else {
+		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_COMMAND);
+		return length;
+	}
 }
 
 void ptp_update_data_length(struct PtpRuntime *r, int length) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	bulk->length = length;
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
+		if (ds->type != PTPIP_DATA_PACKET_START) {
+			exit(1);
+		}
+
+		ds->data_phase_length = length;
+
+		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
+		if (ds->type != PTPIP_DATA_PACKET_END) {
+			exit(1);
+		}
+
+		// Update the packet length for the end packet
+		de->length = 12 + length;
+	} else {
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+		bulk->length = length;
+	}
+}
+
+static struct PtpIpResponseContainer *ptpip_get_response_packet(struct PtpRuntime *r) {
+	// Get data start packet, then data end packet, then response packet
+	struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
+	if (ds->type == PTPIP_COMMAND_RESPONSE) {
+		return (struct PtpIpResponseContainer *)(r->data);
+	}
+
+	// TODO: This assumes sanity
+	struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
+	struct PtpIpResponseContainer *resp = (struct PtpIpResponseContainer *)(r->data + ds->length + de->length);
+	return resp;
 }
 
 void ptp_update_transaction(struct PtpRuntime *r, int t) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	bulk->transaction = t;
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpBulkContainer *bulk = (struct PtpIpBulkContainer *)(r->data);
+		bulk->transaction = t;
+	} else {
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer *)(r->data);
+		bulk->transaction = t;
+	}
 }
 
 int ptp_get_return_code(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type == PTP_PACKET_TYPE_DATA) {
-		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
-		return bulk->code;
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);
+		return resp->code;
 	} else {
-		return bulk->code;
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+		if (bulk->type == PTP_PACKET_TYPE_DATA) {
+			bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+			return bulk->code;
+		} else {
+			return bulk->code;
+		}
 	}
 }
 
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
-		return r->data + 12;
-	} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-		return r->data + 28;
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
+		if (ds->type != PTPIP_DATA_PACKET_START) {
+			ptp_verbose_log("Fatal: non data start packet\n", ((int *)NULL)[0]);
+			exit(1);
+		}
+
+		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
+		if (de->type != PTPIP_DATA_PACKET_END) {
+			ptp_verbose_log("Fatal: non data end packet, got %X\n", de->type);
+			exit(1);
+		}
+
+		return r->data + ds->length + 12;
 	} else {
-		return r->data + 12;
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+		if (bulk->type == PTP_PACKET_TYPE_RESPONSE) {
+			return r->data + 12;
+		} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
+			return r->data + 28;
+		} else {
+			return r->data + 12;
+		}
 	}
 }
 
 int ptp_get_payload_length(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	return bulk->length - 12;
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
+		if (ds->type != PTPIP_DATA_PACKET_START) {
+			exit(1);
+		}
+
+		return ds->data_phase_length;
+	} else {
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+		return bulk->length - 12;
+	}
 }
 
 int ptp_get_param_length(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	if (r->connection_type == PTP_IP) {
+		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);	
+		return (resp->length - 14) / 4;	
+	} else {
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
-	// Get response packet, which backend stores after data packet
-	if (bulk->type == PTP_PACKET_TYPE_DATA) {
-		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+		// Get response packet, which backend stores after data packet
+		if (bulk->type == PTP_PACKET_TYPE_DATA) {
+			bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+		}
+
+		return (bulk->length - 12) / 4;
 	}
-
-	return (bulk->length - 12) / 4;
 }
 
 uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+	if (r->connection_type == PTP_IP) {
+		
+	} else {
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
-	// Get response packet, which backend stores after data packet
-	if (bulk->type == PTP_PACKET_TYPE_DATA) {
-		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
-		return bulk->code;
+		// Get response packet, which backend stores after data packet
+		if (bulk->type == PTP_PACKET_TYPE_DATA) {
+			bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+			return bulk->code;
+		}
+
+		return bulk->params[index];
 	}
-
-	return bulk->params[index];
-
-	return 0;
 }
 
 int ptp_get_last_transaction(struct PtpRuntime *r) {
-	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type == PTP_PACKET_TYPE_DATA) {
-		bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
-		return bulk->transaction;
+	if (r->connection_type == PTP_IP) {
+		
 	} else {
-		return bulk->transaction;
+		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
+		if (bulk->type == PTP_PACKET_TYPE_DATA) {
+			bulk = (struct PtpBulkContainer*)(r->data + bulk->length);
+			return bulk->transaction;
+		} else {
+			return bulk->transaction;
+		}
 	}
 }

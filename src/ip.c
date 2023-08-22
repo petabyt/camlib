@@ -10,13 +10,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
 #include <camlib.h>
 #include <ptp.h>
 
-int set_nonblocking_io(int sockfd, int enable) {
+static int set_nonblocking_io(int sockfd, int enable) {
 	int flags = fcntl(sockfd, F_GETFL, 0);
 	if (flags == -1)
 		return -1;
@@ -32,6 +33,22 @@ int set_nonblocking_io(int sockfd, int enable) {
 
 int ptpip_new_timeout_socket(char *addr, int port) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+	int yes = 1;
+	setsockopt(
+		sockfd,
+		IPPROTO_TCP,
+		TCP_NODELAY,
+		(char *)&yes,
+		sizeof(int)
+	);
+	setsockopt(
+		sockfd,
+		IPPROTO_TCP,
+		SO_KEEPALIVE,
+		(char *)&yes,
+		sizeof(int)
+	);
 
 	if (sockfd < 0) {
 		ptp_verbose_log("Failed to create socket\n");
@@ -91,7 +108,6 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	return -1;
 }
 
-// We need to establish two sockets - one for commands, one for listening to events
 int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 	int fd = ptpip_new_timeout_socket(addr, port);
 	if (fd > 0) {
@@ -121,6 +137,8 @@ int ptpip_close(struct PtpRuntime *r) {
 
 int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 	int result = write(r->fd, data, size);
+	//printf("cmd: write %d bytes\n", result);
+	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
 	if (result < 0) {
 		return -1;
 	} else {
@@ -130,6 +148,8 @@ int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 
 int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
 	int result = read(r->fd, data, size);
+	//printf("cmd: Read %d bytes\n", result);
+	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
 	if (result < 0) {
 		return -1;
 	} else {
@@ -139,6 +159,8 @@ int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
 
 int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
 	int result = write(r->evfd, data, size);
+	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); }
+	//printf("\nEv: send %d bytes\n", result);
 	if (result < 0) {
 		return -1;
 	} else {
@@ -148,6 +170,8 @@ int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
 
 int ptpip_event_read(struct PtpRuntime *r, void *data, int size) {
 	int result = read(r->evfd, data, size);
+	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); }
+	//printf("\nEv: Read %d bytes\n", result);
 	if (result < 0) {
 		return -1;
 	} else {

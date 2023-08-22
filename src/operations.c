@@ -9,6 +9,35 @@
 #include <camlib.h>
 #include <ptp.h>
 
+int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
+	struct PtpIpInitPacket *p = (struct PtpIpInitPacket *)r->data;
+	memset(p, 0, sizeof(struct PtpIpInitPacket));
+	p->length = sizeof(struct PtpIpInitPacket);
+
+	p->type = PTPIP_INIT_COMMAND_REQ;
+
+	p->guid1 = 0xffffffff;
+	p->guid2 = 0xffffffff;
+	p->guid3 = 0xffffffff;
+	p->guid4 = 0xffffffff;
+
+	p->minor_ver = 1;
+
+	ptp_write_unicode_string(p->device_name, "cam");
+
+	if (ptpip_cmd_write(r, r->data, p->length) != p->length) return PTP_IO_ERR;
+
+	// Read the packet size, then recieve the rest
+	int x = ptpip_cmd_read(r, r->data, 4);
+	if (x < 0) return PTP_IO_ERR;
+	x = ptpip_cmd_read(r, r->data + 4, p->length - 4);
+	if (x < 0) return PTP_IO_ERR;
+
+	// TODO: check for PTPIP_INIT_FAIL
+
+	return 0;
+}
+
 // Technically not an OC, but fits snug here
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
 	int x = ptp_recieve_int(r->data, r->max_packet_size);
@@ -25,8 +54,12 @@ int ptpip_init_events(struct PtpRuntime *r) {
 	struct PtpIpHeader h;
 	h.length = 12;
 	h.type = PTPIP_INIT_EVENT_REQ;
-	h.params[0] = 0;
+	h.params[0] = 1;
 	if (ptpip_event_send(r, &h, 12) != 12) {
+		return PTP_IO_ERR;
+	}
+
+	if (ptpip_event_read(r, r->data, 8) != 8) {
 		return PTP_IO_ERR;
 	}
 
@@ -73,7 +106,7 @@ int ptp_close_session(struct PtpRuntime *r) {
 
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	// Assumes di is allocated - will be used during runtime later
-	r->di = di;
+	//r->di = di;
 
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDeviceInfo;

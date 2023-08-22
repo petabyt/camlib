@@ -54,7 +54,84 @@ void ptp_generic_close(struct PtpRuntime *r) {
 	free(r->data);
 }
 
-struct UintArray * ptp_dup_uint_array(struct UintArray *arr) {
+// Perform a "generic" command type transaction. Could be a macro, but macros suck
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
+	ptp_mutex_lock(r);
+
+	r->data_phase_length = 0;
+
+	int length = ptp_new_cmd_packet(r, cmd);
+	if (ptp_send_bulk_packets(r, length) != length) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	if (ptp_recieve_bulk_packets(r) < 0) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	r->transaction++;
+
+	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		return 0;
+	} else {
+		printf("Invalid return code: %X\n", ptp_get_return_code(r));
+		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		return 0;
+		return PTP_CHECK_CODE;
+	}
+}
+
+// Send a cmd packet, then data packet
+// Perform a generic operation with a data phase to the camera
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+	ptp_mutex_lock(r);
+
+	r->data_phase_length = length;
+
+	// Send operation request packet data phase 2
+	int plength = ptp_new_cmd_packet(r, cmd);
+	if (ptp_send_bulk_packets(r, plength) != plength) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	// new start data packet
+	plength = ptp_new_data_packet(r, cmd);
+
+	if (plength + length > r->data_length) {
+		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
+		ptp_mutex_unlock(r);
+		return PTP_OUT_OF_MEM;
+	}
+
+	memcpy(ptp_get_payload(r), data, length);
+	ptp_update_data_length(r, plength + length);
+
+	if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	if (ptp_recieve_bulk_packets(r) < 0) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	r->transaction++;
+
+	if (ptp_get_return_code(r) == PTP_RC_OK) {
+		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		return 0;
+	} else {
+		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		return PTP_CHECK_CODE;
+	}
+}
+
+struct UintArray *ptp_dup_uint_array(struct UintArray *arr) {
 	struct UintArray *arr2 = malloc(4 + arr->length * 4);
 	if (arr2 == NULL) return NULL;
 	memcpy(arr2, arr, 4 + arr->length * 4);
@@ -103,75 +180,6 @@ int ptp_check_prop(struct PtpRuntime *r, int code) {
 	}
 
 	return 0;
-}
-
-// Perform a "generic" command type transaction. Could be a macro, but macros suck
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	ptp_mutex_lock(r);
-
-	int length = ptp_new_cmd_packet(r, cmd);
-	if (ptp_send_bulk_packets(r, length) != length) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
-	}
-
-	if (ptp_recieve_bulk_packets(r) < 0) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
-	}
-
-	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
-		return 0;
-	} else {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
-		return PTP_CHECK_CODE;
-	}
-}
-
-// Send a cmd packet, then data packet
-// Perform a generic operation with a data phase to the camera
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
-	ptp_mutex_lock(r);
-
-	int plength = ptp_new_cmd_packet(r, cmd);
-	r->data_phase_length = length;
-	if (ptp_send_bulk_packets(r, plength) != plength) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
-	}
-
-	// TODO: Put this functionality in packet.c?
-	cmd->param_length = 0;
-
-	plength = ptp_new_data_packet(r, cmd);
-
-	if (plength + length > r->data_length) {
-		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
-		ptp_mutex_unlock(r);
-		return PTP_OUT_OF_MEM;
-	}
-
-	memcpy(ptp_get_payload(r), data, length);
-	ptp_update_data_length(r, plength + length);
-
-	if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
-	}
-
-	if (ptp_recieve_bulk_packets(r) < 0) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
-	}
-
-	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
-		return 0;
-	} else {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
-		return PTP_CHECK_CODE;
-	}
 }
 
 int ptp_dump(struct PtpRuntime *r) {

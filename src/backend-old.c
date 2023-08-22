@@ -11,7 +11,7 @@
 #include <camlib.h>
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	//ptp_verbose_log("send_bulk_packets 0x%X (%s)\n", ptp_get_return_code(r), ptp_get_enum_all(ptp_get_return_code(r)));
+	ptp_verbose_log("send_bulk_packets 0x%X (%s)\n", ptp_get_return_code(r), ptp_get_enum_all(ptp_get_return_code(r)));
 
 	int sent = 0;
 	int x;
@@ -36,70 +36,84 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	}
 }
 
-int ptpip_read_packet(struct PtpRuntime *r, int of) {
-	int read = 0;
-
-	int rc = ptpip_cmd_read(r, r->data + of, 8);
-	if (rc != 8) {
-		ptp_verbose_log("Failed to read PTP/IP header\n");
-		return PTP_IO_ERR;
-	}
-
-	read += rc;
-
-	struct PtpIpHeader *h = (struct PtpIpHeader *)(r->data + of);
-
-	while (1) {
-		rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
-		if (rc < 0) {
-			return PTP_IO_ERR;
-		}
-
-		read += rc;
-
-		if (h->length - read == 0) {
-			return read;
-		}
+int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
+	if (r->connection_type == PTP_IP) {
+		return ptpip_recieve_bulk_packets(r);
+	} else {
+		return ptpusb_recieve_bulk_packets(r);
 	}
 }
 
 int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
-	int rc = ptpip_read_packet(r, 0);
-	if (rc < 0) {
-		return rc;
+	int read = 0;
+
+	int rc = ptpip_cmd_read(r, r->data, 8);
+	if (rc != 8) {
+		ptp_verbose_log("Failed to read PTP/IP header\n");
+
+		// If specified, retry indefinitely
+		for (int i = 0; i < r->wait_for_response; i++) {
+			rc = ptpip_cmd_read(r, r->data + read, 8);
+			if (rc == 8) {
+				goto finally_read;
+			}
+		}
+
+		return PTP_IO_ERR;
+	} else {
+		finally_read:;
+		read += rc;
 	}
 
-	int pk1_of = rc;
+	r->wait_for_response = 0;
 
-	struct PtpIpHeader *h = (struct PtpIpHeader *)(r->data);
-
-	if (h->type == PTPIP_DATA_PACKET_START) {
-		rc = ptpip_read_packet(r, pk1_of);
-		h = (struct PtpIpHeader *)(r->data + pk1_of);
-		if (h->type != PTPIP_DATA_PACKET_END) {
-			ptp_verbose_log("Didn't recieve an END DATA packet\n");
-			return PTP_IO_ERR;
-		}
-
-		int pk2_of = pk1_of + h->length;
-
-		rc = ptpip_read_packet(r, pk2_of);
-		h = (struct PtpIpHeader *)(r->data + pk2_of);
-		if (h->type != PTPIP_COMMAND_RESPONSE) {
-			ptp_verbose_log("Non-response packet after data start packet\n");
-			return PTP_IO_ERR;
-		}
-	} else if (h->type == PTPIP_COMMAND_RESPONSE) {
-		ptp_verbose_log("Recieved response packet\n");
-	} else {
-		ptp_verbose_log("Unexpected packet: %X\n", h->type);
+	// Check for socket kill signal (?)
+	uint32_t *test = (uint32_t *)r->data;
+	if (test[0] == 0x8 && test[1] == 0xffffffff) {
+		ptp_verbose_log("Recieved kill sig\n");
 		return PTP_IO_ERR;
 	}
 
-//	ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
-//	ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+	// Read in remaining data
 
-	return 0;
+	struct PtpIpResponseContainer *c = (struct PtpIpBulkContainer *)(r->data);
+
+	// if (type == PTPIP_DATA_PACKET_END || type == 0) {
+		// return ptpip_recieve_bulk_packets(r);
+	// }
+
+	if (c->length == 0) {
+		ptp_verbose_log("Recieved unfinished packet %X %X %X", c->length, c->type, c->code);
+		return PTP_IO_ERR;
+	}
+
+	while (read != c->length) {
+		rc = ptpip_cmd_read(r, r->data + read, c->length - read);
+		if (rc < 0) return PTP_IO_ERR;
+
+		read += rc;
+
+		if (read > c->length) {
+			ptp_verbose_log("Catastrophic error - read too many bytes\n");
+			return PTP_IO_ERR;
+		}
+	}
+
+	// Read in response packet
+	if (c->type == PTP_PACKET_TYPE_DATA) {
+		c = (struct PtpIpResponseContainer *)(r->data + read);
+		rc = ptpip_cmd_read(r, r->data + read, 4);
+		if (rc != 4) return PTP_IO_ERR;
+		read += rc;
+		rc = ptpip_cmd_read(r, r->data + read, c->length - 4);
+		if (rc < 0) return PTP_IO_ERR;
+		read += rc;
+	}
+
+	ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
+	ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+
+	return read;
 }
 
 int ptpusb_recieve_bulk_packets(struct PtpRuntime *r) {
@@ -173,29 +187,10 @@ int ptpusb_recieve_bulk_packets(struct PtpRuntime *r) {
 	}
 }
 
-int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
-	if (r->connection_type == PTP_IP) {
-		return ptpip_recieve_bulk_packets(r);
-	} else {
-		return ptpusb_recieve_bulk_packets(r);
-	}
-}
 
-int ptpip_write_packet(struct PtpRuntime *r, int of) {
-	struct PtpIpHeader *h = (struct PtpIpHeader *)(r->data + of);
-
-	int rc = ptpip_cmd_write(r, r->data + of, h->length);
-	if (rc < 0) {
-		return PTP_IO_ERR;
-	} else if (rc != h->length) {
-		return PTP_IO_ERR;
-	}
-
-	return rc;
-}
-
-// Pipe-routing IO, untested, don't use yet
 int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
+	//ptp_verbose_log("send_bulk_packets 0x%X\n", ptp_get_return_code(r));
+
 	int x = ptp_send_bulk_packet(r->data, length);
 	if (x < 0) {
 		ptp_verbose_log("send_bulk_packet: %d\n", x);
