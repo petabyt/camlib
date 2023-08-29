@@ -273,18 +273,7 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
 		}
 	} else if (!strcmp(bind->string, "image format")) {
-		if (dev == PTP_DEV_EOS) {
-			void *data = ptp_eos_get_imgformat_data(value);
-			if (data == NULL) {
-				return sprintf(bind->buffer, "{\"error\": 0}");
-			}
-
-			if (value == IMG_FORMAT_RAW_JPEG) {
-				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 9);
-			} else {
-				x = ptp_eos_set_prop_data(r, PTP_PC_EOS_ImageFormat, data, 4 * 5);
-			}
-		}
+		x = 0;
 	} else if (!strcmp(bind->string, "destination")) {
 		bind_capture_type = value;
 	} else {

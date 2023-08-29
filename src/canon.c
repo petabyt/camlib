@@ -95,6 +95,8 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 // This is the same operation as ptp_eos_set_prop_value, but is more spiffy
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
+	if (code == PTP_PC_EOS_ImageFormat) exit(1);
+
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
 	cmd.param_length = 0;
