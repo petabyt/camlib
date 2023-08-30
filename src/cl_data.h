@@ -160,6 +160,7 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
 
+int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p);
 void *ptp_open_eos_events(struct PtpRuntime *r);
 void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
 
@@ -170,8 +171,6 @@ int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);
 int ptp_eos_get_white_balance(int data, int dir);
-int *ptp_eos_get_imgformat_data(int code);
-int ptp_eos_get_imgformat_value(int data[5]);
 
 struct PtpMlLvInfo {
 	uint32_t lv_pitch;
@@ -203,7 +202,7 @@ struct PtpFujiInitResp {
 // Appears to be an array for events
 struct PtpFujiEvents {
 	uint16_t length;
-	struct Events {
+	struct PtpFujiEventsEntry {
 		uint16_t code;
 		uint32_t value;
 	}events[];
