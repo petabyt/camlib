@@ -478,13 +478,52 @@ struct PtpIpStartDataPacket {
 #define PTP_AT_Folder	0x1
 #define PTP_AT_Album	0x1
 
-// Standard Property codes
+// ISO Standard Property codes
 #define PTP_PC_BatteryLevel		0x5001
 #define PTP_PC_FunctionalMode	0x5002
+#define PTP_PC_ImageSize		0x5003
+#define PTP_PC_CompressionSetting	0x5004
+#define PTP_PC_WhiteBalance		0x5005
+#define PTP_PC_RGBGain			0x5006
+#define PTP_PC_FNumber			0x5007
 #define PTP_PC_FocalLength		0x5008
 #define PTP_PC_FocalDistance	0x5009
 #define PTP_PC_FocusMode		0x500A
+#define PTP_PC_ExposureMeteringMode	0x500B
+#define PTP_PC_FlashMode		0x500C
+#define PTP_PC_ExposureTime		0x500D
+#define PTP_PC_ExposureProgramMode	0x500E
+#define PTP_PC_ExposureIndex		0x500F
+#define PTP_PC_ExposureBiasCompensation	0x5010
 #define PTP_PC_DateTime			0x5011
+#define PTP_PC_CaptureDelay		0x5012
+#define PTP_PC_StillCaptureMode	0x5013
+#define PTP_PC_Contrast		0x5014
+#define PTP_PC_Sharpness		0x5015
+#define PTP_PC_DigitalZoom		0x5016
+#define PTP_PC_EffectMode		0x5017
+#define PTP_PC_BurstNumber		0x5018
+#define PTP_PC_BurstInterval		0x5019
+#define PTP_PC_TimelapseNumber		0x501A
+#define PTP_PC_TimelapseInterval	0x501B
+#define PTP_PC_FocusMeteringMode	0x501C
+#define PTP_PC_UploadURL		0x501D
+#define PTP_PC_Artist			0x501E
+#define PTP_PC_CopyrightInfo		0x501F
+
+#define PTP_PC_SupportedStreams	0x5020
+#define PTP_PC_EnabledStreams		0x5021
+#define PTP_PC_VideoFormat		0x5022
+#define PTP_PC_VideoResolution		0x5023
+#define PTP_PC_VideoQuality		0x5024
+#define PTP_PC_VideoFrameRate		0x5025
+#define PTP_PC_VideoContrast		0x5026
+#define PTP_PC_VideoBrightness		0x5027
+#define PTP_PC_AudioFormat		0x5028
+#define PTP_PC_AudioBitrate		0x5029
+#define PTP_PC_AudioSamplingRate	0x502A
+#define PTP_PC_AudioBitPerSample	0x502B
+#define PTP_PC_AudioVolume		0x502C
 
 // Canon (Not EOS) Property Codes
 #define PTP_PC_CANON_BeepCode		0xD001
@@ -659,8 +698,9 @@ struct FujiInitPacket {
 	char device_name[54]; // unicode string
 };
 
-// Ports 51540, 51541, and 51542 may or may not also have something
 #define FUJI_CMD_IP_PORT 55740
+#define FUJI_EVENT_IP_PORT 55741
+#define FUJI_LIVEVIEW_IP_PORT 55742
 
 // Fuji USB and IP extensions
 #define PTP_OC_FUJI_SendObjectInfo	0x900c // create file
@@ -672,7 +712,7 @@ struct FujiInitPacket {
 #define PTP_PC_FUJI_SelectedImgsMode	0xd220
 #define PTP_PC_FUJI_ObjectCount		0xd222
 #define PTP_PC_FUJI_CameraState		0xdf00 // formerly Unlocked 
-#define PTP_PC_FUJI_FunctionMode	0xdf01 // formerly Mode
+#define PTP_PC_FUJI_FunctionMode	0xdf01 // formerly Mode - should be (CameraReportedState??)
 #define PTP_PC_FUJI_CompressSmall	0xD226 // compress into 400-800kb
 #define PTP_PC_FUJI_NoCompression	0xD227 // Enable full image download
 
