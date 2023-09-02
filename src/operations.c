@@ -27,7 +27,7 @@ int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 
 	if (ptpip_cmd_write(r, r->data, p->length) != p->length) return PTP_IO_ERR;
 
-	// Read the packet size, then recieve the rest
+	// Read the packet size, then receive the rest
 	int x = ptpip_cmd_read(r, r->data, 4);
 	if (x < 0) return PTP_IO_ERR;
 	x = ptpip_cmd_read(r, r->data + 4, p->length - 4);
@@ -40,7 +40,7 @@ int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 
 // Technically not an OC, but fits snug here
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
-	int x = ptp_recieve_int(r->data, r->max_packet_size);
+	int x = ptp_receive_int(r->data, r->max_packet_size);
 	if (x < 0) {
 		return x;
 	} else {
@@ -66,7 +66,7 @@ int ptpip_init_events(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_custom_recieve(struct PtpRuntime *r, int code) {
+int ptp_custom_receive(struct PtpRuntime *r, int code) {
 	struct PtpCommand cmd;
 	cmd.code = code;
 	cmd.param_length = 0;
@@ -93,7 +93,7 @@ int ptp_open_session(struct PtpRuntime *r) {
 	// Set transaction ID back to start
 	r->transaction = 1;
 
-	if (ptp_recieve_bulk_packets(r) < 0) return PTP_IO_ERR;
+	if (ptp_receive_bulk_packets(r) < 0) return PTP_IO_ERR;
 	return 0;
 }
 

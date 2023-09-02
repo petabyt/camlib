@@ -140,7 +140,7 @@ int ptp_send_bulk_packet(void *to, int length) {
 		(char *)to, length, PTP_TIMEOUT);
 }
 
-int ptp_recieve_bulk_packet(void *to, int length) {
+int ptp_receive_bulk_packet(void *to, int length) {
 	if (ptp_backend.devh == NULL) return -1;
 	return usb_bulk_read(
 		ptp_backend.devh,
@@ -148,7 +148,7 @@ int ptp_recieve_bulk_packet(void *to, int length) {
 		(char *)to, length, PTP_TIMEOUT);
 }
 
-int ptp_recieve_int(void *to, int length) {
+int ptp_receive_int(void *to, int length) {
 	if (ptp_backend.devh == NULL) return -1;
 	int x = usb_bulk_read(
 		ptp_backend.devh,

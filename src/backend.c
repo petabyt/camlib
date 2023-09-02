@@ -62,7 +62,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 	}
 }
 
-int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
+int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 	int rc = ptpip_read_packet(r, 0);
 	if (rc < 0) {
 		return rc;
@@ -76,7 +76,7 @@ int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 		rc = ptpip_read_packet(r, pk1_of);
 		h = (struct PtpIpHeader *)(r->data + pk1_of);
 		if (h->type != PTPIP_DATA_PACKET_END) {
-			ptp_verbose_log("Didn't recieve an END DATA packet\n");
+			ptp_verbose_log("Didn't receive an END DATA packet\n");
 			return PTP_IO_ERR;
 		}
 
@@ -95,8 +95,8 @@ int ptpip_recieve_bulk_packets(struct PtpRuntime *r) {
 		return PTP_IO_ERR;
 	}
 
-//	ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
-//	ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+//	ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
+//	ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 	return 0;
 }
@@ -119,17 +119,18 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	int read = 0;
 
 	if (r->connection_type == PTP_USB) {
-		rc = ptp_recieve_bulk_packet(r->data + of + read, 4);
+		rc = ptp_receive_bulk_packet(r->data + of + read, 512);
 	} else if (r->connection_type == PTP_IP_USB) {
 		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 	}
 
-	// TODO: Implement wait_for_response
-	if (rc != 4) {
+	if (rc < 0) {
+		ptp_verbose_log("USB Read error: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
-	if (rc < 0) {
+	if (rc < 4) {
+		ptp_verbose_log("Failed to read at least packet length: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
@@ -137,10 +138,14 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 	struct PtpBulkContainer *h = (struct PtpBulkContainer *)(r->data + of);
 
-	if (of + 4 + h->length >= r->data_length) {
+	if (h->length - read == 0) {
+		return read;
+	}
+
+	if (of + read + h->length >= r->data_length) {
 		ptp_verbose_log("Extending IO buffer\n");
-		r->data = realloc(r->data, of + 4 + h->length + 1000);
-		r->data_length = of + 4 + h->length + 1000;
+		r->data = realloc(r->data, of + read + h->length + 1000);
+		r->data_length = of + read + h->length + 1000;
 		if (r->data == NULL) {
 			return PTP_OUT_OF_MEM;
 		}
@@ -148,12 +153,13 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 	while (1) {
 		if (r->connection_type == PTP_USB) {
-			rc = ptp_recieve_bulk_packet(r->data + of + read, h->length - 4);
+			rc = ptp_receive_bulk_packet(r->data + of + read, h->length - read);
 		} else if (r->connection_type == PTP_IP_USB) {
-			rc = ptpip_cmd_read(r, r->data + of + read, h->length - 4);
+			rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
 		}
 
 		if (rc < 0) {
+			ptp_verbose_log("USB Read error: %d\n", rc);
 			return PTP_IO_ERR;
 		}
 
@@ -165,7 +171,7 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	}
 }
 
-int ptpusb_recieve_bulk_packets(struct PtpRuntime *r) {
+int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
 	while (1) {
 		int rc = ptpusb_read_packet(r, read);
@@ -187,17 +193,17 @@ int ptpusb_recieve_bulk_packets(struct PtpRuntime *r) {
 			read += rc;
 		}
 
-		ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+		ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 		return read;
 	}
 }
 
-int ptp_recieve_bulk_packets(struct PtpRuntime *r) {
+int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
-		return ptpip_recieve_bulk_packets(r);
+		return ptpip_receive_bulk_packets(r);
 	} else {
-		return ptpusb_recieve_bulk_packets(r);
+		return ptpusb_receive_bulk_packets(r);
 	}
 }
 
@@ -243,15 +249,15 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
 }
 
 // TODO: Fix for IP
-int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
+int ptp_freceive_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
 	int read = 0;
 
 	// Since the data is written to file, we must remember the packet type
 	int type = -1;
 	while (1) {
-		int x = ptp_recieve_bulk_packet(r->data, r->max_packet_size);
+		int x = ptp_receive_bulk_packet(r->data, r->max_packet_size);
 		if (x < 0) {
-			ptp_verbose_log("recieve_bulk_packet: %d\n", x);
+			ptp_verbose_log("receive_bulk_packet: %d\n", x);
 			return PTP_IO_ERR;
 		}
 
@@ -269,12 +275,12 @@ int ptp_frecieve_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
 		read += x;
 
 		if (x != r->max_packet_size) {
-			ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
+			ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
 
 			// Read the response packet if only a data packet was sent
 			if (type == PTP_PACKET_TYPE_DATA) {
-				x = ptp_recieve_bulk_packet(r->data, r->max_packet_size);
-				ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+				x = ptp_receive_bulk_packet(r->data, r->max_packet_size);
+				ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 			} else {
 				// TODO: Why send a small packet with stream reader?
 			}

@@ -32,8 +32,8 @@ int wpd_close_device(struct WpdStruct* wpd);
 
 int wpd_get_device_type(struct WpdStruct *wpd);
 
-int wpd_recieve_do_command(struct WpdStruct *wpd, struct PtpCommand *cmd);
-int wpd_recieve_do_data(struct WpdStruct *wpd, struct PtpCommand *cmd, uint8_t *buffer, int length);
+int wpd_receive_do_command(struct WpdStruct *wpd, struct PtpCommand *cmd);
+int wpd_receive_do_data(struct WpdStruct *wpd, struct PtpCommand *cmd, uint8_t *buffer, int length);
 
 int wpd_send_do_command(struct WpdStruct* wpd, struct PtpCommand* cmd, int length);
 int wpd_send_do_data(struct WpdStruct* wpd, struct PtpCommand* cmd, uint8_t *buffer, int length);

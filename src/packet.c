@@ -1,6 +1,7 @@
 // Packet generation, parsing, and manipulation routines
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -148,8 +149,13 @@ int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
 
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	cmd->param_length = 0;
-	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
-	return length;
+	if (r->connection_type == PTP_IP) {
+		// Create PTPIP_DATA_PACKET_START
+		// Create PTPIP_DATA_PACKET_END
+	} else {
+		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
+		return length;
+	}
 }
 
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
@@ -282,7 +288,8 @@ int ptp_get_param_length(struct PtpRuntime *r) {
 
 uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 	if (r->connection_type == PTP_IP) {
-		
+		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);	
+		return resp->params[index];		
 	} else {
 		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
@@ -298,7 +305,8 @@ uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 
 int ptp_get_last_transaction(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
-		
+		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);	
+		return resp->transaction;		
 	} else {
 		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 		if (bulk->type == PTP_PACKET_TYPE_DATA) {

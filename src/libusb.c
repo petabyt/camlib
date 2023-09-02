@@ -28,6 +28,8 @@ int ptp_device_init(struct PtpRuntime *r) {
 	libusb_device **list;
 	ssize_t count = libusb_get_device_list(ptp_backend.ctx, &list);
 
+	// TODO: allow API to loop through different devices
+
 	struct libusb_device_descriptor desc;
 	struct libusb_config_descriptor *config;
 	const struct libusb_interface *interf;
@@ -153,7 +155,7 @@ int ptp_send_bulk_packet(void *to, int length) {
 	return transferred;
 }
 
-int ptp_recieve_bulk_packet(void *to, int length) {
+int ptp_receive_bulk_packet(void *to, int length) {
 	if (ptp_backend.handle == NULL) return -1;
 	int transferred = 0;
 	int r = libusb_bulk_transfer(
@@ -167,7 +169,7 @@ int ptp_recieve_bulk_packet(void *to, int length) {
 	return transferred;
 }
 
-int ptp_recieve_int(void *to, int length) {
+int ptp_receive_int(void *to, int length) {
 	if (ptp_backend.handle == NULL) return -1;
 	int transferred = 0;
 	int r = libusb_bulk_transfer(

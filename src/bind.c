@@ -272,8 +272,6 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_WhiteBalance, ptp_eos_get_white_balance(value, 1));
 			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
 		}
-	} else if (!strcmp(bind->string, "image format")) {
-		x = 0;
 	} else if (!strcmp(bind->string, "destination")) {
 		bind_capture_type = value;
 	} else {

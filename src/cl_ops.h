@@ -34,8 +34,8 @@ int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, in
 // Download an object from handle, to a local file (uses GetPartialObject)
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
 // Run an opcode - For debugging and prototyping only
-int ptp_custom_recieve(struct PtpRuntime *r, int code);
-// Recieve a generic list of all properties recieved in DeviceInfo - caller must free s
+int ptp_custom_receive(struct PtpRuntime *r, int code);
+// Recieve a generic list of all properties received in DeviceInfo - caller must free s
 int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length);
 
 // EOS Only functions - not for Canon point and shoot

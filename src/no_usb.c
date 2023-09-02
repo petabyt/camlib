@@ -18,11 +18,11 @@ int ptp_send_bulk_packet(void *to, int length) {
     return -1;
 }
 
-int ptp_recieve_bulk_packet(void *to, int length) {
+int ptp_receive_bulk_packet(void *to, int length) {
     return -1;
 }
 
-int ptp_recieve_int(void *to, int length) {
+int ptp_receive_int(void *to, int length) {
     return -1;
 }
 

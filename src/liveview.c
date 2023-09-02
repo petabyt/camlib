@@ -54,7 +54,7 @@ int ptp_liveview_size(struct PtpRuntime *r) {
 }
 
 int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
-    int a = ptp_custom_recieve(r, PTP_OC_ML_Live360x240);
+    int a = ptp_custom_receive(r, PTP_OC_ML_Live360x240);
     if (a < 0) {
         return PTP_IO_ERR;
     } else if (ptp_get_return_code(r) != PTP_RC_OK) {

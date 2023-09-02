@@ -66,7 +66,7 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_recieve_bulk_packets(r) < 0) {
+	if (ptp_receive_bulk_packets(r) < 0) {
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
@@ -115,7 +115,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_recieve_bulk_packets(r) < 0) {
+	if (ptp_receive_bulk_packets(r) < 0) {
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}

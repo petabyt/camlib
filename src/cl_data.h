@@ -171,6 +171,7 @@ int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);
 int ptp_eos_get_white_balance(int data, int dir);
+int ptp_eos_get_imgformat_value(int data[5]);
 
 struct PtpMlLvInfo {
 	uint32_t lv_pitch;

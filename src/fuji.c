@@ -51,7 +51,7 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name) {
 
 	if (ptpip_cmd_write(r, r->data, p->length) != p->length) return PTP_IO_ERR;
 
-	// Read the packet size, then recieve the rest
+	// Read the packet size, then receive the rest
 	int x = ptpip_cmd_read(r, r->data, 4);
 	if (x < 0) return PTP_IO_ERR;
 	x = ptpip_cmd_read(r, r->data + 4, p->length - 4);
