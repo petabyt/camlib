@@ -119,7 +119,7 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	int read = 0;
 
 	if (r->connection_type == PTP_USB) {
-		rc = ptp_receive_bulk_packet(r->data + of + read, 512);
+		rc = ptp_receive_bulk_packet(r->data + of + read, r->max_packet_size);
 	} else if (r->connection_type == PTP_IP_USB) {
 		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 	}
@@ -142,6 +142,30 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 		return read;
 	}
 
+	// Read more than a single packet, caller must handle this
+	if (h->length < read) {
+		// Read too many bytes. Only case when this would happen is when data packet and
+		// response packet are read as one.
+		int extra = read - h->length;
+
+		// If packet is completely read in, then we are good to go
+		if (extra >= 4) {
+			struct PtpBulkContainer *h2 = (struct PtpBulkContainer *)(r->data + of + read);
+			if (h2->length == extra) return read;
+		}
+		
+		// If not, then reading r->max_packet_size will always fix this (assuming r->max_packet_size >= 512)
+		rc = ptp_receive_bulk_packet(r->data + of + read, r->max_packet_size);
+		read += rc;
+		if (rc < 0) {
+			ptp_verbose_log("USB Read error: %d\n", rc);
+			return PTP_IO_ERR;
+		}
+
+		return read;
+	}
+
+	// Ensure data buffer is large enough for the rest of the packet
 	if (of + read + h->length >= r->data_length) {
 		ptp_verbose_log("Extending IO buffer\n");
 		r->data = realloc(r->data, of + read + h->length + 1000);
@@ -180,6 +204,10 @@ int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 		}
 
 		struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data + read);
+		if (c->length < rc) {
+			ptp_verbose_log("Already read enough bytes\n");
+			return read;
+		}
 
 		read += rc;
 
@@ -193,6 +221,7 @@ int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 			read += rc;
 		}
 
+		ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
 		ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 		return read;

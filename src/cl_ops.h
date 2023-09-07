@@ -42,7 +42,6 @@ int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *len
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);
 int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value);
-int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength);
 int ptp_eos_set_event_mode(struct PtpRuntime *r, int mode);
 int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode);
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode);

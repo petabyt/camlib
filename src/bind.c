@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ptp.h>
 #include <camlib.h>
 
 int bind_connected = 0;

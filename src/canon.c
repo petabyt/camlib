@@ -93,18 +93,9 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
-// This is the same operation as ptp_eos_set_prop_value, but is more spiffy
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
-	#warning "This function is buggy! Should send all data, but probably dangerous for buffer overflows"
+	// Might be unsafe (EOS buffer overflow bricks?)
 	exit(1);
-
-	struct PtpCommand cmd;
-	cmd.code = PTP_OC_EOS_SetDevicePropValueEx;
-	cmd.param_length = 0;
-
-	uint32_t dat[] = {0x10 + dlength, code, ((uint32_t *)data)[0]};
-
-	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 int ptp_eos_get_event(struct PtpRuntime *r) {
