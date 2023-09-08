@@ -118,11 +118,23 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	int rc = 0;
 	int read = 0;
 
-	if (r->connection_type == PTP_USB) {
-		rc = ptp_receive_bulk_packet(r->data + of + read, r->max_packet_size);
-	} else if (r->connection_type == PTP_IP_USB) {
-		rc = ptpip_cmd_read(r, r->data + of + read, 4);
+	while (rc <= 0 && r->wait_for_response) {
+		if (r->connection_type == PTP_USB) {
+			rc = ptp_receive_bulk_packet(r->data + of + read, r->max_packet_size);
+		} else if (r->connection_type == PTP_IP_USB) {
+			rc = ptpip_cmd_read(r, r->data + of + read, 4);
+		}
+
+		ptp_verbose_log("Waiting... rc: %d\n", rc);
+
+		r->wait_for_response--;
+
+		if (r->wait_for_response) {
+			CAMLIB_SLEEP(1000);
+		}
 	}
+
+	r->wait_for_response = 1;
 
 	if (rc < 0) {
 		ptp_verbose_log("USB Read error: %d\n", rc);
