@@ -1,1 +1,1 @@
-LDFLAGS=-Llibusb-fake-ptp/ -lvusb -Wl,-rpath=libusb-fake-ptp/
+LDFLAGS=-Lvusb/ -Wl,-rpath=vusb/ -lvusb -lexif
