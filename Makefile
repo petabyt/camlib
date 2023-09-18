@@ -1,10 +1,10 @@
 # Unix only makefile
 -include config.mak
 
-CFLAGS=-Isrc/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual
+CFLAGS=-Isrc/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic
 
 # All platforms need these object files
-FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o conv.o)
+FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o conv.o generic.o)
 
 # Unix-specific
 CFLAGS+=$(shell pkg-config --cflags libusb-1.0)
@@ -16,7 +16,7 @@ COMMIT=$(shell git rev-parse HEAD)
 CFLAGS+='-DCAMLIB_COMMIT="$(COMMIT)"'
 
 libcamlib.so: $(FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(FILES) -o libcamlib.so
+	$(CC) -shared $(FILES) $(LDFLAGS) -o libcamlib.so
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@

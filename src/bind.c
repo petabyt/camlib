@@ -5,8 +5,6 @@
 // valid JSON from a generic text like request
 // - This is not part of the core library, and will use malloc()
 
-// TODO: bind_get_property
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,11 +14,6 @@
 int bind_connected = 0;
 int bind_initialized = 0;
 int bind_capture_type = 0;
-
-struct RouteMap {
-	char *name;
-	int (*call)(struct BindReq *, struct PtpRuntime *);
-};
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, "
@@ -252,40 +245,7 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 		return sprintf(bind->buffer, "{\"error\": %d}", x);
 	}
 
-	// Set by string value
-	int value = bind->params[0];
-	if (!strcmp(bind->string, "aperture")) {
-		if (dev == PTP_DEV_EOS) {
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
-		}
-	} else if (!strcmp(bind->string, "iso")) {
-		if (dev == PTP_DEV_EOS) {
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
-		}
-	} else if (!strcmp(bind->string, "shutter speed")) {
-		if (dev == PTP_DEV_EOS) {
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
-		}
-	} else if (!strcmp(bind->string, "white balance")) {
-		if (dev == PTP_DEV_EOS) {
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_WhiteBalance, ptp_eos_get_white_balance(value, 1));
-			x = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
-		}
-	} else if (!strcmp(bind->string, "destination")) {
-		bind_capture_type = value;
-	} else {
-		// Set by enum
-		int try_enum = ptp_enum_all(bind->string);
-		if (try_enum == -1) {
-			return sprintf(bind->buffer, "{\"error\": %d}", PTP_UNSUPPORTED);
-		} else {
-			if (dev == PTP_DEV_EOS) {
-				x = ptp_eos_set_prop_value(r, try_enum, value);
-			} else {
-				x = ptp_set_prop_value(r, try_enum, value);
-			}
-		}
-	}
+	x = ptp_set_generic_property(r, bind->string, bind->params[0]);
 
 	return sprintf(bind->buffer, "{\"error\": %d}", x);
 }
@@ -366,7 +326,7 @@ int bind_eos_set_event_mode(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_hello_world(struct BindReq *bind, struct PtpRuntime *r) {
-	int len = sprintf(bind->buffer, "{\"name\": \"%s\", \"string\": \"%s\" params: [", bind->name, bind->string);
+	int len = sprintf(bind->buffer, "{\"name\": \"%s\", \"string\": \"%s\", \"params\": [", bind->name, bind->string);
 	for (int i = 0; i < bind->params_length; i++) {
 		char *comma = "";
 		if (i) comma = ",";
@@ -423,63 +383,17 @@ int bind_bulb_stop(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_pre_take_picture(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_on(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_pre_take_picture(r));
 }
 
 int bind_take_picture(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_check_opcode(r, PTP_OC_InitiateCapture)) {
-		x = ptp_init_capture(r, 0, 0);
-	} else if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_remote_release_on(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
-		x = ptp_eos_remote_release_off(r, 2);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
-		x = ptp_eos_remote_release_off(r, 1);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
-	} else {
-		x = PTP_UNSUPPORTED;
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
+	return sprintf(bind->buffer, "{\"error\": %d}", ptp_take_picture(r));
 }
 
 int bind_cancel_af(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_check_opcode(r, PTP_OC_EOS_AfCancel)) {
 		x = ptp_eos_cancel_af(r);
-		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
-	} else {
-		x = PTP_UNSUPPORTED;
-	}
-
-	return sprintf(bind->buffer, "{\"error\": %d}", x);
-}
-
-int bind_eos_remote_release(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = 0;
-	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		switch (bind->params[0]) {
-		case 1:
-			x = ptp_eos_remote_release_on(r, 1);
-			break;
-		case 2:
-			x = ptp_eos_remote_release_on(r, 2);
-			break;
-		case 3:
-			x = ptp_eos_remote_release_off(r, 2);
-			break;
-		case 4:
-			x = ptp_eos_remote_release_off(r, 1);
-			break;
-		}
-
 		if (ptp_get_return_code(r) != PTP_RC_OK) return sprintf(bind->buffer, "{\"error\": %d}", PTP_CHECK_CODE);
 	} else {
 		x = PTP_UNSUPPORTED;
@@ -580,7 +494,10 @@ int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
 	}
 }
 
-struct RouteMap routes[] = {
+struct RouteMap {
+	char *name;
+	int (*call)(struct BindReq *, struct PtpRuntime *);
+}routes[] = {
 	{"ptp_hello_world", bind_hello_world},
 	{"ptp_status", bind_status},
 	{"ptp_reset", bind_reset},
@@ -590,8 +507,6 @@ struct RouteMap routes[] = {
 	{"ptp_open_session", bind_open_session},
 	{"ptp_close_session", bind_close_session},
 	{"ptp_get_device_info", bind_get_device_info},
-
-	// TODO: start movie capture
 
 	{"ptp_pre_take_picture", bind_pre_take_picture},
 	{"ptp_take_picture", bind_take_picture},

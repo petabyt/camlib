@@ -40,7 +40,7 @@ int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 
 // Technically not an OC, but fits snug here
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
-	int x = ptp_receive_int(r->data, r->max_packet_size);
+	int x = ptp_read_int(r, r->data, r->max_packet_size);
 	if (x < 0) {
 		return x;
 	} else {
@@ -208,8 +208,8 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 	cmd.params[1] = handle;
 
 	char temp[1024];
-	void *data = temp;
-	int length = ptp_pack_object_info(r, oi, &data, sizeof(temp));
+	void *temp_ptr = temp;
+	int length = ptp_pack_object_info(r, oi, &temp_ptr, sizeof(temp));
 	if (length == 0) {
 		return PTP_OUT_OF_MEM;
 	}
