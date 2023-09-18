@@ -131,6 +131,9 @@ struct PtpRuntime {
 	int fd;
 	int evfd;
 
+	// For session comm/io structures (holds libusb devices pointers)
+	void *comm_backend;
+
 	pthread_mutex_t *mutex;
 
 	// For when the caller intends to do long-term data processing on the data buffer,

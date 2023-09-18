@@ -7,6 +7,16 @@
 
 #include <camlib.h>
 
+static void format_sane_string(char *string) {
+	for (int i = 0; string[i] != '\0'; i++) {
+		if (string[i] < 0) {
+			string[i] = '?';
+		} else if (string[i] < 32) {
+			string[i] = ' ';
+		}
+	}
+}
+
 int ptp_get_data_size(void *d, int type) {
 	switch (type) {
 	case PTP_TC_INT8:
@@ -64,48 +74,51 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 }
 
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
-	void *d = ptp_get_payload(r);
+	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
 	d += PTP_PROP_DESC_VAR_START;
-	oi->default_value = ptp_parse_data(&d, oi->data_type);
-	oi->current_value = ptp_parse_data(&d, oi->data_type);
+	oi->default_value = ptp_parse_data((void **)&d, oi->data_type);
+	oi->current_value = ptp_parse_data((void **)&d, oi->data_type);
 
 	// TODO: Form flag + form (for properties like date/time)
 	return 0;
 }
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
-	void *d = ptp_get_payload(r);
+	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
 	d += PTP_OBJ_INFO_VAR_START;
-	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
-	ptp_read_string(&d, oi->date_created, sizeof(oi->date_created));
-	ptp_read_string(&d, oi->date_modified, sizeof(oi->date_modified));
-	ptp_read_string(&d, oi->keywords, sizeof(oi->keywords));
+	ptp_read_string((void **)&d, oi->filename, sizeof(oi->filename));
+	ptp_read_string((void **)&d, oi->date_created, sizeof(oi->date_created));
+	ptp_read_string((void **)&d, oi->date_modified, sizeof(oi->date_modified));
+	ptp_read_string((void **)&d, oi->keywords, sizeof(oi->keywords));
 
 	return 0;
 }
 
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max) {
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **dat, int max) {
 	if (1024 > max) {
 		return 0;
 	}
 
-	void *b = *d;
-	memcpy(*d, oi, PTP_OBJ_INFO_VAR_START);
-	*d += PTP_OBJ_INFO_VAR_START;
+	uint8_t **ptr = (uint8_t **)(dat);
+	memcpy(*ptr, oi, PTP_OBJ_INFO_VAR_START);
+	(*ptr) += PTP_OBJ_INFO_VAR_START;
+
+	int length = PTP_OBJ_INFO_VAR_START;
 
 	// If the string is empty, don't add it to the packet
 	if (oi->filename[0] != '\0')
-		ptp_write_string(d, oi->filename);
+		length += ptp_write_string((void **)(ptr), oi->filename);
 	if (oi->date_created[0] != '\0')
-		ptp_write_string(d, oi->date_created);
+		length += ptp_write_string((void **)(ptr), oi->date_created);
 	if (oi->date_modified[0] != '\0')
-		ptp_write_string(d, oi->date_modified);
+		length += ptp_write_string((void **)(ptr), oi->date_modified);
 	if (oi->keywords[0] != '\0')
-		ptp_write_string(d, oi->keywords);
+		length += ptp_write_string((void **)(ptr), oi->keywords);
 
-	return (int)(*d - b);
+	// Return pointer length added
+	return length;
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
@@ -126,11 +139,16 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	di->capture_formats_length = ptp_read_uint16_array(&e, di->capture_formats, sizeof(di->capture_formats) / 2);
 	di->playback_formats_length = ptp_read_uint16_array(&e, di->playback_formats, sizeof(di->playback_formats) / 2);
 
-	ptp_read_string(&e, di->manufacturer, sizeof(di->manufacturer));
+	ptp_read_string(&e, di->manufacturer, sizeof(di->manufacturer));	
 	ptp_read_string(&e, di->model, sizeof(di->model));
 
 	ptp_read_string(&e, di->device_version, sizeof(di->device_version));
 	ptp_read_string(&e, di->serial_number, sizeof(di->serial_number));
+
+	format_sane_string(di->manufacturer);
+	format_sane_string(di->model);
+	format_sane_string(di->device_version);
+	format_sane_string(di->serial_number);
 
 	r->di = di;
 
@@ -343,14 +361,14 @@ int ptp_eos_prop_json(void **d, char *buffer, int max) {
 
 int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 	//struct PtpCanonEvent ce;
-	void *dp = ptp_get_payload(r);
+	uint8_t *dp = ptp_get_payload(r);
 
 	int length = 0;
 	while (dp != NULL) {
-		if (dp >= (void*)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
+		if (dp >= (uint8_t *)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
 		void *d = dp;
-		uint32_t size = ptp_read_uint32(&d);
-		uint32_t type = ptp_read_uint32(&d);
+		uint32_t size = ptp_read_uint32((void **)&d);
+		uint32_t type = ptp_read_uint32((void **)&d);
 
 		dp += size;
 
@@ -366,13 +384,14 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 
 	dp = ptp_get_payload(r);
 	for (int i = 0; i < length; i++) {
+		// TODO: Simplify these triple pointers
 		struct PtpGenericEvent *cur = &((*p)[i]);
 		memset(cur, 0, sizeof(struct PtpGenericEvent));
 
 		// Read header
 		void *d = dp;
-		uint32_t size = ptp_read_uint32(&d);
-		uint32_t type = ptp_read_uint32(&d);
+		uint32_t size = ptp_read_uint32((void **)&d);
+		uint32_t type = ptp_read_uint32((void **)&d);
 
 		// Detect termination or overflow
 		if (type == 0) break;
@@ -386,8 +405,8 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			cur->name = ptp_get_enum_all(type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
-			int a = ptp_read_uint32(&d);
-			int b = ptp_read_uint32(&d);
+			int a = ptp_read_uint32((void **)&d);
+			int b = ptp_read_uint32((void **)&d);
 			cur->name = "request object transfer";
 			cur->code = a;
 			cur->value = b;
@@ -407,20 +426,20 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 }
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
-	void *dp = ptp_get_payload(r);
+	uint8_t *dp = ptp_get_payload(r);
 
 	int curr = sprintf(buffer, "[\n");
 
 	int tmp = 0;
 	while (dp != NULL) {
-		void *d = dp;
-		uint32_t size = ptp_read_uint32(&d);
-		uint32_t type = ptp_read_uint32(&d);
+		uint8_t *d = dp;
+		uint32_t size = ptp_read_uint32((void **)&d);
+		uint32_t type = ptp_read_uint32((void **)&d);
 
 		dp += size;
 
 		if (type == 0) break;
-		if (dp >= (void*)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
+		if (dp >= (uint8_t *)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
 
 		// Don't put comma for last entry
 		char *end = "";
@@ -431,15 +450,15 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 		switch (type) {
 		case PTP_EC_EOS_PropValueChanged:
-			curr += ptp_eos_prop_json(&d, buffer + curr, max - curr);
+			curr += ptp_eos_prop_json((void **)&d, buffer + curr, max - curr);
 			break;
 		case PTP_EC_EOS_InfoCheckComplete:
 		case PTP_PC_EOS_FocusInfoEx:
 			curr += sprintf(buffer + curr, "[\"%s\", %u]\n", ptp_get_enum_all(type), type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
-			int a = ptp_read_uint32(&d);
-			int b = ptp_read_uint32(&d);
+			int a = ptp_read_uint32((void **)&d);
+			int b = ptp_read_uint32((void **)&d);
 			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
 			} break;
 		case PTP_EC_EOS_ObjectAddedEx: {
@@ -473,10 +492,10 @@ int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
 }
 
 int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi) {
-	void *d = ptp_get_payload(r);
+	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
 	d += PTP_FUJI_OBJ_INFO_VAR_START;
-	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
+	ptp_read_string((void **)&d, oi->filename, sizeof(oi->filename));
 
 	/* TODO: Figure out payload later:
 		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00

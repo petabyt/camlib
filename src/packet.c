@@ -4,43 +4,53 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 
 #include <ptp.h>
 #include <camlib.h>
 
 uint8_t ptp_read_uint8(void **dat) {
-	return *((uint8_t*)(dat[0]++));
+	uint8_t **p = (uint8_t **)dat;
+	uint8_t x = (**p);
+	(*p)++;
+	return x;
 }
 
 uint16_t ptp_read_uint16(void **dat) {
-	uint16_t x = *((uint16_t*)(dat[0]));
-	dat[0] += 2;
+	uint16_t **p = (uint16_t **)dat;
+	uint16_t x = (**p);
+	(*p)++;
 	return x;
 }
 
 uint32_t ptp_read_uint32(void **dat) {
-	uint32_t x = *((uint32_t*)(dat[0]));
-	dat[0] += 4;
+	uint32_t **p = (uint32_t **)dat;
+	uint32_t x = (**p);
+	(*p)++;
 	return x;
 }
 
 // Read UTF16 string
 void ptp_read_string(void **dat, char *string, int max) {
-	int length = (int)ptp_read_uint8(dat);
+	uint8_t **p = (uint8_t **)dat;
+	int length = (int)ptp_read_uint8((void **)p);
 
 	int y = 0;
 	while (y < length) {
-		string[y] = *((char*)dat[0]);
-		dat[0] += 2;
+		string[y] = (char)(**p);
+		(*p)++;
+		//printf("'%c'\n", (char)(*p));
+		//assert((char)(**dat) == '\0');
+		(*p)++;
 		y++;
-		if (y >= max) {break;}
+		if (y >= max) { break; }
 	}
 
 	string[y] = '\0';
 }
 
 int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
-	int n = ptp_read_uint32(dat);
+	int n = ptp_read_uint32((void **)dat);
 
 	// Probably impossbile scenario
 	if (n > 0xff) {
@@ -52,7 +62,7 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 		if (i >= max) {
 			buf[i] = 0;
 		} else {
-			buf[i] = ptp_read_uint16(dat);
+			buf[i] = ptp_read_uint16((void **)dat);
 		}
 	}
 
@@ -60,7 +70,9 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 }
 
 void ptp_write_uint8(void **dat, uint8_t b) {
-	*((uint8_t*)(dat[0]++)) = b;
+	uint8_t **ptr = (uint8_t **)dat;
+	(**ptr) = b;
+	(*ptr)++;
 }
 
 int ptp_write_string(void **dat, char *string) {

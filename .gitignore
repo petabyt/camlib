@@ -11,3 +11,4 @@ wifi
 dump*
 test-ci
 libusb-fake-ptp
+*.so

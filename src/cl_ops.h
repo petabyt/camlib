@@ -1,6 +1,11 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
+// Generic device-independent functionality
+int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value);
+int ptp_pre_take_picture(struct PtpRuntime *r);
+int ptp_take_picture(struct PtpRuntime *r);
+
 // Standard PTP operation code functions
 
 // Note that opening a session is required for most vendor commands

@@ -18,6 +18,7 @@ void ptp_generic_reset(struct PtpRuntime *r) {
 	r->connection_type = PTP_USB;
 	r->caller_unlocks_mutex = 0;
 	r->mutex = NULL;
+	r->wait_for_response = 1;
 }
 
 void ptp_generic_init(struct PtpRuntime *r) {
@@ -33,6 +34,12 @@ void ptp_generic_init(struct PtpRuntime *r) {
 		r->mutex = NULL;
 	}
 	#endif
+}
+
+struct PtpRuntime *ptp_generic_new() {
+	struct PtpRuntime *r = malloc(sizeof(struct PtpRuntime));
+	ptp_generic_init(r);
+	return r;
 }
 
 void ptp_mutex_lock(struct PtpRuntime *r) {

@@ -6,9 +6,13 @@
 // Connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);
 
+// Temporary :)
+#define ptp_send_bulk_packet DEPRECATED_USE_ptp_cmd_write_INSTEAD`
+#define ptp_receive_bulk_packet DEPRECATED_USE_ptp_cmd_read_INSTEAD`
+
 // Bare IO, send a single 512 byte packet. Return negative or NULL on error.
-int ptp_send_bulk_packet(void *to, int length);
-int ptp_receive_bulk_packet(void *to, int length);
+int ptp_cmd_write(struct PtpRuntime *r, void *to, int length);
+int ptp_cmd_read(struct PtpRuntime *r, void *to, int length);
 
 // Reset the pipe, can clear issues
 int ptp_device_reset(struct PtpRuntime *r);
@@ -16,7 +20,7 @@ int ptp_device_reset(struct PtpRuntime *r);
 // Recieve all packets, and whatever else (common logic for all backends)
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
 int ptp_receive_bulk_packets(struct PtpRuntime *r);
-int ptp_receive_int(void *to, int length);
+int ptp_read_int(struct PtpRuntime *r, void *to, int length);
 
 int ptp_device_close(struct PtpRuntime *r);
 
