@@ -52,15 +52,9 @@ void ptp_read_string(void **dat, char *string, int max) {
 int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	int n = ptp_read_uint32((void **)dat);
 
-	// Probably impossbile scenario
-	if (n > 0xff) {
-		return -1;
-	}
-
 	for (int i = 0; i < n; i++) {
-		// Give a zero if out of bounds
 		if (i >= max) {
-			buf[i] = 0;
+			(void)ptp_read_uint16((void **)dat);
 		} else {
 			buf[i] = ptp_read_uint16((void **)dat);
 		}
