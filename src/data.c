@@ -7,6 +7,7 @@
 
 #include <camlib.h>
 
+// We do not have proper UTF16 support for now
 static void format_sane_string(char *string) {
 	for (int i = 0; string[i] != '\0'; i++) {
 		if (string[i] < 0) {
@@ -156,7 +157,7 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 }
 
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
-	int curr = snprintf(buffer, max, "{\n    \"ops_supported\": [");
+	int curr = snprintf(buffer, max, "{\n    \"opsSupported\": [");
 	for (int i = 0; i < di->ops_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->ops_supported_length - 1) {end = "";}
@@ -164,7 +165,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	}
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    \"events_supported\": [");
+	curr += snprintf(buffer + curr, max - curr, "    \"eventsSupported\": [");
 	for (int i = 0; i < di->events_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->events_supported_length - 1) {end = "";}
@@ -172,7 +173,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	}
 	curr += snprintf(buffer + curr, max - curr, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    \"props_supported\": [");
+	curr += snprintf(buffer + curr, max - curr, "    \"propsSupported\": [");
 	for (int i = 0; i < di->props_supported_length; i++) {
 		char *end = ", ";
 		if (i >= di->props_supported_length - 1) {end = "";}
@@ -183,8 +184,8 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	curr += snprintf(buffer + curr, max - curr, "    \"manufacturer\": \"%s\",\n", di->manufacturer);
 	curr += snprintf(buffer + curr, max - curr, "    \"extensions\": \"%s\",\n", di->extensions);
 	curr += snprintf(buffer + curr, max - curr, "    \"model\": \"%s\",\n", di->model);
-	curr += snprintf(buffer + curr, max - curr, "    \"device_version\": \"%s\",\n", di->device_version);
-	curr += snprintf(buffer + curr, max - curr, "    \"serial_number\": \"%s\"\n", di->serial_number);
+	curr += snprintf(buffer + curr, max - curr, "    \"deviceVersion\": \"%s\",\n", di->device_version);
+	curr += snprintf(buffer + curr, max - curr, "    \"serialNumber\": \"%s\"\n", di->serial_number);
 	curr += snprintf(buffer + curr, max - curr, "}");
 	return curr;
 }
@@ -218,18 +219,18 @@ const char *eval_protection(int code) {
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	int curr = sprintf(buffer, "{");
 	curr += snprintf(buffer + curr, max - curr, "\"storage_id\": %u,", so->storage_id);
-	curr += snprintf(buffer + curr, max - curr, "\"compressed_size\": %u,", so->compressed_size);
+	curr += snprintf(buffer + curr, max - curr, "\"compressedSize\": %u,", so->compressed_size);
 	curr += snprintf(buffer + curr, max - curr, "\"parent\": %u,", so->parent_obj);
 	curr += snprintf(buffer + curr, max - curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
 	curr += snprintf(buffer + curr, max - curr, "\"format_int\": %u,", so->obj_format);
 	curr += snprintf(buffer + curr, max - curr, "\"protection\": \"%s\",", eval_protection(so->protection));
 	curr += snprintf(buffer + curr, max - curr, "\"filename\": \"%s\",", so->filename);
 	if (so->compressed_size != 0) {
-		curr += snprintf(buffer + curr, max - curr, "\"img_width\": %u,", so->img_width);
-		curr += snprintf(buffer + curr, max - curr, "\"img_height\": %u,", so->img_height);
+		curr += snprintf(buffer + curr, max - curr, "\"imgWidth\": %u,", so->img_width);
+		curr += snprintf(buffer + curr, max - curr, "\"imgHeight\": %u,", so->img_height);
 	}
-	curr += snprintf(buffer + curr, max - curr, "\"date_created\": \"%s\",", so->date_created);
-	curr += snprintf(buffer + curr, max - curr, "\"date_modified\": \"%s\"", so->date_modified);
+	curr += snprintf(buffer + curr, max - curr, "\"dateCreated\": \"%s\",", so->date_created);
+	curr += snprintf(buffer + curr, max - curr, "\"dateModified\": \"%s\"", so->date_modified);
 	curr += snprintf(buffer + curr, max - curr, "}");
 
 	return curr;
@@ -252,10 +253,10 @@ const char *eval_storage_type(int id) {
 
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	int len = sprintf(buffer, "{");
-	len += snprintf(buffer + len, max - len, "\"storage_type\": \"%s\",", eval_storage_type(so->storage_type));
-	len += snprintf(buffer + len, max - len, "\"fs_type\": %u,", so->fs_type);
-	len += snprintf(buffer + len, max - len, "\"max_capacity\": %lu,", so->max_capacity);
-	len += snprintf(buffer + len, max - len, "\"free_space\": %lu", so->free_space);
+	len += snprintf(buffer + len, max - len, "\"storageType\": \"%s\",", eval_storage_type(so->storage_type));
+	len += snprintf(buffer + len, max - len, "\"fsType\": %u,", so->fs_type);
+	len += snprintf(buffer + len, max - len, "\"maxCapacity\": %lu,", so->max_capacity);
+	len += snprintf(buffer + len, max - len, "\"freeSpace\": %lu", so->free_space);
 	len += snprintf(buffer + len, max - len, "}");
 	return len;
 }
