@@ -43,13 +43,13 @@ struct PtpDeviceInfo {
 	uint16_t events_supported[128];
 
 	int props_supported_length;
-	uint16_t props_supported[64];
+	uint16_t props_supported[128];
 
 	int capture_formats_length;
-	uint16_t capture_formats[16];
+	uint16_t capture_formats[32];
 
 	int playback_formats_length;
-	uint16_t playback_formats[16];
+	uint16_t playback_formats[32];
 
 	char manufacturer[128];
 	char model[128];

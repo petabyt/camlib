@@ -2,22 +2,26 @@
 This is a portable PTP/USB library written in C99. This isn't a fork of gphoto2, libptp, or libmtp.  
 This is a complete rewrite from the ground up, and is written to be maintainable and platform independent.  
 
-This library is currently being used in [mlinstall](https://github.com/petabyt/mlinstall), [CamControl](https://camcontrol.danielc.dev/), [EOS Intervalometer](https://play.google.com/store/apps/details?id=dev.petabyt.caminterv), and the [Fujihack Project](https://github.com/fujihack/fujihack/tree/master/ptp).
+[You can read the latest up-to-date documentation here.](https://danielc.dev/camlib-docs/)
 
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
 - Core library will perform almost no memory allocation, to reduce complexity
 - No platform specific code at the core
 - No macros, only clean C API - everything is a function that can be accessed from other languages
+- Reverse-engineering isn't done just through packet analysis - it's also done by reimplementing the camera PTP server,
+which is important for reliability and regression testing.
 
 ## Checklist
 - [x] Complete working implemention of PTP as per ISO 15740
 - [x] Working Linux, Android, and Windows backends
 - [x] JSON bindings for high level languages
-- [x] Real time camera previews (EOS, ML)
-- [x] Complete most EOS/Canon vendor OCs
-- [x] PTP/IP WiFi implementation
-- [x] Fuji WiFi support
+- [x] Real time camera previews (EOS, Magic Lantern)
+- [x] Implement most EOS/Canon vendor OCs
+- [x] ISO PTP/IP WiFi implementation
+- [x] Fuji WiFi and USB support
+- [x] Lua bindings
+- [x] [Javascript bindings](git@github.com:clutchlink/camlibjs.git) (browser, BunJS)
 - [ ] Sony support
 
 ## Sample
@@ -82,3 +86,7 @@ for (int i = 0; i < arr->length; i++) {
 
 free(arr);
 ```
+
+## License
+Camlib is licensed under the Apache License 2.0.  
+lua-cjson: http://tools.ietf.org/html/rfc4627 (MIT License)  
