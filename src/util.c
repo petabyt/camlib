@@ -61,7 +61,7 @@ void ptp_generic_close(struct PtpRuntime *r) {
 	free(r->data);
 }
 
-// Perform a "generic" command type transaction. Could be a macro, but macros suck
+// Perform a "generic" command type transaction. Could be a macro, but macros suck.
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	ptp_mutex_lock(r);
 
@@ -98,6 +98,14 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 
 	r->data_phase_length = length;
 
+	// TODO: Expand buffer if needed
+	// (Header packet will never be more than 100 bytes)
+	if (length + 100 > r->data_length) {
+		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
+		ptp_mutex_unlock(r);
+		return PTP_OUT_OF_MEM;
+	}
+
 	// Send operation request packet data phase 2
 	int plength = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, plength) != plength) {
@@ -105,21 +113,27 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 		return PTP_IO_ERR;
 	}
 
-	// new start data packet
-	plength = ptp_new_data_packet(r, cmd);
+	if (r->connection_type == PTP_IP) {
+		// Send data start packet first (only has payload length)
+		plength = ptpip_data_start_packet(r, length);
+		if (ptp_send_bulk_packets(r, plength) != plength) {
+			ptp_mutex_unlock(r);
+			return PTP_IO_ERR;
+		}
 
-	if (plength + length > r->data_length) {
-		ptp_verbose_log("ptp_generic_send_data: Not enough memory\n");
-		ptp_mutex_unlock(r);
-		return PTP_OUT_OF_MEM;
-	}
-
-	memcpy(ptp_get_payload(r), data, length);
-	ptp_update_data_length(r, plength + length);
-
-	if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
+		// Send data end packet, with payload
+		plength = ptpip_data_end_packet(r, data, length);
+		if (ptp_send_bulk_packets(r, plength) != plength) {
+			ptp_mutex_unlock(r);
+			return PTP_IO_ERR;
+		}
+	} else {
+		// Single data packet
+		plength = ptp_new_data_packet(r, cmd, data, length);
+		if (ptp_send_bulk_packets(r, plength + length) != plength + length) {
+			ptp_mutex_unlock(r);
+			return PTP_IO_ERR;
+		}
 	}
 
 	if (ptp_receive_bulk_packets(r) < 0) {

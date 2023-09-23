@@ -43,6 +43,10 @@ int ptp_custom_receive(struct PtpRuntime *r, int code);
 // Recieve a generic list of all properties received in DeviceInfo - caller must free s
 int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length);
 
+// PTP/IP only
+int ptpip_init_events(struct PtpRuntime *r);
+int ptpip_init_command_request(struct PtpRuntime *r, char *device_name);
+
 // EOS Only functions - not for Canon point and shoot
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode);

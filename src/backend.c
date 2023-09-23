@@ -11,6 +11,7 @@
 #include <camlib.h>
 
 // Sending data out is much easier, can be a portable implementation
+// TODO: This is named wrong, should be 'ptp_send_packet', only sends single packet
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	int x;

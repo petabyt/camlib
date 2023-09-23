@@ -133,6 +133,27 @@ int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
 	return size;
 }
 
+int ptpip_data_start_packet(struct PtpRuntime *r, int data_length) {
+	struct PtpIpStartDataPacket *pkt = (struct PtpIpStartDataPacket *)(r->data);
+	pkt->length = 0x20;
+	pkt->type = PTPIP_DATA_PACKET_START;
+	pkt->transaction = r->transaction;
+	pkt->data_phase_length = (uint64_t)data_length;	
+
+	return pkt->length;
+}
+
+int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length) {
+	struct PtpIpEndDataPacket *pkt = (struct PtpIpEndDataPacket *)(r->data);
+	pkt->length = 12 + data_length;
+	pkt->type = PTPIP_DATA_PACKET_END;
+	pkt->transaction = r->transaction;
+
+	memcpy(((uint8_t *)r->data) + 12, data, data_length);
+
+	return pkt->length;
+}
+
 // Generate a USB-only BulkContainer packet
 int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
 	struct PtpBulkContainer bulk;
@@ -153,17 +174,17 @@ int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
 	return size;
 }
 
-int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
+// Only for PTP_USB or PTP_USB_IP
+int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length) {
 	cmd->param_length = 0;
-	if (r->connection_type == PTP_IP) {
-		// Create PTPIP_DATA_PACKET_START
-		// Create PTPIP_DATA_PACKET_END
-	} else {
-		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
-		return length;
-	}
+
+	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
+	memcpy(ptp_get_payload(r), data, data_length);
+	ptp_update_data_length(r, length + data_length);	
+	return length;
 }
 
+// Generate a IP or USB style command packet (both are pretty similar)
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	cmd->data_length = 0;
 	if (r->connection_type == PTP_IP) {
@@ -175,17 +196,21 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	}
 }
 
+// Update the length of the data packet after creation
+// TODO: This is a bad function, should be deleted
 void ptp_update_data_length(struct PtpRuntime *r, int length) {
 	if (r->connection_type == PTP_IP) {
-		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
-		if (ds->type != PTPIP_DATA_PACKET_START) {
-			exit(1);
-		}
-
-		ds->data_phase_length = length;
-
-		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
+		// Should only be one packet here (?)
+		// struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
+		// if (ds->type != PTPIP_DATA_PACKET_START) {
+			// exit(1);
+		// }
+// 
+		// ds->data_phase_length = length;
+		
+		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data);
 		if (ds->type != PTPIP_DATA_PACKET_END) {
+			// TODO: camlib_fatal
 			exit(1);
 		}
 
@@ -197,19 +222,32 @@ void ptp_update_data_length(struct PtpRuntime *r, int length) {
 	}
 }
 
+// Get data start packet, then data end packet, then response packet
 static struct PtpIpResponseContainer *ptpip_get_response_packet(struct PtpRuntime *r) {
-	// Get data start packet, then data end packet, then response packet
 	struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
 	if (ds->type == PTPIP_COMMAND_RESPONSE) {
+		// If there is no data phase, return first packet
 		return (struct PtpIpResponseContainer *)(r->data);
 	}
 
-	// TODO: This assumes sanity
-	struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
+	if (ds->type != PTPIP_DATA_PACKET_START) {
+		exit(1);
+	}
+
+	struct PtpIpEndDataPacket *de = (struct PtpIpEndDataPacket *)(r->data + ds->length);
+	if (de->type != PTPIP_DATA_PACKET_END) {
+		exit(1);
+	}
+
 	struct PtpIpResponseContainer *resp = (struct PtpIpResponseContainer *)(r->data + ds->length + de->length);
+	if (resp->type != PTPIP_COMMAND_RESPONSE) {
+		exit(1);
+	}
+
 	return resp;
 }
 
+// Update transid for current request packet
 void ptp_update_transaction(struct PtpRuntime *r, int t) {
 	if (r->connection_type == PTP_IP) {
 		struct PtpIpBulkContainer *bulk = (struct PtpIpBulkContainer *)(r->data);
@@ -220,6 +258,7 @@ void ptp_update_transaction(struct PtpRuntime *r, int t) {
 	}
 }
 
+// Get rccode from response packet
 int ptp_get_return_code(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
 		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);
@@ -235,17 +274,19 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 	}
 }
 
+// Get ptr to payload
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
+		// For IP, payload is in the DATA_END packet
 		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
 		if (ds->type != PTPIP_DATA_PACKET_START) {
-			ptp_verbose_log("Fatal: non data start packet\n", ((int *)NULL)[0]);
+			//ptp_verbose_log("Fatal: non data start packet\n");
 			exit(1);
 		}
 
 		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
 		if (de->type != PTPIP_DATA_PACKET_END) {
-			ptp_verbose_log("Fatal: non data end packet, got %X\n", de->type);
+			//ptp_verbose_log("Fatal: non data end packet, got %X\n", de->type);
 			exit(1);
 		}
 
@@ -257,6 +298,7 @@ uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 		} else if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
 			return r->data + 28;
 		} else {
+			// TODO: Fatal
 			return r->data + 12;
 		}
 	}
@@ -269,7 +311,7 @@ int ptp_get_payload_length(struct PtpRuntime *r) {
 			exit(1);
 		}
 
-		return ds->data_phase_length;
+		return (int)ds->data_phase_length;
 	} else {
 		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 		return bulk->length - 12;

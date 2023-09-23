@@ -185,10 +185,12 @@ int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
 
 // Packet builder functions:
-// Typically, command packet is sent first (cmd), followed by a data packet
-// If any payload is required. The transaction ID
-int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
+// Only for PTP_USB or PTP_USB_IP use
+int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length);
+// Only use for PTP_IP
+int ptpip_data_start_packet(struct PtpRuntime *r, int data_length);
+int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
 
 // Packets start with a uint32 representing the length of the packet.
 // In some cases, we want to append more data to the packet, so the length

@@ -66,14 +66,6 @@ int ptpip_init_events(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_custom_receive(struct PtpRuntime *r, int code) {
-	struct PtpCommand cmd;
-	cmd.code = code;
-	cmd.param_length = 0;
-
-	return ptp_generic_send(r, &cmd);
-}
-
 int ptp_open_session(struct PtpRuntime *r) {
 	r->session++;
 

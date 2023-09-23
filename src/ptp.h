@@ -68,6 +68,12 @@ struct PtpIpStartDataPacket {
 	uint64_t data_phase_length;
 };
 
+struct PtpIpEndDataPacket {
+	uint32_t length;
+	uint32_t type;
+	uint32_t transaction;
+};
+
 // Standard PTP Operation Codes (OC)
 #define PTP_OC_GetDeviceInfo		0x1001
 #define PTP_OC_OpenSession			0x1002
