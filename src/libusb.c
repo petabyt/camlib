@@ -10,6 +10,7 @@
 #include <camlib.h>
 #include <ptp.h>
 
+// Private struct
 struct LibUSBBackend {
 	uint32_t endpoint_in;
 	uint32_t endpoint_out;
@@ -20,9 +21,9 @@ struct LibUSBBackend {
 	libusb_device_handle *handle;
 };
 
-// ptp_backend = {
-	// 0, 0, 0, 0, NULL, NULL
-// };
+int ptpusb_device_list(struct PtpRuntime *r) {
+	
+}
 
 int ptp_device_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
@@ -113,20 +114,25 @@ int ptp_device_init(struct PtpRuntime *r) {
 	libusb_free_config_descriptor(config);
 	int rc = libusb_open(dev, &(backend->handle));
 	libusb_free_device_list(list, 0);
+
 	if (rc) {
 		perror("usb_open() failure");
 		return PTP_OPEN_FAIL;
-	} else {
-		if (libusb_set_auto_detach_kernel_driver(backend->handle, 0)) {
-			perror("libusb_set_auto_detach_kernel_driver");
-			return PTP_OPEN_FAIL;
-		}
+	}
 
-		if (libusb_claim_interface(backend->handle, 0)) {
-			perror("usb_claim_interface() failure");
-			libusb_close(backend->handle);
-			return PTP_OPEN_FAIL;
-		}
+	char buffer[64];
+	rc = libusb_get_string_descriptor_ascii(backend->handle, desc.iProduct, buffer, sizeof(buffer));
+	ptp_verbose_log("Name: %s\n", buffer);
+
+	if (libusb_set_auto_detach_kernel_driver(backend->handle, 0)) {
+		perror("libusb_set_auto_detach_kernel_driver");
+		return PTP_OPEN_FAIL;
+	}
+
+	if (libusb_claim_interface(backend->handle, 0)) {
+		perror("usb_claim_interface() failure");
+		libusb_close(backend->handle);
+		return PTP_OPEN_FAIL;
 	}
 
 	r->active_connection = 1;

@@ -200,18 +200,10 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 // TODO: This is a bad function, should be deleted
 void ptp_update_data_length(struct PtpRuntime *r, int length) {
 	if (r->connection_type == PTP_IP) {
-		// Should only be one packet here (?)
-		// struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
-		// if (ds->type != PTPIP_DATA_PACKET_START) {
-			// exit(1);
-		// }
-// 
-		// ds->data_phase_length = length;
-		
 		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data);
-		if (ds->type != PTPIP_DATA_PACKET_END) {
+		if (de->type != PTPIP_DATA_PACKET_END) {
 			// TODO: camlib_fatal
-			exit(1);
+			ptp_panic("ptp_update_data_length(): didn't get data end packet");
 		}
 
 		// Update the packet length for the end packet
@@ -231,17 +223,17 @@ static struct PtpIpResponseContainer *ptpip_get_response_packet(struct PtpRuntim
 	}
 
 	if (ds->type != PTPIP_DATA_PACKET_START) {
-		exit(1);
+		ptp_panic("ptpip_get_response_packet(): didn't get data start packet");
 	}
 
 	struct PtpIpEndDataPacket *de = (struct PtpIpEndDataPacket *)(r->data + ds->length);
 	if (de->type != PTPIP_DATA_PACKET_END) {
-		exit(1);
+		ptp_panic("ptpip_get_response_packet(): didn't get data end packet");
 	}
 
 	struct PtpIpResponseContainer *resp = (struct PtpIpResponseContainer *)(r->data + ds->length + de->length);
 	if (resp->type != PTPIP_COMMAND_RESPONSE) {
-		exit(1);
+		ptp_panic("ptpip_get_response_packet(): didn't get response packet");
 	}
 
 	return resp;
@@ -280,14 +272,12 @@ uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 		// For IP, payload is in the DATA_END packet
 		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
 		if (ds->type != PTPIP_DATA_PACKET_START) {
-			//ptp_verbose_log("Fatal: non data start packet\n");
-			exit(1);
+			ptp_panic("ptp_get_payload(): non data start packet");
 		}
 
 		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data + ds->length);
 		if (de->type != PTPIP_DATA_PACKET_END) {
-			//ptp_verbose_log("Fatal: non data end packet, got %X\n", de->type);
-			exit(1);
+			ptp_panic("ptp_get_payload(): non data end packet");
 		}
 
 		return r->data + ds->length + 12;
@@ -308,7 +298,7 @@ int ptp_get_payload_length(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
 		struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
 		if (ds->type != PTPIP_DATA_PACKET_START) {
-			exit(1);
+			ptp_panic("ptp_get_payload_length(): non data start packet");
 		}
 
 		return (int)ds->data_phase_length;

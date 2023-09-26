@@ -28,8 +28,9 @@
 	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
 #endif
 
-// Logging mechanism, define it yourself or link in log.c
+// Logging+panic mechanism, define it yourself or link in log.c
 void ptp_verbose_log(char *fmt, ...);
+void ptp_panic(char *fmt, ...);
 
 // Optional, used by frontend in bindings
 #ifndef CAMLIB_PLATFORM
@@ -162,6 +163,16 @@ struct PtpCommand {
 	int param_length;
 
 	int data_length;
+};
+
+struct PtpDeviceEntry {
+	int id;
+	int vendor_id;
+	int product_id;
+	char name[16];
+	char manufacturer[16];
+	void *device_handle_ptr;
+	struct PtpDeviceEntry *next;
 };
 
 void ptp_mutex_unlock(struct PtpRuntime *r);

@@ -16,6 +16,14 @@
 #define PTP_ML_LvWidth 360
 #define PTP_ML_LvHeight 240
 
+int ptp_get_ml_lv1(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_ML_Live360x240;
+	cmd.param_length = 0;
+
+	return ptp_generic_send(r, &cmd);
+}
+
 int ptp_liveview_type(struct PtpRuntime *r) {
 	int type = ptp_device_type(r);
 	if (type == PTP_DEV_CANON || type == PTP_DEV_EOS) {
@@ -54,7 +62,7 @@ int ptp_liveview_size(struct PtpRuntime *r) {
 }
 
 int ptp_liveview_ml(struct PtpRuntime *r, uint8_t *buffer) {
-    int a = ptp_custom_receive(r, PTP_OC_ML_Live360x240);
+    int a = ptp_get_ml_lv1(r);
     if (a < 0) {
         return PTP_IO_ERR;
     } else if (ptp_get_return_code(r) != PTP_RC_OK) {
