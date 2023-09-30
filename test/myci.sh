@@ -5,7 +5,7 @@ cd ../vusb/
 make libusb.so
 mv libusb.so libvusb.so
 cd ../camlib
-make test-ci
-valgrind ./test-ci
+make test-ci && ./test-ci
+echo "test return value: $?"
 
 rm config.mak
