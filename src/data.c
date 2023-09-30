@@ -4,8 +4,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <camlib.h>
+
+// Custom snprint with offset - for safer string building
+static int osnprintf(char *str, int cur, int size, const char *format, ...) {
+	if (size - cur < 0) {
+		return 0;
+	}
+
+	int r;
+	va_list args;
+	va_start(args, format);
+	r = vsnprintf(str + cur, size - cur, format, args);
+	va_end(args);
+
+	return r;
+}
 
 // We do not have proper UTF16 support for now
 static void format_sane_string(char *string) {
@@ -157,36 +173,36 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 }
 
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
-	int curr = snprintf(buffer, max, "{\n    \"opsSupported\": [");
+	int curr = osnprintf(buffer, 0, max, "{\n    \"opsSupported\": [");
 	for (int i = 0; i < di->ops_supported_length; i++) {
 		char *end = ", ";
-		if (i >= di->ops_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "%d%s", di->ops_supported[i], end);
+		if (i >= di->ops_supported_length - 1) end = "";
+		curr += osnprintf(buffer, curr, max, "%d%s", di->ops_supported[i], end);
 	}
-	curr += snprintf(buffer + curr, max - curr, "],\n");
+	curr += osnprintf(buffer, curr, max, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    \"eventsSupported\": [");
+	curr += osnprintf(buffer, curr, max, "    \"eventsSupported\": [");
 	for (int i = 0; i < di->events_supported_length; i++) {
 		char *end = ", ";
-		if (i >= di->events_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "%d%s", di->events_supported[i], end);
+		if (i >= di->events_supported_length - 1) end = "";
+		curr += osnprintf(buffer, curr, max, "%d%s", di->events_supported[i], end);
 	}
-	curr += snprintf(buffer + curr, max - curr, "],\n");
+	curr += osnprintf(buffer, curr, max, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    \"propsSupported\": [");
+	curr += osnprintf(buffer, curr, max, "    \"propsSupported\": [");
 	for (int i = 0; i < di->props_supported_length; i++) {
 		char *end = ", ";
-		if (i >= di->props_supported_length - 1) {end = "";}
-		curr += snprintf(buffer + curr, max - curr, "%d%s", di->props_supported[i], end);
+		if (i >= di->props_supported_length - 1) end = "";
+		curr += osnprintf(buffer, curr, max, "%d%s", di->props_supported[i], end);
 	}
-	curr += snprintf(buffer + curr, max - curr, "],\n");
+	curr += osnprintf(buffer, curr, max, "],\n");
 
-	curr += snprintf(buffer + curr, max - curr, "    \"manufacturer\": \"%s\",\n", di->manufacturer);
-	curr += snprintf(buffer + curr, max - curr, "    \"extensions\": \"%s\",\n", di->extensions);
-	curr += snprintf(buffer + curr, max - curr, "    \"model\": \"%s\",\n", di->model);
-	curr += snprintf(buffer + curr, max - curr, "    \"deviceVersion\": \"%s\",\n", di->device_version);
-	curr += snprintf(buffer + curr, max - curr, "    \"serialNumber\": \"%s\"\n", di->serial_number);
-	curr += snprintf(buffer + curr, max - curr, "}");
+	curr += osnprintf(buffer, curr, max, "    \"manufacturer\": \"%s\",\n", di->manufacturer);
+	curr += osnprintf(buffer, curr, max, "    \"extensions\": \"%s\",\n", di->extensions);
+	curr += osnprintf(buffer, curr, max, "    \"model\": \"%s\",\n", di->model);
+	curr += osnprintf(buffer, curr, max, "    \"deviceVersion\": \"%s\",\n", di->device_version);
+	curr += osnprintf(buffer, curr, max, "    \"serialNumber\": \"%s\"\n", di->serial_number);
+	curr += osnprintf(buffer, curr, max, "}");
 	return curr;
 }
 
@@ -252,12 +268,12 @@ const char *eval_storage_type(int id) {
 }
 
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
-	int len = sprintf(buffer, "{");
-	len += snprintf(buffer + len, max - len, "\"storageType\": \"%s\",", eval_storage_type(so->storage_type));
-	len += snprintf(buffer + len, max - len, "\"fsType\": %u,", so->fs_type);
-	len += snprintf(buffer + len, max - len, "\"maxCapacity\": %lu,", so->max_capacity);
-	len += snprintf(buffer + len, max - len, "\"freeSpace\": %lu", so->free_space);
-	len += snprintf(buffer + len, max - len, "}");
+	int len = osnprintf(buffer, 0, max, "{");
+	len += osnprintf(buffer, len, max, "\"storageType\": \"%s\",", eval_storage_type(so->storage_type));
+	len += osnprintf(buffer, len, max, "\"fsType\": %u,", so->fs_type);
+	len += osnprintf(buffer, len, max, "\"maxCapacity\": %lu,", so->max_capacity);
+	len += osnprintf(buffer, len, max, "\"freeSpace\": %lu", so->free_space);
+	len += osnprintf(buffer, len, max, "}");
 	return len;
 }
 
