@@ -3,6 +3,27 @@
 
 #define PTP_TIMEOUT 1000
 
+// Linked-list entry for a single USB device
+struct PtpDeviceEntry {
+	struct PtpDeviceEntry *prev;
+
+	int id;
+	int vendor_id;
+	int product_id;
+
+	uint32_t endpoint_in;
+	uint32_t endpoint_out;
+	uint32_t endpoint_int;
+
+	char name[16];
+	char manufacturer[16];
+	void *device_handle_ptr;
+
+	struct PtpDeviceEntry *next;
+};
+
+struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
+
 // Connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);
 

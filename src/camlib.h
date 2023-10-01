@@ -165,16 +165,6 @@ struct PtpCommand {
 	int data_length;
 };
 
-struct PtpDeviceEntry {
-	int id;
-	int vendor_id;
-	int product_id;
-	char name[16];
-	char manufacturer[16];
-	void *device_handle_ptr;
-	struct PtpDeviceEntry *next;
-};
-
 void ptp_mutex_unlock(struct PtpRuntime *r);
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 void ptp_mutex_lock(struct PtpRuntime *r);

@@ -9,6 +9,8 @@
 #include <ptp.h>
 
 void ptp_generic_reset(struct PtpRuntime *r) {
+	memset(r, 0, sizeof(struct PtpRuntime));
+
 	r->active_connection = 0;
 	r->transaction = 0;
 	r->session = 0;	
@@ -84,9 +86,8 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
 		return 0;
 	} else {
-		printf("Invalid return code: %X\n", ptp_get_return_code(r));
+		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
 		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
-		return 0;
 		return PTP_CHECK_CODE;
 	}
 }

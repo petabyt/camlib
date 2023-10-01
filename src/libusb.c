@@ -21,46 +21,68 @@ struct LibUSBBackend {
 	libusb_device_handle *handle;
 };
 
-int ptpusb_device_list(struct PtpRuntime *r) {
-	
-}
+int ptp_comm_init(struct PtpRuntime *r) {
+	if (r->comm_backend != NULL) {
+		ptp_verbose_log("ptp_comm_init() called with comm backend already allocated\n");
+		return 0;
+	}
 
-int ptp_device_init(struct PtpRuntime *r) {
-	ptp_generic_reset(r);
+	// libusb 1.0 has no specificed limit for reads/writes
+	r->max_packet_size = 512 * 4;
+
 	r->comm_backend = malloc(sizeof(struct LibUSBBackend));
 	memset(r->comm_backend, 0, sizeof(struct LibUSBBackend));
 
-	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
+	//struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
-	ptp_verbose_log("Initializing USB...\n");
+	ptp_verbose_log("Initializing libusb...\n");
 	libusb_init(r->comm_backend);
+
+	return 0;
+}
+
+struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
+	if (r->comm_backend == NULL) {
+		ptp_verbose_log("comm_backend is NULL\n");
+		return NULL;
+	}
+
+	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
 	libusb_device **list;
 	ssize_t count = libusb_get_device_list(backend->ctx, &list);
-
-	// TODO: allow API to loop through different devices
 
 	struct libusb_device_descriptor desc;
 	struct libusb_config_descriptor *config;
 	const struct libusb_interface *interf;
 	const struct libusb_interface_descriptor *interf_desc;
 
-	libusb_device *dev = NULL;
-	for (int i = 0; i < (int)count; i++) {
-		int rc = libusb_get_device_descriptor(list[i], &desc);
+	struct PtpDeviceEntry *curr_ent = malloc(sizeof(struct PtpDeviceEntry));
+	memset(curr_ent, 0, sizeof(struct PtpDeviceEntry));
+
+	struct PtpDeviceEntry *orig_ent = curr_ent;
+
+	if (count == 0) {
+		return NULL;
+	}
+
+	int valid_devices = 0;
+	for (int d = 0; d < (int)count; d++) {
+		libusb_device *dev = list[d];
+		int rc = libusb_get_device_descriptor(dev, &desc);
 		if (rc) {
 			perror("libusb_get_device_descriptor");
-			return PTP_NO_DEVICE;
+			return NULL;
 		}
 
 		if (desc.bNumConfigurations == 0) {
 			continue;
 		} 
 
-		rc = libusb_get_config_descriptor(list[i], 0, &config);
+		rc = libusb_get_config_descriptor(dev, 0, &config);
 		if (rc) {
 			perror("libusb_get_config_descriptor");
-			return PTP_NO_DEVICE;
+			return NULL;
 		}
 
 		if (config->bNumInterfaces == 0) {
@@ -72,57 +94,144 @@ int ptp_device_init(struct PtpRuntime *r) {
 			continue;
 		}
 
+		// TODO: check altsetting length (garunteed to be >=1?)
+
 		interf_desc = &interf->altsetting[0];
+
+		// Only accept imaging class devices
+		if (interf_desc->bInterfaceClass != LIBUSB_CLASS_IMAGE) {
+			continue;
+		}
+
+		// We require in/out/int endpoints
+		const struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
+		if (interf_desc->bNumEndpoints < 2) {
+			continue;
+		}
+
+		// Init next/curr member of linked list
+		if (valid_devices != 0) {
+			struct PtpDeviceEntry *new_ent = malloc(sizeof(struct PtpDeviceEntry));
+			memset(new_ent, 0, sizeof(struct PtpDeviceEntry));
+
+			curr_ent->next = new_ent;
+			new_ent->prev = curr_ent;
+
+			curr_ent = new_ent;
+		}
+
+		valid_devices++;
 
 		ptp_verbose_log("Vendor ID: %X, Product ID: %X\n", desc.idVendor, desc.idProduct);
 
-		if (interf_desc->bInterfaceClass == LIBUSB_CLASS_IMAGE) {
-			dev = list[i];
-			break;
+		curr_ent->id = d;
+		curr_ent->vendor_id = desc.idVendor;
+		curr_ent->product_id = desc.idProduct;
+
+		for (int i = 0; i < interf_desc->bNumEndpoints; i++) {
+			if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
+				if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
+					curr_ent->endpoint_in = ep[i].bEndpointAddress;
+					ptp_verbose_log("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
+				} else {
+					curr_ent->endpoint_out = ep[i].bEndpointAddress;
+					ptp_verbose_log("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
+				}
+			} else if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT) {
+				curr_ent->endpoint_int = ep[i].bEndpointAddress;
+				ptp_verbose_log("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
+			}
+		}
+
+		curr_ent->device_handle_ptr = dev;
+		
+		libusb_device_handle *handle = NULL;
+		rc = libusb_open(dev, &handle);
+		if (rc) {
+			perror("usb_open() failure");
+			return NULL;
+		}
+
+		char buffer[64];
+		rc = libusb_get_string_descriptor_ascii(handle, desc.iProduct, (unsigned char *)buffer, sizeof(buffer));
+		if (rc < 0) {
+			strcpy(curr_ent->name, "?");
+		} else {
+			strncpy(curr_ent->name, buffer, sizeof(curr_ent->name) - 1);
+			ptp_verbose_log("Device name: %s\n", curr_ent->name);
+		}
+
+		rc = libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, (unsigned char *)buffer, sizeof(buffer));
+		if (rc < 0) {
+			strcpy(curr_ent->manufacturer, "?");
+		} else {
+			strncpy(curr_ent->manufacturer, buffer, sizeof(curr_ent->name) - 1);
+			ptp_verbose_log("Manufacturer: %s\n", curr_ent->manufacturer);
 		}
 
 		libusb_free_config_descriptor(config);
+		
+		libusb_close(handle);
 	}
 
-	if (dev == NULL) {
-		return PTP_NO_DEVICE;
+	//libusb_free_device_list(list, 0);
+
+	if (valid_devices == 0) {
+		return NULL;
 	}
 
-	// libusb 1.0 has no specificed limit for reads/writes
-	r->max_packet_size = 512*4;
+	return orig_ent;
+}
 
-	const struct libusb_endpoint_descriptor *ep = interf_desc->endpoint;
-	for (int i = 0; i < interf_desc->bNumEndpoints; i++) {
-		if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
-			if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
-				backend->endpoint_in = ep[i].bEndpointAddress;
-				ptp_verbose_log("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
-			} else {
-				backend->endpoint_out = ep[i].bEndpointAddress;
-				ptp_verbose_log("Endpoint OUT addr: 0x%X\n", ep[i].bEndpointAddress);
-			}
-		} else if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT) {
-			backend->endpoint_int = ep[i].bEndpointAddress;
-			ptp_verbose_log("Endpoint INT addr: 0x%X\n", ep[i].bEndpointAddress);	
-		}
+int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
+	if (r->comm_backend == NULL) {
+		ptp_verbose_log("comm_backend is NULL\n");
+		return PTP_IO_ERR;
 	}
 
-	if (interf_desc->bNumEndpoints < 2) {
-		return PTP_OPEN_FAIL;
-	}
+	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
-	libusb_free_config_descriptor(config);
-	int rc = libusb_open(dev, &(backend->handle));
-	libusb_free_device_list(list, 0);
+	backend->endpoint_in = entry->endpoint_in;
+	backend->endpoint_out = entry->endpoint_out;
+	backend->endpoint_int = entry->endpoint_int;
 
+	int rc = libusb_open(entry->device_handle_ptr, &(backend->handle));
 	if (rc) {
 		perror("usb_open() failure");
 		return PTP_OPEN_FAIL;
 	}
 
-	char buffer[64];
-	rc = libusb_get_string_descriptor_ascii(backend->handle, desc.iProduct, buffer, sizeof(buffer));
-	ptp_verbose_log("Name: %s\n", buffer);
+	if (libusb_set_auto_detach_kernel_driver(backend->handle, 0)) {
+		perror("libusb_set_auto_detach_kernel_driver");
+		return PTP_OPEN_FAIL;
+	}
+
+	if (libusb_claim_interface(backend->handle, 0)) {
+		perror("usb_claim_interface() failure");
+		libusb_close(backend->handle);
+		return PTP_OPEN_FAIL;
+	}
+
+	r->active_connection = 1;
+
+	return 0;
+}
+
+int ptp_device_init(struct PtpRuntime *r) {
+	ptp_comm_init(r);
+	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
+
+	struct PtpDeviceEntry *list = ptpusb_device_list(r);
+
+	backend->endpoint_in = list->endpoint_in;
+	backend->endpoint_out = list->endpoint_out;
+	backend->endpoint_int = list->endpoint_int;
+
+	int rc = libusb_open(list->device_handle_ptr, &(backend->handle));
+	if (rc) {
+		perror("usb_open() failure");
+		return PTP_OPEN_FAIL;
+	}
 
 	if (libusb_set_auto_detach_kernel_driver(backend->handle, 0)) {
 		perror("libusb_set_auto_detach_kernel_driver");
