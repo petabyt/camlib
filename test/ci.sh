@@ -1,10 +1,11 @@
 #!/bin/sh
 
 cp test/ci-config.mak config.mak
-git clone https://github.com/petabyt/vusb
-cd vusb
+cd ..
+git clone https://github.com/petabyt/vcam
+cd vcam
 make libusb.so
 mv libusb.so libvusb.so
-cd ..
+cd ../camlib
 make test-ci
 ./test-ci
