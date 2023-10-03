@@ -9,14 +9,9 @@
 #include <ptp.h>
 
 void ptp_generic_reset(struct PtpRuntime *r) {
-	memset(r, 0, sizeof(struct PtpRuntime));
-
 	r->active_connection = 0;
 	r->transaction = 0;
 	r->session = 0;	
-	r->max_packet_size = 512;
-	r->data_phase_length = 0;
-	r->di = NULL;
 	r->connection_type = PTP_USB;
 	r->caller_unlocks_mutex = 0;
 	r->mutex = NULL;
@@ -24,7 +19,9 @@ void ptp_generic_reset(struct PtpRuntime *r) {
 }
 
 void ptp_generic_init(struct PtpRuntime *r) {
+	memset(r, 0, sizeof(struct PtpRuntime));
 	ptp_generic_reset(r);
+
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 

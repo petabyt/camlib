@@ -22,6 +22,8 @@ struct LibUSBBackend {
 };
 
 int ptp_comm_init(struct PtpRuntime *r) {
+	ptp_generic_reset(r);
+
 	if (r->comm_backend != NULL) {
 		ptp_verbose_log("ptp_comm_init() called with comm backend already allocated\n");
 		return 0;
