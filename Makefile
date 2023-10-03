@@ -8,7 +8,7 @@ FILES=$(addprefix src/,operations.o packet.o enums.o data.o enum_dump.o util.o c
 
 # Unix-specific
 CFLAGS+=$(shell pkg-config --cflags libusb-1.0)
-#LDFLAGS?=$(shell pkg-config --libs libusb-1.0)
+LDFLAGS?=$(shell pkg-config --libs libusb-1.0)
 FILES+=src/libusb.o src/backend.o
 
 # TODO: implement as CAMLIB_VERSION
