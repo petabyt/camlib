@@ -1,1 +1,1 @@
-LDFLAGS=-L../vusb/ -Wl,-rpath=../vusb/ -lvusb -lexif
+LDFLAGS=-L../vcam/ -Wl,-rpath=../vcam/ -lvusb -lexif
