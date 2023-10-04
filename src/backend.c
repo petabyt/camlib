@@ -171,7 +171,7 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 		// If packet is completely read in, then we are good to go
 		if (extra >= 4) {
-			struct PtpBulkContainer *h2 = (struct PtpBulkContainer *)(r->data + of + read);
+			struct PtpBulkContainer *h2 = (struct PtpBulkContainer *)(r->data + of + h->length);
 			if (h2->length == extra) return read;
 		}
 		
