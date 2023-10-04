@@ -39,11 +39,18 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 int ptpip_read_packet(struct PtpRuntime *r, int of) {
 	int read = 0;
 
-	int rc = ptpip_cmd_read(r, r->data + of, 8);
-	if (rc != 8) {
-		ptp_verbose_log("Failed to read PTP/IP header\n");
-		return PTP_IO_ERR;
+	int rc = 0;
+	while (rc <= 0 && r->wait_for_response) {
+		rc = ptp_cmd_read(r, r->data + of + read, r->max_packet_size);
+
+		r->wait_for_response--;
+
+		if (r->wait_for_response) {
+			CAMLIB_SLEEP(1000);
+		}
 	}
+
+	r->wait_for_response = 1;
 
 	read += rc;
 
