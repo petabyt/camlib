@@ -14,15 +14,15 @@ int ptp_device_reset(struct PtpRuntime *r) {
     return -1;
 }
 
-int ptp_cmd_write(void *to, int length) {
+int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
     return -1;
 }
 
-int ptp_cmd_read(void *to, int length) {
+int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
     return -1;
 }
 
-int ptp_read_int(void *to, int length) {
+int ptp_read_int(struct PtpRuntime *r, void *to, int length) {
     return -1;
 }
 
