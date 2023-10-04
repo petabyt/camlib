@@ -179,9 +179,14 @@ int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data
 	cmd->param_length = 0;
 
 	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
-	memcpy(ptp_get_payload(r), data, data_length);
-	ptp_update_data_length(r, length + data_length);	
-	return length;
+
+	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+	c->length += data_length;
+
+	// Data packets are always 12 bytes (no parameters)
+	memcpy(r->data + 12, data, data_length);
+	
+	return length + data_length;
 }
 
 // Generate a IP or USB style command packet (both are pretty similar)
@@ -193,24 +198,6 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	} else {
 		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_COMMAND);
 		return length;
-	}
-}
-
-// Update the length of the data packet after creation
-// TODO: This is a bad function, should be deleted
-void ptp_update_data_length(struct PtpRuntime *r, int length) {
-	if (r->connection_type == PTP_IP) {
-		struct PtpIpHeader *de = (struct PtpIpHeader*)(r->data);
-		if (de->type != PTPIP_DATA_PACKET_END) {
-			// TODO: camlib_fatal
-			ptp_panic("ptp_update_data_length(): didn't get data end packet");
-		}
-
-		// Update the packet length for the end packet
-		de->length = 12 + length;
-	} else {
-		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-		bulk->length = length;
 	}
 }
 
