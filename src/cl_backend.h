@@ -22,7 +22,9 @@ struct PtpDeviceEntry {
 	struct PtpDeviceEntry *next;
 };
 
+int ptp_comm_init(struct PtpRuntime *r);
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
+int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
 
 // Connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);

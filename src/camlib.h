@@ -44,12 +44,13 @@ void ptp_panic(char *fmt, ...);
 // 4mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 8000000
 
-// Transparency pixel used in ML liveview processor
+// Transparency pixel used in liveview processor. Will be packed as RGB uint32
+// uncompressed array of pixels in little-endian. This will be used as the first byte.
 #ifndef PTP_LV_TRANSPARENCY_PIXEL
 	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
 #endif
 
-// Generic Camlib errors, not PTP return codes
+// Camlib library errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
 	PTP_NO_DEVICE = -1,
@@ -70,7 +71,7 @@ enum PtpLiveViewType {
 	PTP_LV_EOS_ML_BMP = 4, // ptplv v2
 };
 
-// Detect device type - each type should have similar opcodes and behavior
+// Unique camera types - each type should have similar opcodes and behavior
 enum PtpVendors {
 	PTP_DEV_EMPTY = 0,
 	PTP_DEV_EOS = 1,
@@ -90,11 +91,6 @@ enum ImageFormats {
 	IMG_FORMAT_RAW_JPEG = 4,
 };
 
-enum BindCaptureType {
-	PTP_CAPTURE_REMOTE = 1,
-	PTP_CAPTURE_CAMERA = 2,
-};
-
 enum PtpConnType {
 	PTP_IP,
 	PTP_IP_USB, // TCP-based, but using USB-style packets (Fujifilm)
@@ -102,11 +98,11 @@ enum PtpConnType {
 };
 
 struct PtpRuntime {
-	// Managed by libusb/WPD
-	int active_connection;
+	// Managed by comm backend
+	uint8_t active_connection;
 
 	// Is set to USB by default
-	int connection_type;
+	uint8_t connection_type;
 
 	// The transaction ID and session ID is managed by the
 	// packet generator functions
@@ -117,10 +113,12 @@ struct PtpRuntime {
     uint8_t *data;
     int data_length;
 
-	// 512 is common, although sometimes the backend can manage more
+	// For optimization on libusb, as many bytes as possible should be read at once. Generally this
+	// is 512, but certain comm backends can manage more. For TCP, this isn't used.
 	int max_packet_size;
 
-	// Info about current connection, used to detect the vendor, supported opodes
+	// Info about current connection, used to detect the vendor, supported opodes. Unless you are using
+	// bindings, set these yourself.
 	int device_type;
 	struct PtpDeviceInfo *di;
 
@@ -135,6 +133,7 @@ struct PtpRuntime {
 	// For session comm/io structures (holds libusb devices pointers)
 	void *comm_backend;
 
+	// Optional (CAMLIB_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 
 	// For when the caller intends to do long-term data processing on the data buffer,
@@ -142,20 +141,19 @@ struct PtpRuntime {
 	// data processing, this should never matter because reading a packet takes *much* longer.
 	uint8_t caller_unlocks_mutex;
 
-	// Optionally wait up to 256 seonds for a response. Some PTP operations require this, such as EOS capture.
+	// Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
 	uint8_t wait_for_response;
 };
 
-// Generic event / property
+// Generic event / property change
 struct PtpGenericEvent {
-	uint16_t code;
+	short code;
 	const char *name;
 	int value;
 	const char *str_value;
 };
 
-// Generic command structure - not a packet
-// Meant to be a bridge to the other packet types.
+// Generic command structure - accepted by generic operation functions
 struct PtpCommand {
 	int code;
 
@@ -169,7 +167,8 @@ void ptp_mutex_unlock(struct PtpRuntime *r);
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 void ptp_mutex_lock(struct PtpRuntime *r);
 
-// Helper packet reader functions
+// Packet builder/unpacker helper functions. These accept a pointer-to-pointer
+// and will advance the dereferenced pointer by amount read.
 uint8_t ptp_read_uint8(void **dat);
 uint16_t ptp_read_uint16(void **dat);
 uint32_t ptp_read_uint32(void **dat);
@@ -178,14 +177,13 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
 int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
 int ptp_wide_string(char *buffer, int max, char *input);
 
-// Helper packet writer functions
 void ptp_write_uint8(void **dat, uint8_t b);
 int ptp_write_string(void **dat, char *string);
 
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
 
-// Packet builder functions:
+// Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 // Only for PTP_USB or PTP_USB_IP use
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length);
@@ -193,16 +191,8 @@ int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data
 int ptpip_data_start_packet(struct PtpRuntime *r, int data_length);
 int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
 
-// Packets start with a uint32 representing the length of the packet.
-// In some cases, we want to append more data to the packet, so the length
-// value must be updated
-void ptp_update_data_length(struct PtpRuntime *r, int length);
-
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
-
-// Duplicate array, return malloc'd buffer
-struct UintArray * ptp_dup_uint_array(struct UintArray *arr);
 
 // Returns info from the response structure currently in the buffer
 int ptp_get_return_code(struct PtpRuntime *r);
@@ -230,6 +220,9 @@ int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 int ptp_device_type(struct PtpRuntime *r);
 int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
+
+// Duplicate array, return malloc'd buffer
+struct UintArray * ptp_dup_uint_array(struct UintArray *arr);
 
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);

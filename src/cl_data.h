@@ -1,11 +1,12 @@
 // PTP data structures - some very similar to the exact MTP/PTP spec.
-// Variable sized arrays are replaced with fixed arrays, to allow structure
-// packing and unpacking.
+// Variable sized arrays/strings are replaced with fixed arrays, to allow
+// packing and unpacking in the same struct.
 #ifndef CL_DATA_H
 #define CL_DATA_H
 
-// Try and check for compatibility with 32 bit stuff
-// uint64_t is only used once, in PtpStorageInfo
+// Try and check for compatibility with 32 bit stuff uint64_t is only
+// used once, in PtpStorageInfo. Apparantly GCC doesn't care? Doesn't feel
+// right using uint64_t on 32 bit platforms...
 #include <stdint.h>
 #if UINTPTR_MAX == 0xffffffff
 #define BITS_32
@@ -75,7 +76,7 @@ struct PtpStorageInfo {
 };
 
 struct ObjectRequest {
-	uint32_t storage_id; // left zero to get all
+	uint32_t storage_id;
 	uint32_t object_format;
 	uint32_t object_handle;
 	uint8_t all_storage_ids;
@@ -234,7 +235,7 @@ struct PtpFujiObjectInfo {
 	char filename[64];
 	char date_created[32];
 	char settings[32];
-	// Some more crap after this
+	char meta[32];
 };
 
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);

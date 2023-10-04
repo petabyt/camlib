@@ -41,6 +41,8 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
 // Run an opcode - For debugging and prototyping only
 int ptp_custom_receive(struct PtpRuntime *r, int code);
 // Recieve a generic list of all properties received in DeviceInfo - caller must free s
+// This is similar to getting all events, but for first startup when you know nothing.
+// Some vendors do this, but this gets all the properties manually.
 int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length);
 
 // PTP/IP only
