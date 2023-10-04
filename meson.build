@@ -16,6 +16,9 @@ files = [
   'src/log.c',
   'src/libusb.c',
   'src/backend.c',
+  'src/log.c',
+  'src/conv.c',
+  'src/generic.c',
 ]
 
 library('camlib', files,
