@@ -95,7 +95,6 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 		rc = ptpip_read_packet(r, pk2_of);
 		h = (struct PtpIpHeader *)(r->data + pk2_of);
 		if (h->type != PTPIP_COMMAND_RESPONSE) {
-			printf("%d\n", h->length);
 			ptp_verbose_log("Non response packet after data end packet (%d)\n", h->type);
 			return PTP_IO_ERR;
 		}
@@ -138,7 +137,10 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 		r->wait_for_response--;
 
+		if (rc > 0) break;
+
 		if (r->wait_for_response) {
+			ptp_verbose_log("Trying again...");
 			CAMLIB_SLEEP(1000);
 		}
 	}
@@ -146,7 +148,7 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	r->wait_for_response = 1;
 
 	if (rc < 0) {
-		ptp_verbose_log("USB Read error: %d\n", rc);
+		ptp_verbose_log("Failed to read packet length: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
@@ -218,35 +220,29 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
-	while (1) {
-		int rc = ptpusb_read_packet(r, read);
-		if (rc < 0) {
-			return rc;
-		}
+	int rc = ptpusb_read_packet(r, read);
+	if (rc < 0) return rc;
 
-		struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data + read);
-		if (c->length < rc) {
-			ptp_verbose_log("Already read enough bytes\n");
-			return read;
-		}
-
-		read += rc;
-
-		// Handle data phase
-		if (c->type == PTP_PACKET_TYPE_DATA) {
-			rc = ptpusb_read_packet(r, read);
-			if (rc < 0) {
-				return rc;
-			}
-
-			read += rc;
-		}
-
-		ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
-		ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
-
+	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data + read);
+	if (c->length < rc) {
+		ptp_verbose_log("Already read enough bytes\n");
 		return read;
 	}
+
+	read += rc;
+
+	// Handle data phase
+	if (c->type == PTP_PACKET_TYPE_DATA) {
+		rc = ptpusb_read_packet(r, read);
+		if (rc < 0) return rc;
+
+		read += rc;
+	}
+
+	ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
+	ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+
+	return read;
 }
 
 int ptp_receive_bulk_packets(struct PtpRuntime *r) {

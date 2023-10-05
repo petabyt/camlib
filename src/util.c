@@ -128,7 +128,7 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	} else {
 		// Single data packet
 		plength = ptp_new_data_packet(r, cmd, data, length);
-		if (ptp_send_bulk_packets(r, plength) != plength + length) {
+		if (ptp_send_bulk_packets(r, plength) != plength) {
 			ptp_mutex_unlock(r);
 			return PTP_IO_ERR;
 		}
