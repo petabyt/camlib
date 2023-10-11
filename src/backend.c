@@ -1,5 +1,5 @@
-// Common IO backend code - only applies to platforms that have generic
-// USB packet IO access (Not Windows)
+// Packet stream read/write logic - uses bare I/O operations
+// Windows doesn't have that, so it can't be used here.
 
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 

@@ -1,3 +1,5 @@
+// Windows USB I/O frontend for libwpd (https://github.com/petabyt/libwpd)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -9,9 +11,16 @@
 
 struct WpdStruct backend_wpd;
 
-int ptp_device_init(struct PtpRuntime *r) {
+int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
 	wpd_init(1, L"Camlib WPD");
+
+	return 0;	
+}
+
+int ptp_device_init(struct PtpRuntime *r) {
+	ptp_comm_init();
+
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
 
@@ -35,6 +44,14 @@ int ptp_device_init(struct PtpRuntime *r) {
 	}
 
 	return PTP_NO_DEVICE;
+}
+
+struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
+	return NULL;
+}
+
+int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
+	return PTP_IO_ERR;
 }
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
@@ -121,7 +138,7 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_receive_int(void *to, int length) {
+int ptp_read_int(void *to, int length) {
 	return 0;
 }
 

@@ -69,8 +69,6 @@ int ptp_eos_get_viewfinder_data(struct PtpRuntime *r) {
 	cmd.param_length = 1;
 
 	cmd.params[0] = 0x200000;
-	cmd.params[1] = 0x0;
-	cmd.params[2] = 0x0;
 
 	return ptp_generic_send(r, &cmd);
 }

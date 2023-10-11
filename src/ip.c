@@ -1,4 +1,4 @@
-// PTP/IP implementation - 
+// POSIX PTP/IP implementation
 // Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>

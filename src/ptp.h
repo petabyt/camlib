@@ -660,6 +660,8 @@ struct PtpIpEndDataPacket {
 // See https://en.wikipedia.org/wiki/USB#Device_classes
 #define PTP_CLASS_ID 6
 
+#define USB_VENDOR_CANON 0x4A9
+
 // ISO number for PTP/IP, seems to be standard (?)
 #define PTP_IP_PORT 15740
 
