@@ -19,7 +19,7 @@ int ptp_comm_init(struct PtpRuntime *r) {
 }
 
 int ptp_device_init(struct PtpRuntime *r) {
-	ptp_comm_init();
+	ptp_comm_init(r);
 
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
@@ -138,7 +138,7 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_read_int(void *to, int length) {
+int ptp_read_int(struct PtpRuntime *r, void *to, int length) {
 	return 0;
 }
 
