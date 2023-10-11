@@ -1,0 +1,15 @@
+site_name: Camlib documetation
+site_description: 'Docs for camlib, PTP/USB/IP library'
+site_author: 'Daniel Cook'
+docs_dir: docs/
+repo_name: 'petabyt/camlib'
+repo_url: 'http://github.com/petabyt/camlib'
+nav:
+  - Home: index.md
+  - C API: c.md
+  - camlib.js: js.md
+  - Lua API: lua.md
+theme:
+  name: 'material'
+  palette:
+    scheme: default
