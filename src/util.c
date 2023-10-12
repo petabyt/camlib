@@ -1,4 +1,4 @@
-// Helper/convenient functions
+// Library frontend functions
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdlib.h>
@@ -77,6 +77,12 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		return PTP_IO_ERR;
 	}
 
+	if (ptp_get_last_transaction(r) != r->transaction) {
+		ptp_verbose_log("Mismatch transaction ID\n");
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
 	r->transaction++;
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
@@ -135,6 +141,12 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	}
 
 	if (ptp_receive_bulk_packets(r) < 0) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
+
+	if (ptp_get_last_transaction(r) != r->transaction) {
+		ptp_verbose_log("Mismatch transaction ID\n");
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
