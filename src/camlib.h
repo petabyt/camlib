@@ -147,7 +147,7 @@ struct PtpRuntime {
 
 // Generic event / property change
 struct PtpGenericEvent {
-	short code;
+	uint16_t code;
 	const char *name;
 	int value;
 	const char *str_value;

@@ -358,27 +358,8 @@ int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
 	return 0;
 }
 
-int ptp_eos_prop_json(void **d, char *buffer, int max) {
-	struct PtpGenericEvent p;
-
-	ptp_eos_prop_next(d, &p);
-
-	int curr = 0;
-	if (p.name == NULL) {
-		curr = snprintf(buffer + curr, max - curr, "[%u, %u]\n", p.code, p.value);
-	} else {
-		if (p.str_value == NULL) {
-			curr = snprintf(buffer + curr, max - curr, "[\"%s\", %u]\n", p.name, p.value);
-		} else {
-			curr = snprintf(buffer + curr, max - curr, "[\"%s\", \"%s\"]\n", p.name, p.str_value);
-		}
-	}
-
-	return curr;
-}
-
+// TODO: misnomer: ptp_eos_unpack_events
 int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
-	//struct PtpCanonEvent ce;
 	uint8_t *dp = ptp_get_payload(r);
 
 	int length = 0;
@@ -444,55 +425,38 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 }
 
 int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
-	uint8_t *dp = ptp_get_payload(r);
+	struct PtpGenericEvent *events = NULL;
 
-	int curr = sprintf(buffer, "[\n");
-
-	int tmp = 0;
-	while (dp != NULL) {
-		uint8_t *d = dp;
-		uint32_t size = ptp_read_uint32((void **)&d);
-		uint32_t type = ptp_read_uint32((void **)&d);
-
-		dp += size;
-
-		if (type == 0) break;
-		if (dp >= (uint8_t *)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
-
-		// Don't put comma for last entry
-		char *end = "";
-		if (tmp) end = ",";
-		tmp++;
-
-		curr += sprintf(buffer + curr, "%s", end);
-
-		switch (type) {
-		case PTP_EC_EOS_PropValueChanged:
-			curr += ptp_eos_prop_json((void **)&d, buffer + curr, max - curr);
-			break;
-		case PTP_EC_EOS_InfoCheckComplete:
-		case PTP_PC_EOS_FocusInfoEx:
-			curr += sprintf(buffer + curr, "[\"%s\", %u]\n", ptp_get_enum_all(type), type);
-			break;
-		case PTP_EC_EOS_RequestObjectTransfer: {
-			int a = ptp_read_uint32((void **)&d);
-			int b = ptp_read_uint32((void **)&d);
-			curr += sprintf(buffer + curr, "[%u, %u]\n", a, b);
-			} break;
-		case PTP_EC_EOS_ObjectAddedEx: {
-			struct PtpEOSObject *obj = (struct PtpEOSObject *)d;
-			curr += sprintf(buffer + curr, "[\"new object\", %u]\n", obj->a);
-			} break;
-		default:
-			// Unknown event, delete the comma
-			curr -= strlen(end);
-			if (tmp == 1) tmp = 0;
-		}
-
-		if (curr >= max) return 0;
+	int length = ptp_eos_events(r, &events);
+	if (length == 0) {
+		strncpy(buffer, "[]", max);
+		return 2;
 	}
 
-	curr += sprintf(buffer + curr, "]");
+	int curr = osnprintf(buffer, 0, max, "[");
+	for (int i = 0; i < length; i++) {
+		// Don't put comma for last entry
+		char *end = ",";
+		if (i - 1 == length) end = "";
+
+		struct PtpGenericEvent *p = &(events[i]);
+		
+		if (p->name == NULL) {
+			if (p->code == 0) continue;
+			curr += osnprintf(buffer, curr, max, "[%u, %u]", p->code, p->value);
+		} else {
+			if (p->str_value == NULL) {
+				curr += osnprintf(buffer, curr, max, "[\"%s\", %u]", p->name, p->value);
+			} else {
+				curr += osnprintf(buffer, curr, max, "[\"%s\", \"%s\"]", p->name, p->str_value);
+			}
+		}
+
+		curr += osnprintf(buffer, curr, max, "%s\n", end);
+	}
+
+	curr += osnprintf(buffer, curr, max, "]");
+
 	return curr;
 }
 
