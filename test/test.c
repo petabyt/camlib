@@ -5,8 +5,43 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 
 #include <camlib.h>
+
+int ptp_vcam_magic() {
+	struct PtpRuntime r;
+
+	int rc = test_setup_usb(&r);
+	if (rc) return rc;
+
+	int sizes[] = {4, 10, 101, 513, 1000, 997, 257, 511, 1, 2, 3};
+
+	size_t l = sizeof(sizes) / sizeof(int);
+	for (size_t i = 0; i < l; i++) {
+		struct PtpCommand cmd;
+		cmd.code = 0x9999;
+		cmd.param_length = 1;
+
+		srand(time(NULL));
+
+		unsigned char *buffer = malloc(sizes[i]);
+
+		int checksum = 0;
+		for (int x = 0; x < sizes[i]; x++) {
+			buffer[x] = rand() / 256;
+			checksum += buffer[x];
+		}
+
+		cmd.params[0] = checksum;
+
+		rc = ptp_generic_send_data(&r, &cmd, buffer, sizes[i]);
+		if (rc) return rc;
+	}
+
+	ptp_generic_close(&r);
+	return 0;
+}
 
 int test_setup_usb(struct PtpRuntime *r) {
 	ptp_generic_init(r);
@@ -32,6 +67,19 @@ int test_eos_t6() {
 
 	int rc = test_setup_usb(&r);
 	if (rc) return rc;
+
+	if (ptp_device_type(&r) == PTP_DEV_EOS) {
+		ptp_eos_set_remote_mode(&r, 1);
+		ptp_eos_set_event_mode(&r, 1);
+	}
+
+	rc = ptp_eos_get_event(&r);
+	if (rc) return rc;
+
+	char events_json[4096];
+	ptp_eos_events_json(&r, events_json, sizeof(events_json));
+
+	puts(events_json);
 
 	rc = ptp_get_device_info(&r, &di);
 	if (rc) return rc;
@@ -59,7 +107,7 @@ int test_eos_t6() {
 
 	//ptp_device_close(&r);
 	ptp_generic_close(&r);
-	return 0;	
+	return 0;
 }
 
 // TODO: Add JSON validator
@@ -137,9 +185,23 @@ int test_fs() {
 }
 
 int main() {
-	if (test_eos_t6()) return 1;
-	if (test_bind()) return 1;
-	if (test_fs()) return 1;
+	int rc;
+
+	rc = test_eos_t6();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_bind();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_fs();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = ptp_vcam_magic();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
 
 	return 0;
 }
