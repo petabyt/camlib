@@ -21,6 +21,9 @@
 // Max timeout for command read/writes
 #define PTP_TIMEOUT 1000
 
+// How much x to wait for when wait_for_response is greater than 1
+#define CAMLIB_WAIT_MS 1000
+
 // Conforms to POSIX 2001, some compilers may not have it
 #ifndef CAMLIB_SLEEP
 	#include <unistd.h>

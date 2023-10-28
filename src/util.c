@@ -69,11 +69,13 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	int length = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, length) != length) {
 		ptp_mutex_unlock(r);
+		ptp_verbose_log("Didn't send all packets\n");
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_receive_bulk_packets(r) < 0) {
 		ptp_mutex_unlock(r);
+		ptp_verbose_log("Failed to recieve packets\n");
 		return PTP_IO_ERR;
 	}
 
@@ -134,8 +136,9 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	} else {
 		// Single data packet
 		plength = ptp_new_data_packet(r, cmd, data, length);
-		if (ptp_send_bulk_packets(r, plength) != plength + length) {
+		if (ptp_send_bulk_packets(r, plength) != plength) {
 			ptp_mutex_unlock(r);
+			ptp_verbose_log("Failed to send data packet (%d)\n", plength);
 			return PTP_IO_ERR;
 		}
 	}
@@ -146,7 +149,8 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	}
 
 	if (ptp_get_last_transaction(r) != r->transaction) {
-		ptp_verbose_log("Mismatch transaction ID\n");
+		ptp_verbose_log("ptp_generic_send_data: Mismatch transaction ID (%d/%d)\n",
+			ptp_get_last_transaction(r), r->transaction);
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}

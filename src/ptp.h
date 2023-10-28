@@ -156,6 +156,10 @@ struct PtpIpEndDataPacket {
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
 
+#define PTP_OC_CANON_ExecuteEventProc 0x9052
+#define PTP_OC_CANON_GetEventProcReturnData 0x9053
+#define PTP_OC_CANON_IsEventProcRunning 0x9057
+
 #define EOS_DESTINATION_CAM		0x2
 #define EOS_DESTINATION_PC		0x4
 #define EOS_DESTINATION_BOTH	0x6

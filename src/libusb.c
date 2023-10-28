@@ -24,21 +24,16 @@ struct LibUSBBackend {
 int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
 
-	if (r->comm_backend != NULL) {
-		ptp_verbose_log("ptp_comm_init() called with comm backend already allocated\n");
-		return 0;
-	}
-
 	// libusb 1.0 has no specificed limit for reads/writes
 	r->max_packet_size = 512 * 4;
 
 	r->comm_backend = malloc(sizeof(struct LibUSBBackend));
 	memset(r->comm_backend, 0, sizeof(struct LibUSBBackend));
 
-	//struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
+	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
 	ptp_verbose_log("Initializing libusb...\n");
-	libusb_init(r->comm_backend);
+	libusb_init(&(backend->ctx));
 
 	return 0;
 }
@@ -224,6 +219,10 @@ int ptp_device_init(struct PtpRuntime *r) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
 	struct PtpDeviceEntry *list = ptpusb_device_list(r);
+
+	if (list == NULL) {
+		return PTP_NO_DEVICE;
+	}
 
 	backend->endpoint_in = list->endpoint_in;
 	backend->endpoint_out = list->endpoint_out;

@@ -29,9 +29,12 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		
 		sent += x;
 		
-		if (sent >= length) {
-			ptp_verbose_log("send_bulk_packet: Sent %d bytes\n", sent);
+		if (sent > length) {
+			ptp_verbose_log("send_bulk_packet: Sent too many bytes: %d\n", sent);
 			return sent;
+		} else if (sent == length) {
+			ptp_verbose_log("send_bulk_packet: Sent %d/%d bytes\n", sent, length);
+			return sent;			
 		}
 	}
 }
@@ -46,7 +49,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 		r->wait_for_response--;
 
 		if (r->wait_for_response) {
-			CAMLIB_SLEEP(1000);
+			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
 
@@ -105,8 +108,8 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 		return PTP_IO_ERR;
 	}
 
-//	ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
-//	ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+	ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
+	ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 	return 0;
 }
@@ -124,16 +127,61 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 	return rc;
 }
 
-int ptpusb_read_packet(struct PtpRuntime *r, int of) {
+// Quirk of LibUSB/LibWPD - we can allowed read 512 bytes over and over again
+// until we don't, then packet is over. This makes the code simpler and gives a reduces
+// calls to the backend, which increases performance. This isn't possible with sockets - 
+// the read will time out in most cases.
+int ptpusb_read_all_packets(struct PtpRuntime *r) {
+	int read = 0;
+
+	while (1) {
+		int rc = 0;
+		while (rc <= 0 && r->wait_for_response) {
+			rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+
+			r->wait_for_response--;
+
+			if (rc > 0) break;
+
+			if (r->wait_for_response) {
+				ptp_verbose_log("Trying again...");
+				CAMLIB_SLEEP(CAMLIB_WAIT_MS);
+			}
+		}
+		r->wait_for_response = 1;
+
+		read += rc;
+
+		if (read >= r->data_length - r->max_packet_size) {
+			ptp_verbose_log("recieve_bulk_packets: Not enough memory\n");
+			return PTP_OUT_OF_MEM;
+		}
+
+		if (rc != r->max_packet_size) {
+			ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
+			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+
+			// Read the response packet if only a data packet was sent (as per spec, always is 12 bytes)
+			if (c->type == PTP_PACKET_TYPE_DATA) {
+				rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+				ptp_verbose_log("recieve_bulk_packets: Recieved response packet: %d\n", rc);
+				read += rc;
+			}
+
+			ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+
+			return read;
+		}
+	}
+}
+
+// For USB packets over IP, we can't do any LibUSB/LibWPD performance tricks.
+int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 	int rc = 0;
 	int read = 0;
 
 	while (rc <= 0 && r->wait_for_response) {
-		if (r->connection_type == PTP_USB) {
-			rc = ptp_cmd_read(r, r->data + of + read, r->max_packet_size);
-		} else if (r->connection_type == PTP_IP_USB) {
-			rc = ptpip_cmd_read(r, r->data + of + read, 4);
-		}
+		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 
 		r->wait_for_response--;
 
@@ -141,7 +189,7 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 
 		if (r->wait_for_response) {
 			ptp_verbose_log("Trying again...");
-			CAMLIB_SLEEP(1000);
+			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
 
@@ -165,30 +213,8 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 		return read;
 	}
 
-	// Read more than a single packet, caller must handle this
-	if (h->length < read) {
-		// Read too many bytes. Only case when this would happen is when data packet and
-		// response packet are read as one.
-		int extra = read - h->length;
-
-		// If packet is completely read in, then we are good to go
-		if (extra >= 4) {
-			struct PtpBulkContainer *h2 = (struct PtpBulkContainer *)(r->data + of + h->length);
-			if (h2->length == extra) return read;
-		}
-		
-		// If not, then reading r->max_packet_size will always fix this (assuming r->max_packet_size >= 512)
-		rc = ptp_cmd_read(r, r->data + of + read, r->max_packet_size);
-		read += rc;
-		if (rc < 0) {
-			ptp_verbose_log("USB Read error: %d\n", rc);
-			return PTP_IO_ERR;
-		}
-
-		return read;
-	}
-
 	// Ensure data buffer is large enough for the rest of the packet
+	// TODO: Have this as an external function
 	if (of + read + h->length >= r->data_length) {
 		ptp_verbose_log("Extending IO buffer\n");
 		r->data = realloc(r->data, of + read + h->length + 1000);
@@ -199,14 +225,10 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	}
 
 	while (1) {
-		if (r->connection_type == PTP_USB) {
-			rc = ptp_cmd_read(r, r->data + of + read, h->length - read);
-		} else if (r->connection_type == PTP_IP_USB) {
-			rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
-		}
+		rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
 
 		if (rc < 0) {
-			ptp_verbose_log("USB Read error: %d\n", rc);
+			ptp_verbose_log("Read error: %d\n", rc);
 			return PTP_IO_ERR;
 		}
 
@@ -218,12 +240,16 @@ int ptpusb_read_packet(struct PtpRuntime *r, int of) {
 	}
 }
 
-int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
+// For reading USB style packets over sockets
+int ptpipusb_receive_bulk_packets(struct PtpRuntime *r) {
 	int read = 0;
-	int rc = ptpusb_read_packet(r, read);
+	int rc = 0;
+
+	rc = ptpipusb_read_packet(r, read);
 	if (rc < 0) return rc;
 
 	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data + read);
+
 	if (c->length < rc) {
 		ptp_verbose_log("Already read enough bytes\n");
 		return read;
@@ -233,7 +259,7 @@ int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 
 	// Handle data phase
 	if (c->type == PTP_PACKET_TYPE_DATA) {
-		rc = ptpusb_read_packet(r, read);
+		rc = ptpipusb_read_packet(r, read);
 		if (rc < 0) return rc;
 
 		read += rc;
@@ -248,15 +274,16 @@ int ptpusb_receive_bulk_packets(struct PtpRuntime *r) {
 int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
 		return ptpip_receive_bulk_packets(r);
+	} else if (r->connection_type == PTP_USB) {
+		return ptpusb_read_all_packets(r);
+	} else if (r->connection_type == PTP_IP_USB) {
+		return ptpipusb_receive_bulk_packets(r);
 	} else {
-		return ptpusb_receive_bulk_packets(r);
+		return PTP_IO_ERR;
 	}
 }
 
-
-
-
-
+#if 0
 // Pipe-routing IO, untested, don't use yet
 int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream) {
 	int x = ptp_cmd_write(r, r->data, length);
@@ -335,3 +362,4 @@ int ptp_freceive_bulk_packets(struct PtpRuntime *r, FILE *stream, int of) {
 		}
 	}
 }
+#endif
