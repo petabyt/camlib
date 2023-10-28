@@ -134,6 +134,7 @@ struct PtpIpEndDataPacket {
 // EOS specific
 #define PTP_OC_EOS_GetStorageIDs		0x9101
 #define PTP_OC_EOS_GetStorageInfo		0x9102
+#define PTP_OC_EOS_GetObjectInfoEx		0x9109
 #define PTP_OC_EOS_SetDevicePropValueEx	0x9110
 #define PTP_OC_EOS_SetRemoteMode		0x9114
 #define PTP_OC_EOS_SetEventMode			0x9115
@@ -156,7 +157,7 @@ struct PtpIpEndDataPacket {
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
 
-#define PTP_OC_CANON_ExecuteEventProc 0x9052
+#define PTP_OC_CANON_ExecuteEventProc	 0x9052
 #define PTP_OC_CANON_GetEventProcReturnData 0x9053
 #define PTP_OC_CANON_IsEventProcRunning 0x9057
 
@@ -595,6 +596,7 @@ struct PtpIpEndDataPacket {
 #define PTP_PC_EOS_ImageFormatSD		0xD122
 #define PTP_PC_EOS_ImageFormatExtHD		0xD123
 #define PTP_PC_EOS_AEModeDial			0xD138
+#define PTP_PC_EOS_ShutterCounter 		0xD1AC
 #define PTP_PC_EOS_VF_Output			0xD1B0
 #define PTP_PC_EOS_EVFMode				0xD1B1
 #define PTP_PC_EOS_DOFPreview			0xD1B2

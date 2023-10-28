@@ -5,5 +5,5 @@ int ptp_pack_fuji_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, vo
 
 	memcpy(*ptr, oi, PTP_FUJI_OBJ_INFO_VAR_START);
 	(*ptr) += PTP_FUJI_OBJ_INFO_VAR_START;
-
 }
+

@@ -1,7 +1,45 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <stdint.h>
 #include <camlib.h>
+
+int decode_eos_evproc(FILE *f, int length, uint8_t *data) {
+	char buffer[64];
+
+	void *d = data;
+
+	ptp_read_utf8_string(&d, buffer, sizeof(buffer));
+
+	uint32_t len = ptp_read_uint32(&d);
+
+	fprintf(f, "- Command name: %s\n", buffer);
+	fprintf(f, "- Parameters: %u\n", len);
+
+	for (int i = 0; i < (int)len; i++) {
+		uint32_t type = ptp_read_uint32(&d);
+		if (type == 2) {
+			uint32_t val = ptp_read_uint32(&d);
+			uint32_t p3 = ptp_read_uint32(&d);
+			uint32_t p4 = ptp_read_uint32(&d);
+			fprintf(f, "- Int param: %X (%X, %X)\n", val, p3, p4);
+			ptp_read_uint32(&d); // size
+		} else if (type == 4) {
+			uint32_t val = ptp_read_uint32(&d);
+			ptp_read_uint32(&d);
+			ptp_read_uint32(&d);
+			ptp_read_uint32(&d);
+			ptp_read_uint32(&d);
+			ptp_read_uint32(&d);
+
+			ptp_read_utf8_string(&d, buffer, sizeof(buffer));
+			fprintf(f, "- String param: %s\n", buffer);
+		} else {
+			fprintf(f, "Unknown type %x\n", type);
+		}
+	}
+
+	return 0;
+}
 
 int main(int argc, char *argv[]) {
 	if (argc < 3) {
@@ -122,6 +160,10 @@ int main(int argc, char *argv[]) {
 				fprintf(f, "No data");
 			}
 			fprintf(f, "\n");
+
+			if (c->code == 0x9052) {
+				decode_eos_evproc(f, pl, ((uint8_t *)buffer) + addr + 12);
+			}
 		}
 
 		last_type = c->type;

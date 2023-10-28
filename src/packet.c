@@ -30,7 +30,7 @@ uint32_t ptp_read_uint32(void **dat) {
 	return x;
 }
 
-// Read UTF16 string
+// Read standard UTF16 string
 void ptp_read_string(void **dat, char *string, int max) {
 	uint8_t **p = (uint8_t **)dat;
 	int length = (int)ptp_read_uint8((void **)p);
@@ -38,10 +38,7 @@ void ptp_read_string(void **dat, char *string, int max) {
 	int y = 0;
 	while (y < length) {
 		string[y] = (char)(**p);
-		(*p)++;
-		//printf("'%c'\n", (char)(*p));
-		//assert((char)(**dat) == '\0');
-		(*p)++;
+		(*p) += 2;
 		y++;
 		if (y >= max) { break; }
 	}
@@ -83,7 +80,7 @@ int ptp_write_string(void **dat, char *string) {
 	return (length * 2) + 2;
 }
 
-// Write non-PTP standard unicode string
+// Write null-terminated UTF16 string
 int ptp_write_unicode_string(char *dat, char *string) {
 	int i;
 	for (i = 0; string[i] != '\0'; i++) {
@@ -94,6 +91,7 @@ int ptp_write_unicode_string(char *dat, char *string) {
 	return i;
 }
 
+// Reaed null-terminated UTF16 string
 int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	int i;
 	for (i = 0; dat[i] != '\0'; i += 2) {
@@ -106,6 +104,22 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 
 	buffer[(i / 2)] = '\0';
 	return i / 2;
+}
+
+// Read null terminated UTF8 string
+void ptp_read_utf8_string(void **dat, char *string, int max) {
+	uint8_t **p = (uint8_t **)dat;
+
+	int y = 0;
+	while ((char)(**p) != '\0') {
+		string[y] = (char)(**p);
+		(*p)++;
+		y++;
+		if (y >= max) { break; }
+	}
+
+	(*p)++;
+	string[y] = '\0';
 }
 
 // PTP/IP-specific packet

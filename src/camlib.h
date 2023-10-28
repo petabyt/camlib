@@ -185,6 +185,7 @@ int ptp_write_string(void **dat, char *string);
 
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
+void ptp_read_utf8_string(void **dat, char *string, int max);
 
 // Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
