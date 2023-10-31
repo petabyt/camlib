@@ -1,3 +1,4 @@
+// TODO: Documentation should be in header file or above C code?
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
@@ -91,5 +92,11 @@ int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
 int ptpip_fuji_get_events(struct PtpRuntime *r);
 int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);
 int ptpip_fuji_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpFujiObjectInfo *oi);
+
+// Canon advanced extensions - available in canon-adv.c
+int ptp_eos_activate_command(struct PtpRuntime *r);
+int ptp_eos_exec_evproc(struct PtpRuntime *r, void *data, int length, int expect_return);
+int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...);
+int ptp_eos_evproc_return_data(struct PtpRuntime *r);
 
 #endif

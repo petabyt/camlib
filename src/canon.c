@@ -10,6 +10,21 @@
 #include <camlib.h>
 #include <ptp.h>
 
+int ptp_eos_get_storage_ids(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_GetStorageIDs;
+	cmd.param_length = 0;
+	return ptp_generic_send(r, &cmd);
+}
+
+int ptp_eos_get_storage_info(struct PtpRuntime *r, int id) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_EOS_GetStorageInfo;
+	cmd.param_length = 1;
+	cmd.params[0] = id;
+	return ptp_generic_send(r, &cmd);
+}
+
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_RemoteReleaseOn;

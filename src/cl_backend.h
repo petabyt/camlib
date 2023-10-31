@@ -30,8 +30,8 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
 int ptp_device_init(struct PtpRuntime *r);
 
 // Temporary :)
-#define ptp_send_bulk_packet DEPRECATED_USE_ptp_cmd_write_INSTEAD`
-#define ptp_receive_bulk_packet DEPRECATED_USE_ptp_cmd_read_INSTEAD`
+#define ptp_send_bulk_packet DEPRECATED_USE_ptp_cmd_write_INSTEAD
+#define ptp_receive_bulk_packet DEPRECATED_USE_ptp_cmd_read_INSTEAD
 
 // Bare IO, send a single 512 byte packet. Return negative or NULL on error.
 int ptp_cmd_write(struct PtpRuntime *r, void *to, int length);

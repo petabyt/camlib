@@ -66,6 +66,14 @@ void ptp_write_uint8(void **dat, uint8_t b) {
 	(*ptr)++;
 }
 
+int ptp_write_uint32(void **dat, uint32_t b) {
+	uint32_t **ptr = (uint32_t **)dat;
+	(**ptr) = b;
+	(*ptr)++;
+
+	return 4;
+}
+
 int ptp_write_string(void **dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
@@ -78,6 +86,16 @@ int ptp_write_string(void **dat, char *string) {
 	ptp_write_uint8(dat, '\0');
 
 	return (length * 2) + 2;
+}
+
+int ptp_write_utf8_string(void **dat, char *string) {
+	for (int i = 0; string[i] != '\0'; i++) {
+		ptp_write_uint8(dat, string[i]);
+	}
+
+	ptp_write_uint8(dat, '\0');
+
+	return strlen(string) + 1;
 }
 
 // Write null-terminated UTF16 string

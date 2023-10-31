@@ -181,7 +181,9 @@ int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
 int ptp_wide_string(char *buffer, int max, char *input);
 
 void ptp_write_uint8(void **dat, uint8_t b);
+int ptp_write_uint32(void **dat, uint32_t b);
 int ptp_write_string(void **dat, char *string);
+int ptp_write_utf8_string(void **dat, char *string);
 
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
