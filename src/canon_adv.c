@@ -3,6 +3,9 @@
 // These commands can easily brick your camera (you can literally delete the firmware). Be careful please.
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
+#include <stdarg.h>
+#include <string.h>
+#include <stdlib.h>
 #include <camlib.h>
 
 // Required on some newer cameras, like EOS M.
@@ -146,11 +149,11 @@ static struct Tokens *lex_evproc_command(char string[]) {
 				toks->t[t].integer += string[c] - '0';
 				c++;
 			}
-		} else if (string[c] == '"') {
+		} else if (string[c] == '\'') {
 			c++;
 			toks->t[t].type = TOK_STR;
 			int s = 0;
-			while (string[c] != '"') {
+			while (string[c] != '\'') {
 				toks->t[t].string[s] = string[c];
 				c++;
 				s++;
@@ -180,7 +183,7 @@ static struct Tokens *lex_evproc_command(char string[]) {
 	return toks;
 }
 
-static char *canon_evproc_pack(int *length, char *string) {
+char *canon_evproc_pack(int *length, char *string) {
 	// Allocate some memory for the footer, we will use this later
 	void *footer = malloc(500);
 	void *footer_ptr = footer;
@@ -232,17 +235,17 @@ static char *canon_evproc_pack(int *length, char *string) {
 			(*num_args)++;
 		} break;
 		case TOK_STR: {
-			struct EvProcParam string;
-			memset(&string, 0, sizeof(struct EvProcParam));
+			struct EvProcParam pstring;
+			memset(&pstring, 0, sizeof(struct EvProcParam));
 
-			string.type = EOS_TOK_STR;
-			string.size = strlen(toks->t[t].string);
+			pstring.type = EOS_TOK_STR;
+			pstring.size = strlen(toks->t[t].string) + 1;
 
-			memcpy(data + (*length), &string, sizeof(struct EvProcParam));
+			memcpy(data + (*length), &pstring, sizeof(struct EvProcParam));
 
 			(*length) += sizeof(struct EvProcParam);
 
-			footer_length += ptp_write_uint32((void **)&footer_ptr, t - 1);
+			footer_length += ptp_write_uint32((void **)&footer_ptr, 0);
 			footer_length += ptp_write_utf8_string((void **)&footer_ptr, toks->t[t].string);
 			(*long_args)++;
 
@@ -274,7 +277,7 @@ int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
 	// Command is disabled on some cams, run it nonetheless
 	int rc = ptp_eos_activate_command(r);
 	if (rc) {
-		ptp_verbose_log("Error activating command %d\n", ret);
+		ptp_verbose_log("Error activating command %d\n", rc);
 		return rc;
 	}
 
@@ -284,7 +287,7 @@ int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
 		return PTP_RUNTIME_ERR;
 	}
 
-	rc = ptp_eos_exec_evproc(r, data, length, 0);
+	rc = ptp_eos_exec_evproc(r, data, length, 1);
 	if (rc) {
 		return rc;
 	}
