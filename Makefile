@@ -4,13 +4,13 @@
 CFLAGS=-Isrc/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types
 
 # All platforms need these object files
-CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o conv.o generic.o
+CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o ip.o fuji.o ml.o log.o conv.o generic.o canon_adv.o
 FILES=$(addprefix src/,$(CAMLIB_CORE))
 
 # Unix-specific
 CFLAGS+=$(shell pkg-config --cflags libusb-1.0)
 LDFLAGS?=$(shell pkg-config --libs libusb-1.0)
-FILES+=src/libusb.o src/backend.o
+FILES+=src/libusb.o src/transport.o
 
 # TODO: implement as CAMLIB_VERSION
 COMMIT=$(shell git rev-parse HEAD)

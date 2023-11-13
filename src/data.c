@@ -166,7 +166,6 @@ void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
-	// Skip packet header
 	void *e = ptp_get_payload(r);
 
 	di->standard_version = ptp_read_uint16(&e);
