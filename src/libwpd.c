@@ -111,7 +111,7 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
 		struct PtpCommand cmd;
-		int b = wpd_receive_do_data(&backend_wpd, &cmd, (uint8_t *)(r->data + 12), 1024);
+		int b = wpd_receive_do_data(&backend_wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
 		if (b < 0) {
 			return PTP_IO_ERR;
 		}
@@ -133,6 +133,8 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 			resp->code = cmd.code;
 			resp->transaction = r->transaction + 1;
 		}
+	} else {
+		// I remember doing this for a reason, need to figure out why
 	}
 
 	return 0;
