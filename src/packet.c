@@ -233,7 +233,7 @@ int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	}
 }
 
-// Get data start packet, then data end packet, then response packet
+// PTPIP: Get data start packet, then data end packet, then response packet
 static struct PtpIpResponseContainer *ptpip_get_response_packet(struct PtpRuntime *r) {
 	struct PtpIpStartDataPacket *ds = (struct PtpIpStartDataPacket*)(r->data);
 	if (ds->type == PTPIP_COMMAND_RESPONSE) {

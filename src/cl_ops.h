@@ -83,6 +83,9 @@ int ptp_liveview_type(struct PtpRuntime *r);
 int ptp_ml_init_bmp_lv(struct PtpRuntime *r);
 int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr);
 
+int ptp_chdk_get_version(struct PtpRuntime *r);
+int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest);
+
 // Fuji vendor version of SendObjectInfo - same as standard, but no parameters
 int ptp_fuji_send_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_fuji_send_object(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *data, int length);

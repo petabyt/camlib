@@ -11,9 +11,10 @@
 
 #include <camlib.h>
 
-int bind_connected = 0;
-int bind_initialized = 0;
-int bind_capture_type = 0;
+// TODO: func to access these
+static int bind_connected = 0;
+static int bind_initialized = 0;
+static int bind_capture_type = 0;
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, "

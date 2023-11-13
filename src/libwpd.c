@@ -55,7 +55,7 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 }
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
-	struct PtpCommand cmd;
+	struct LibWPDPtpCommand cmd;
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
@@ -110,7 +110,7 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-		struct PtpCommand cmd;
+		struct LibWPDPtpCommand cmd;
 		int b = wpd_receive_do_data(&backend_wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
 		if (b < 0) {
 			return PTP_IO_ERR;

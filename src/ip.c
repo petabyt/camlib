@@ -98,7 +98,7 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 
 		if (so_error == 0) {
 			ptp_verbose_log("Connection established %s:%d (%d)\n", addr, port, sockfd);
-			set_nonblocking_io(sockfd, 0);
+			set_nonblocking_io(sockfd, 0); // ????
 			return sockfd;
 		}
 	}

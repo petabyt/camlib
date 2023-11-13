@@ -114,6 +114,7 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	return 0;
 }
 
+// TODO: Different API
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **dat, int max) {
 	if (1024 > max) {
 		return 0;
@@ -137,6 +138,31 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **
 
 	// Return pointer length added
 	return length;
+}
+
+void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length) {
+	FILE *f = fopen(in, "rb");
+	if (f == NULL) {
+		ptp_verbose_log("Unable to open %s\n", in);
+		return NULL;
+	}
+
+    fseek(f, 0, SEEK_END);
+    long file_size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+	int size_all = 4 + strlen(out) + 1 + file_size;
+	*length = size_all;
+	char *data = malloc(size_all);
+	if (data == NULL) return NULL;
+
+	void *d_ptr = (void *)data;
+	ptp_write_uint32(&d_ptr, strlen(out) + 1);
+	ptp_write_utf8_string(&d_ptr, out);
+
+	fread(d_ptr, 1, file_size, f);
+
+	return data;
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {

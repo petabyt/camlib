@@ -21,7 +21,7 @@
 // Max timeout for command read/writes
 #define PTP_TIMEOUT 1000
 
-// How much x to wait for when wait_for_response is greater than 1
+// How much ms to wait for wait_for_response
 #define CAMLIB_WAIT_MS 1000
 
 // Conforms to POSIX 2001, some compilers may not have it
@@ -170,6 +170,8 @@ void ptp_mutex_unlock(struct PtpRuntime *r);
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 void ptp_mutex_lock(struct PtpRuntime *r);
 
+int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
+
 // Packet builder/unpacker helper functions. These accept a pointer-to-pointer
 // and will advance the dereferenced pointer by amount read.
 uint8_t ptp_read_uint8(void **dat);
@@ -228,7 +230,7 @@ int ptp_check_opcode(struct PtpRuntime *r, int op);
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
 // Duplicate array, return malloc'd buffer
-struct UintArray * ptp_dup_uint_array(struct UintArray *arr);
+struct UintArray *ptp_dup_uint_array(struct UintArray *arr);
 
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);

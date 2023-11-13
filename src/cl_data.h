@@ -75,15 +75,6 @@ struct PtpStorageInfo {
 	uint32_t free_objects;
 };
 
-struct ObjectRequest {
-	uint32_t storage_id;
-	uint32_t object_format;
-	uint32_t object_handle;
-	uint8_t all_storage_ids;
-	uint8_t all_formats;
-	uint8_t in_root;
-};
-
 struct PtpObjectInfo {
 	uint32_t storage_id;
 	uint16_t obj_format;
@@ -191,6 +182,13 @@ enum PtpMlBmpLvOption {
 	PTP_ML_BMP_LV_GET_FRAME = 0,
 	PTP_ML_BMP_LV_GET_SPEC = 1,
 };
+
+enum PtpCHDKCommands {
+	PTP_CHDK_Version = 0,
+	PTP_CHDK_UploadFile = 5,
+};
+
+void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length);
 
 // Response to struct FujiInitPacket
 struct PtpFujiInitResp {

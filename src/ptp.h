@@ -130,6 +130,7 @@ struct PtpIpEndDataPacket {
 #define PTP_OC_CANON_GetViewFinderImage	0x901D
 #define PTP_OC_CANON_LockUI				0x9004
 #define PTP_OC_CANON_UnlockUI			0x9005
+#define PTP_OC_CANON_DoNothing			0x902F
 
 // EOS specific
 #define PTP_OC_EOS_GetStorageIDs		0x9101
@@ -156,6 +157,18 @@ struct PtpIpEndDataPacket {
 #define PTP_OC_EOS_DoAutoFocus			0x9154
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
+
+#define PTP_OC_CANON_ceresCreateFileValue 0x91c1
+#define PTP_OC_CANON_ceresRemoveFileValue 0x91c2
+#define PTP_OC_CANON_ceresCloseFileValue 0x91c3
+#define PTP_OC_CANON_ceresGetWriteObject 0x91c4
+#define PTP_OC_CANON_ceresSEndReadObject 0x91c5
+#define PTP_OC_CANON_ceresFileAttributesValue 0x91c6
+#define PTP_OC_CANON_ceresFileTimeValue 0x91c7
+#define PTP_OC_CANON_ceresSeekFileValue 0x91c8
+#define PTP_OC_CANON_ceresCreateDirectoryValue 0x91c9
+#define PTP_OC_EOS_ceresSendFileInfo	0x91cb
+#define PTP_OC_EOS_ceresSendFileInfoListEx	0x91cc
 
 #define PTP_OC_EOS_EnableEventProc		0x9050
 #define PTP_OC_EOS_ExecuteEventProc		0x9052
@@ -608,6 +621,9 @@ struct PtpIpEndDataPacket {
 // Magic Lantern opcodes
 #define PTP_OC_ML_LiveBmpRam 0x9996
 #define PTP_OC_ML_Live360x240 0x9997
+
+#define PTP_OC_MagicLantern	0x9998
+#define PTP_OC_CHDK			0x9999
 
 // Storage Types
 #define PTP_ST_Undefined	0x0

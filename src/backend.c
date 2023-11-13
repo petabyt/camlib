@@ -40,30 +40,53 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 }
 
 int ptpip_read_packet(struct PtpRuntime *r, int of) {
+	int rc = 0;
 	int read = 0;
 
-	int rc = 0;
 	while (rc <= 0 && r->wait_for_response) {
-		rc = ptp_cmd_read(r, r->data + of + read, r->max_packet_size);
+		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 
 		r->wait_for_response--;
 
+		if (rc > 0) break;
+
 		if (r->wait_for_response) {
+			ptp_verbose_log("Trying again...");
 			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
 
 	r->wait_for_response = 1;
 
+	if (rc < 0) {
+		ptp_verbose_log("Failed to read packet length: %d\n", rc);
+		return PTP_IO_ERR;
+	}
+
+	if (rc < 4) {
+		ptp_verbose_log("Failed to read at least packet length: %d\n", rc);
+		return PTP_IO_ERR;
+	}
+
 	read += rc;
 
 	struct PtpIpHeader *h = (struct PtpIpHeader *)(r->data + of);
 
-	printf("Got packet of %d bytes, type %X\n", h->length, h->type);
+	if (h->length - read == 0) {
+		return read;
+	}
+
+	// Ensure data buffer is large enough for the rest of the packet
+	if (of + read + h->length >= r->data_length) {
+		rc = ptp_buffer_resize(r, of + read + h->length);
+		if (rc) return rc;
+	}
 
 	while (1) {
 		rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
+
 		if (rc < 0) {
+			ptp_verbose_log("Read error: %d\n", rc);
 			return PTP_IO_ERR;
 		}
 
@@ -150,8 +173,14 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		}
 		r->wait_for_response = 1;
 
+		if (rc < 0) {
+			ptp_verbose_log("Failed to read packets: %d\n");
+			return PTP_IO_ERR;
+		}
+
 		read += rc;
 
+		// TODO: unsigned/unsigned compare
 		if (read >= r->data_length - r->max_packet_size) {
 			ptp_verbose_log("recieve_bulk_packets: Not enough memory\n");
 			return PTP_OUT_OF_MEM;
@@ -175,7 +204,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	}
 }
 
-// For USB packets over IP, we can't do any LibUSB/LibWPD performance tricks.
+// For USB packets over IP, we can't do any LibUSB/LibWPD performance tricks. reads will just time out.
 int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 	int rc = 0;
 	int read = 0;
@@ -214,14 +243,9 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 	}
 
 	// Ensure data buffer is large enough for the rest of the packet
-	// TODO: Have this as an external function
 	if (of + read + h->length >= r->data_length) {
-		ptp_verbose_log("Extending IO buffer\n");
-		r->data = realloc(r->data, of + read + h->length + 1000);
-		r->data_length = of + read + h->length + 1000;
-		if (r->data == NULL) {
-			return PTP_OUT_OF_MEM;
-		}
+		rc = ptp_buffer_resize(r, of + read + h->length);
+		if (rc) return rc;
 	}
 
 	while (1) {
