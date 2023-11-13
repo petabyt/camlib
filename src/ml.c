@@ -1,4 +1,5 @@
-// Magic Lantern PTP functionality
+// Magic Lantern and CHDK extension functionality
+// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -97,7 +98,6 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	// TODO: parse ver info from header
 	//struct PtpMlLvHeader *header = (struct PtpMlLvHeader *)(ptp_get_payload(r));
 
-
 	uint8_t *bmp = (uint8_t *)(ptp_get_payload(r));
 
 	int i = 0;
@@ -145,4 +145,27 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	buffer_ptr[0] = frame;
 
 	return 0;
+}
+
+int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_CHDK;
+	cmd.param_length = 1;
+	cmd.params[0] = PTP_CHDK_UploadFile;
+
+	int size_all = 0;
+	char *data = ptp_pack_chdk_upload_file(r, input, dest, &size_all);
+	if (data == NULL) {
+		return PTP_RUNTIME_ERR;
+	}
+	
+	return ptp_generic_send_data(r, &cmd, data, size_all);
+}
+
+int ptp_chdk_get_version(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_CHDK;
+	cmd.param_length = 1;
+	cmd.params[0] = PTP_CHDK_Version;
+	return ptp_generic_send(r, &cmd);
 }

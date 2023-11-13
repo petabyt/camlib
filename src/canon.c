@@ -1,4 +1,4 @@
-// Canon and EOS Specific operation implementations
+// Basic Canon and EOS operations
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
@@ -108,7 +108,7 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
 	// Might be unsafe (EOS buffer overflow bricks?)
-	exit(1);
+	//exit(1);
 }
 
 int ptp_eos_get_event(struct PtpRuntime *r) {
