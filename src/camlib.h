@@ -9,6 +9,8 @@
 
 #include "ptp.h"
 
+#define ptp_get_last_transaction(...) DEPRECATED_USE_ptp_get_last_transaction_id
+
 // Used in dumps, should be set to the git commit hash
 #ifndef CAMLIB_VERSION
 	#ifdef __DATE__
@@ -101,8 +103,10 @@ enum PtpConnType {
 };
 
 struct PtpRuntime {
-	// Managed by comm backend
-	uint8_t active_connection;
+	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
+	// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
+	// will be set to 1.
+	uint8_t io_kill_switch;
 
 	// Is set to USB by default
 	uint8_t connection_type;
@@ -206,7 +210,7 @@ void ptp_update_transaction(struct PtpRuntime *r, int t);
 int ptp_get_return_code(struct PtpRuntime *r);
 uint32_t ptp_get_param(struct PtpRuntime *r, int index);
 int ptp_get_param_length(struct PtpRuntime *r);
-int ptp_get_last_transaction(struct PtpRuntime *r);
+int ptp_get_last_transaction_id(struct PtpRuntime *r);
 
 // Get ptr of packet payload, after header (includes parameters)
 uint8_t *ptp_get_payload(struct PtpRuntime *r);

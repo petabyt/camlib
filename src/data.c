@@ -383,7 +383,15 @@ int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
 	return 0;
 }
 
+// Stream reader for events
+struct PtpEventReader {
+	int entries;
+	int index;
+	void *ptr;
+};
+
 // TODO: misnomer: ptp_eos_unpack_events
+// TODO: we should have a way to read next entry without allocating/freeing memory
 int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 	uint8_t *dp = ptp_get_payload(r);
 

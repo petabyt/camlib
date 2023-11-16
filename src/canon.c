@@ -108,14 +108,14 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
 	// Might be unsafe (EOS buffer overflow bricks?)
-	//exit(1);
+	return PTP_UNSUPPORTED;
 }
 
 int ptp_eos_get_event(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetEvent;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_generic_send(r, &cmd);
 }
 
 int ptp_eos_ping(struct PtpRuntime *r) {

@@ -342,37 +342,3 @@ int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
 		}
 	}
 }
-
-int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length) {
-	uint16_t *props = r->di->props_supported;
-	int plength = r->di->props_supported_length;
-	(*length) = plength;
-
-	(*s) = malloc(sizeof(struct PtpGenericEvent) * plength);
-
-	for (int i = 0; i < plength; i++) {
-		struct PtpGenericEvent *cur = &((*s)[i]);
-		memset(cur, 0, sizeof(struct PtpGenericEvent));
-
-		cur->code = props[i];
-
-		int rc = ptp_get_prop_value(r, props[i]);
-		if (rc) return rc;
-
-		int v = ptp_parse_prop_value(r);
-		cur->value = v;
-		if (v == -1) {
-			continue;
-		}
-
-		// TODO: Get more props
-		switch (props[i]) {
-		case PTP_PC_BatteryLevel:
-			cur->name = "battery";
-			cur->value = v;
-			break;
-		}
-	}
-
-	return 0;
-}

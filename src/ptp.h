@@ -158,18 +158,6 @@ struct PtpIpEndDataPacket {
 #define PTP_OC_EOS_AfCancel				0x9160
 #define PTP_OC_EOS_SetDefaultSetting	0x91BE
 
-#define PTP_OC_CANON_ceresCreateFileValue 0x91c1
-#define PTP_OC_CANON_ceresRemoveFileValue 0x91c2
-#define PTP_OC_CANON_ceresCloseFileValue 0x91c3
-#define PTP_OC_CANON_ceresGetWriteObject 0x91c4
-#define PTP_OC_CANON_ceresSEndReadObject 0x91c5
-#define PTP_OC_CANON_ceresFileAttributesValue 0x91c6
-#define PTP_OC_CANON_ceresFileTimeValue 0x91c7
-#define PTP_OC_CANON_ceresSeekFileValue 0x91c8
-#define PTP_OC_CANON_ceresCreateDirectoryValue 0x91c9
-#define PTP_OC_EOS_ceresSendFileInfo	0x91cb
-#define PTP_OC_EOS_ceresSendFileInfoListEx	0x91cc
-
 #define PTP_OC_EOS_EnableEventProc		0x9050
 #define PTP_OC_EOS_ExecuteEventProc		0x9052
 #define PTP_OC_EOS_GetEventProcReturnData 0x9053
@@ -618,7 +606,7 @@ struct PtpIpEndDataPacket {
 #define PTP_PC_EOS_EVFWBMode			0xD1B4
 #define PTP_PC_EOS_FocusInfoEx			0xD1D3
 
-// Magic Lantern opcodes
+// Magic Lantern ptpview old opcodes
 #define PTP_OC_ML_LiveBmpRam 0x9996
 #define PTP_OC_ML_Live360x240 0x9997
 

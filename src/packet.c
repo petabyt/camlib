@@ -360,7 +360,7 @@ uint32_t ptp_get_param(struct PtpRuntime *r, int index) {
 	}
 }
 
-int ptp_get_last_transaction(struct PtpRuntime *r) {
+int ptp_get_last_transaction_id(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
 		struct PtpIpResponseContainer *resp = ptpip_get_response_packet(r);	
 		return resp->transaction;		

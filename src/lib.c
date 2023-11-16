@@ -10,7 +10,7 @@
 
 // Reset all fields of PtpRuntime - this must be updated when new fields are added
 void ptp_generic_reset(struct PtpRuntime *r) {
-	r->active_connection = 0;
+	r->io_kill_switch = 1;
 	r->transaction = 0;
 	r->session = 0;	
 	r->connection_type = PTP_USB;
@@ -92,7 +92,7 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_get_last_transaction(r) != r->transaction) {
+	if (ptp_get_last_transaction_id(r) != r->transaction) {
 		ptp_verbose_log("Mismatch transaction ID\n");
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
@@ -161,9 +161,9 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_get_last_transaction(r) != r->transaction) {
+	if (ptp_get_last_transaction_id(r) != r->transaction) {
 		ptp_verbose_log("ptp_generic_send_data: Mismatch transaction ID (%d/%d)\n",
-			ptp_get_last_transaction(r), r->transaction);
+			ptp_get_last_transaction_id(r), r->transaction);
 		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}

@@ -9,11 +9,14 @@
 #include <ptp.h>
 #include <libwpd.h>
 
-struct WpdStruct backend_wpd;
-
 int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
 	wpd_init(1, L"Camlib WPD");
+
+	r->comm_backend = malloc(sizeof(struct WpdStruct));
+
+	// We are not using low-level I/O operations, so this is never used
+	r->r->max_packet_size = 512;
 
 	return 0;	
 }
@@ -21,40 +24,50 @@ int ptp_comm_init(struct PtpRuntime *r) {
 int ptp_device_init(struct PtpRuntime *r) {
 	ptp_comm_init(r);
 
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+	if (wpd == NULL) return PTP_IO_ERR;
+
 	int length = 0;
-	wchar_t **devices = wpd_get_devices(&backend_wpd, &length);
+	wchar_t **devices = wpd_get_devices(wpd, &length);
 
 	if (length == 0) return PTP_NO_DEVICE;
 
 	for (int i = 0; i < length; i++) {
 		wprintf(L"Trying device: %s\n", devices[i]);
 
-		int ret = wpd_open_device(&backend_wpd, devices[i]);
+		int ret = wpd_open_device(wpd, devices[i]);
 		if (ret) {
 			return PTP_OPEN_FAIL;
 		}
 
-		int type = wpd_get_device_type(&backend_wpd);
+		int type = wpd_get_device_type(wpd);
 		ptp_verbose_log("Found device of type: %d\n", type);
 		if (type == WPD_DEVICE_TYPE_CAMERA) {
 			return 0;
 		}
 
-		wpd_close_device(&backend_wpd);
+		wpd_close_device(wpd);
 	}
 
 	return PTP_NO_DEVICE;
 }
 
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
+	// Unimplemented
 	return NULL;
 }
 
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
+	// Unimplemented
 	return PTP_IO_ERR;
 }
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+	if (r->io_kill_switch) return PTP_IO_ERR;
+
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+	if (wpd == NULL) return PTP_IO_ERR;
+
 	struct LibWPDPtpCommand cmd;
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
@@ -67,10 +80,10 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	
 		int ret;
 		if (r->data_phase_length) {
-			ret = wpd_send_do_command(&backend_wpd, &cmd, r->data_phase_length);
+			ret = wpd_send_do_command(wpd, &cmd, r->data_phase_length);
 			r->data_phase_length = 0;
 		} else {
-			ret = wpd_receive_do_command(&backend_wpd, &cmd);
+			ret = wpd_receive_do_command(wpd, &cmd);
 		}
 
 		if (ret) {
@@ -80,7 +93,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 		}
 	} else if (bulk->type == PTP_PACKET_TYPE_DATA) {
 		cmd.param_length = 0;
-		int ret = wpd_send_do_data(&backend_wpd, &cmd, ptp_get_payload(r), length - 12);
+		int ret = wpd_send_do_data(wpd, &cmd, ptp_get_payload(r), length - 12);
 		if (ret < 0) {
 			return PTP_IO_ERR;
 		} else {
@@ -102,16 +115,21 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 }
 
 int ptp_receive_bulk_packets(struct PtpRuntime *r) {
+	if (r->io_kill_switch) return PTP_IO_ERR;
+
 	// Don't do anything if the data phase was already sent
 	if (r->data_phase_length) {
 		r->data_phase_length = 0;
 		return 12;
 	}
 
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+	if (wpd == NULL) return PTP_IO_ERR;
+
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
 		struct LibWPDPtpCommand cmd;
-		int b = wpd_receive_do_data(&backend_wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
+		int b = wpd_receive_do_data(wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
 		if (b < 0) {
 			return PTP_IO_ERR;
 		}
@@ -145,7 +163,9 @@ int ptp_read_int(struct PtpRuntime *r, void *to, int length) {
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
-	wpd_close_device(&backend_wpd);
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+	if (wpd == NULL) return PTP_IO_ERR;
+	wpd_close_device(wpd);
 	return 0;
 }
 

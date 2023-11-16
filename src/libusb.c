@@ -209,7 +209,7 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 		return PTP_OPEN_FAIL;
 	}
 
-	r->active_connection = 1;
+	r->io_kill_switch = 0;
 
 	return 0;
 }
@@ -245,20 +245,19 @@ int ptp_device_init(struct PtpRuntime *r) {
 		return PTP_OPEN_FAIL;
 	}
 
-	r->active_connection = 1;
+	r->io_kill_switch = 0;
 
 	return 0;
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
+	r->io_kill_switch = 1;
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 	if (libusb_release_interface(backend->handle, 0)) {
 		return 1;
 	}
 
 	libusb_close(backend->handle);
-
-	r->active_connection = 0;
 
 	return 0;
 }
@@ -269,7 +268,7 @@ int ptp_device_reset(struct PtpRuntime *r) {
 
 int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
-	if (backend == NULL) return -1;
+	if (backend == NULL || r->io_kill_switch) return -1;
 	int transferred;
 	int rc = libusb_bulk_transfer(
 		backend->handle,
@@ -284,7 +283,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 
 int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
-	if (backend == NULL) return -1;
+	if (backend == NULL || r->io_kill_switch) return -1;
 	int transferred = 0;
 	int rc = libusb_bulk_transfer(
 		backend->handle,
@@ -299,7 +298,7 @@ int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
 
 int ptp_read_int(struct PtpRuntime *r, void *to, int length) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
-	if (backend == NULL) return -1;
+	if (backend == NULL || r->io_kill_switch) return -1;
 	int transferred = 0;
 	int rc = libusb_bulk_transfer(
 		backend->handle,
