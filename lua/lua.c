@@ -14,12 +14,25 @@ struct PtpRuntime *luaptp_get_runtime(lua_State *L);
 void lua_json_decode(lua_State *l, const char *json_text, int json_len);
 void json_create_config(lua_State *l);
 
+static int mylua_set_property(lua_State *L) {
+	struct PtpRuntime *r = luaptp_get_runtime(L);
+
+	const char *name = luaL_checkstring(L, 1);
+	int value = lua_tointeger(L, 1);
+
+	int rc = ptp_set_generic_property(r, (char *)name, value);
+
+	lua_pushinteger(L, rc);
+
+	return 1;
+}
+
 static int mylua_device_info(lua_State *L) {
 	struct PtpRuntime *r = luaptp_get_runtime(L);
 
 	if (r->di == NULL) return 1;
 
-	char buffer[2048];
+	char buffer[4096];
 	ptp_device_info_json(r->di, buffer, sizeof(buffer));
 
 	lua_json_decode(L, buffer, strlen(buffer));
@@ -48,41 +61,67 @@ static int mylua_send_operation(lua_State *L) {
 	struct PtpRuntime *r = luaptp_get_runtime(L);
 
 	int opcode = lua_tointeger(L, 1);
+	int len = lua_gettop(L);
 
 	if (!lua_istable(L, 2)) {
-		return luaL_error(L, "Second argument must be an array.");
+		return luaL_error(L, "arg2 expected array");
 		return -1;
 	}
 
-    int param_length = luaL_len(L, 2);
-
 	struct PtpCommand cmd;
 	cmd.code = opcode;
-	cmd.param_length = param_length;
 
-	// Create an array to store the integers
-	int *param_array = (int *)malloc(param_length * sizeof(int));
-
-	for (int i = 1; i <= param_length; ++i) {
-		lua_rawgeti(L, 2, i);
-		cmd.params[i - 1] = luaL_checkinteger(L, -1);
-		lua_pop(L, 1);
+	// Read parameters
+	int param_length = 0;
+	if (len >= 2) {
+		param_length = luaL_len(L, 2);
+		for (int i = 1; i <= param_length; ++i) {
+			lua_rawgeti(L, 2, i);
+			cmd.params[i - 1] = luaL_checkinteger(L, -1);
+			lua_pop(L, 1);
+		}
+		cmd.param_length = param_length;
 	}
 
-	lua_pushinteger(L, 0);
+	// Read payload if provided
+	int data_length = 0;
+	uint8_t *data_array = NULL;
+	if (len >= 3) {
+		data_length = luaL_len(L, 3);
+		data_array = (int *)malloc(data_length * sizeof(int));
+		for (int i = 1; i <= data_length; ++i) {
+			lua_rawgeti(L, 3, i);
+			data_array[i - 1] = (uint8_t)luaL_checkinteger(L, -1);
+			lua_pop(L, 1);
+		}
+	}
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = 0;
+	if (data_array == NULL) {
+		rc = ptp_generic_send(r, &cmd);
+	} else {
+		rc = ptp_generic_send_data(r, &cmd, data_array, data_length);
+	}
 
-	//lua_pushinteger(L, rc);
+    lua_newtable(L);
 
-	printf("length: %d\n", ptp_get_payload_length(r));
+    lua_pushstring(L, "code");
+    lua_pushinteger(L, ptp_get_return_code(r));
+    lua_settable(L, -3);
 
+	lua_pushstring(L, "payload");
 	lua_newtable(L);
 	for (int i = 0; i < ptp_get_payload_length(r); ++i) {
 		lua_pushinteger(L, i + 1);
 		lua_pushinteger(L, (int)(r->data[i]));
 		lua_settable(L, -3);
 	}
+
+	lua_settable(L, -3);
+
+    lua_pushstring(L, "id");
+    lua_pushinteger(L, ptp_get_last_transaction_id(r));
+    lua_settable(L, -3);
 
 	return 1;
 }
@@ -99,9 +138,10 @@ static int mylua_test(lua_State *L) {
 }
 
 static const luaL_Reg ptplib[] = {
+	{"test",			mylua_test},
 	{"getDeviceInfo",	mylua_device_info},
 	{"takePicture",		mylua_take_picture},
-	{"test",			mylua_test},
+	{"setProperty",     mylua_set_property},
 	{"sendOperation",	mylua_send_operation},
 	{NULL, NULL}
 };
