@@ -93,8 +93,8 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 	if (ptp_get_last_transaction_id(r) != r->transaction) {
 		ptp_verbose_log("Mismatch transaction ID\n");
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
+		//ptp_mutex_unlock(r);
+		//return PTP_IO_ERR;
 	}
 
 	r->transaction++;
@@ -161,10 +161,9 @@ int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *da
 	}
 
 	if (ptp_get_last_transaction_id(r) != r->transaction) {
-		ptp_verbose_log("ptp_generic_send_data: Mismatch transaction ID (%d/%d)\n",
-			ptp_get_last_transaction_id(r), r->transaction);
-		ptp_mutex_unlock(r);
-		return PTP_IO_ERR;
+		ptp_verbose_log("ptp_generic_send_data: Mismatch transaction ID (%d/%d)\n", ptp_get_last_transaction_id(r), r->transaction);
+		//ptp_mutex_unlock(r);
+		//return PTP_IO_ERR;
 	}
 
 	r->transaction++;
