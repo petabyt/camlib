@@ -173,7 +173,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		r->wait_for_response = 1;
 
 		if (rc < 0) {
-			ptp_verbose_log("Failed to read packets: %d\n");
+			ptp_verbose_log("Failed to read packets: %d\n", rc);
 			return PTP_IO_ERR;
 		}
 

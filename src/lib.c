@@ -8,14 +8,13 @@
 #include <camlib.h>
 #include <ptp.h>
 
-// Reset all fields of PtpRuntime - this must be updated when new fields are added
+// Reset all fields of PtpRuntime - use this before reconnecting
 void ptp_generic_reset(struct PtpRuntime *r) {
 	r->io_kill_switch = 1;
 	r->transaction = 0;
 	r->session = 0;	
 	r->connection_type = PTP_USB;
 	r->caller_unlocks_mutex = 0;
-	r->mutex = NULL;
 	r->wait_for_response = 1;
 }
 

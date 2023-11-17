@@ -287,7 +287,7 @@ int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
 		return PTP_RUNTIME_ERR;
 	}
 
-	rc = ptp_eos_exec_evproc(r, data, length, 1);
+	rc = ptp_eos_exec_evproc(r, data, length, 0);
 	if (rc) {
 		return rc;
 	}

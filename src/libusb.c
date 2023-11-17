@@ -21,6 +21,7 @@ struct LibUSBBackend {
 	libusb_device_handle *handle;
 };
 
+// TODO: If this is accidentally called in the middle of a connection, it will cause a huge fault
 int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_generic_reset(r);
 
@@ -268,7 +269,10 @@ int ptp_device_reset(struct PtpRuntime *r) {
 
 int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
-	if (backend == NULL || r->io_kill_switch) return -1;
+	if (backend == NULL || r->io_kill_switch) {
+		puts("KIll switch");
+		return -1;
+	}
 	int transferred;
 	int rc = libusb_bulk_transfer(
 		backend->handle,

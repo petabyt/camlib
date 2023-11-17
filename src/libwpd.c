@@ -16,7 +16,7 @@ int ptp_comm_init(struct PtpRuntime *r) {
 	r->comm_backend = malloc(sizeof(struct WpdStruct));
 
 	// We are not using low-level I/O operations, so this is never used
-	r->r->max_packet_size = 512;
+	r->max_packet_size = 512;
 
 	return 0;	
 }

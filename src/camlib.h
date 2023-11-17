@@ -106,6 +106,7 @@ struct PtpRuntime {
 	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
 	// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
 	// will be set to 1.
+	// TODO: Should the IO backend toggle the IO kill switch
 	uint8_t io_kill_switch;
 
 	// Is set to USB by default
