@@ -86,16 +86,6 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr);
 int ptp_chdk_get_version(struct PtpRuntime *r);
 int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest);
 
-// Fuji vendor version of SendObjectInfo - same as standard, but no parameters
-int ptp_fuji_send_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-int ptp_fuji_send_object(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *data, int length);
-
-// Fujifilm IP-only functions
-int ptpip_fuji_init(struct PtpRuntime *r, char *device_name);
-int ptpip_fuji_get_events(struct PtpRuntime *r);
-int ptpip_fuji_wait_unlocked(struct PtpRuntime *r);
-int ptpip_fuji_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpFujiObjectInfo *oi);
-
 // Canon advanced extensions - available in canon-adv.c
 int ptp_eos_activate_command(struct PtpRuntime *r);
 int ptp_eos_exec_evproc(struct PtpRuntime *r, void *data, int length, int expect_return);

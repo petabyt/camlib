@@ -156,7 +156,7 @@ struct CanonAperture {
 	int value;
 	int data;
 }canon_aperture[] = {
-	{12, 0xd},
+	{12, 0xd}, // TODO: standard PTP scales this by 100
 	{14, 0x10},
 	{16, 0x13},
 	{18, 0x15},

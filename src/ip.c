@@ -137,7 +137,6 @@ int ptpip_close(struct PtpRuntime *r) {
 
 int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 	int result = write(r->fd, data, size);
-	//printf("cmd: write %d bytes\n", result);
 	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
 	if (result < 0) {
 		return -1;
@@ -148,7 +147,6 @@ int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 
 int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
 	int result = read(r->fd, data, size);
-	printf("cmd: Read %d bytes\n", result);
 	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
 	if (result < 0) {
 		return -1;
