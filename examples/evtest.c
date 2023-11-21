@@ -9,20 +9,6 @@
 
 struct PtpRuntime r;
 
-void print_bytes(uint8_t *bytes, int n) {
-	for (int i = 0; i < n; i++) {
-		if (bytes[i] > 31 && bytes[i] < 128) {
-			printf("'%c' ", bytes[i]);
-		} else {
-			printf("%02X ", bytes[i]);
-		}
-	}
-
-	puts("");
-}
-
-void test();
-
 int main() {
 	ptp_generic_init(&r);
 
@@ -32,37 +18,30 @@ int main() {
 	}
 
 	ptp_open_session(&r);
-	
+
 	struct PtpDeviceInfo di;
 
 	ptp_get_device_info(&r, &di);
-
 	char temp[4096];
 	ptp_device_info_json(&di, temp, sizeof(temp));
 	printf("%s\n", temp);
 
-	int rc = ptp_recieve_int((char *)r.data, 100);
-	printf("Int: %d\n", rc);
+	int length = 0;
+	struct PtpGenericEvent *s = NULL;
+	if (ptp_device_type(&r) == PTP_DEV_EOS) {
+		ptp_eos_set_remote_mode(&r, 1);
+		ptp_eos_set_event_mode(&r, 1);
 
-#if 0 // if EOS
-	ptp_eos_set_remote_mode(&r, 1);
-	ptp_eos_set_event_mode(&r, 1);
+		int rc = ptp_eos_get_event(&r);
+		if (rc) return rc;
+		length = ptp_eos_events(&r, &s);
 
-	while (1) {
-		ptp_eos_get_event(&r);
-		ptp_dump(&r);
-
-		char buffer[50000];
-		ptp_eos_events_json(&r, buffer, 50000);
-		puts(buffer);
-
-		usleep(1000 * 1000);
+		for (int i = 0; i < length; i++) {
+			printf("%X = %X\n", s[i].code, s[i].value);
+		}
 	}
-#endif
 
 	ptp_device_close(&r);
-
-	free(r.data);
 	return 0;
 }
 

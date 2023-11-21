@@ -43,8 +43,6 @@ int main() {
 
 	ptp_device_close(&r);
 
-	free(r.data);
-
 	getchar();
 
 	return 0;

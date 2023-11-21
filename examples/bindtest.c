@@ -1,24 +1,34 @@
+// Scan filesystem using JSON bindings
 #include <stdio.h>
-
-#include <camlib.h>
-#include <ptp.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-// ptp_connect;
-// ptp_drive_lens;-1;
-// ptp_custom_send;4097,66,66,66,66,66;
-// ptp_custom_cmd;4097,1,2,3,4,5
-// ptp_set_property;"iso",6400
+#include <camlib.h>
 
 int main() {
-	struct BindReq x;
-	bind_parse(&x, "ptp_custom;12345;");
-	printf("Name: %s\n", x.name);
-	printf("String: %s\n", x.string);
-	for (int i = 0; i < x.params_length; i++) {
-		printf("Parameters: %d\n", x.params[i]);
-	}
-	for (int i = 0; i < x.bytes_length; i++) {
-		printf("Bytes: %d\n", x.bytes[i]);
-	}
+	struct PtpRuntime r;
+	ptp_generic_init(&r);
+
+	char buffer[PTP_BIND_DEFAULT_SIZE];
+	int rc = bind_run(&r, "ptp_init", buffer, sizeof(buffer));
+	printf("ptp_init: %s\n", buffer);
+
+	rc = bind_run(&r, "ptp_connect", buffer, sizeof(buffer));
+	printf("ptp_connect: %s\n", buffer);
+
+	rc = bind_run(&r, "ptp_open_session", buffer, sizeof(buffer));
+	printf("ptp_open_session: %s\n", buffer);
+
+	rc = bind_run(&r, "ptp_get_device_info", buffer, sizeof(buffer));
+	printf("ptp_get_device_info: %s\n", buffer);
+
+	rc = bind_run(&r, "ptp_close_session", buffer, sizeof(buffer));
+	printf("ptp_close_session: %s\n", buffer);
+
+	rc = bind_run(&r, "ptp_disconnect", buffer, sizeof(buffer));
+	printf("ptp_disconnect: %s\n", buffer);
+
+	ptp_generic_close(&r);
+	return 0;
 }

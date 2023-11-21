@@ -1,27 +1,45 @@
-# Blah blah, old test stuff
+CFLAGS=-I../src/
+LDFLAGS=-L../ -Wl,-rpath,../ -lcamlib $(shell pkg-config --libs libusb-1.0)
 
-# Some basic tests - files need to be added as a dependency
-# and also added to the FILES object list
-TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage directprint
-storage: test/storage.o
-storage: FILES+=test/storage.o
-directprint: test/directprint.o
-directprint: FILES+=test/directprint.o
-pktest: test/pktest.o
-pktest: FILES+=test/pktest.o
-wifi: test/wifi.o
-wifi: FILES+=test/wifi.o
-optest: test/optest.o
-optest: FILES+=test/optest.o
-evtest: test/evtest.o
-evtest: FILES+=test/evtest.o
-bindtest: test/bindtest.o
-bindtest: FILES+=test/bindtest.o
-live: test/live.o
-live: FILES+=test/live.o ../tigr/tigr.o
-live: CFLAGS+=-lGLU -lGL -lX11 -ljpeg
-wintest.exe: FILES+=test/wintest.o
-wintest.exe: test/wintest.o
+TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage directprint info usb
+usb: usb.o
+usb: FILES+=usb.o
+info: info.o
+info: FILES+=info.o
+storage: storage.o
+storage: FILES+=storage.o
+directprint: directprint.o
+directprint: FILES+=directprint.o
+pktest: pktest.o
+pktest: FILES+=pktest.o
+wifi: wifi.o
+wifi: FILES+=wifi.o
+optest: optest.o
+optest: FILES+=optest.o
+evtest: evtest.o
+evtest: FILES+=evtest.o
+bindtest: bindtest.o
+bindtest: FILES+=bindtest.o
+live: live.o
+live: FILES+=live.o
+wintest.exe: FILES+=wintest.o
+wintest.exe: wintest.o
 
-$(TEST_TARGETS): $(FILES)
+TEST_TARGETS+=eos
+eos: eos.o 
+eos: FILES+=eos.o
+
+TEST_TARGETS+=ml
+ml: ml.o
+ml: FILES+=ml.o
+
+build-so:
+	cd ../ && make libcamlib.so
+
+$(TEST_TARGETS): $(FILES) build-so
 	$(CC) $(FILES) $(LDFLAGS) $(CFLAGS) -o $@
+
+all: $(TEST_TARGETS)
+
+clean:
+	rm -rf *.o $(TEST_TARGETS) $(FILES) DUMP*

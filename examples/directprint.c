@@ -1,4 +1,4 @@
-// Scan filesystem
+// Test directprint things
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@ int main() {
 	memset(&oi, 0, sizeof(oi));
 	oi.obj_format = 0x3002;
 	strcpy(oi.filename, "HDISCVRY.DPS");
-	
+
 	ptp_send_object_info(&r, id, 0, &oi);
 
 	ptp_close_session(&r);
