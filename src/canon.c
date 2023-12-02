@@ -14,7 +14,7 @@ int ptp_eos_get_storage_ids(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetStorageIDs;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_get_storage_info(struct PtpRuntime *r, int id) {
@@ -22,7 +22,7 @@ int ptp_eos_get_storage_info(struct PtpRuntime *r, int id) {
 	cmd.code = PTP_OC_EOS_GetStorageInfo;
 	cmd.param_length = 1;
 	cmd.params[0] = id;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
@@ -31,7 +31,7 @@ int ptp_eos_remote_release_on(struct PtpRuntime *r, int mode) {
 	cmd.param_length = 2;
 	cmd.params[0] = mode;
 	cmd.params[1] = 0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode) {
@@ -39,14 +39,14 @@ int ptp_eos_remote_release_off(struct PtpRuntime *r, int mode) {
 	cmd.code = PTP_OC_EOS_RemoteReleaseOff;
 	cmd.param_length = 1;
 	cmd.params[0] = mode;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_cancel_af(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_AfCancel;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
@@ -59,7 +59,7 @@ int ptp_eos_drive_lens(struct PtpRuntime *r, int steps) {
 	cmd.code = PTP_OC_EOS_DriveLens;
 	cmd.param_length = 1;
 	cmd.params[0] = steps;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_set_event_mode(struct PtpRuntime *r, int mode) {
@@ -67,7 +67,7 @@ int ptp_eos_set_event_mode(struct PtpRuntime *r, int mode) {
 	cmd.code = PTP_OC_EOS_SetEventMode;
 	cmd.param_length = 1;
 	cmd.params[0] = mode;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode) {
@@ -75,7 +75,7 @@ int ptp_eos_set_remote_mode(struct PtpRuntime *r, int mode) {
 	cmd.code = PTP_OC_EOS_SetRemoteMode;
 	cmd.param_length = 1;
 	cmd.params[0] = mode;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r) {
@@ -85,7 +85,7 @@ int ptp_eos_get_viewfinder_data(struct PtpRuntime *r) {
 
 	cmd.params[0] = 0x200000;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_get_prop_value(struct PtpRuntime *r, int code) {
@@ -93,7 +93,7 @@ int ptp_eos_get_prop_value(struct PtpRuntime *r, int code) {
 	cmd.code = PTP_OC_EOS_GetDevicePropValue;
 	cmd.param_length = 1;
 	cmd.params[0] = code;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
@@ -103,7 +103,7 @@ int ptp_eos_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 	uint32_t dat[] = {0xc, code, value};
 
-	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+	return ptp_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 int ptp_eos_set_prop_data(struct PtpRuntime *r, int code, void *data, int dlength) {
@@ -115,14 +115,14 @@ int ptp_eos_get_event(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_GetEvent;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_ping(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_KeepDeviceOn;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 // The HDD capacity is pushed/popped (for lack of a better term)
@@ -134,7 +134,7 @@ int ptp_eos_hdd_capacity_push(struct PtpRuntime *r) {
 	cmd.params[0] = 0xfffffff7;
 	cmd.params[1] = 0x1000;
 	cmd.params[2] = 0x0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_hdd_capacity_pop(struct PtpRuntime *r) {
@@ -144,21 +144,21 @@ int ptp_eos_hdd_capacity_pop(struct PtpRuntime *r) {
 	cmd.params[0] = 0x332d2d;
 	cmd.params[1] = 0x1000;
 	cmd.params[2] = 0x1;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_eos_bulb_start(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_BulbStart;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 int ptp_eos_bulb_stop(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_BulbEnd;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 int ptp_eos_set_ui_lock(struct PtpRuntime *r) {
@@ -166,14 +166,14 @@ int ptp_eos_set_ui_lock(struct PtpRuntime *r) {
 	cmd.code = PTP_OC_EOS_SetUILock;
 	cmd.param_length = 1;
 	cmd.params[0] = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 int ptp_eos_reset_ui_lock(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_EOS_ResetUILock;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 // Credit to lclevy/miniPtp for implementation
@@ -205,7 +205,7 @@ int ptp_eos_update_firmware(struct PtpRuntime *r, FILE *f, char *name) {
 
 		if (sent + size > s.st_size) size -= s.st_size - sent;
 
-		int rc = ptp_generic_send_data(r, &cmd, payload, size);
+		int rc = ptp_send_data(r, &cmd, payload, size);
 		if (rc) {
 			return rc;
 		}

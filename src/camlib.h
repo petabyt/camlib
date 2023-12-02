@@ -1,4 +1,4 @@
-// Main header file for Camlib - these are not Standard PTP definitions
+// Main header file for Camlib
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
@@ -9,21 +9,10 @@
 
 #include "ptp.h"
 
-#define ptp_get_last_transaction(...) DEPRECATED_USE_ptp_get_last_transaction_id
-
-// Used in dumps, should be set to the git commit hash
-#ifndef CAMLIB_VERSION
-	#ifdef __DATE__
-		#define CAMLIB_VERSION __DATE__
-	#else
-		#define CAMLIB_VERSION "Unknown"
-	#endif
-#endif
-
 // Max timeout for command read/writes
 #define PTP_TIMEOUT 1000
 
-// How much ms to wait for wait_for_response
+// How much ms to wait for r->wait_for_response
 #define CAMLIB_WAIT_MS 1000
 
 // Conforms to POSIX 2001, some compilers may not have it
@@ -97,10 +86,13 @@ enum ImageFormats {
 };
 
 enum PtpConnType {
-	PTP_IP,
-	PTP_IP_USB, // TCP-based, but using USB-style packets (Fujifilm)
-	PTP_USB,
+	PTP_IP = (1 << 0),
+	PTP_IP_USB = (1 << 1), // TCP-based, but using USB-style packets (Fujifilm)
+	PTP_USB = (1 << 2),
 };
+
+// TODO: less confusing name
+//#define PtpRuntime PtpLib
 
 struct PtpRuntime {
 	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
@@ -222,9 +214,18 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 // Generic runtime setup - allocate default memory
-void ptp_generic_reset(struct PtpRuntime *r);
-void ptp_generic_init(struct PtpRuntime *r);
-void ptp_generic_close(struct PtpRuntime *r);
+void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
+void ptp_reset(struct PtpRuntime *r);
+void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
+void ptp_init(struct PtpRuntime *r);
+void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
+void ptp_close(struct PtpRuntime *r);
+struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
+struct PtpRuntime *ptp_new(int options);
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
+int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 
@@ -245,5 +246,16 @@ int ptp_dump(struct PtpRuntime *r);
 #include "cl_ops.h"
 #include "cl_enum.h"
 #include "cl_bind.h"
+
+// Backwards compatibility
+#ifndef CAMLIB_NO_COMPAT
+	#define ptp_get_last_transaction(...) ptp_get_last_transaction_id(__VA_ARGS__)
+	#define ptp_generic_new(...) ptp_new(__VA_ARGS__)
+	#define ptp_generic_close(...) ptp_close(__VA_ARGS__)
+	#define ptp_generic_reset(...) ptp_reset(__VA_ARGS__)
+	#define ptp_generic_init(...) ptp_init(__VA_ARGS__)
+	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
+	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
+#endif
 
 #endif

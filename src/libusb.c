@@ -23,7 +23,7 @@ struct LibUSBBackend {
 
 // TODO: If this is accidentally called in the middle of a connection, it will cause a huge fault
 int ptp_comm_init(struct PtpRuntime *r) {
-	ptp_generic_reset(r);
+	ptp_reset(r);
 
 	// libusb 1.0 has no specificed limit for reads/writes
 	r->max_packet_size = 512 * 4;

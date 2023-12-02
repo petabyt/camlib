@@ -21,7 +21,7 @@ int ptp_get_ml_lv1(struct PtpRuntime *r) {
 	cmd.code = PTP_OC_ML_Live360x240;
 	cmd.param_length = 0;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_liveview_type(struct PtpRuntime *r) {

@@ -60,7 +60,7 @@ int ptp_ml_init_bmp_lv(struct PtpRuntime *r) {
 	cmd.param_length = 1;
 	cmd.params[0] = PTP_ML_BMP_LV_GET_SPEC;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	if (rc) {
 		return rc;
 	}
@@ -86,7 +86,7 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	cmd.param_length = 1;
 	cmd.params[0] = PTP_ML_BMP_LV_GET_FRAME;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	if (rc) {
 		buffer_ptr[0] = NULL;
 		return rc;
@@ -159,7 +159,7 @@ int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest) {
 		return PTP_RUNTIME_ERR;
 	}
 	
-	return ptp_generic_send_data(r, &cmd, data, size_all);
+	return ptp_send_data(r, &cmd, data, size_all);
 }
 
 int ptp_chdk_get_version(struct PtpRuntime *r) {
@@ -167,5 +167,5 @@ int ptp_chdk_get_version(struct PtpRuntime *r) {
 	cmd.code = PTP_OC_CHDK;
 	cmd.param_length = 1;
 	cmd.params[0] = PTP_CHDK_Version;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }

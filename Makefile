@@ -1,7 +1,8 @@
 # Unix only makefile
 -include config.mak
 
-CFLAGS=-Isrc/ -DVERBOSE -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types
+CFLAGS=-Isrc/ -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations
+CFLAGS+=-D CAMLIB_NO_COMPAT -D VERBOSE
 
 # All platforms need these object files
 CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o lib.o canon.o liveview.o bind.o ip.o ml.o log.o conv.o generic.o canon_adv.o
@@ -17,7 +18,7 @@ COMMIT=$(shell git rev-parse HEAD)
 CFLAGS+='-DCAMLIB_COMMIT="$(COMMIT)"'
 
 libcamlib.so: $(FILES)
-	$(CC) -shared $(FILES) $(LDFLAGS) -o libcamlib.so
+	$(CC) -shared $(FILES) -o libcamlib.so
 
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@

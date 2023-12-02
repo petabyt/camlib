@@ -82,21 +82,21 @@ int ptp_open_session(struct PtpRuntime *r) {
 	// PTP open session transaction ID is always 0
 	r->transaction = 0;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_close_session(struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_CloseSession;
 	cmd.param_length = 0;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDeviceInfo;
 	cmd.param_length = 0;
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	if (rc) return rc;
 
 	return ptp_parse_device_info(r, di);
@@ -109,7 +109,7 @@ int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format) {
 	cmd.params[0] = storage_id;
 	cmd.params[1] = object_format;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_format) {
@@ -119,7 +119,7 @@ int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_forma
 	cmd.params[0] = storage_id;
 	cmd.params[1] = object_format;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_terminate_open_capture(struct PtpRuntime *r, int trans) {
@@ -128,7 +128,7 @@ int ptp_terminate_open_capture(struct PtpRuntime *r, int trans) {
 	cmd.param_length = 1;
 	cmd.params[0] = trans;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
@@ -136,7 +136,7 @@ int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
 	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	*a = (void*)ptp_get_payload(r);
 	return rc;
 }
@@ -147,7 +147,7 @@ int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si
 	cmd.param_length = 1;
 	cmd.params[0] = id;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	if (rc) return rc;
 
 	memcpy(si, ptp_get_payload(r), sizeof(struct PtpStorageInfo));
@@ -162,7 +162,7 @@ int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, in
 	cmd.params[1] = offset;
 	cmd.params[2] = max;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi) {
@@ -171,7 +171,7 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectI
 	cmd.param_length = 1;
 	cmd.params[0] = handle;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 	if (rc) return rc;
 
 	ptp_parse_object_info(r, oi);
@@ -192,7 +192,7 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 		return PTP_OUT_OF_MEM;
 	}
 
-	return ptp_generic_send_data(r, &cmd, temp, length);
+	return ptp_send_data(r, &cmd, temp, length);
 }
 
 int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a) {
@@ -203,7 +203,7 @@ int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, str
 	cmd.params[1] = format;
 	cmd.params[2] = in;
 
-	int rc = ptp_generic_send(r, &cmd);
+	int rc = ptp_send(r, &cmd);
 
 	(*a) = ptp_dup_uint_array((void *)ptp_get_payload(r));
 
@@ -218,7 +218,7 @@ int ptp_get_num_objects(struct PtpRuntime *r, int id, int format, int in) {
 	cmd.params[1] = format;
 	cmd.params[2] = in;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_get_prop_value(struct PtpRuntime *r, int code) {
@@ -226,7 +226,7 @@ int ptp_get_prop_value(struct PtpRuntime *r, int code) {
 	cmd.code = PTP_OC_GetDevicePropValue;
 	cmd.param_length = 1;
 	cmd.params[0] = code;
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd) {
@@ -235,7 +235,7 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	int x = ptp_generic_send(r, &cmd);
+	int x = ptp_send(r, &cmd);
 
 	// Return this?
 	ptp_parse_prop_desc(r, pd);
@@ -251,7 +251,7 @@ int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {
 
 	// NOTE: raw JPEG contents is directly in the payload
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder) {
@@ -262,7 +262,7 @@ int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder
 	cmd.params[1] = storage_id;
 	cmd.params[2] = folder;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
@@ -273,7 +273,7 @@ int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 
 	uint32_t dat[] = {value};
 
-	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+	return ptp_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length) {
@@ -282,7 +282,7 @@ int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int leng
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	return ptp_generic_send_data(r, &cmd, data, length);
+	return ptp_send_data(r, &cmd, data, length);
 }
 
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
@@ -292,7 +292,7 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
 	cmd.params[0] = handle;
 	cmd.params[1] = format_code;
 
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 int ptp_get_object(struct PtpRuntime *r, int handle) {
@@ -301,7 +301,7 @@ int ptp_get_object(struct PtpRuntime *r, int handle) {
 	cmd.param_length = 1;
 	cmd.params[0] = handle;
 
-	return ptp_generic_send(r, &cmd);	
+	return ptp_send(r, &cmd);	
 }
 
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {

@@ -11,10 +11,17 @@
 
 #include <camlib.h>
 
+#ifndef CAMLIB_VERSION
+	#ifdef __DATE__
+		#define CAMLIB_VERSION __DATE__
+	#else
+		#define CAMLIB_VERSION "Unknown"
+	#endif
+#endif
+
 // TODO: func to access these
-static int bind_connected = 0;
-static int bind_initialized = 0;
-static int bind_capture_type = 0;
+int bind_connected = 0;
+int bind_initialized = 0;
 
 int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 	return sprintf(bind->buffer, "{\"error\": 0, \"initialized\": %d, \"connected\": %d, "
@@ -24,11 +31,11 @@ int bind_status(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 	if (bind_initialized) {
-		ptp_generic_close(r);
+		ptp_close(r);
 		if (r->di != NULL) free(r->di);
 	}
 
-	ptp_generic_init(r);
+	ptp_init(r);
 	bind_initialized = 1;
 
 	return sprintf(bind->buffer, "{\"error\": %d, \"buffer\": %d}", 0, r->data_length);
@@ -145,9 +152,9 @@ int bind_custom(struct BindReq *bind, struct PtpRuntime *r) {
 
 	int x = 0;
 	if (bind->bytes_length) {
-		x = ptp_generic_send_data(r, &cmd, bind->bytes, bind->bytes_length);
+		x = ptp_send_data(r, &cmd, bind->bytes, bind->bytes_length);
 	} else {
-		x = ptp_generic_send(r, &cmd);
+		x = ptp_send(r, &cmd);
 	}
 
 	if (x) {

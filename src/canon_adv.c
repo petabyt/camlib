@@ -19,7 +19,7 @@ int ptp_eos_activate_command(struct PtpRuntime *r) {
 		cmd.code = PTP_OC_EOS_EnableEventProc;
 		cmd.param_length = 0;
 
-		int ret = ptp_generic_send(r, &cmd);
+		int ret = ptp_send(r, &cmd);
 		if (ret == PTP_IO_ERR) {
 			return ret;
 		}
@@ -38,7 +38,7 @@ int ptp_eos_exec_evproc(struct PtpRuntime *r, void *data, int length, int expect
 	// If 1, evproc struct parser will put 3 params before params specified by our code
 	cmd.params[1] = expect_return;
 
-	return ptp_generic_send_data(r, &cmd, data, length);
+	return ptp_send_data(r, &cmd, data, length);
 }
 
 int ptp_eos_evproc_return_data(struct PtpRuntime *r) {
@@ -50,7 +50,7 @@ int ptp_eos_evproc_return_data(struct PtpRuntime *r) {
 	cmd.params[1] = 0;
 	cmd.params[2] = 1;
 
-	return ptp_generic_send(r, &cmd);
+	return ptp_send(r, &cmd);
 }
 
 #define EOS_TOK_INT 2
