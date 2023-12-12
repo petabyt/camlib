@@ -1,8 +1,8 @@
 # camlib
 This is a portable PTP/USB library written in C99. This isn't a fork of gphoto2, libptp, or libmtp.  
-This is a complete rewrite from the ground up, and is written to be maintainable and platform independent.  
+This is a complete rewrite from the ground up, and is written to be fast and portable.  
 
-[You can read the latest up-to-date documentation here.](https://danielc.dev/camlib-docs/)
+[You can read the latest up-to-date documentation here.](https://danielc.dev/camlib/)
 
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
@@ -19,10 +19,11 @@ which is important for reliability and regression testing.
 - [x] Real time camera previews (EOS, Magic Lantern)
 - [x] Implement most EOS/Canon vendor OCs
 - [x] ISO PTP/IP WiFi implementation
-- [x] Fuji WiFi and USB support
-- [x] Lua bindings
-- [x] [Javascript bindings](git@github.com:clutchlink/camlibjs.git) (browser, BunJS)
+- [x] ~~Fuji WiFi and USB support~~ (code moved to https://github.com/petabyt/fudge/)
+- [x] Lua bindings (for embedding)
+- [x] [Javascript bindings](git@github.com:clutchlink/camlibjs.git) (for browser)
 - [ ] Sony support
+- [ ] Pentax support
 
 ## Sample
 Get device info:
@@ -31,10 +32,10 @@ Get device info:
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	if (ptp_device_init(&r)) {
-		puts("Device connection error");
+		printf("Device connection error\n");
 		return 0;
 	}
 
@@ -46,7 +47,7 @@ int main() {
 	printf("%s\n", buffer);
 
 	ptp_device_close(&r);
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 ```
@@ -59,7 +60,7 @@ cmd.param_length = 3;
 cmd.params[0] = 420;
 cmd.params[1] = 420;
 cmd.params[2] = 420;
-return ptp_generic_send(r, &cmd);
+return ptp_send(r, &cmd);
 
 // Send a command with data payload
 struct PtpCommand cmd;
@@ -67,7 +68,7 @@ cmd.code = 0x1234;
 cmd.param_length = 1;
 cmd.params[0] = 1234;
 uint32_t dat[2] = {123, 123};
-return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+return ptp_send_data(r, &cmd, dat, sizeof(dat));
 ```
 Explore the filesystem:
 ```
@@ -76,7 +77,6 @@ int rc = ptp_get_storage_ids(&r, &arr);
 int id = arr->data[0];
 
 rc = ptp_get_object_handles(&r, id, PTP_OF_JPEG, 0, &arr);
-arr = ptp_dup_uint_array(arr);
 
 for (int i = 0; i < arr->length; i++) {
 	struct PtpObjectInfo oi;
