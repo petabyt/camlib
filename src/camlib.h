@@ -91,9 +91,6 @@ enum PtpConnType {
 	PTP_USB = (1 << 2),
 };
 
-// TODO: less confusing name
-//#define PtpRuntime PtpLib
-
 struct PtpRuntime {
 	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
 	// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
@@ -133,7 +130,7 @@ struct PtpRuntime {
 	// For session comm/io structures (holds libusb devices pointers)
 	void *comm_backend;
 
-	// Optional (CAMLIB_DONT_USE_MUTEX)
+	// Optional (see CAMLIB_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 
 	// For when the caller intends to do long-term data processing on the data buffer,
@@ -153,24 +150,73 @@ struct PtpGenericEvent {
 	const char *str_value;
 };
 
-// Generic command structure - accepted by generic operation functions
+// Generic PTP command structure - accepted by operation API
 struct PtpCommand {
-	int code;
-
+	uint16_t code;
 	uint32_t params[5];
 	int param_length;
-
 	int data_length;
 };
 
+// Returns info from the response structure currently in the buffer - not thread safe
+int ptp_get_return_code(struct PtpRuntime *r);
+
+// Get number of parameters in packet in data buffer
+int ptp_get_param_length(struct PtpRuntime *r);
+
+// Get parameter at index i
+uint32_t ptp_get_param(struct PtpRuntime *r, int index);
+
+// Get transaction ID of last packet
+int ptp_get_last_transaction_id(struct PtpRuntime *r);
+
+// Get ptr of packet payload, after packet header
+uint8_t *ptp_get_payload(struct PtpRuntime *r);
+int ptp_get_payload_length(struct PtpRuntime *r);
+
+// Allocate new PtpRuntime based on bitfield options - see PtpConnType
+struct PtpRuntime *ptp_new(int options);
+
+// Reset all session-specific fields of PtpRuntime - both libusb and libwpd backends call
+// this before establishing connection, so this is not required
+void ptp_reset(struct PtpRuntime *r);
+
+// Init PtpRuntime locally - uses default recommended settings (USB)
+void ptp_init(struct PtpRuntime *r);
+
+// Frees PtpRuntime data buffer - doesn't free the actual structure, or device info (yet)
+void ptp_close(struct PtpRuntime *r);
+
+// Send a command request to the device with no data phase (thread safe)
+int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
+
+// Send a command request to the device with a data phase (thread safe)
+int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
+
+// Try and get an event from the camera over int endpoint (USB-only)
+int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
+
+// Lock the IO mutex - this will not do anything if ptp_mutex_keep_locked was previously called
 void ptp_mutex_unlock(struct PtpRuntime *r);
+
+// When calling a thread-safe function, this will garuntee the mutex locked, in the
+// case that you want to continue using the buffer.
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
+
+// Lock the IO mutex - this will always work
 void ptp_mutex_lock(struct PtpRuntime *r);
 
+// Check info on the device info structure currently in r->di - will return error
+// if r->di is NULL
+int ptp_device_type(struct PtpRuntime *r);
+int ptp_check_opcode(struct PtpRuntime *r, int op);
+int ptp_check_prop(struct PtpRuntime *r, int code);
+
+// Mostly for internal use - realloc the data buffer
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 
 // Packet builder/unpacker helper functions. These accept a pointer-to-pointer
-// and will advance the dereferenced pointer by amount read.
+// and will advance the dereferenced pointer by amount read. Mostly for internal use.
 uint8_t ptp_read_uint8(void **dat);
 uint16_t ptp_read_uint16(void **dat);
 uint32_t ptp_read_uint32(void **dat);
@@ -190,8 +236,10 @@ void ptp_read_utf8_string(void **dat, char *string, int max);
 
 // Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
+
 // Only for PTP_USB or PTP_USB_IP use
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length);
+
 // Only use for PTP_IP
 int ptpip_data_start_packet(struct PtpRuntime *r, int data_length);
 int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
@@ -199,44 +247,11 @@ int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
 
-// Returns info from the response structure currently in the buffer
-int ptp_get_return_code(struct PtpRuntime *r);
-uint32_t ptp_get_param(struct PtpRuntime *r, int index);
-int ptp_get_param_length(struct PtpRuntime *r);
-int ptp_get_last_transaction_id(struct PtpRuntime *r);
-
-// Get ptr of packet payload, after header (includes parameters)
-uint8_t *ptp_get_payload(struct PtpRuntime *r);
-int ptp_get_payload_length(struct PtpRuntime *r);
-
-// Generic cmd send and get response - in place of a macro
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
-
-// Generic runtime setup - allocate default memory
-void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
-void ptp_reset(struct PtpRuntime *r);
-void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
-void ptp_init(struct PtpRuntime *r);
-void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
-void ptp_close(struct PtpRuntime *r);
-struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
-struct PtpRuntime *ptp_new(int options);
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
-int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
-
-int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
-
-// Will access r->di, a ptr to the device info structure.
-// See tests/ for examples on how to do this.
-int ptp_device_type(struct PtpRuntime *r);
-int ptp_check_opcode(struct PtpRuntime *r, int op);
-int ptp_check_prop(struct PtpRuntime *r, int code);
-
 // Duplicate array, return malloc'd buffer
+// TODO: deprecate this
 struct UintArray *ptp_dup_uint_array(struct UintArray *arr);
+
+void *ptp_dup_payload(struct PtpRuntime *r);
 
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
@@ -247,7 +262,7 @@ int ptp_dump(struct PtpRuntime *r);
 #include "cl_enum.h"
 #include "cl_bind.h"
 
-// Backwards compatibility
+// Backwards compatibility (mostly renamed functions)
 #ifndef CAMLIB_NO_COMPAT
 	#define ptp_get_last_transaction(...) ptp_get_last_transaction_id(__VA_ARGS__)
 	#define ptp_generic_new(...) ptp_new(__VA_ARGS__)
@@ -257,5 +272,14 @@ int ptp_dump(struct PtpRuntime *r);
 	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
 	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
 #endif
+
+void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
+struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
+void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
+void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 #endif
