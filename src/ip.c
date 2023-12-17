@@ -17,6 +17,13 @@
 #include <camlib.h>
 #include <ptp.h>
 
+#define DEBUG_BYTES() for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
+
+struct PtpIpBackend {
+	int fd;
+	int evfd;
+};
+
 static int set_nonblocking_io(int sockfd, int enable) {
 	int flags = fcntl(sockfd, F_GETFL, 0);
 	if (flags == -1)
@@ -108,36 +115,52 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	return -1;
 }
 
+static struct PtpIpBackend *init_comm(struct PtpRuntime *r) {
+	if (r->comm_backend == NULL) {
+		r->comm_backend = calloc(1, sizeof(struct PtpIpBackend)); 
+	}
+
+	return (struct PtpIpBackend *)r->comm_backend;
+}
+
 int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 	int fd = ptpip_new_timeout_socket(addr, port);
+
+	struct PtpIpBackend *b = init_comm(r);
+
 	if (fd > 0) {
-		r->fd = fd;
+		b->fd = fd;
 		return 0;
 	} else {
-		r->fd = 0;
+		b->fd = 0;
 		return fd;
 	}
 }
 
 int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port) {
 	int fd = ptpip_new_timeout_socket(addr, port);
+
+	struct PtpIpBackend *b = init_comm(r);
+
 	if (fd > 0) {
-		r->evfd = fd;
+		b->evfd = fd;
 		return 0;
 	} else {
-		r->evfd = 0;
+		b->evfd = 0;
 		return fd;
 	}
 }
 
 int ptpip_close(struct PtpRuntime *r) {
-	close(r->fd);
+	struct PtpIpBackend *b = init_comm(r);
+	if (b->fd) close(b->fd);
+	if (b->evfd) close(b->evfd);
 	return 0;
 }
 
 int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
-	int result = write(r->fd, data, size);
-	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
+	struct PtpIpBackend *b = init_comm(r);
+	int result = write(b->fd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {
@@ -146,8 +169,8 @@ int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
-	int result = read(r->fd, data, size);
-	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
+	struct PtpIpBackend *b = init_comm(r);
+	int result = read(b->fd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {
@@ -156,9 +179,8 @@ int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
-	int result = write(r->evfd, data, size);
-	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); }
-	//printf("\nEv: send %d bytes\n", result);
+	struct PtpIpBackend *b = init_comm(r);
+	int result = write(b->evfd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {
@@ -167,9 +189,8 @@ int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_event_read(struct PtpRuntime *r, void *data, int size) {
-	int result = read(r->evfd, data, size);
-	//for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); }
-	//printf("\nEv: Read %d bytes\n", result);
+	struct PtpIpBackend *b = init_comm(r);
+	int result = read(b->evfd, data, size);
 	if (result < 0) {
 		return -1;
 	} else {

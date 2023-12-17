@@ -59,11 +59,16 @@ void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int 
 	}
 
 	if (n != NULL) {
-		n->data = realloc(n->data, memb_size * cnt);
+		// Only realloc if needed (eventually will stop allocating)
+		if (cnt > n->memb_cnt) {
+			n->data = realloc(n->data, memb_size * cnt);
+		}
+
 		memcpy(n->data, data, memb_size * cnt);
 		return;
 	}
 
+	// Handle first element of linked list
 	if (r->avail->prev == NULL) {
 		n = r->avail;
 	} else {

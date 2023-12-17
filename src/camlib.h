@@ -133,10 +133,6 @@ struct PtpRuntime {
 	// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
 	int data_phase_length;
 
-	// For networking
-	int fd;
-	int evfd;
-
 	// For session comm/io structures (holds libusb devices pointers)
 	void *comm_backend;
 
