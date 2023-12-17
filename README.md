@@ -6,11 +6,11 @@ This is a complete rewrite from the ground up, and is written to be fast and por
 
 ## Design
 - Data parsing, packet building, and packet sending/recieving is all done in a single buffer
-- Core library will perform almost no memory allocation, to reduce complexity
+- Will not perform memory allocations between operations (constant high memory usage)
 - No platform specific code at the core
 - No macros, only clean C API - everything is a function that can be accessed from other languages
-- Reverse-engineering isn't done just through packet analysis - it's also done by reimplementing the camera PTP server,
-which is important for reliability and regression testing.
+- I'm writing this while writing [vcam](git@github.com:petabyt/vcam.git) at the same time,
+so my vendor opcode implementations are (IMO) more reliabile than others
 
 ## Checklist
 - [x] Complete working implemention of PTP as per ISO 15740
@@ -18,10 +18,12 @@ which is important for reliability and regression testing.
 - [x] JSON bindings for high level languages
 - [x] Real time camera previews (EOS, Magic Lantern)
 - [x] Implement most EOS/Canon vendor OCs
-- [x] ISO PTP/IP WiFi implementation
+- [x] ISO PTP/IP implementation
 - [x] ~~Fuji WiFi and USB support~~ (code moved to https://github.com/petabyt/fudge/)
 - [x] Lua bindings (for embedding)
 - [x] [Javascript bindings](git@github.com:clutchlink/camlibjs.git) (for browser)
+- [ ] Complete thread safety (almost there)
+- [ ] Complete unit tests
 - [ ] Sony support
 - [ ] Pentax support
 
