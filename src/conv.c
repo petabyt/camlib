@@ -6,6 +6,7 @@
 
 #include <camlib.h>
 
+// TODO: Standard MTP scales by 10,000
 struct CanonShutterSpeed {
 	int value; // value times 100000
 	int data; // data from camera
@@ -125,6 +126,17 @@ int ptp_eos_get_iso(int data, int dir) {
 	return data;
 }
 
+#if 0
+{0, 0} // Undefined
+{1, 0} // Manual (RGB gain)
+{2, 0} // Automatic
+{3, 0} // One push automatic
+{4, 1} // Daylight
+{5, 4} // Florescent
+{6, 3} // Tungsten
+{7, 8} // Flash
+#endif
+
 struct CanonWhiteBalance {
 	int value;
 	int data;
@@ -156,7 +168,7 @@ struct CanonAperture {
 	int value;
 	int data;
 }canon_aperture[] = {
-	{12, 0xd}, // TODO: standard PTP scales this by 100
+	{12, 0xd}, // TODO: standard MTP scales this by 100, currently scaled by 10
 	{14, 0x10},
 	{16, 0x13},
 	{18, 0x15},
