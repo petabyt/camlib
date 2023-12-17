@@ -24,7 +24,7 @@ libcamlib.so: $(FILES)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # PTP decoder
-DEC_FILES=src/dec/main.o src/enums.o src/enum_dump.o src/data.o src/packet.o src/conv.o src/log.o
+DEC_FILES=src/dec/main.o src/enums.o src/enum_dump.o src/packet.o src/conv.o src/log.o
 dec: $(DEC_FILES)
 	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
 
