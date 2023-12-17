@@ -9,21 +9,21 @@
 #include <ptp.h>
 #include <camlib.h>
 
-uint8_t ptp_read_uint8(void **dat) {
+uint8_t ptp_read_uint8(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
 	uint8_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-uint16_t ptp_read_uint16(void **dat) {
+uint16_t ptp_read_uint16(void *dat) {
 	uint16_t **p = (uint16_t **)dat;
 	uint16_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-uint32_t ptp_read_uint32(void **dat) {
+uint32_t ptp_read_uint32(void *dat) {
 	uint32_t **p = (uint32_t **)dat;
 	uint32_t x = (**p);
 	(*p)++;
@@ -31,7 +31,7 @@ uint32_t ptp_read_uint32(void **dat) {
 }
 
 // Read standard UTF16 string
-void ptp_read_string(void **dat, char *string, int max) {
+void ptp_read_string(void *dat, char *string, int max) {
 	uint8_t **p = (uint8_t **)dat;
 	int length = (int)ptp_read_uint8((void **)p);
 
@@ -46,7 +46,7 @@ void ptp_read_string(void **dat, char *string, int max) {
 	string[y] = '\0';
 }
 
-int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
+int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
 	int n = ptp_read_uint32((void **)dat);
 
 	for (int i = 0; i < n; i++) {
@@ -60,13 +60,13 @@ int ptp_read_uint16_array(void **dat, uint16_t *buf, int max) {
 	return n;
 }
 
-void ptp_write_uint8(void **dat, uint8_t b) {
+void ptp_write_uint8(void *dat, uint8_t b) {
 	uint8_t **ptr = (uint8_t **)dat;
 	(**ptr) = b;
 	(*ptr)++;
 }
 
-int ptp_write_uint32(void **dat, uint32_t b) {
+int ptp_write_uint32(void *dat, uint32_t b) {
 	uint32_t **ptr = (uint32_t **)dat;
 	(**ptr) = b;
 	(*ptr)++;
@@ -74,7 +74,7 @@ int ptp_write_uint32(void **dat, uint32_t b) {
 	return 4;
 }
 
-int ptp_write_string(void **dat, char *string) {
+int ptp_write_string(void *dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
 
@@ -88,7 +88,7 @@ int ptp_write_string(void **dat, char *string) {
 	return (length * 2) + 2;
 }
 
-int ptp_write_utf8_string(void **dat, char *string) {
+int ptp_write_utf8_string(void *dat, char *string) {
 	for (int i = 0; string[i] != '\0'; i++) {
 		ptp_write_uint8(dat, string[i]);
 	}
@@ -125,7 +125,7 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 }
 
 // Read null terminated UTF8 string
-void ptp_read_utf8_string(void **dat, char *string, int max) {
+void ptp_read_utf8_string(void *dat, char *string, int max) {
 	uint8_t **p = (uint8_t **)dat;
 
 	int y = 0;

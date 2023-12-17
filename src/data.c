@@ -383,7 +383,7 @@ int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
 	return 0;
 }
 
-// Stream reader for events
+// TODO: Stream reader for events
 struct PtpEventReader {
 	int entries;
 	int index;
@@ -437,8 +437,8 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			cur->name = ptp_get_enum_all(type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
-			int a = ptp_read_uint32((void **)&d);
-			int b = ptp_read_uint32((void **)&d);
+			uint32_t a = ptp_read_uint32(&d);
+			uint32_t b = ptp_read_uint32(&d);
 			cur->name = "request object transfer";
 			cur->code = a;
 			cur->value = b;
@@ -447,6 +447,19 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			struct PtpEOSObject *obj = (struct PtpEOSObject *)d;
 			cur->name = "new object";
 			cur->value = obj->a;
+			} break;
+		case PTP_EC_EOS_AvailListChanged: {
+			uint32_t code = ptp_read_uint32(&d);
+			uint32_t dat_type = ptp_read_uint32(&d);
+			uint32_t count = ptp_read_uint32(&d);
+
+			int payload_size = (size - 20);
+			int memb_size = 0;
+			if (payload_size != 0 && count != 0) {
+				memb_size = (size - 20) / count;
+				ptp_set_prop_avail_info(r, code, memb_size, count, d);
+			}
+			//printf("Avail List changed: %X of type %X\n", code, dat_type);
 			} break;
 		}
 

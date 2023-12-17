@@ -43,14 +43,12 @@ int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 
 // Experimental, not for use yet - none of my devices seem to use this endpoint
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec) {
-	int x = ptp_read_int(r, r->data, r->max_packet_size);
-	if (x < 0) {
-		return x;
-	} else {
-		memcpy(ec, r->data, sizeof(struct PtpEventContainer));
-	}
+	int rc = ptp_read_int(r, r->data, r->max_packet_size);
+	if (rc) return rc;
 
-	return x;
+	memcpy(ec, r->data, sizeof(struct PtpEventContainer));
+
+	return rc;
 }
 
 int ptpip_init_events(struct PtpRuntime *r) {
@@ -131,13 +129,16 @@ int ptp_terminate_open_capture(struct PtpRuntime *r, int trans) {
 	return ptp_send(r, &cmd);
 }
 
+// TODO: Return PtpStorageIds
 int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
 
 	int rc = ptp_send(r, &cmd);
-	*a = (void*)ptp_get_payload(r);
+
+	(*a) = ptp_dup_uint_array((void *)ptp_get_payload(r));
+	
 	return rc;
 }
 
@@ -237,7 +238,6 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd)
 
 	int x = ptp_send(r, &cmd);
 
-	// Return this?
 	ptp_parse_prop_desc(r, pd);
 
 	return x;

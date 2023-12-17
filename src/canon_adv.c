@@ -1,14 +1,14 @@
 // Advanced developer opcodes for Canon EOS cameras - this is not meant to be compiled into
 // camlib in most cases - but this file is available as an extension if you need it
 // These commands can easily brick your camera (you can literally delete the firmware). Be careful please.
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 #include <camlib.h>
 
-// Required on some newer cameras, like EOS M.
+// Required on some newer cameras, like the EOS M.
 int ptp_eos_activate_command(struct PtpRuntime *r) {
 	if (!ptp_check_opcode(r, PTP_OC_EOS_EnableEventProc)) {
 		return 0;
@@ -265,16 +265,7 @@ char *canon_evproc_pack(int *length, char *string) {
 	return data;	
 }
 
-// This function is not optimized to be fast. Use it sparingly.
-// canon_evproc_run(r, "FA_GetProperty %u %u", 0x1000008, 0);
-int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
-	char request[1024];
-	va_list aptr;
-	va_start(aptr, fmt);
-	vsnprintf(request, sizeof(request), fmt, aptr);
-	va_end(aptr);
-
-	// Command is disabled on some cams, run it nonetheless
+static int eos_evproc(struct PtpRuntime *r, char *request, int payload) {
 	int rc = ptp_eos_activate_command(r);
 	if (rc) {
 		ptp_verbose_log("Error activating command %d\n", rc);
@@ -287,7 +278,7 @@ int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
 		return PTP_RUNTIME_ERR;
 	}
 
-	rc = ptp_eos_exec_evproc(r, data, length, 0);
+	rc = ptp_eos_exec_evproc(r, data, length, payload);
 	if (rc) {
 		return rc;
 	}
@@ -295,4 +286,43 @@ int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
 	free(data);
 
 	return 0;
+}
+
+// This function is not optimized to be fast. Use it sparingly.
+// canon_evproc_run(r, "FA_GetProperty %u %u", 0x1000008, 0);
+int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...) {
+	char request[1024];
+	va_list aptr;
+	va_start(aptr, fmt);
+	vsnprintf(request, sizeof(request), fmt, aptr);
+	va_end(aptr);
+
+	return eos_evproc(r, request, 0);
+}
+
+static int ptp_eos_evproc_run_payload(struct PtpRuntime *r, void **buf, char *fmt, ...) {
+	char request[1024];
+	va_list aptr;
+	va_start(aptr, fmt);
+	vsnprintf(request, sizeof(request), fmt, aptr);
+	va_end(aptr);
+
+	int rc = eos_evproc(r, request, 1);
+	if (rc) return rc;
+
+	rc = ptp_eos_evproc_return_data(r);
+
+	(*buf) = ptp_dup_payload(r);
+
+	return rc;
+}
+
+int ptp_eos_fa_get_build_version(struct PtpRuntime *r, char *buffer, int max) {
+	void *payload = NULL;
+
+	int rc = ptp_eos_evproc_run_payload(r, &payload, "FA_GetProperty %d %d", 0x2000005, 0);
+
+	strncpy(buffer, payload, max);
+
+	return rc;
 }

@@ -3,7 +3,6 @@
 
 char *enum_null = "(null)";
 
-// TODO: relocate to bind.c
 int ptp_enum_index(char *string, int *value, int i) {
 	if (i >= ptp_enums_length) {
 		return 1;
@@ -46,7 +45,7 @@ char *ptp_get_enum_all(int id) {
 
 char *ptp_get_enum(int type, int vendor, int id) {
 	for (int i = 0; i < ptp_enums_length; i++) {
-		if (id == ptp_enums[i].value && ptp_enums[i].type == type
+		if (ptp_enums[i].value == id && ptp_enums[i].type == type
 				&& (ptp_enums[i].vendor == vendor || ptp_enums[i].vendor == PTP_DEV_EMPTY)) {
 			return ptp_enums[i].name;
 		}

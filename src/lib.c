@@ -8,7 +8,6 @@
 #include <camlib.h>
 #include <ptp.h>
 
-// Reset all fields of PtpRuntime - use this before reconnecting
 void ptp_reset(struct PtpRuntime *r) {
 	r->io_kill_switch = 1;
 	r->transaction = 0;
@@ -25,6 +24,8 @@ void ptp_init(struct PtpRuntime *r) {
 	r->data = malloc(CAMLIB_DEFAULT_SIZE);
 	r->data_length = CAMLIB_DEFAULT_SIZE;
 
+	r->avail = calloc(1, sizeof(struct PtpPropAvail));
+
 	#ifndef CAMLIB_DONT_USE_MUTEX
 	r->mutex = malloc(sizeof(pthread_mutex_t));
 	if (pthread_mutex_init(r->mutex, NULL)) {
@@ -39,11 +40,55 @@ struct PtpRuntime *ptp_new(int options) {
 	struct PtpRuntime *r = malloc(sizeof(struct PtpRuntime));
 	ptp_init(r);
 
-	if (options & 3) {
-		r->connection_type = options & 3;
+	// TODO: Working but can maybe add more options?
+	if (options & PTP_IP) {
+		r->connection_type = PTP_IP;
+	} else if (options & PTP_USB) {
+		r->connection_type = PTP_USB;
+	} else if (options & PTP_IP_USB) {
+		r->connection_type = PTP_IP_USB;
 	}
 
 	return r;
+}
+
+void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data) {
+	struct PtpPropAvail *n;
+	for (n = r->avail; n != NULL; n = n->prev) {
+		if (n->code == code) break;
+	}
+
+	if (n != NULL) {
+		n->data = realloc(n->data, memb_size * cnt);
+		memcpy(n->data, data, memb_size * cnt);
+		return;
+	}
+
+	if (r->avail->prev == NULL) {
+		n = r->avail;
+	} else {
+		n = calloc(1, sizeof(struct PtpPropAvail));
+		r->avail->next = n;
+		n->prev = r->avail;
+	}
+
+	n->code = code;
+	n->memb_size = memb_size;
+	n->memb_cnt = cnt;
+	void *dup = malloc(memb_size * cnt);
+	memcpy(dup, data, memb_size * cnt);
+	n->data = dup;
+
+	r->avail = n;
+}
+
+void ptpusb_free_device_list(struct PtpDeviceEntry *e) {
+	struct PtpDeviceEntry *next;
+	while (e != NULL) {
+		next = e->next;
+		free(e);
+		e = next;
+	}
 }
 
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size) {
@@ -65,6 +110,8 @@ void ptp_mutex_lock(struct PtpRuntime *r) {
 	pthread_mutex_lock(r->mutex);
 }
 
+// TODO: increment r->caller_unlocks_mutex by 1, then ptp_mutex_unlock will only
+// unlock if it's zero?
 void ptp_mutex_keep_locked(struct PtpRuntime *r) {
 	r->caller_unlocks_mutex = 1;
 }
@@ -98,11 +145,11 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_get_last_transaction_id(r) != r->transaction) {
-		ptp_verbose_log("Mismatch transaction ID\n");
-		//ptp_mutex_unlock(r);
-		//return PTP_IO_ERR;
-	}
+	// if (ptp_get_last_transaction_id(r) != r->transaction) {
+		// ptp_verbose_log("Mismatch transaction ID\n");
+		// ptp_mutex_unlock(r);
+		// return PTP_IO_ERR;
+	// }
 
 	r->transaction++;
 
@@ -167,11 +214,12 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		return PTP_IO_ERR;
 	}
 
-	if (ptp_get_last_transaction_id(r) != r->transaction) {
-		ptp_verbose_log("ptp_send_data: Mismatch transaction ID (%d/%d)\n", ptp_get_last_transaction_id(r), r->transaction);
+	// TODO: doesn't work on windows
+	//if (ptp_get_last_transaction_id(r) != r->transaction) {
+		//ptp_verbose_log("ptp_send_data: Mismatch transaction ID (%d/%d)\n", ptp_get_last_transaction_id(r), r->transaction);
 		//ptp_mutex_unlock(r);
 		//return PTP_IO_ERR;
-	}
+	//}
 
 	r->transaction++;
 
@@ -182,6 +230,12 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
+}
+
+void *ptp_dup_payload(struct PtpRuntime *r) {
+	void *dup = malloc(ptp_get_payload_length(r));
+	memcpy(dup, ptp_get_payload(r), ptp_get_payload_length(r));
+	return dup;
 }
 
 struct UintArray *ptp_dup_uint_array(struct UintArray *arr) {

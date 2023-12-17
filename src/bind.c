@@ -3,7 +3,7 @@
 // Generic text bindings to PTP functions
 // - The only function that is exposed is bind_run(), which returns
 // valid JSON from a generic text like request
-// - This is not part of the core library, and will use malloc()
+// - This is not part of the core library, and will use malloc often
 
 #include <stdlib.h>
 #include <stdio.h>

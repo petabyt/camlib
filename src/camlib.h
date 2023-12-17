@@ -91,6 +91,16 @@ enum PtpConnType {
 	PTP_USB = (1 << 2),
 };
 
+// Linked list to handle currently possible values for a property
+struct PtpPropAvail {
+	void *next;
+	void *prev;
+	int code;
+	int memb_size;
+	int memb_cnt;
+	void *data;
+};
+
 struct PtpRuntime {
 	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
 	// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
@@ -133,13 +143,14 @@ struct PtpRuntime {
 	// Optional (see CAMLIB_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 
-	// For when the caller intends to do long-term data processing on the data buffer,
-	// setting this to 1 allows the caller to unlock the packet read/write mutex. For quick
-	// data processing, this should never matter because reading a packet takes *much* longer.
+	// For when the caller intends to do long-term processing on r->data,
+	// setting this to 1 allows the caller to unlock the packet read/write mutex (and write thread-safe code)
 	uint8_t caller_unlocks_mutex;
 
 	// Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
 	uint8_t wait_for_response;
+
+	struct PtpPropAvail *avail;
 };
 
 // Generic event / property change
@@ -217,22 +228,21 @@ int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 
 // Packet builder/unpacker helper functions. These accept a pointer-to-pointer
 // and will advance the dereferenced pointer by amount read. Mostly for internal use.
-uint8_t ptp_read_uint8(void **dat);
-uint16_t ptp_read_uint16(void **dat);
-uint32_t ptp_read_uint32(void **dat);
-void ptp_read_string(void **dat, char *string, int max);
-int ptp_read_uint16_array(void **dat, uint16_t *buf, int max);
-int ptp_read_uint32_array(void **dat, uint16_t *buf, int max);
+// These functions accept (void *), but really wants (void **), but (void **) would require casting in every call
+uint8_t ptp_read_uint8(void *dat);
+uint16_t ptp_read_uint16(void *dat);
+uint32_t ptp_read_uint32(void *dat);
+void ptp_read_string(void *dat, char *string, int max);
+int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
+int ptp_read_uint32_array(void *dat, uint16_t *buf, int max);
 int ptp_wide_string(char *buffer, int max, char *input);
-
-void ptp_write_uint8(void **dat, uint8_t b);
-int ptp_write_uint32(void **dat, uint32_t b);
-int ptp_write_string(void **dat, char *string);
-int ptp_write_utf8_string(void **dat, char *string);
-
+void ptp_write_uint8(void *dat, uint8_t b);
+int ptp_write_uint32(void *dat, uint32_t b);
+int ptp_write_string(void *dat, char *string);
+int ptp_write_utf8_string(void *dat, char *string);
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
-void ptp_read_utf8_string(void **dat, char *string, int max);
+void ptp_read_utf8_string(void *dat, char *string, int max);
 
 // Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
@@ -246,6 +256,9 @@ int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
 
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);
+
+// Set avail info for prop
+void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data);
 
 // Duplicate array, return malloc'd buffer
 // TODO: deprecate this
@@ -262,6 +275,16 @@ int ptp_dump(struct PtpRuntime *r);
 #include "cl_enum.h"
 #include "cl_bind.h"
 
+// Deprecated old functions
+void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
+struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
+void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
+void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
+int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
+int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
+
 // Backwards compatibility (mostly renamed functions)
 #ifndef CAMLIB_NO_COMPAT
 	#define ptp_get_last_transaction(...) ptp_get_last_transaction_id(__VA_ARGS__)
@@ -272,14 +295,5 @@ int ptp_dump(struct PtpRuntime *r);
 	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
 	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
 #endif
-
-void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
-struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
-void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
-void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd);
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 #endif
