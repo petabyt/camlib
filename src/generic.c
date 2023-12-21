@@ -5,20 +5,64 @@
 
 #include <camlib.h>
 
+int ptp_validate_property_value(struct PtpRuntime *r, int prop_code, uint32_t value) {
+	struct PtpPropAvail *n;
+	for (n = r->avail; n != NULL; n = n->prev) {
+		if (n->code == prop_code) break;
+	}
+
+	if (n == NULL) return 1;
+
+	for (int i = 0; i < n->memb_cnt; i++) {
+		uint32_t cur_val;
+		switch (n->memb_size) {
+		case 4:
+			cur_val = ((uint32_t *)n->data)[i];
+			break;
+		case 2:
+			cur_val = ((uint16_t *)n->data)[i];
+			break;
+		case 1:
+			cur_val = ((uint8_t *)n->data)[i];
+			break;
+		default:
+			ptp_panic("Unsupported PTP prop length %X\n", prop_code);
+		}
+
+		if (value == cur_val) {
+			ptp_verbose_log("Found valid prop value %X for 0x%X\n", value, prop_code);
+			return 0;
+		}
+	}
+
+	return 2;
+}
+
+static int ptp_eos_set_validate_prop(struct PtpRuntime *r, int prop_code, uint32_t value) {
+	int rc = ptp_validate_property_value(r, prop_code, value);
+
+	// If invalid value, don't set. Else... we don't have any info, and we assume it's valid
+	if (rc == 2) {
+		return rc;
+	}
+
+	return ptp_eos_set_prop_value(r, prop_code, value);
+}
+
 int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value) {
 	int dev = ptp_device_type(r);
 	int rc = 0;
 	if (!strcmp(name, "aperture")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
 		}
 	} else if (!strcmp(name, "iso")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
 		}
 	} else if (!strcmp(name, "shutter speed")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
 		}
 	} else if (!strcmp(name, "white balance")) {
 		if (dev == PTP_DEV_EOS) {
@@ -26,8 +70,7 @@ int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value) {
 			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
 		}
 	} else if (!strcmp(name, "destination")) {
-		return 0;
-		//bind_capture_type = value;
+		return PTP_UNSUPPORTED;
 	} else {
 		return PTP_UNSUPPORTED;
 	}

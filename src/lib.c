@@ -53,13 +53,14 @@ struct PtpRuntime *ptp_new(int options) {
 }
 
 void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data) {
+	// Traverse backwards to first item
 	struct PtpPropAvail *n;
 	for (n = r->avail; n != NULL; n = n->prev) {
 		if (n->code == code) break;
 	}
 
 	if (n != NULL) {
-		// Only realloc if needed (eventually will stop allocating)
+		// Only realloc if needed (eventually will stop allocating once we have hit a maximum)
 		if (cnt > n->memb_cnt) {
 			n->data = realloc(n->data, memb_size * cnt);
 		}
@@ -69,7 +70,7 @@ void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int 
 	}
 
 	// Handle first element of linked list
-	if (r->avail->prev == NULL) {
+	if (r->avail->code == 0x0) {
 		n = r->avail;
 	} else {
 		n = calloc(1, sizeof(struct PtpPropAvail));

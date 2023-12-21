@@ -390,9 +390,7 @@ struct PtpEventReader {
 	void *ptr;
 };
 
-// TODO: misnomer: ptp_eos_unpack_events
-// TODO: we should have a way to read next entry without allocating/freeing memory
-int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
+int ptp_eos_events_length(struct PtpRuntime *r) {
 	uint8_t *dp = ptp_get_payload(r);
 
 	int length = 0;
@@ -410,11 +408,20 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 		length++;
 	}
 
+	return length;
+}
+
+// TODO: misnomer: ptp_eos_unpack_events
+// TODO: we should have a way to read next entry without allocating/freeing memory
+int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
+	int length = ptp_eos_events_length(r);
+
 	if (length == 0) return 0;
+	if (length < 0) return length;
 
 	(*p) = malloc(sizeof(struct PtpGenericEvent) * length);
 
-	dp = ptp_get_payload(r);
+	uint8_t *dp = ptp_get_payload(r);
 	for (int i = 0; i < length; i++) {
 		// TODO: Simplify these triple pointers
 		struct PtpGenericEvent *cur = &((*p)[i]);
@@ -454,12 +461,13 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			uint32_t count = ptp_read_uint32(&d);
 
 			int payload_size = (size - 20);
-			int memb_size = 0;
+
+			// Make sure to not divide by zero :)
 			if (payload_size != 0 && count != 0) {
-				memb_size = (size - 20) / count;
+				int memb_size = payload_size / count;
+			
 				ptp_set_prop_avail_info(r, code, memb_size, count, d);
 			}
-			//printf("Avail List changed: %X of type %X\n", code, dat_type);
 			} break;
 		}
 
