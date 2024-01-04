@@ -30,35 +30,33 @@ uint32_t ptp_read_uint32(void *dat) {
 	return x;
 }
 
-// Read standard UTF16 string
-void ptp_read_string(void *dat, char *string, int max) {
+#if 0
+// This seems slower than misaligned access lol
+uint8_t ptp_read_uint8(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
-	int length = (int)ptp_read_uint8((void **)p);
-
-	int y = 0;
-	while (y < length) {
-		string[y] = (char)(**p);
-		(*p) += 2;
-		y++;
-		if (y >= max) { break; }
-	}
-
-	string[y] = '\0';
+	uint8_t x = (**p);
+	(*p)++;
+	return x;
 }
 
-int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
-	int n = ptp_read_uint32((void **)dat);
-
-	for (int i = 0; i < n; i++) {
-		if (i >= max) {
-			(void)ptp_read_uint16((void **)dat);
-		} else {
-			buf[i] = ptp_read_uint16((void **)dat);
-		}
-	}
-
-	return n;
+uint16_t ptp_read_uint16(void *dat) {
+	uint8_t **p = (uint8_t **)dat;
+	uint16_t x = (p[0][0] << 8) | p[0][0];
+	(*p) += 2;
+	return x;
 }
+
+uint32_t ptp_read_uint32(void *dat) {
+	uint8_t **p = (uint8_t **)dat;
+	uint32_t x;
+	((uint8_t *)&x)[0] = p[0][0];
+	((uint8_t *)&x)[1] = p[0][1];
+	((uint8_t *)&x)[2] = p[0][2];
+	((uint8_t *)&x)[3] = p[0][3];
+	(*p) += 4;
+	return x;
+}
+#endif
 
 void ptp_write_uint8(void *dat, uint8_t b) {
 	uint8_t **ptr = (uint8_t **)dat;
@@ -72,6 +70,35 @@ int ptp_write_uint32(void *dat, uint32_t b) {
 	(*ptr)++;
 
 	return 4;
+}
+
+// Read standard UTF16 string
+void ptp_read_string(void *dat, char *string, int max) {
+	int length = (int)ptp_read_uint8(dat);
+
+	int y = 0;
+	while (y < length) {
+		string[y] = (char)ptp_read_uint8(dat);
+		ptp_read_uint8(dat); // skip \0
+		y++;
+		if (y >= max) { break; }
+	}
+
+	string[y] = '\0';
+}
+
+int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
+	int n = ptp_read_uint32(dat);
+
+	for (int i = 0; i < n; i++) {
+		if (i >= max) {
+			(void)ptp_read_uint16(dat);
+		} else {
+			buf[i] = ptp_read_uint16(dat);
+		}
+	}
+
+	return n;
 }
 
 int ptp_write_string(void *dat, char *string) {

@@ -258,7 +258,7 @@ void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int 
 
 // Duplicate array, return malloc'd buffer
 // TODO: deprecate this
-struct UintArray *ptp_dup_uint_array(struct UintArray *arr);
+struct UintArray *ptp_dup_uint_array(struct UintArray *arr) __attribute__ ((deprecated));
 
 void *ptp_dup_payload(struct PtpRuntime *r);
 
@@ -271,6 +271,7 @@ int ptp_dump(struct PtpRuntime *r);
 #include "cl_enum.h"
 #include "cl_bind.h"
 
+#if 0
 // Deprecated old functions
 void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
 struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
@@ -280,6 +281,7 @@ int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
 int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
 int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
+#endif
 
 // Backwards compatibility (mostly renamed functions)
 #ifndef CAMLIB_NO_COMPAT

@@ -17,6 +17,7 @@ FILES+=src/libusb.o src/transport.o
 COMMIT=$(shell git rev-parse HEAD)
 CFLAGS+='-DCAMLIB_COMMIT="$(COMMIT)"'
 
+# TODO: add LDFLAGS to fix mac builds
 libcamlib.so: $(FILES)
 	$(CC) -shared $(FILES) -o libcamlib.so
 
@@ -42,7 +43,7 @@ install: libcamlib.so
 	-mkdir /usr/include/camlib
 	cp src/*.h /usr/include/camlib/
 
-test-ci: test/test.o $(FILES)
-	$(CC) test/test.o $(FILES) $(LDFLAGS) $(CFLAGS) -o test-ci
+test:
+	bash test/myci.sh
 
-.PHONY: all clean install stringify
+.PHONY: all clean install stringify test
