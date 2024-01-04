@@ -98,6 +98,7 @@ void ptpusb_free_device_list(struct PtpDeviceEntry *e) {
 }
 
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size) {
+	// realloc with a little extra space to minimize reallocs later on
 	static int extra = 100;
 	ptp_verbose_log("Extending IO buffer to %X\n", size + extra);
 	r->data = realloc(r->data, size + extra);
@@ -114,16 +115,22 @@ void ptp_mutex_lock(struct PtpRuntime *r) {
 	pthread_mutex_lock(r->mutex);
 }
 
-// TODO: increment r->caller_unlocks_mutex by 1, then ptp_mutex_unlock will only
-// unlock if it's zero?
+// 'push' a request to keep mutex locked, must be 'popped' or it will wreak havoc
 void ptp_mutex_keep_locked(struct PtpRuntime *r) {
-	r->caller_unlocks_mutex = 1;
+	r->caller_unlocks_mutex++;
 }
 
+// 'pop' the mutex stack, will only unlock the mutex once stack is at zero
 void ptp_mutex_unlock(struct PtpRuntime *r) {
 	if (r->mutex == NULL) return;
-	pthread_mutex_unlock(r->mutex);
-	r->caller_unlocks_mutex = 0;
+
+	if (r->caller_unlocks_mutex) {
+		r->caller_unlocks_mutex--;
+		return;
+	}
+
+	if (!r->caller_unlocks_mutex)
+		pthread_mutex_unlock(r->mutex);
 }
 
 void ptp_close(struct PtpRuntime *r) {
@@ -171,15 +178,12 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
 	ptp_mutex_lock(r);
 
-	// Required for libWPD backend
+	// Required for libWPD and PTP/IP
 	r->data_phase_length = length;
 
-	// TODO: Expand buffer if needed
-	// (Header packet will never be more than 100 bytes)
-	if (length + 100 > r->data_length) {
-		ptp_verbose_log("ptp_send_data: Not enough memory\n");
-		ptp_mutex_unlock(r);
-		return PTP_OUT_OF_MEM;
+	// These numbers are not exact, but it's fine
+	if (length + 50 > r->data_length) {
+		ptp_buffer_resize(100 + length);
 	}
 
 	// Send operation request (data phase later on)
@@ -218,7 +222,7 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		return PTP_IO_ERR;
 	}
 
-	// TODO: doesn't work on windows
+	// TODO: doesn't work on windows (IDs are made up)
 	//if (ptp_get_last_transaction_id(r) != r->transaction) {
 		//ptp_verbose_log("ptp_send_data: Mismatch transaction ID (%d/%d)\n", ptp_get_last_transaction_id(r), r->transaction);
 		//ptp_mutex_unlock(r);
@@ -234,12 +238,6 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
-}
-
-void *ptp_dup_payload(struct PtpRuntime *r) {
-	void *dup = malloc(ptp_get_payload_length(r));
-	memcpy(dup, ptp_get_payload(r), ptp_get_payload_length(r));
-	return dup;
 }
 
 int ptp_device_type(struct PtpRuntime *r) {
