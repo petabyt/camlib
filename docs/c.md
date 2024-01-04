@@ -11,9 +11,9 @@ This means that functions processing or using this data *must* keep the operatio
 the caller isn't making the application thread-safe. In a single-threaded application, there is no need for it to be thread-safe.
 
 Camlib was designed to run on a single thread, through a thread-safe server returning `bind` requests. This works well
-in many applications, but I'm slowly working on making it thread-safe for higher speeds applications.
+in many applications, but I'm slowly working on making it thread-safe for more complicated appliations.
 
-## `void ptp_generic_init(struct PtpRuntime *r);`
+## `void ptp_init(struct PtpRuntime *r);`
 Initializes a `struct PtpRuntime`. The struct is pretty small. This allocates the a large buffer to `r.data`.
 You may also set r.connection_type to one of `enum PtpConnType`.
 ## `int ptp_device_init(struct PtpRuntime *r);`

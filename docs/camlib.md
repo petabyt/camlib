@@ -1,19 +1,5 @@
 # Documentation For Camlib
-- PDF Reference for PTP and MTP: https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement
 - Documentation for [CamControl scripting](https://camcontrol.danielc.dev/docs/)
-
-## Quick Overview of PTP Standard
-### To issue a command to the device
-1. Send a *command packet* with up to 5 parameters
-2. An optional data packet (the data phase)
-3. A response packet(s) is recieved from the camera.
-
-For data to be sent to the camera, a data packet can be sent following  
-the command packet. The camera should know when to expect this.  
-
-- Each packet sent to the camera has a unique transaction ID (see PtpBulkContainer.transaction)
-- The operation code (OC) is an ID for each command, and determines how the camera will expect and send back data.
-- In a response packet, the response code (RC) is placed in the PtpBulkContainer.code field
 
 ## JSON Bindings
 Camlib provides a JSON frontend that can easily be ported to higher level programming languages,
@@ -40,3 +26,4 @@ ptp_custom_send;4097,66,66,66,66,66;
 ptp_custom_cmd;4097,1,2,3,4,5
 ptp_set_property;"iso",6400
 ```
+
