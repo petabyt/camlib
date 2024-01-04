@@ -98,9 +98,7 @@ void ptpusb_free_device_list(struct PtpDeviceEntry *e) {
 }
 
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size) {
-	// TODO: Adjust this in a clever way
 	static int extra = 100;
-
 	ptp_verbose_log("Extending IO buffer to %X\n", size + extra);
 	r->data = realloc(r->data, size + extra);
 	r->data_length = size + extra;
@@ -242,13 +240,6 @@ void *ptp_dup_payload(struct PtpRuntime *r) {
 	void *dup = malloc(ptp_get_payload_length(r));
 	memcpy(dup, ptp_get_payload(r), ptp_get_payload_length(r));
 	return dup;
-}
-
-struct UintArray *ptp_dup_uint_array(struct UintArray *arr) {
-	struct UintArray *arr2 = malloc(4 + arr->length * 4);
-	if (arr2 == NULL) return NULL;
-	memcpy(arr2, arr, 4 + arr->length * 4);
-	return arr2;
 }
 
 int ptp_device_type(struct PtpRuntime *r) {

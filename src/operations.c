@@ -9,6 +9,13 @@
 #include <camlib.h>
 #include <ptp.h>
 
+static struct UintArray *dup_uint_array(struct UintArray *arr) {
+	struct UintArray *dup = malloc(4 + arr->length * 4);
+	if (dup == NULL) return NULL;
+	memcpy(dup, arr, 4 + arr->length * 4);
+	return dup;
+}
+
 int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 	struct PtpIpInitPacket *p = (struct PtpIpInitPacket *)r->data;
 	memset(p, 0, sizeof(struct PtpIpInitPacket));
@@ -137,7 +144,7 @@ int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
 
 	int rc = ptp_send(r, &cmd);
 
-	(*a) = ptp_dup_uint_array((void *)ptp_get_payload(r));
+	(*a) = dup_uint_array((void *)ptp_get_payload(r));
 	
 	return rc;
 }
@@ -206,7 +213,7 @@ int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, str
 
 	int rc = ptp_send(r, &cmd);
 
-	(*a) = ptp_dup_uint_array((void *)ptp_get_payload(r));
+	(*a) = dup_uint_array((void *)ptp_get_payload(r));
 
 	return rc;
 }
