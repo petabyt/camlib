@@ -183,7 +183,7 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 
 	// These numbers are not exact, but it's fine
 	if (length + 50 > r->data_length) {
-		ptp_buffer_resize(100 + length);
+		ptp_buffer_resize(r, 100 + length);
 	}
 
 	// Send operation request (data phase later on)

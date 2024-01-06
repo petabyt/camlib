@@ -16,17 +16,19 @@ int ptp_vcam_magic() {
 	if (rc) return rc;
 
 	int sizes[] = {4, 10, 101, 513, 1000, 997, 257, 511, 1, 2, 3};
-
 	size_t l = sizeof(sizes) / sizeof(int);
+
+	// Try to send a bunch of different payloads and make sure the data is recieved correctly
 	for (size_t i = 0; i < l; i++) {
 		struct PtpCommand cmd;
-		cmd.code = 0x9999;
+		cmd.code = 0xBEEF;
 		cmd.param_length = 1;
 
 		srand(time(NULL));
 
 		unsigned char *buffer = malloc(sizes[i]);
 
+		// Random data, basic checksum
 		int checksum = 0;
 		for (int x = 0; x < sizes[i]; x++) {
 			buffer[x] = rand() / 256;
@@ -35,16 +37,16 @@ int ptp_vcam_magic() {
 
 		cmd.params[0] = checksum;
 
-		rc = ptp_generic_send_data(&r, &cmd, buffer, sizes[i]);
+		rc = ptp_send_data(&r, &cmd, buffer, sizes[i]);
 		if (rc) return rc;
 	}
 
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 
 int test_setup_usb(struct PtpRuntime *r) {
-	ptp_generic_init(r);
+	ptp_init(r);
 
 	if (ptp_device_init(r)) {
 		puts("Device connection error");
@@ -106,7 +108,7 @@ int test_eos_t6() {
 	printf("%s\n", buffer);
 
 	//ptp_device_close(&r);
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 
@@ -130,7 +132,7 @@ int test_bind() {
 	rc = bind_run(&r, "ptp_disconnect", bbuffer, sizeof(bbuffer));
 	printf("ptp_disconnect: %s\n", bbuffer);
 
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 
@@ -180,7 +182,7 @@ int test_fs() {
 
 	free(arr);
 
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 

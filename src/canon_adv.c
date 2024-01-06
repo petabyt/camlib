@@ -312,7 +312,10 @@ static int ptp_eos_evproc_run_payload(struct PtpRuntime *r, void **buf, char *fm
 
 	rc = ptp_eos_evproc_return_data(r);
 
-	(*buf) = ptp_dup_payload(r);
+	void *dup = malloc(ptp_get_payload_length(r));
+	memcpy(dup, ptp_get_payload(r), ptp_get_payload_length(r));
+
+	(*buf) = dup;
 
 	return rc;
 }
