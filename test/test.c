@@ -169,8 +169,6 @@ int test_fs() {
 	if (rc) return rc;
 	assert(ptp_get_return_code(&r) == PTP_RC_OK);
 
-	arr = ptp_dup_uint_array(arr);
-
 	for (int i = 0; i < arr->length; i++) {
 		struct PtpObjectInfo oi;
 		rc = ptp_get_object_info(&r, arr->data[i], &oi);
