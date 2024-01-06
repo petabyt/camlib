@@ -21,6 +21,12 @@ CFLAGS+='-DCAMLIB_COMMIT="$(COMMIT)"'
 libcamlib.so: $(FILES)
 	$(CC) -shared $(FILES) -o libcamlib.so
 
+ifeq ($(TARGET),m)
+CFLAGS+=-I/usr/local/include/libusb-1.0
+libcamlib.dylib: $(FILES)
+	$(CC) -shared $(FILES) -L/usr/local/lib -lusb-1.0 -o libcamlib.so
+endif
+
 %.o: %.c src/*.h
 	$(CC) -c $(CFLAGS) $< -o $@
 

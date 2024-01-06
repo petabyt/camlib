@@ -33,6 +33,4 @@ jobs:
 
     - name: Build
       run: |
-        make libcamlib.so
-        # Test the decoding tool also builds.
-        make dec
+        make TARGET=m libcamlib.dylib
