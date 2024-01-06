@@ -43,6 +43,8 @@ install: libcamlib.so
 	-mkdir /usr/include/camlib
 	cp src/*.h /usr/include/camlib/
 
+test-ci: test/test.o $(FILES)
+	$(CC) test/test.o $(FILES) $(LDFLAGS) $(CFLAGS) -o test-ci
 test:
 	bash test/myci.sh
 
