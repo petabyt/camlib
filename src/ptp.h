@@ -74,6 +74,18 @@ struct PtpIpEndDataPacket {
 	uint32_t transaction;
 };
 
+struct PtpIpInitPacket {
+	uint32_t length;
+	uint32_t type;
+	uint32_t guid1;
+	uint32_t guid2;
+	uint32_t guid3;
+	uint32_t guid4;
+	char device_name[8]; // Size ??
+	uint16_t major_ver;
+	uint16_t minor_ver;
+};
+
 // Standard PTP Operation Codes (OC)
 #define PTP_OC_GetDeviceInfo		0x1001
 #define PTP_OC_OpenSession			0x1002
