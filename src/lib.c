@@ -28,7 +28,13 @@ void ptp_init(struct PtpRuntime *r) {
 
 	#ifndef CAMLIB_DONT_USE_MUTEX
 	r->mutex = malloc(sizeof(pthread_mutex_t));
-	if (pthread_mutex_init(r->mutex, NULL)) {
+
+	// We want recursive mutex, so lock can be called multiple times
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+
+	if (pthread_mutex_init(r->mutex, &attr)) {
 		ptp_verbose_log("Failed to init mutex\n");
 		free(r->mutex);
 		r->mutex = NULL;
@@ -115,22 +121,16 @@ void ptp_mutex_lock(struct PtpRuntime *r) {
 	pthread_mutex_lock(r->mutex);
 }
 
-// 'push' a request to keep mutex locked, must be 'popped' or it will wreak havoc
+// 'push' a request to keep mutex locked, must be 'popped' or it will deadlock
 void ptp_mutex_keep_locked(struct PtpRuntime *r) {
-	r->caller_unlocks_mutex++;
+	if (r->mutex == NULL) return;
+	pthread_mutex_lock(r->mutex);
 }
 
 // 'pop' the mutex stack, will only unlock the mutex once stack is at zero
 void ptp_mutex_unlock(struct PtpRuntime *r) {
 	if (r->mutex == NULL) return;
-
-	if (r->caller_unlocks_mutex) {
-		r->caller_unlocks_mutex--;
-		return;
-	}
-
-	if (!r->caller_unlocks_mutex)
-		pthread_mutex_unlock(r->mutex);
+	pthread_mutex_unlock(r->mutex);
 }
 
 void ptp_close(struct PtpRuntime *r) {
