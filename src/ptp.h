@@ -694,65 +694,6 @@ struct PtpIpEndDataPacket {
 #define USB_TYPE_CLASS 0x20
 #endif
 
-struct PtpIpInitPacket {
-	uint32_t length;
-	uint32_t type;
-	uint32_t guid1;
-	uint32_t guid2;
-	uint32_t guid3;
-	uint32_t guid4;
-	char device_name[8]; // Size ??
-	uint16_t major_ver;
-	uint16_t minor_ver;
-};
-
-struct FujiInitPacket {
-	uint32_t length;
-	uint32_t type;
-	uint32_t version;
-	uint32_t guid1;
-	uint32_t guid2;
-	uint32_t guid3;
-	uint32_t guid4;
-	char device_name[54]; // unicode string
-};
-
-#define FUJI_CMD_IP_PORT 55740
-#define FUJI_EVENT_IP_PORT 55741
-#define FUJI_LIVEVIEW_IP_PORT 55742
-
-// Fuji USB and IP extensions
-#define PTP_OC_FUJI_SendObjectInfo	0x900c // create file
-#define PTP_OC_FUJI_SendObject2		0x900d // Appears to be the same as 901d
-#define PTP_OC_FUJI_SendObject		0x901d // write to file
-
-// WiFi only codes
-#define PTP_PC_FUJI_EventsList		0xd212
-#define PTP_PC_FUJI_SelectedImgsMode	0xd220
-#define PTP_PC_FUJI_ObjectCount		0xd222
-#define PTP_PC_FUJI_CameraState		0xdf00 // formerly Unlocked 
-#define PTP_PC_FUJI_FunctionMode	0xdf01 // formerly Mode - should be (CameraReportedState??)
-#define PTP_PC_FUJI_CompressSmall	0xD226 // compress into 400-800kb
-#define PTP_PC_FUJI_NoCompression	0xD227 // Enable full image download
-
-// Mostly from libgphoto2
-#define PTP_OC_FUJI_InitiateMovieCapture		0x9020
-#define PTP_OC_FUJI_TerminateMovieCapture		0x9021
-#define PTP_OC_FUJI_GetCapturePreview			0x9022
-#define PTP_OC_FUJI_StepZoom 0x9023
-#define PTP_OC_FUJI_StartZoom 0x9024
-#define PTP_OC_FUJI_StopZoom 0x9025
-#define PTP_OC_FUJI_LockS1Lock			0x9026
-#define PTP_OC_FUJI_UnlockS1Lock			0x9027
-#define PTP_OC_FUJI_GetDeviceInfo			0x902B
-#define PTP_OC_FUJI_StepShutterSpeed			0x902C
-#define PTP_OC_FUJI_StepFNumber				0x902D
-#define PTP_OC_FUJI_StepExposureBias		0x902E
-#define PTP_OC_FUJI_CancelInitiateCapture		0x9030
-#define PTP_OC_FUJI_FmSendObjectInfo			0x9040
-#define PTP_OC_FUJI_FmSendObject			0x9041
-#define PTP_OC_FUJI_FmSendPartialObject			0x9042
-
 #pragma pack(pop)
 
 #endif
