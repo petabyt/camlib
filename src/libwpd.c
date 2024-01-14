@@ -13,12 +13,16 @@
 
 int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_reset(r);
-	wpd_init(WPD_VERBOSE, L"Camlib WPD");
-
-	r->comm_backend = malloc(sizeof(struct WpdStruct));
 
 	// We are not using low-level I/O operations, so this is never used
 	r->max_packet_size = 512;
+
+	// in libwpd, this will only coinitalize the new thread. Orig thread may be dead.
+	wpd_init(WPD_VERBOSE, L"Camlib WPD");
+
+	if (r->comm_backend != NULL) return 0;
+
+	r->comm_backend = malloc(sizeof(struct WpdStruct));
 
 	return 0;	
 }
@@ -76,6 +80,10 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	struct LibWPDPtpCommand cmd;
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 
+	if (bulk->code == PTP_OC_OpenSession || bulk->code == PTP_OC_CloseSession) {
+		return length;
+	}
+
 	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
 		cmd.code = bulk->code;
 		cmd.param_length = ptp_get_param_length(r);
@@ -131,33 +139,38 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
 	if (wpd == NULL) return PTP_IO_ERR;
 
+	// WPD doesn't let you send session opcodes
 	struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
-	if (bulk->type == PTP_PACKET_TYPE_COMMAND) {
-		struct LibWPDPtpCommand cmd;
-		int b = wpd_receive_do_data(wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
-		if (b < 0) {
-			return PTP_IO_ERR;
-		}
-		
-		if (b == 0) {
-			bulk->length = 12;
-			bulk->type = PTP_PACKET_TYPE_RESPONSE;
-			bulk->code = cmd.code;
-			bulk->transaction = r->transaction + 1;
-		} else {
-			bulk->length = 12 + b;
-			bulk->type = PTP_PACKET_TYPE_DATA;
-			bulk->code = cmd.code;
-			bulk->transaction = r->transaction + 1;
+	if (bulk->code == PTP_OC_OpenSession || bulk->code == PTP_OC_CloseSession) {
+		bulk->length = 12;
+		bulk->code = PTP_RC_OK;
+		bulk->type = PTP_PACKET_TYPE_RESPONSE;
+		memset(bulk->params, 5 * sizeof(uint32_t), 0);
+		return 12;
+	}
 
-			struct PtpBulkContainer *resp = (struct PtpBulkContainer*)(r->data + 12 + b);
-			resp->length = 12;
-			resp->type = PTP_PACKET_TYPE_RESPONSE;
-			resp->code = cmd.code;
-			resp->transaction = r->transaction + 1;
-		}
+	struct LibWPDPtpCommand cmd;
+	int b = wpd_receive_do_data(wpd, &cmd, (uint8_t *)(r->data + 12), r->data_length - 12);
+	if (b < 0) {
+		return PTP_IO_ERR;
+	}
+	
+	if (b == 0) {
+		bulk->length = 12;
+		bulk->type = PTP_PACKET_TYPE_RESPONSE;
+		bulk->code = cmd.code;
+		bulk->transaction = r->transaction + 1;
 	} else {
-		// I remember doing this for a reason, need to figure out why
+		bulk->length = 12 + b;
+		bulk->type = PTP_PACKET_TYPE_DATA;
+		bulk->code = cmd.code;
+		bulk->transaction = r->transaction + 1;
+
+		struct PtpBulkContainer *resp = (struct PtpBulkContainer*)(r->data + 12 + b);
+		resp->length = 12;
+		resp->type = PTP_PACKET_TYPE_RESPONSE;
+		resp->code = cmd.code;
+		resp->transaction = r->transaction + 1;
 	}
 
 	return 0;
