@@ -145,7 +145,7 @@ int ptp_receive_bulk_packets(struct PtpRuntime *r) {
 		bulk->length = 12;
 		bulk->code = PTP_RC_OK;
 		bulk->type = PTP_PACKET_TYPE_RESPONSE;
-		memset(bulk->params, 5 * sizeof(uint32_t), 0);
+		memset(bulk->params, 0, 5 * sizeof(uint32_t));
 		return 12;
 	}
 
