@@ -9,9 +9,11 @@
 #include <ptp.h>
 #include <libwpd.h>
 
+#define WPD_VERBOSE 1
+
 int ptp_comm_init(struct PtpRuntime *r) {
-	ptp_generic_reset(r);
-	wpd_init(1, L"Camlib WPD");
+	ptp_reset(r);
+	wpd_init(WPD_VERBOSE, L"Camlib WPD");
 
 	r->comm_backend = malloc(sizeof(struct WpdStruct));
 
@@ -53,8 +55,9 @@ int ptp_device_init(struct PtpRuntime *r) {
 	return PTP_NO_DEVICE;
 }
 
+// Unimplemented, don't use yet
+#if 0
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
-	// Unimplemented
 	return NULL;
 }
 
@@ -62,6 +65,7 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 	// Unimplemented
 	return PTP_IO_ERR;
 }
+#endif
 
 int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	if (r->io_kill_switch) return PTP_IO_ERR;

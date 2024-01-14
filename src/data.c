@@ -54,15 +54,15 @@ int ptp_get_data_size(void *d, int type) {
 	case PTP_TC_UINT16ARRAY:
 	case PTP_TC_UINT32ARRAY:
 	case PTP_TC_UINT64ARRAY:
-		return ((uint32_t*)d)[0];
+		return ((uint32_t *)d)[0];
 	case PTP_TC_STRING:
-		return ((uint8_t*)d)[0];
+		return ((uint8_t *)d)[0];
 	}
 
 	return 0;
 }
 
-int ptp_parse_data(void **d, int type) {
+int ptp_parse_data(void *d, int type) {
 	switch (type) {
 	case PTP_TC_INT8:
 	case PTP_TC_UINT8:
@@ -75,7 +75,7 @@ int ptp_parse_data(void **d, int type) {
 		return (uint32_t)ptp_read_uint32(d);
 	}
 
-	return ptp_get_data_size(*d, type);
+	return ptp_get_data_size(*((void **)d), type);
 }
 
 int ptp_parse_prop_value(struct PtpRuntime *r) {
@@ -96,8 +96,8 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
 	d += PTP_PROP_DESC_VAR_START;
-	oi->default_value = ptp_parse_data((void **)&d, oi->data_type);
-	oi->current_value = ptp_parse_data((void **)&d, oi->data_type);
+	oi->default_value = ptp_parse_data(&d, oi->data_type);
+	oi->current_value = ptp_parse_data(&d, oi->data_type);
 
 	// TODO: Form flag + form (for properties like date/time)
 	return 0;
@@ -107,10 +107,10 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
 	d += PTP_OBJ_INFO_VAR_START;
-	ptp_read_string((void **)&d, oi->filename, sizeof(oi->filename));
-	ptp_read_string((void **)&d, oi->date_created, sizeof(oi->date_created));
-	ptp_read_string((void **)&d, oi->date_modified, sizeof(oi->date_modified));
-	ptp_read_string((void **)&d, oi->keywords, sizeof(oi->keywords));
+	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
+	ptp_read_string(&d, oi->date_created, sizeof(oi->date_created));
+	ptp_read_string(&d, oi->date_modified, sizeof(oi->date_modified));
+	ptp_read_string(&d, oi->keywords, sizeof(oi->keywords));
 
 	return 0;
 }
@@ -129,13 +129,13 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **
 
 	// If the string is empty, don't add it to the packet
 	if (oi->filename[0] != '\0')
-		length += ptp_write_string((void **)(ptr), oi->filename);
+		length += ptp_write_string((ptr), oi->filename);
 	if (oi->date_created[0] != '\0')
-		length += ptp_write_string((void **)(ptr), oi->date_created);
+		length += ptp_write_string((ptr), oi->date_created);
 	if (oi->date_modified[0] != '\0')
-		length += ptp_write_string((void **)(ptr), oi->date_modified);
+		length += ptp_write_string((ptr), oi->date_modified);
 	if (oi->keywords[0] != '\0')
-		length += ptp_write_string((void **)(ptr), oi->keywords);
+		length += ptp_write_string((ptr), oi->keywords);
 
 	// Return pointer length added
 	return length;
@@ -398,8 +398,8 @@ int ptp_eos_events_length(struct PtpRuntime *r) {
 	while (dp != NULL) {
 		if (dp >= (uint8_t *)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
 		void *d = dp;
-		uint32_t size = ptp_read_uint32((void **)&d);
-		uint32_t type = ptp_read_uint32((void **)&d);
+		uint32_t size = ptp_read_uint32(&d);
+		uint32_t type = ptp_read_uint32(&d);
 
 		dp += size;
 
@@ -430,8 +430,8 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 
 		// Read header
 		void *d = dp;
-		uint32_t size = ptp_read_uint32((void **)&d);
-		uint32_t type = ptp_read_uint32((void **)&d);
+		uint32_t size = ptp_read_uint32(&d);
+		uint32_t type = ptp_read_uint32(&d);
 
 		// Detect termination or overflow
 		if (type == 0) break;
@@ -532,7 +532,7 @@ int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *o
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
 	d += PTP_FUJI_OBJ_INFO_VAR_START;
-	ptp_read_string((void **)&d, oi->filename, sizeof(oi->filename));
+	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
 
 	/* TODO: Figure out payload later:
 		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00

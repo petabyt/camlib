@@ -4,16 +4,6 @@
 #ifndef CL_DATA_H
 #define CL_DATA_H
 
-// Try and check for compatibility with 32 bit stuff uint64_t is only
-// used once, in PtpStorageInfo. Apparantly GCC doesn't care? Doesn't feel
-// right using uint64_t on 32 bit platforms...
-#include <stdint.h>
-#if UINTPTR_MAX == 0xffffffff
-#define BITS_32
-#elif UINTPTR_MAX == 0xffffffffffffffff
-#define BITS_64
-#endif
-
 // Need to avoid structure packing - most architectures are fine with this
 // (accessing a 32 bit integer at an unaligned address - but some might have problems)
 #pragma pack(push, 1)
@@ -62,16 +52,8 @@ struct PtpStorageInfo {
 	uint16_t storage_type;
 	uint16_t fs_type;
 	uint16_t access_capability;
-#ifdef BITS_32
-	uint32_t max_capacity;
-	uint32_t max_capacity_64;
-	uint32_t free_space;
-	uint32_t free_space_64;
-#endif
-#ifdef BITS_64
 	uint64_t max_capacity;
 	uint64_t free_space;
-#endif
 	uint32_t free_objects;
 };
 
@@ -142,29 +124,6 @@ struct PtpEOSObject {
 	uint32_t e;
 };
 
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max);
-
-int ptp_parse_prop_value(struct PtpRuntime *r);
-int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
-int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
-int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
-int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
-int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
-
-int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p);
-void *ptp_open_eos_events(struct PtpRuntime *r);
-void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
-
-int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
-
-// Standard property value converters conv.c
-int ptp_eos_get_shutter(int data, int dir);
-int ptp_eos_get_iso(int data, int dir);
-int ptp_eos_get_aperture(int data, int dir);
-int ptp_eos_get_white_balance(int data, int dir);
-int ptp_eos_get_imgformat_value(int data[5]);
-
 struct PtpMlLvInfo {
 	uint32_t lv_pitch;
 	uint32_t lv_width;
@@ -187,8 +146,6 @@ enum PtpCHDKCommands {
 	PTP_CHDK_Version = 0,
 	PTP_CHDK_UploadFile = 5,
 };
-
-void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length);
 
 // Response to struct FujiInitPacket
 struct PtpFujiInitResp {
@@ -236,9 +193,38 @@ struct PtpFujiObjectInfo {
 	char meta[32];
 };
 
+#pragma pack(pop)
+
+#ifdef CAMLIB_INCLUDE_IMPL
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max);
+
+int ptp_parse_prop_value(struct PtpRuntime *r);
+int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
+int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
+int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
+int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
+int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
+int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
+
+int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p);
+void *ptp_open_eos_events(struct PtpRuntime *r);
+void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);
+
+int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max);
+
+// Standard property value converters (conv.c)
+int ptp_eos_get_shutter(int data, int dir);
+int ptp_eos_get_iso(int data, int dir);
+int ptp_eos_get_aperture(int data, int dir);
+int ptp_eos_get_white_balance(int data, int dir);
+int ptp_eos_get_imgformat_value(int data[5]);
+
+void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length);
+
+// Fuji (PTP/IP)
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp);
 int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi);
 
-#pragma pack(pop)
+#endif
 
 #endif

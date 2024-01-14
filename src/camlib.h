@@ -203,11 +203,11 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 // Try and get an event from the camera over int endpoint (USB-only)
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 
-// Lock the IO mutex - this will not do anything if ptp_mutex_keep_locked was previously called
+// Unlock the IO mutex unless it was kept locked
 void ptp_mutex_unlock(struct PtpRuntime *r);
 
 // When calling a thread-safe function, this will garuntee the mutex locked, in the
-// case that you want to continue using the buffer.
+// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 
 // Lock the IO mutex - this will always work
@@ -265,23 +265,12 @@ void *ptp_dup_payload(struct PtpRuntime *r);
 // Write r->data to a file called DUMP
 int ptp_dump(struct PtpRuntime *r);
 
+#define CAMLIB_INCLUDE_IMPL
 #include "cl_data.h"
 #include "cl_backend.h"
 #include "cl_ops.h"
 #include "cl_enum.h"
 #include "cl_bind.h"
-
-#if 0
-// Deprecated old functions
-void ptp_generic_reset(struct PtpRuntime *r) __attribute__ ((deprecated));
-struct PtpRuntime *ptp_generic_new() __attribute__ ((deprecated));
-void ptp_generic_init(struct PtpRuntime *r) __attribute__ ((deprecated));
-void ptp_generic_close(struct PtpRuntime *r) __attribute__ ((deprecated));
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
-int ptp_generic_send(struct PtpRuntime *r, struct PtpCommand *cmd) __attribute__ ((deprecated));
-int ptp_generic_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) __attribute__ ((deprecated));
-#endif
 
 // Backwards compatibility (mostly renamed functions)
 #ifndef CAMLIB_NO_COMPAT

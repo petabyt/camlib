@@ -191,7 +191,7 @@ char *canon_evproc_pack(int *length, char *string) {
 	int footer_length = 0;
 
 	// Set long_args to zero
-	footer_length += ptp_write_uint32((void **)&footer_ptr, 0);
+	footer_length += ptp_write_uint32(&footer_ptr, 0);
 
 	struct Tokens *toks = lex_evproc_command(string);
 

@@ -32,21 +32,21 @@ uint32_t ptp_read_uint32(void *dat) {
 
 #if 0
 // This seems slower than misaligned access lol
-uint8_t ptp_read_uint8(void *dat) {
+uint8_t ptp_read_u8(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
 	uint8_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-uint16_t ptp_read_uint16(void *dat) {
+uint16_t ptp_read_u6(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
 	uint16_t x = (p[0][0] << 8) | p[0][0];
 	(*p) += 2;
 	return x;
 }
 
-uint32_t ptp_read_uint32(void *dat) {
+uint32_t ptp_read_u32(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
 	uint32_t x;
 	((uint8_t *)&x)[0] = p[0][0];
