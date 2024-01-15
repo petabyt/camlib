@@ -1,16 +1,15 @@
 # camlib
-This is a portable PTP/USB library written in C99. This isn't a fork of gphoto2, libptp, or libmtp.  
-This is a complete rewrite from the ground up, and is written to be fast and portable.  
+This is a portable Picture Transfer Protocol (PTP) library written from scratch in C.
 
-[You can read the latest up-to-date documentation here.](https://danielc.dev/camlib/)
+[Documentation](https://danielc.dev/camlib/)
 
 ## Design
-- Data parsing, packet building, and packet sending/recieving is all done in a single buffer
-- Will not perform memory allocations between operations (constant high memory usage)
-- No platform specific code at the core
+- Data parsing, packet building, and packet sending/recieving is all done in a single buffer (grows as needed)
+- Will not perform memory allocations between operations
+- Portable, works well on many different platforms
 - No macros, only clean C API - everything is a function that can be accessed from other languages
 - I'm writing this while writing [vcam](git@github.com:petabyt/vcam.git) at the same time,
-so my vendor opcode implementations are (IMO) more reliabile than others
+so my vendor opcode implementations are (maybe) more reliabile than others ;)
 
 ## Checklist
 - [x] Complete working implemention of PTP as per ISO 15740
@@ -21,9 +20,8 @@ so my vendor opcode implementations are (IMO) more reliabile than others
 - [x] ISO PTP/IP implementation
 - [x] ~~Fuji WiFi and USB support~~ (code moved to https://github.com/petabyt/fudge/)
 - [x] Lua bindings (for embedding)
-- [x] [Javascript bindings](git@github.com:clutchlink/camlibjs.git) (for browser)
-- [ ] Complete thread safety (almost there)
-- [ ] Complete unit tests
+- [x] (Mostly) thread safe
+- [x] Regression testing (vcam)
 - [ ] Sony support
 - [ ] Pentax support
 
@@ -33,10 +31,9 @@ Get device info:
 #include <camlib.h>
 
 int main() {
-	struct PtpRuntime r;
-	ptp_init(&r);
+	struct PtpRuntime *r = ptp_new(PTP_USB);
 
-	if (ptp_device_init(&r)) {
+	if (ptp_device_init(r)) {
 		printf("Device connection error\n");
 		return 0;
 	}
@@ -44,12 +41,12 @@ int main() {
 	struct PtpDeviceInfo di;
 
 	char buffer[2048];
-	ptp_get_device_info(&r, &di);
+	ptp_get_device_info(r, &di);
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
-	ptp_device_close(&r);
-	ptp_close(&r);
+	ptp_device_close(r);
+	ptp_close(r);
 	return 0;
 }
 ```
@@ -75,14 +72,14 @@ return ptp_send_data(r, &cmd, dat, sizeof(dat));
 Explore the filesystem:
 ```
 struct UintArray *arr;
-int rc = ptp_get_storage_ids(&r, &arr);
+int rc = ptp_get_storage_ids(r, &arr);
 int id = arr->data[0];
 
-rc = ptp_get_object_handles(&r, id, PTP_OF_JPEG, 0, &arr);
+rc = ptp_get_object_handles(r, id, PTP_OF_JPEG, 0, &arr);
 
 for (int i = 0; i < arr->length; i++) {
 	struct PtpObjectInfo oi;
-	ptp_get_object_info(&r, arr->data[i], &oi);
+	ptp_get_object_info(r, arr->data[i], &oi);
 	printf("Filename: %s\n", oi.filename);
 }
 
