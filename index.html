@@ -75,18 +75,16 @@ $(function() {
   <div class="headertitle"><div class="title">camlib </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a portable PTP/USB library written in C99. This isn't a fork of gphoto2, libptp, or libmtp. <br  />
- This is a complete rewrite from the ground up, and is written to be fast and portable. <br  />
-</p>
-<p><a href="https://danielc.dev/camlib/">You can read the latest up-to-date documentation here.</a></p>
+<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a portable Picture Transfer Protocol (PTP) library written from scratch in C.</p>
+<p><a href="https://danielc.dev/camlib/">Documentation</a></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Design</h1>
 <ul>
-<li>Data parsing, packet building, and packet sending/recieving is all done in a single buffer</li>
-<li>Will not perform memory allocations between operations (constant high memory usage)</li>
-<li>No platform specific code at the core</li>
+<li>Data parsing, packet building, and packet sending/recieving is all done in a single buffer (grows as needed)</li>
+<li>Will not perform memory allocations between operations</li>
+<li>Portable, works well on many different platforms</li>
 <li>No macros, only clean C API - everything is a function that can be accessed from other languages</li>
-<li>I'm writing this while writing <a href="git@github.com:petabyt/vcam.git">vcam</a> at the same time, so my vendor opcode implementations are (IMO) more reliabile than others</li>
+<li>I'm writing this while writing <a href="git@github.com:petabyt/vcam.git">vcam</a> at the same time, so my vendor opcode implementations are (maybe) more reliabile than others ;)</li>
 </ul>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Checklist</h1>
@@ -99,9 +97,8 @@ Checklist</h1>
 <li>[x] ISO PTP/IP implementation</li>
 <li>[x] <strike>Fuji WiFi and USB support</strike> (code moved to <a href="https://github.com/petabyt/fudge/">https://github.com/petabyt/fudge/</a>)</li>
 <li>[x] Lua bindings (for embedding)</li>
-<li>[x] <a href="git@github.com:clutchlink/camlibjs.git">Javascript bindings</a> (for browser)</li>
-<li>[ ] Complete thread safety (almost there)</li>
-<li>[ ] Complete unit tests</li>
+<li>[x] (Mostly) thread safe</li>
+<li>[x] Regression testing (vcam)</li>
 <li>[ ] Sony support</li>
 <li>[ ] Pentax support</li>
 </ul>
@@ -110,10 +107,9 @@ Sample</h1>
 <p>Get device info: </p><div class="fragment"><div class="line">#include &lt;camlib.h&gt;</div>
 <div class="line"> </div>
 <div class="line">int main() {</div>
-<div class="line">    struct PtpRuntime r;</div>
-<div class="line">    ptp_init(&amp;r);</div>
+<div class="line">    struct PtpRuntime *r = ptp_new(PTP_USB);</div>
 <div class="line"> </div>
-<div class="line">    if (ptp_device_init(&amp;r)) {</div>
+<div class="line">    if (ptp_device_init(r)) {</div>
 <div class="line">        printf(&quot;Device connection error\n&quot;);</div>
 <div class="line">        return 0;</div>
 <div class="line">    }</div>
@@ -121,12 +117,12 @@ Sample</h1>
 <div class="line">    struct PtpDeviceInfo di;</div>
 <div class="line"> </div>
 <div class="line">    char buffer[2048];</div>
-<div class="line">    ptp_get_device_info(&amp;r, &amp;di);</div>
+<div class="line">    ptp_get_device_info(r, &amp;di);</div>
 <div class="line">    ptp_device_info_json(&amp;di, buffer, sizeof(buffer));</div>
 <div class="line">    printf(&quot;%s\n&quot;, buffer);</div>
 <div class="line"> </div>
-<div class="line">    ptp_device_close(&amp;r);</div>
-<div class="line">    ptp_close(&amp;r);</div>
+<div class="line">    ptp_device_close(r);</div>
+<div class="line">    ptp_close(r);</div>
 <div class="line">    return 0;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> Calling a custom opcode: </p><div class="fragment"><div class="line">// Send a command, and recieve packet(s)</div>
@@ -146,14 +142,14 @@ Sample</h1>
 <div class="line">uint32_t dat[2] = {123, 123};</div>
 <div class="line">return ptp_send_data(r, &amp;cmd, dat, sizeof(dat));</div>
 </div><!-- fragment --><p> Explore the filesystem: </p><div class="fragment"><div class="line">struct UintArray *arr;</div>
-<div class="line">int rc = ptp_get_storage_ids(&amp;r, &amp;arr);</div>
+<div class="line">int rc = ptp_get_storage_ids(r, &amp;arr);</div>
 <div class="line">int id = arr-&gt;data[0];</div>
 <div class="line"> </div>
-<div class="line">rc = ptp_get_object_handles(&amp;r, id, PTP_OF_JPEG, 0, &amp;arr);</div>
+<div class="line">rc = ptp_get_object_handles(r, id, PTP_OF_JPEG, 0, &amp;arr);</div>
 <div class="line"> </div>
 <div class="line">for (int i = 0; i &lt; arr-&gt;length; i++) {</div>
 <div class="line">    struct PtpObjectInfo oi;</div>
-<div class="line">    ptp_get_object_info(&amp;r, arr-&gt;data[i], &amp;oi);</div>
+<div class="line">    ptp_get_object_info(r, arr-&gt;data[i], &amp;oi);</div>
 <div class="line">    printf(&quot;Filename: %s\n&quot;, oi.filename);</div>
 <div class="line">}</div>
 <div class="line"> </div>
