@@ -1,3 +1,4 @@
+/** \file */ 
 // Main header file for Camlib
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 #ifndef PTP_LIB_H
@@ -44,7 +45,7 @@ void ptp_panic(char *fmt, ...);
 	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
 #endif
 
-// Camlib library errors, not PTP return codes
+/// @brief Camlib library errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
 	PTP_NO_DEVICE = -1,
@@ -65,7 +66,7 @@ enum PtpLiveViewType {
 	PTP_LV_EOS_ML_BMP = 4, // ptplv v2
 };
 
-// Unique camera types - each type should have similar opcodes and behavior
+/// @brief Unique camera types - each type should have similar opcodes and behavior
 enum PtpVendors {
 	PTP_DEV_EMPTY = 0,
 	PTP_DEV_EOS = 1,
@@ -85,13 +86,14 @@ enum ImageFormats {
 	IMG_FORMAT_RAW_JPEG = 4,
 };
 
+/// @brief Tells lib what backend and packet style to use
 enum PtpConnType {
 	PTP_IP = (1 << 0),
 	PTP_IP_USB = (1 << 1), // TCP-based, but using USB-style packets (Fujifilm)
 	PTP_USB = (1 << 2),
 };
 
-// Linked list to handle currently possible values for a property
+/// @brief Linked list to handle currently possible values for a property
 struct PtpPropAvail {
 	void *next;
 	void *prev;
@@ -101,55 +103,55 @@ struct PtpPropAvail {
 	void *data;
 };
 
+/// @brief Holds all camlib instance info
+/// @struct PtpRuntime
 struct PtpRuntime {
-	// Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
-	// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
-	// will be set to 1.
+	/// @brief Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
+	/// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
+	/// will be set to 1.
 	// TODO: Should the IO backend toggle the IO kill switch
 	uint8_t io_kill_switch;
 
-	// Is set to USB by default
+	/// @brief One of enum PtpConnType
+	/// @note Is set to USB by default
 	uint8_t connection_type;
 
-	// The transaction ID and session ID is managed by the
-	// packet generator functions
+	/// @note The transaction ID and session ID is managed by the packet generator functions
 	int transaction;
 	int session;
 
-	// Global buffer for data reading and writing
+	/// @brief Global buffer for data reading and writing
+	/// @note Can grow in size as needed.
     uint8_t *data;
     int data_length;
 
-	// For optimization on libusb, as many bytes as possible should be read at once. Generally this
-	// is 512, but certain comm backends can manage more. For TCP, this isn't used.
+	/// @note For optimization on libusb, as many bytes as possible should be read at once. Generally this
+	/// is 512, but certain comm backends can manage more. For TCP, this isn't used.
 	int max_packet_size;
 
-	// Info about current connection, used to detect the vendor, supported opodes. Unless you are using
-	// bindings, set these yourself.
-	int device_type;
+	/// @brief Info about current connection, used to detect the vendor, supported opodes.
 	struct PtpDeviceInfo *di;
+	int device_type;
 
-	// For Windows compatibility, this is set to indicate lenth for a data packet
-	// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
+	/// @brief For Windows compatibility, this is set to indicate lenth for a data packet
+	/// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
 	int data_phase_length;
 
-	// For session comm/io structures (holds libusb devices pointers)
+	/// @brief For session comm/io structures (holds backend instance pointers)
 	void *comm_backend;
 
-	// Optional (see CAMLIB_DONT_USE_MUTEX)
+	/// @brief Optional (see CAMLIB_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 
-	// For when the caller intends to do long-term processing on r->data,
-	// setting this to 1 allows the caller to unlock the packet read/write mutex (and write thread-safe code)
-	uint8_t caller_unlocks_mutex;
-
-	// Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
+	/// @brief Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
 	uint8_t wait_for_response;
 
+	/// @brief For devices that implement it, this will hold a linked list of properties and an array of their supported values.
+	/// generic_ functions will reject set property calls if an invalid value is written.
 	struct PtpPropAvail *avail;
 };
 
-// Generic event / property change
+/// @brief Generic event / property change
 struct PtpGenericEvent {
 	uint16_t code;
 	const char *name;
@@ -157,7 +159,7 @@ struct PtpGenericEvent {
 	const char *str_value;
 };
 
-// Generic PTP command structure - accepted by operation API
+/// @brief Generic PTP command structure - accepted by operation API
 struct PtpCommand {
 	uint16_t code;
 	uint32_t params[5];
@@ -165,61 +167,77 @@ struct PtpCommand {
 	int data_length;
 };
 
-// Returns info from the response structure currently in the buffer - not thread safe
+/// @brief Returns the return code (RC) currently in the data buffer.
+/// @note Not thread safe.
 int ptp_get_return_code(struct PtpRuntime *r);
 
-// Get number of parameters in packet in data buffer
+/// @brief Get number of parameters in packet in data buffer
+/// @note Not thread safe.
 int ptp_get_param_length(struct PtpRuntime *r);
 
-// Get parameter at index i
-uint32_t ptp_get_param(struct PtpRuntime *r, int index);
+/// @brief Get parameter at index i
+/// @note Not thread safe.
+uint32_t ptp_get_param(struct PtpRuntime *r, int i);
 
-// Get transaction ID of last packet
+/// @brief Get transaction ID of packet in the data buffer
+/// @note Not thread safe.
 int ptp_get_last_transaction_id(struct PtpRuntime *r);
 
-// Get ptr of packet payload, after packet header
+/// @brief Get ptr of packet payload in data buffer, after packet header
+/// @note Not thread safe.
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
+
+/// @brief Get length of payload returned by ptp_get_payload
+/// @note Not thread safe.
 int ptp_get_payload_length(struct PtpRuntime *r);
 
-// Allocate new PtpRuntime based on bitfield options - see PtpConnType
+/// @brief Allocate new PtpRuntime based on bitfield options - see PtpConnType
 struct PtpRuntime *ptp_new(int options);
 
-// Reset all session-specific fields of PtpRuntime - both libusb and libwpd backends call
-// this before establishing connection, so this is not required
+/// @brief Reset all session-specific fields of PtpRuntime - both libusb and libwpd backends call
+/// this before establishing connection, so calling this is not required
 void ptp_reset(struct PtpRuntime *r);
 
-// Init PtpRuntime locally - uses default recommended settings (USB)
+/// @brief Init PtpRuntime locally - uses default recommended settings (USB)
 void ptp_init(struct PtpRuntime *r);
 
-// Frees PtpRuntime data buffer - doesn't free the actual structure, or device info (yet)
+/// @brief Frees PtpRuntime data buffer - doesn't free the actual structure, or device info (yet)
 void ptp_close(struct PtpRuntime *r);
 
-// Send a command request to the device with no data phase (thread safe)
+/// @brief Send a command request to the device with no data phase
 int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 
-// Send a command request to the device with a data phase (thread safe)
+/// @brief Send a command request to the device with a data phase (thread safe)
 int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
-// Try and get an event from the camera over int endpoint (USB-only)
+/// @brief Try and get an event from the camera over int endpoint (USB-only)
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 
-// Unlock the IO mutex unless it was kept locked
+/// @brief Unlock the IO mutex (unless it was kept locked)
 void ptp_mutex_unlock(struct PtpRuntime *r);
 
-// When calling a thread-safe function, this will garuntee the mutex locked, in the
-// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
+/// @brief Keep the mutex locked one more time for the current thread
+/// @note  When calling a thread-safe function, this will garuntee the mutex locked, in the
+/// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
+/// @note camlib uses a recursive mutex.
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 
-// Lock the IO mutex - this will always work
+/// @brief Lock the IO mutex - only should be used by backend
 void ptp_mutex_lock(struct PtpRuntime *r);
 
-// Check info on the device info structure currently in r->di - will return error
-// if r->di is NULL
+/// @brief Gets type of device from r->di
+/// @returns enum PtpDeviceType
 int ptp_device_type(struct PtpRuntime *r);
-int ptp_check_opcode(struct PtpRuntime *r, int op);
+
+/// @brief Check if an opcode is supported by looking through supported props in r->di
+/// @returns 1 if yes, 0 if no
+int ptp_check_opcode(struct PtpRuntime *r, int opcode);
+
+/// @brief Check if a property code is supported by looking through supported props in r->di
+/// @returns 1 if yes, 0 if no
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
-// Mostly for internal use - realloc the data buffer
+/// @brief Mostly for internal use - realloc the data buffer
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 
 // Packet builder/unpacker helper functions. These accept a pointer-to-pointer
@@ -257,7 +275,6 @@ void ptp_update_transaction(struct PtpRuntime *r, int t);
 void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data);
 
 // Duplicate array, return malloc'd buffer
-// TODO: deprecate this
 struct UintArray *ptp_dup_uint_array(struct UintArray *arr) __attribute__ ((deprecated));
 
 void *ptp_dup_payload(struct PtpRuntime *r);

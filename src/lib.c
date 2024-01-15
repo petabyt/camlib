@@ -29,7 +29,8 @@ void ptp_init(struct PtpRuntime *r) {
 	#ifndef CAMLIB_DONT_USE_MUTEX
 	r->mutex = malloc(sizeof(pthread_mutex_t));
 
-	// We want recursive mutex, so lock can be called multiple times
+	// We want recursive mutex, so lock can be called multiple times in
+	// a single thread
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
