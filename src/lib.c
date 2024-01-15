@@ -13,7 +13,6 @@ void ptp_reset(struct PtpRuntime *r) {
 	r->transaction = 0;
 	r->session = 0;	
 	r->connection_type = PTP_USB;
-	r->caller_unlocks_mutex = 0;
 	r->wait_for_response = 1;
 }
 
@@ -165,11 +164,11 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	r->transaction++;
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		ptp_mutex_unlock(r);
 		return 0;
 	} else {
 		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		ptp_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
 }
@@ -232,10 +231,10 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 	r->transaction++;
 
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		ptp_mutex_unlock(r);
 		return 0;
 	} else {
-		if (!r->caller_unlocks_mutex) ptp_mutex_unlock(r);
+		ptp_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
 }
