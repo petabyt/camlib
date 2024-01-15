@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.10.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>camlib: PtpIpEndDataPacket Struct Reference</title>
+<title>camlib: Documentation For Camlib</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -25,7 +25,7 @@
   <td id="projectalign">
    <div id="projectname">camlib
    </div>
-   <div id="projectbrief">Implementation of PTP for WiFi and USB cameras</div>
+   <div id="projectbrief">Documentation for camlib is still a work-in-progress</div>
   </td>
  </tr>
  </tbody>
@@ -71,30 +71,56 @@ $(function() {
 </div>
 
 </div><!-- top -->
-<div class="header">
-  <div class="summary">
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structPtpIpEndDataPacket-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">PtpIpEndDataPacket Struct Reference</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">Documentation For Camlib</div></div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a0eb18f8409cb083c991131966a95ae85" id="r_a0eb18f8409cb083c991131966a95ae85"><td class="memItemLeft" align="right" valign="top"><a id="a0eb18f8409cb083c991131966a95ae85" name="a0eb18f8409cb083c991131966a95ae85"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
-<tr class="separator:a0eb18f8409cb083c991131966a95ae85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed676cc45a1b363658010d99ba3b6046" id="r_aed676cc45a1b363658010d99ba3b6046"><td class="memItemLeft" align="right" valign="top"><a id="aed676cc45a1b363658010d99ba3b6046" name="aed676cc45a1b363658010d99ba3b6046"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:aed676cc45a1b363658010d99ba3b6046"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d716b571663b7c62e0270f4833bab55" id="r_a3d716b571663b7c62e0270f4833bab55"><td class="memItemLeft" align="right" valign="top"><a id="a3d716b571663b7c62e0270f4833bab55" name="a3d716b571663b7c62e0270f4833bab55"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>transaction</b></td></tr>
-<tr class="separator:a3d716b571663b7c62e0270f4833bab55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
-<li>src/<a class="el" href="ptp_8h_source.html">ptp.h</a></li>
+<div class="textblock"><p><a class="anchor" id="autotoc_md15"></a></p><ul>
+<li>PDF Reference for PTP and MTP: <a href="https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement">https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement</a></li>
+<li>PTP/IP has no free public reference :(</li>
 </ul>
-</div><!-- contents -->
+<p>Terminology:</p><ul>
+<li>initiator: the computer that sends commands (laptop, phone, PC)</li>
+<li>responder: the computer that responds to commands (the camera)</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md16"></a>
+Quick Overview of PTP Standard</h1>
+<h2><a class="anchor" id="autotoc_md17"></a>
+To issue a command to the device</h2>
+<ol type="1">
+<li>Send a <em>command packet</em> with up to 5 parameters</li>
+<li>An optional data packet (the data phase)</li>
+<li>A response packet(s) is recieved from the camera.</li>
+</ol>
+<p>For data to be sent to the camera, a data packet can be sent following <br  />
+ the command packet. The camera should know when to expect this. <br  />
+</p>
+<ul>
+<li>Each packet sent to the camera has a unique transaction ID (see PtpBulkContainer.transaction)</li>
+<li>The operation code (OC) is an ID for each command, and determines how the camera will expect and send back data.</li>
+<li>In a response packet, the response code (RC) is placed in the PtpBulkContainer.code field</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md18"></a>
+PTP/IP</h1>
+<p>PTP/IP is the variant of PTP designed to be used on TCP.</p>
+<p>A standard request to the responder is as follows:</p><ol type="1">
+<li>Command request (<code>PTPIP_COMMAND_REQUEST</code>) send to responder</li>
+<li>If sending data payload:<ul>
+<li>Set the <code>data_phase</code> field in the initial <code>PTPIP_COMMAND_REQUEST</code> packet</li>
+<li>Send data start packet (<code>PTPIP_DATA_PACKET_START</code>), contains data length</li>
+<li>Send data end packet (<code>PTPIP_DATA_PACKET_END</code>), which includes the actual data</li>
+</ul>
+</li>
+</ol>
+<ol type="1">
+<li>If not sending payload to responder, then, wait for response</li>
+</ol>
+<p>Response is either:</p><ul>
+<li><code>PTPIP_DATA_PACKET_START</code> packet followed by <code>PTPIP_DATA_PACKET_END</code>, and finally a <code>PTPIP_COMMAND_RESPONSE</code> packet</li>
+<li>Just a <code>PTPIP_COMMAND_RESPONSE</code> packet </li>
+</ul>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0

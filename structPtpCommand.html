@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.10.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>camlib: Member List</title>
+<title>camlib: PtpCommand Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -25,7 +25,7 @@
   <td id="projectalign">
    <div id="projectname">camlib
    </div>
-   <div id="projectbrief">Implementation of PTP for WiFi and USB cameras</div>
+   <div id="projectbrief">Documentation for camlib is still a work-in-progress</div>
   </td>
  </tr>
  </tbody>
@@ -72,17 +72,39 @@ $(function() {
 
 </div><!-- top -->
 <div class="header">
-  <div class="headertitle"><div class="title">PtpIpStartDataPacket Member List</div></div>
+  <div class="summary">
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="structPtpCommand-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">PtpCommand Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a>, including all inherited members.</p>
-<table class="directory">
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>data_phase_length</b> (defined in <a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a>)</td><td class="entry"><a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>length</b> (defined in <a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a>)</td><td class="entry"><a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>transaction</b> (defined in <a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a>)</td><td class="entry"><a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>type</b> (defined in <a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a>)</td><td class="entry"><a class="el" href="structPtpIpStartDataPacket.html">PtpIpStartDataPacket</a></td><td class="entry"></td></tr>
-</table></div><!-- contents -->
+<p>Generic PTP command structure - accepted by operation API.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="camlib_8h_source.html">camlib.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ab34efaf05c54f7eb68a22c5942dd53e9" id="r_ab34efaf05c54f7eb68a22c5942dd53e9"><td class="memItemLeft" align="right" valign="top"><a id="ab34efaf05c54f7eb68a22c5942dd53e9" name="ab34efaf05c54f7eb68a22c5942dd53e9"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>code</b></td></tr>
+<tr class="separator:ab34efaf05c54f7eb68a22c5942dd53e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe7e3eb01c6804a02670f9d2d91c46b8" id="r_afe7e3eb01c6804a02670f9d2d91c46b8"><td class="memItemLeft" align="right" valign="top"><a id="afe7e3eb01c6804a02670f9d2d91c46b8" name="afe7e3eb01c6804a02670f9d2d91c46b8"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>params</b> [5]</td></tr>
+<tr class="separator:afe7e3eb01c6804a02670f9d2d91c46b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8af5c5a3cf58bab9b6bdb77973b8fed" id="r_ac8af5c5a3cf58bab9b6bdb77973b8fed"><td class="memItemLeft" align="right" valign="top"><a id="ac8af5c5a3cf58bab9b6bdb77973b8fed" name="ac8af5c5a3cf58bab9b6bdb77973b8fed"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>param_length</b></td></tr>
+<tr class="separator:ac8af5c5a3cf58bab9b6bdb77973b8fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b0c9f0b2df6470a74595f0e7c66add7" id="r_a4b0c9f0b2df6470a74595f0e7c66add7"><td class="memItemLeft" align="right" valign="top"><a id="a4b0c9f0b2df6470a74595f0e7c66add7" name="a4b0c9f0b2df6470a74595f0e7c66add7"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>data_length</b></td></tr>
+<tr class="separator:a4b0c9f0b2df6470a74595f0e7c66add7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Generic PTP command structure - accepted by operation API. </p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<li>src/<a class="el" href="camlib_8h_source.html">camlib.h</a></li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0
