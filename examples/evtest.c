@@ -37,6 +37,7 @@ int main() {
 		length = ptp_eos_events(&r, &s);
 
 		for (int i = 0; i < length; i++) {
+			if (s[i].code == 0) continue;
 			printf("%X = %X\n", s[i].code, s[i].value);
 		}
 	}

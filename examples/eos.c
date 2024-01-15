@@ -53,7 +53,9 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	ptp_eos_evproc_run(&r, "TurnOffDisplay");
+	struct PtpDevPropDesc desc;
+
+	ptp_get_prop_desc(&r, PTP_PC_EOS_ImageFormat, &desc);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

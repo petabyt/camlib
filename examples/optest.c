@@ -8,7 +8,7 @@
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	struct PtpDeviceInfo di;
 

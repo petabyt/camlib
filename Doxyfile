@@ -1,4 +1,4 @@
 PROJECT_NAME           = "camlib"
-PROJECT_BRIEF          = "Implementation of PTP for WiFi and USB cameras"
-INPUT                  = README.md src/ptp.h
+PROJECT_BRIEF          = "Documentation for camlib is still a work-in-progress"
+INPUT                  = README.md docs/chdk.md docs/ml.md docs/ptp.md src/camlib.h
 USE_MDFILE_AS_MAINPAGE = README.md

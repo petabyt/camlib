@@ -1,5 +1,6 @@
 CFLAGS=-I../src/
 LDFLAGS=-L../ -Wl,-rpath,../ -lcamlib $(shell pkg-config --libs libusb-1.0)
+#LDFLAGS=-L../ -Wl,-rpath,../ -lcamlib -L../../vcam/ -Wl,-rpath=../../vcam/ -lusb
 
 TEST_TARGETS=live pktest optest evtest wintest.exe bindtest wifi storage directprint info usb
 usb: usb.o

@@ -21,7 +21,12 @@ int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
 	r.connection_type = PTP_IP;
-	if (ptpip_connect(&r, "192.168.1.2", PTP_IP_PORT)) {
+
+	char *ip = "192.168.1.2";
+	ip = "127.0.0.1";
+	int port = PTP_IP_PORT;
+	
+	if (ptpip_connect(&r, ip, port)) {
 		puts("Device connection error");
 		return 0;
 	}
@@ -33,7 +38,7 @@ int main() {
 
 	puts("Done initing");
 
-	if (ptpip_connect_events(&r, "192.168.1.2", PTP_IP_PORT)) {
+	if (ptpip_connect_events(&r, ip, port)) {
 		puts("Events connection error");
 		return 0;
 	}
@@ -61,6 +66,24 @@ int main() {
 
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
+
+	int length = 0;
+	struct PtpGenericEvent *s = NULL;
+	if (ptp_device_type(&r) == PTP_DEV_EOS) {
+		ptp_eos_set_remote_mode(&r, 1);
+		ptp_eos_set_event_mode(&r, 1);
+
+		int rc = ptp_eos_get_event(&r);
+		if (rc) return rc;
+		length = ptp_eos_events(&r, &s);
+		
+		for (int i = 0; i < length; i++) {
+			//printf("%X = %X\n", s[i].code, s[i].value);
+		}
+	}
+
+	rc = ptp_set_generic_property(&r, "shutter speed", 2500000);
+	printf("resp Generic: %d\n", rc);
 
 	ptp_close_session(&r);
 

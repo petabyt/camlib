@@ -6,7 +6,7 @@
 
 #include <camlib.h>
 
-int main() {
+int main(int argc, char **argv) {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
 
@@ -30,8 +30,10 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
+	char *input = "/home/daniel/Documents/magiclantern/modules/mlrust/mlrust.mo";
+
 	ptp_chdk_get_version(&r);
-	ptp_chdk_upload_file(&r, "/home/daniel/Documents/ptpview/ptpview.mo", "B:/ML/MODULES/PTPVIEW.MO");
+	ptp_chdk_upload_file(&r, input, "B:/ML/MODULES/MLRUST.MO");
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

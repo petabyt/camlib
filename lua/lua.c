@@ -88,7 +88,7 @@ static int mylua_send_operation(lua_State *L) {
 	uint8_t *data_array = NULL;
 	if (len >= 3) {
 		data_length = luaL_len(L, 3);
-		data_array = (int *)malloc(data_length * sizeof(int));
+		data_array = malloc(data_length * sizeof(int));
 		for (int i = 1; i <= data_length; ++i) {
 			lua_rawgeti(L, 3, i);
 			data_array[i - 1] = (uint8_t)luaL_checkinteger(L, -1);

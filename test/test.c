@@ -9,6 +9,22 @@
 
 #include <camlib.h>
 
+int test_setup_usb(struct PtpRuntime *r) {
+	ptp_init(r);
+
+	if (ptp_device_init(r)) {
+		puts("Device connection error");
+		return 1;
+	}
+
+	int rc = ptp_open_session(r);
+	if (rc) return rc;	
+
+	assert(ptp_get_return_code(r) == PTP_RC_OK);
+
+	return 0;
+}
+
 int ptp_vcam_magic() {
 	struct PtpRuntime r;
 
@@ -42,22 +58,6 @@ int ptp_vcam_magic() {
 	}
 
 	ptp_close(&r);
-	return 0;
-}
-
-int test_setup_usb(struct PtpRuntime *r) {
-	ptp_init(r);
-
-	if (ptp_device_init(r)) {
-		puts("Device connection error");
-		return 1;
-	}
-
-	int rc = ptp_open_session(r);
-	if (rc) return rc;	
-
-	assert(ptp_get_return_code(r) == PTP_RC_OK);
-
 	return 0;
 }
 
@@ -184,9 +184,59 @@ int test_fs() {
 	return 0;
 }
 
+static void *thread(void *arg) {
+	struct PtpRuntime *r = (struct PtpRuntime *)arg;
+
+	if (rand() & 1 == 0) {
+		struct PtpDeviceInfo di;
+		int rc = ptp_get_device_info(r, &di);
+		if (rc) goto err;
+		char buffer[2048];
+		ptp_device_info_json(&di, buffer, sizeof(buffer));
+		printf("%s\n", buffer);
+	} else {
+		struct UintArray *arr;
+		int rc = ptp_get_storage_ids(r, &arr);
+		if (rc) goto err;
+		printf("%X\n", arr->data[0]);
+		if (arr->data[0] != 0x10001) goto err;
+	}
+
+	pthread_exit(0);
+	err:;
+	printf("Error in thread %d\n", getpid());
+	ptp_close(r);
+	exit(1);
+}
+
+static int test_multithread() {
+	struct PtpRuntime r;
+
+	int rc = test_setup_usb(&r);
+	if (rc) return rc;
+
+	for (int i = 0; i < 100; i++) {
+		pthread_t th;
+		if (pthread_create(&th, NULL, thread, (void *)&r) != 0) {
+			perror("pthread_create() error");
+			exit(1);
+		}
+	}
+
+	usleep(100000);
+
+	//ptp_device_close(&r);
+
+	return 0;	
+}
+
 int main() {
 	int rc;
 
+	rc = test_multithread();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+return 0;
 	rc = test_eos_t6();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
