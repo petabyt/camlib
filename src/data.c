@@ -10,7 +10,6 @@
 #include <camlib.h>
 
 // Custom snprint with offset - for safer string building
-// Eventually, this should be used for all JSON string builders
 static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	if (size - cur < 0) {
 		return 0;

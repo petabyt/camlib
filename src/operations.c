@@ -9,10 +9,17 @@
 #include <camlib.h>
 #include <ptp.h>
 
-static struct UintArray *dup_uint_array(struct UintArray *arr) {
-	struct UintArray *dup = malloc(4 + arr->length * 4);
+static struct PtpArray *dup_uint_array(struct UintArray *arr) {
+	struct PtpArray *dup = malloc(4 + arr->length * 4);
 	if (dup == NULL) return NULL;
+
 	memcpy(dup, arr, 4 + arr->length * 4);
+
+	ptp_write_u32(&dup->length, arr->length);
+	for (int i = 0; i < arr->length; i++) {
+		ptp_write_u32(&dup->data[i], arr->data[i]);
+	}
+
 	return dup;
 }
 
@@ -137,7 +144,7 @@ int ptp_terminate_open_capture(struct PtpRuntime *r, int trans) {
 }
 
 // TODO: Return PtpStorageIds
-int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a) {
+int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpArray **a) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
@@ -207,7 +214,7 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 	return ptp_send_data(r, &cmd, temp, length);
 }
 
-int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a) {
+int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct PtpArray **a) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetObjectHandles;
 	cmd.param_length = 3;

@@ -8,6 +8,35 @@
 #include <stdlib.h>
 #include <camlib.h>
 
+#define EOS_TOK_INT 2
+#define EOS_TOK_STR 4
+
+struct EvProcParam {
+	uint32_t type;
+	uint32_t number;
+	uint32_t p3;
+	uint32_t p4;
+	uint32_t size;
+};
+
+enum Types {
+	TOK_TEXT,
+	TOK_STR,
+	TOK_INT,
+};
+
+#define MAX_STR 128
+#define MAX_TOK 10
+
+struct Tokens {
+	struct T {
+		int type;
+		char string[MAX_STR];
+		int integer;
+	} t[MAX_TOK];
+	int length;
+};
+
 // Required on some newer cameras, like the EOS M.
 int ptp_eos_activate_command(struct PtpRuntime *r) {
 	if (!ptp_check_opcode(r, PTP_OC_EOS_EnableEventProc)) {
@@ -52,35 +81,6 @@ int ptp_eos_evproc_return_data(struct PtpRuntime *r) {
 
 	return ptp_send(r, &cmd);
 }
-
-#define EOS_TOK_INT 2
-#define EOS_TOK_STR 4
-
-struct EvProcParam {
-	uint32_t type;
-	uint32_t number;
-	uint32_t p3;
-	uint32_t p4;
-	uint32_t size;
-};
-
-enum Types {
-	TOK_TEXT,
-	TOK_STR,
-	TOK_INT,
-};
-
-#define MAX_STR 128
-#define MAX_TOK 10
-
-struct Tokens {
-	struct T {
-		int type;
-		char string[MAX_STR];
-		int integer;
-	} t[MAX_TOK];
-	int length;
-};
 
 static int alpha(char c) {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';

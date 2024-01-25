@@ -93,7 +93,7 @@ int test_eos_t6() {
 	assert(!strcmp(di.extensions, "G-V: 1.0;"));
 	assert(!strcmp(di.model, "Canon EOS Rebel T6"));
 
-	struct UintArray *arr;
+	struct PtpArray *arr;
 	rc = ptp_get_storage_ids(&r, &arr);
 	if (rc) return rc;
 	int id = arr->data[0];
@@ -149,7 +149,7 @@ int test_fs() {
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
-	struct UintArray *arr;
+	struct PtpArray *arr;
 	rc = ptp_get_storage_ids(&r, &arr);
 	if (rc) return rc;
 	int id = arr->data[0];
@@ -195,7 +195,7 @@ static void *thread(void *arg) {
 		ptp_device_info_json(&di, buffer, sizeof(buffer));
 		printf("%s\n", buffer);
 	} else {
-		struct UintArray *arr;
+		struct PtpArray *arr;
 		int rc = ptp_get_storage_ids(r, &arr);
 		if (rc) goto err;
 		printf("%X\n", arr->data[0]);

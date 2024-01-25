@@ -1,21 +1,26 @@
-// TODO: Documentation should be in header file or above C code?
+/** \file */ 
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-// Generic device-independent functionality
+/// @brief Set a generic property - abstraction over SetDeviceProp
+/// @note May reject writes if an invalid property is found (see event code)
 int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value);
+
+/// @brief Call before taking a picture - this is generally for 'focusing'
+/// Sometimes will do nothing.
+/// @note This is meant for a onMouseDown-like event. ptp_take_picture should be called on onMouseUp
 int ptp_pre_take_picture(struct PtpRuntime *r);
+
+/// @brief Call after calling ptp_pre_take_picture - this time a picture will be taken.
 int ptp_take_picture(struct PtpRuntime *r);
 
-// Standard PTP operation code functions
-
-// Note that opening a session is required for most vendor commands
+/// @brief Open a new session - required for most commands
 int ptp_open_session(struct PtpRuntime *r);
 int ptp_close_session(struct PtpRuntime *r);
 int ptp_get_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
-// Recieves storage IDs into an UintArray. The 'pointer pointer' will be assigned to the r->data
-// buffer, so it will eventually be overwritten. You can duplicate the array with ptp_dup_uint_array()
-int ptp_get_storage_ids(struct PtpRuntime *r, struct UintArray **a);
+/// @brief Returns allocated array of storage IDs
+/// call free() afterwards
+int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpArray **a);
 int ptp_init_capture(struct PtpRuntime *r, int storage_id, int object_format);
 int ptp_init_open_capture(struct PtpRuntime *r, int storage_id, int object_format);
 int ptp_terminate_open_capture(struct PtpRuntime *r, int trans);
@@ -25,29 +30,31 @@ int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length);
 int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
-// Gets a list of object handles in a storage device or folder.
-// id: storage ID
-// format: Can specify file format ID, or zero for all
-// in: Can be folder object ID, or 0 for recursive all
-// Output array is a pointer to data packet, and will be overwritten by new operations
-int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct UintArray **a);
+/// @brief Gets a list of object handles in a storage device or folder.
+// @param id storage ID
+// @param format Can specify file format ID, or zero for all IDs
+// @param in Can be folder object ID, or 0 for recursive (entire filesystem)
+// @param[out] a Output array is a pointer to data packet, and will be overwritten by new operations
+int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, struct PtpArray **a);
 int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectInfo *oi);
 int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder);
 int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
-// Raw JPEG data is accessible from ptp_get_payload()
+/// @brief Raw JPEG data is accessible from ptp_get_payload()
+/// @note Not thread safe.
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
+/// @note Not thread safe.
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
-// Download an object from handle, to a local file (uses GetPartialObject)
+/// @brief Download an object from handle, to a local file (uses GetPartialObject)
 int ptp_download_file(struct PtpRuntime *r, int handle, char *file);
-// Run an opcode - For debugging and prototyping only
-int ptp_custom_receive(struct PtpRuntime *r, int code);
-// Recieve a generic list of all properties received in DeviceInfo - caller must free s
-// This is similar to getting all events, but for first startup when you know nothing.
-// Some vendors do this, but this gets all the properties manually.
+/// @brief Recieve a generic list of all properties received in DeviceInfo
+/// This is similar to getting all events, but for first startup when you know nothing.
+/// Some vendors do this, but this gets all the properties manually.
+/// @param[out] s Output structure, caller must free
 int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *length);
 
-// PTP/IP only
+/// @note PTP/IP only
 int ptpip_init_events(struct PtpRuntime *r);
+/// @note PTP/IP only
 int ptpip_init_command_request(struct PtpRuntime *r, char *device_name);
 
 // EOS Only functions - not for Canon point and shoot

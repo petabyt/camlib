@@ -109,7 +109,6 @@ struct PtpRuntime {
 	/// @brief Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
 	/// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
 	/// will be set to 1.
-	// TODO: Should the IO backend toggle the IO kill switch
 	uint8_t io_kill_switch;
 
 	/// @brief One of enum PtpConnType
@@ -165,6 +164,12 @@ struct PtpCommand {
 	uint32_t params[5];
 	int param_length;
 	int data_length;
+};
+
+/// @brief Generic Struct for arrays
+struct PtpArray {
+	uint32_t length;
+	uint32_t data[];
 };
 
 /// @brief Returns the return code (RC) currently in the data buffer.
@@ -258,6 +263,13 @@ int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
 void ptp_read_utf8_string(void *dat, char *string, int max);
 
+inline static int ptp_write_u8 (void *buf, uint8_t out) { ((uint8_t *)buf)[0] = out; return 1; }
+inline static int ptp_write_u16(void *buf, uint16_t out) { ((uint16_t *)buf)[0] = out; return 2; }
+inline static int ptp_write_u32(void *buf, uint32_t out) { ((uint32_t *)buf)[0] = out; return 4; }
+inline static int ptp_read_u32 (void *buf, uint32_t *out) { *out = ((uint32_t *)buf)[0]; return 4; }
+inline static int ptp_read_u16 (void *buf, uint16_t *out) { *out = ((uint16_t *)buf)[0]; return 2; }
+inline static int ptp_read_u8  (void *buf, uint8_t *out) { *out = ((uint8_t *)buf)[0]; return 1; }
+
 // Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
 
@@ -273,9 +285,6 @@ void ptp_update_transaction(struct PtpRuntime *r, int t);
 
 // Set avail info for prop
 void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data);
-
-// Duplicate array, return malloc'd buffer
-struct UintArray *ptp_dup_uint_array(struct UintArray *arr) __attribute__ ((deprecated));
 
 void *ptp_dup_payload(struct PtpRuntime *r);
 

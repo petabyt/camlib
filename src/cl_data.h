@@ -14,6 +14,7 @@ struct PtpStorageIds {
 	uint32_t data[4];
 };
 
+// TODO: Rename PtpUintArray
 struct UintArray {
 	uint32_t length;
 	uint32_t data[];

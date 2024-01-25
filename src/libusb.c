@@ -49,6 +49,8 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
+	// #warning "TODO: bad access @ libusb_get_device_list + 267 -> pthread_mutex_lock + 4"
+	// Caused by double calling ptpusb_device_list = race condition. GUI problem?
 	libusb_device **list;
 	ssize_t count = libusb_get_device_list(backend->ctx, &list);
 

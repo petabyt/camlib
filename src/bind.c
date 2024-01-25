@@ -86,7 +86,7 @@ int bind_get_device_info(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_get_storage_ids(struct BindReq *bind, struct PtpRuntime *r) {
-	struct UintArray *arr;
+	struct PtpArray *arr;
 	int x = ptp_get_storage_ids(r, &arr);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
 
@@ -113,7 +113,7 @@ int bind_get_storage_info(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_get_object_handles(struct BindReq *bind, struct PtpRuntime *r) {
-	struct UintArray *arr;
+	struct PtpArray *arr;
 	// Parameters changed to correct order 14 nov 2023
 	int x = ptp_get_object_handles(r, bind->params[0], bind->params[1], bind->params[2], &arr);
 	if (x) return sprintf(bind->buffer, "{\"error\": %d}", x);
