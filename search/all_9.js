@@ -25,11 +25,12 @@ var searchData=
   ['ptp_5freset_22',['ptp_reset',['../camlib_8h.html#a1f04daa3a557f761a6413b05dc7bb7b3',1,'camlib.h']]],
   ['ptp_5fsend_23',['ptp_send',['../camlib_8h.html#a5b05005f4add36b980e0aa5099eb381b',1,'camlib.h']]],
   ['ptp_5fsend_5fdata_24',['ptp_send_data',['../camlib_8h.html#a33813c63d683fbaf32c9a5ac0b35968e',1,'camlib.h']]],
-  ['ptpcommand_25',['PtpCommand',['../structPtpCommand.html',1,'']]],
-  ['ptpconntype_26',['PtpConnType',['../camlib_8h.html#a4d84e1a866c4b0808d10dd1b7125a639',1,'camlib.h']]],
-  ['ptpgeneralerror_27',['PtpGeneralError',['../camlib_8h.html#a9fa077df1a63de2388ae3428b9defd2f',1,'camlib.h']]],
-  ['ptpgenericevent_28',['PtpGenericEvent',['../structPtpGenericEvent.html',1,'']]],
-  ['ptppropavail_29',['PtpPropAvail',['../structPtpPropAvail.html',1,'']]],
-  ['ptpruntime_30',['PtpRuntime',['../structPtpRuntime.html',1,'']]],
-  ['ptpvendors_31',['PtpVendors',['../camlib_8h.html#aa57ec9e18aa521972749b8655ca36e21',1,'camlib.h']]]
+  ['ptparray_25',['PtpArray',['../structPtpArray.html',1,'']]],
+  ['ptpcommand_26',['PtpCommand',['../structPtpCommand.html',1,'']]],
+  ['ptpconntype_27',['PtpConnType',['../camlib_8h.html#a4d84e1a866c4b0808d10dd1b7125a639',1,'camlib.h']]],
+  ['ptpgeneralerror_28',['PtpGeneralError',['../camlib_8h.html#a9fa077df1a63de2388ae3428b9defd2f',1,'camlib.h']]],
+  ['ptpgenericevent_29',['PtpGenericEvent',['../structPtpGenericEvent.html',1,'']]],
+  ['ptppropavail_30',['PtpPropAvail',['../structPtpPropAvail.html',1,'']]],
+  ['ptpruntime_31',['PtpRuntime',['../structPtpRuntime.html',1,'']]],
+  ['ptpvendors_32',['PtpVendors',['../camlib_8h.html#aa57ec9e18aa521972749b8655ca36e21',1,'camlib.h']]]
 ];
