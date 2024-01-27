@@ -28,21 +28,32 @@ int ptp_comm_init(struct PtpRuntime *r) {
 }
 
 int ptp_device_init(struct PtpRuntime *r) {
+	if (!r->io_kill_switch) {
+		ptp_verbose_log("Connection is active\n");
+		return NULL;
+	}
+
 	ptp_comm_init(r);
 
 	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
 	if (wpd == NULL) return PTP_IO_ERR;
 
+	ptp_mutex_lock(r);
+
 	int length = 0;
 	wchar_t **devices = wpd_get_devices(wpd, &length);
 
-	if (length == 0) return PTP_NO_DEVICE;
+	if (length == 0) {
+		ptp_mutex_unlock(r);
+		return PTP_NO_DEVICE;
+	}
 
 	for (int i = 0; i < length; i++) {
 		wprintf(L"Trying device: %s\n", devices[i]);
 
 		int ret = wpd_open_device(wpd, devices[i]);
 		if (ret) {
+			ptp_mutex_unlock(r);
 			return PTP_OPEN_FAIL;
 		}
 
@@ -50,12 +61,14 @@ int ptp_device_init(struct PtpRuntime *r) {
 		ptp_verbose_log("Found device of type: %d\n", type);
 		if (type == WPD_DEVICE_TYPE_CAMERA) {
 			r->io_kill_switch = 0;
+			ptp_mutex_unlock(r);
 			return 0;
 		}
 
 		wpd_close_device(wpd);
 	}
 
+	ptp_mutex_unlock(r);
 	return PTP_NO_DEVICE;
 }
 

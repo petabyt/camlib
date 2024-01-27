@@ -47,10 +47,15 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 		return NULL;
 	}
 
+	if (!r->io_kill_switch) {
+		ptp_verbose_log("Connection is active\n");
+		return NULL;
+	}
+
+	ptp_mutex_lock(r);
+
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
-	// #warning "TODO: bad access @ libusb_get_device_list + 267 -> pthread_mutex_lock + 4"
-	// Caused by double calling ptpusb_device_list = race condition. GUI problem?
 	libusb_device **list;
 	ssize_t count = libusb_get_device_list(backend->ctx, &list);
 
@@ -65,6 +70,7 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 	struct PtpDeviceEntry *orig_ent = curr_ent;
 
 	if (count == 0) {
+		ptp_mutex_unlock(r);
 		return NULL;
 	}
 
@@ -74,6 +80,7 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 		int rc = libusb_get_device_descriptor(dev, &desc);
 		if (rc) {
 			perror("libusb_get_device_descriptor");
+			ptp_mutex_unlock(r);
 			return NULL;
 		}
 
@@ -84,6 +91,7 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 		rc = libusb_get_config_descriptor(dev, 0, &config);
 		if (rc) {
 			perror("libusb_get_config_descriptor");
+			ptp_mutex_unlock(r);
 			return NULL;
 		}
 
@@ -151,6 +159,7 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 		rc = libusb_open(dev, &handle);
 		if (rc) {
 			perror("usb_open() failure");
+			ptp_mutex_unlock(r);
 			return NULL;
 		}
 
@@ -178,6 +187,8 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 
 	//libusb_free_device_list(list, 0);
 
+	ptp_mutex_unlock(r);
+
 	if (valid_devices == 0) {
 		return NULL;
 	}
@@ -186,9 +197,16 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 }
 
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
+	ptp_mutex_lock(r);
 	if (r->comm_backend == NULL) {
 		ptp_verbose_log("comm_backend is NULL\n");
-		return PTP_IO_ERR;
+		ptp_mutex_unlock(r);
+		return PTP_OPEN_FAIL;
+	}
+
+	if (!r->io_kill_switch) {
+		ptp_verbose_log("Connection is active\n");
+		return PTP_OPEN_FAIL;
 	}
 
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
@@ -200,22 +218,26 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 	int rc = libusb_open(entry->device_handle_ptr, &(backend->handle));
 	if (rc) {
 		perror("usb_open() failure");
+		ptp_mutex_unlock(r);
 		return PTP_OPEN_FAIL;
 	}
 
 	if (libusb_set_auto_detach_kernel_driver(backend->handle, 0)) {
 		perror("libusb_set_auto_detach_kernel_driver");
+		ptp_mutex_unlock(r);
 		return PTP_OPEN_FAIL;
 	}
 
 	if (libusb_claim_interface(backend->handle, 0)) {
 		perror("usb_claim_interface() failure");
 		libusb_close(backend->handle);
+		ptp_mutex_unlock(r);
 		return PTP_OPEN_FAIL;
 	}
 
 	r->io_kill_switch = 0;
 
+	ptp_mutex_unlock(r);
 	return 0;
 }
 
