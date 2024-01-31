@@ -236,7 +236,7 @@ int main() {
 	rc = test_multithread();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
-return 0;
+
 	rc = test_eos_t6();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;

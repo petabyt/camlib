@@ -19,6 +19,14 @@
 	#endif
 #endif
 
+#ifndef CAMLIB_PLATFORM
+	#ifdef WIN32
+		#define CAMLIB_PLATFORM "windows"
+	#else
+		#define CAMLIB_PLATFORM "linux"
+	#endif
+#endif
+
 // TODO: func to access these
 int bind_connected = 0;
 int bind_initialized = 0;

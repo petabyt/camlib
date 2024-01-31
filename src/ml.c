@@ -159,7 +159,9 @@ int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest) {
 		return PTP_RUNTIME_ERR;
 	}
 	
-	return ptp_send_data(r, &cmd, data, size_all);
+	int rc = ptp_send_data(r, &cmd, data, size_all);
+	free(data);
+	return rc;
 }
 
 int ptp_chdk_get_version(struct PtpRuntime *r) {

@@ -30,7 +30,7 @@ libcamlib.dylib: $(FILES)
 	$(CC) -shared $(FILES) -L/usr/local/lib -lusb-1.0 -o libcamlib.so
 endif
 
-%.o: %.c src/*.h
+%.o: %.c
 	$(CC) -MMD -c $(CFLAGS) $< -o $@
 
 -include src/*.d lua/*.d lua/lua-cjson/*.d

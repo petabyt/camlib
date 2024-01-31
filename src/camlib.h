@@ -27,15 +27,6 @@
 void ptp_verbose_log(char *fmt, ...);
 void ptp_panic(char *fmt, ...);
 
-// Optional, used by frontend in bindings
-#ifndef CAMLIB_PLATFORM
-	#ifdef WIN32
-		#define CAMLIB_PLATFORM "windows"
-	#else
-		#define CAMLIB_PLATFORM "linux"
-	#endif
-#endif
-
 // 4mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 8000000
 
