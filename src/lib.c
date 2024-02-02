@@ -166,11 +166,11 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	if (ptp_get_return_code(r) == PTP_RC_OK) {
 		ptp_mutex_unlock(r);
 		return 0;
-	} else {
-		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
-		ptp_mutex_unlock(r);
-		return PTP_CHECK_CODE;
 	}
+
+	ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
+	ptp_mutex_unlock(r);
+	return PTP_CHECK_CODE;
 }
 
 // Perform a command request with a data phase to the camera
@@ -230,13 +230,13 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 
 	r->transaction++;
 
-	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		ptp_mutex_unlock(r);
-		return 0;
-	} else {
+	if (ptp_get_return_code(r) != PTP_RC_OK) {
 		ptp_mutex_unlock(r);
 		return PTP_CHECK_CODE;
 	}
+
+	ptp_mutex_unlock(r);
+	return 0;
 }
 
 int ptp_device_type(struct PtpRuntime *r) {

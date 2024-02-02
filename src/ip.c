@@ -159,7 +159,8 @@ int ptpip_close(struct PtpRuntime *r) {
 }
 
 int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
-	struct PtpIpBackend *b = init_comm(r);
+	if (r->io_kill_switch) return -1;
+	struct PtpIpBackend *b = init_comm(r); // calling this seems slow?
 	int result = write(b->fd, data, size);
 	if (result < 0) {
 		return -1;
@@ -169,6 +170,7 @@ int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
+	if (r->io_kill_switch) return -1;
 	struct PtpIpBackend *b = init_comm(r);
 	int result = read(b->fd, data, size);
 	if (result < 0) {
@@ -179,6 +181,7 @@ int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
+	if (r->io_kill_switch) return -1;
 	struct PtpIpBackend *b = init_comm(r);
 	int result = write(b->evfd, data, size);
 	if (result < 0) {
@@ -189,6 +192,7 @@ int ptpip_event_send(struct PtpRuntime *r, void *data, int size) {
 }
 
 int ptpip_event_read(struct PtpRuntime *r, void *data, int size) {
+	if (r->io_kill_switch) return -1;
 	struct PtpIpBackend *b = init_comm(r);
 	int result = read(b->evfd, data, size);
 	if (result < 0) {
