@@ -81,6 +81,8 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 		if (rc) return rc;
 	}
 
+	h = (struct PtpIpHeader *)(r->data + of);
+
 	while (1) {
 		rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);
 
@@ -245,6 +247,9 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 		rc = ptp_buffer_resize(r, of + read + h->length);
 		if (rc) return rc;
 	}
+
+	// Update struct after resize
+	h = (struct PtpBulkContainer *)(r->data + of);
 
 	while (1) {
 		rc = ptpip_cmd_read(r, r->data + of + read, h->length - read);

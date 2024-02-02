@@ -111,7 +111,7 @@ struct PtpRuntime {
 	int session;
 
 	/// @brief Global buffer for data reading and writing
-	/// @note Can grow in size as needed.
+	/// @note This is volatile - it will grow in size (pointer will change) when needed.
     uint8_t *data;
     int data_length;
 
