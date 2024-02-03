@@ -502,7 +502,9 @@ int bind_get_partial_object(struct BindReq *bind, struct PtpRuntime *r) {
 }
 
 int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
-	int x = ptp_download_file(r, bind->params[0], bind->string);
+	FILE *f = fopen(bind->string, "wb");
+	int x = ptp_download_object(r, bind->params[0],f, 0x100000);
+	fclose(f);
 	if (x < 0) {
 		return sprintf(bind->buffer, "{\"error\": %d}", -1);
 	} else {

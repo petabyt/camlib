@@ -55,7 +55,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 		}
 	}
 
-	r->wait_for_response = 1;
+	r->wait_for_response = r->response_wait_default;
 
 	if (rc < 0) {
 		ptp_verbose_log("Failed to read packet length: %d\n", rc);
@@ -171,7 +171,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 				CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 			}
 		}
-		r->wait_for_response = 1;
+		r->wait_for_response = r->response_wait_default;
 
 		if (rc < 0) {
 			ptp_verbose_log("Failed to read packets: %d\n", rc);
@@ -222,7 +222,7 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 		}
 	}
 
-	r->wait_for_response = 1;
+	r->wait_for_response = r->response_wait_default;
 
 	if (rc < 0) {
 		ptp_verbose_log("Failed to read packet length: %d\n", rc);

@@ -13,6 +13,7 @@ void ptp_reset(struct PtpRuntime *r) {
 	r->transaction = 0;
 	r->session = 0;	
 	r->connection_type = PTP_USB;
+	r->response_wait_default = 1;
 	r->wait_for_response = 1;
 }
 
@@ -279,6 +280,21 @@ int ptp_check_prop(struct PtpRuntime *r, int code) {
 	}
 
 	return 0;
+}
+
+const char *ptp_perror(int rc) {
+	switch (rc) {
+	case PTP_OK: return "OK";
+	case PTP_NO_DEVICE: return "No device found";
+	case PTP_NO_PERM: return "Lacking permissions";
+	case PTP_OPEN_FAIL: return "Failed opening device";
+	case PTP_OUT_OF_MEM: return "Out of memory";
+	case PTP_IO_ERR: return "I/O Error";
+	case PTP_RUNTIME_ERR: return "Runtime error";
+	case PTP_UNSUPPORTED: return "Unsupported operation";
+	case PTP_CHECK_CODE: return "Check code";
+	default: return "?";
+	}
 }
 
 int ptp_dump(struct PtpRuntime *r) {

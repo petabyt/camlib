@@ -49,6 +49,9 @@ enum PtpGeneralError {
 	PTP_CHECK_CODE = -8,
 };
 
+/// @brief Evaluates PtpGeneralError into string message
+const char *ptp_perror(int rc);
+
 enum PtpLiveViewType {
 	PTP_LV_NONE = 0,
 	PTP_LV_EOS = 1,
@@ -134,7 +137,11 @@ struct PtpRuntime {
 	pthread_mutex_t *mutex;
 
 	/// @brief Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
+	/// @note Not thread safe. Will be reset after each operation.
 	uint8_t wait_for_response;
+
+	/// @brief Default value for wait_for_response.
+	uint8_t response_wait_default;
 
 	/// @brief For devices that implement it, this will hold a linked list of properties and an array of their supported values.
 	/// generic_ functions will reject set property calls if an invalid value is written.

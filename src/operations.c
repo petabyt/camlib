@@ -322,40 +322,31 @@ int ptp_get_object(struct PtpRuntime *r, int handle) {
 	return ptp_send(r, &cmd);	
 }
 
-int ptp_download_file(struct PtpRuntime *r, int handle, char *file) {
-	int max = ptp_get_payload_length(r);
-
-	struct PtpObjectInfo oi;
-	if (ptp_get_object_info(r, handle, &oi)) {
-		return 0;
-	}
-
-	max = oi.compressed_size;
-	
-	FILE *f = fopen(file, "w");
-	if (f == NULL) {
-		return PTP_RUNTIME_ERR;
-	}
-
+int ptp_download_object(struct PtpRuntime *r, int handle, FILE *f, size_t max) {
 	int read = 0;
 	while (1) {
+		ptp_mutex_keep_locked(r);
 		int x = ptp_get_partial_object(r, handle, read, max);
 		if (x) {
-			fclose(f);
+			ptp_mutex_unlock(r);
 			return x;
 		}
 
-		if (ptp_get_payload_length(r) == 0) {
+		size_t partial_len = ptp_get_payload_length(r);
+
+		if (partial_len == 0) {
 			fclose(f);
+			ptp_mutex_unlock(r);
 			return 0;
 		}
 
-		fwrite(ptp_get_payload(r), 1, ptp_get_payload_length(r), f);
+		fwrite(ptp_get_payload(r), 1, partial_len, f);
 
-		read += ptp_get_payload_length(r);
+		ptp_mutex_unlock(r);
 
-		if (read == oi.compressed_size) {
-			fclose(f);
+		read += partial_len;
+
+		if (partial_len != max) {
 			return 0;
 		}
 	}
