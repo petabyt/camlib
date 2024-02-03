@@ -17,7 +17,8 @@ var searchData=
   ['ptp_5fmutex_5flock_14',['ptp_mutex_lock',['../camlib_8h.html#aa67c5de195afa6e1a456d1ad4d148e40',1,'camlib.h']]],
   ['ptp_5fmutex_5funlock_15',['ptp_mutex_unlock',['../camlib_8h.html#aefec40a1a3fb4ad24414d51e22c11701',1,'camlib.h']]],
   ['ptp_5fnew_16',['ptp_new',['../camlib_8h.html#a04ea9521e71a938fe5044153af439b7b',1,'camlib.h']]],
-  ['ptp_5freset_17',['ptp_reset',['../camlib_8h.html#a1f04daa3a557f761a6413b05dc7bb7b3',1,'camlib.h']]],
-  ['ptp_5fsend_18',['ptp_send',['../camlib_8h.html#a5b05005f4add36b980e0aa5099eb381b',1,'camlib.h']]],
-  ['ptp_5fsend_5fdata_19',['ptp_send_data',['../camlib_8h.html#a33813c63d683fbaf32c9a5ac0b35968e',1,'camlib.h']]]
+  ['ptp_5fperror_17',['ptp_perror',['../camlib_8h.html#a4be7b7db9e745e655b26523a9429b009',1,'camlib.h']]],
+  ['ptp_5freset_18',['ptp_reset',['../camlib_8h.html#a1f04daa3a557f761a6413b05dc7bb7b3',1,'camlib.h']]],
+  ['ptp_5fsend_19',['ptp_send',['../camlib_8h.html#a5b05005f4add36b980e0aa5099eb381b',1,'camlib.h']]],
+  ['ptp_5fsend_5fdata_20',['ptp_send_data',['../camlib_8h.html#a33813c63d683fbaf32c9a5ac0b35968e',1,'camlib.h']]]
 ];

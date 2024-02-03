@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wait_5ffor_5fresponse_0',['wait_for_response',['../structPtpRuntime.html#adbd0410bdf4fe67efe17ddf0937195c4',1,'PtpRuntime']]]
+  ['transaction_0',['transaction',['../structPtpRuntime.html#a9e655ea665c46fd29ff029924d63e7fa',1,'PtpRuntime']]]
 ];

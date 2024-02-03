@@ -125,10 +125,13 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>comm_backend</b></t
 pthread_mutex_t *&#160;</td><td class="memItemRight" valign="bottom"><b>mutex</b></td></tr>
 <tr class="memdesc:ab0ce33227dec019e95821f0ef5c41de9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional (see CAMLIB_DONT_USE_MUTEX) <br /></td></tr>
 <tr class="separator:ab0ce33227dec019e95821f0ef5c41de9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbd0410bdf4fe67efe17ddf0937195c4" id="r_adbd0410bdf4fe67efe17ddf0937195c4"><td class="memItemLeft" align="right" valign="top"><a id="adbd0410bdf4fe67efe17ddf0937195c4" name="adbd0410bdf4fe67efe17ddf0937195c4"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>wait_for_response</b></td></tr>
-<tr class="memdesc:adbd0410bdf4fe67efe17ddf0937195c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture. <br /></td></tr>
+<tr class="memitem:adbd0410bdf4fe67efe17ddf0937195c4" id="r_adbd0410bdf4fe67efe17ddf0937195c4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adbd0410bdf4fe67efe17ddf0937195c4">wait_for_response</a></td></tr>
+<tr class="memdesc:adbd0410bdf4fe67efe17ddf0937195c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.  <br /></td></tr>
 <tr class="separator:adbd0410bdf4fe67efe17ddf0937195c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37501cfcd57c6d29d2201bccfa822d0e" id="r_a37501cfcd57c6d29d2201bccfa822d0e"><td class="memItemLeft" align="right" valign="top"><a id="a37501cfcd57c6d29d2201bccfa822d0e" name="a37501cfcd57c6d29d2201bccfa822d0e"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>response_wait_default</b></td></tr>
+<tr class="memdesc:a37501cfcd57c6d29d2201bccfa822d0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default value for wait_for_response. <br /></td></tr>
+<tr class="separator:a37501cfcd57c6d29d2201bccfa822d0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8601b1154a9464a29fa5893b81f87251" id="r_a8601b1154a9464a29fa5893b81f87251"><td class="memItemLeft" align="right" valign="top"><a id="a8601b1154a9464a29fa5893b81f87251" name="a8601b1154a9464a29fa5893b81f87251"></a>
 struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>avail</b></td></tr>
 <tr class="memdesc:a8601b1154a9464a29fa5893b81f87251"><td class="mdescLeft">&#160;</td><td class="mdescRight">For devices that implement it, this will hold a linked list of properties and an array of their supported values. generic_ functions will reject set property calls if an invalid value is written. <br /></td></tr>
@@ -198,6 +201,23 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
       </table>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>The transaction ID and session ID is managed by the packet generator functions </dd></dl>
+
+</div>
+</div>
+<a id="adbd0410bdf4fe67efe17ddf0937195c4" name="adbd0410bdf4fe67efe17ddf0937195c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbd0410bdf4fe67efe17ddf0937195c4">&#9670;&#160;</a></span>wait_for_response</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t PtpRuntime::wait_for_response</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture. </p>
+<dl class="section note"><dt>Note</dt><dd>Not thread safe. Will be reset after each operation. </dd></dl>
 
 </div>
 </div>
