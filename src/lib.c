@@ -137,6 +137,12 @@ void ptp_close(struct PtpRuntime *r) {
 	free(r->data);
 }
 
+void ptp_mutex_unlock_thread(struct PtpRuntime *r) {
+	if (r->mutex == NULL) return;
+	// Wait until we get EPERM (we do not own the mutex anymore)
+	while (pthread_mutex_unlock(r->mutex) == 0); 
+}
+
 // Perform a generic command transaction - no data phase
 int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	ptp_mutex_lock(r);
@@ -145,13 +151,13 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 	int length = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, length) != length) {
-		ptp_mutex_unlock(r);
+		ptp_mutex_unlock_thread(r);
 		ptp_verbose_log("Didn't send all packets\n");
 		return PTP_IO_ERR;
 	}
 
 	if (ptp_receive_bulk_packets(r) < 0) {
-		ptp_mutex_unlock(r);
+		ptp_mutex_unlock_thread(r);
 		ptp_verbose_log("Failed to recieve packets\n");
 		return PTP_IO_ERR;
 	}
@@ -164,14 +170,14 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 	r->transaction++;
 
-	if (ptp_get_return_code(r) == PTP_RC_OK) {
-		ptp_mutex_unlock(r);
-		return 0;
+	if (ptp_get_return_code(r) != PTP_RC_OK) {
+		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
+		ptp_mutex_unlock_thread(r);
+		return PTP_CHECK_CODE;
 	}
-
-	ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
+	
 	ptp_mutex_unlock(r);
-	return PTP_CHECK_CODE;
+	return 0;
 }
 
 // Perform a command request with a data phase to the camera
@@ -189,7 +195,7 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 	// Send operation request (data phase later on)
 	int plength = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, plength) != plength) {
-		ptp_mutex_unlock(r);
+		ptp_mutex_unlock_thread(r);
 		return PTP_IO_ERR;
 	}
 
@@ -197,28 +203,28 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		// Send data start packet first (only has payload length)
 		plength = ptpip_data_start_packet(r, length);
 		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock(r);
+			ptp_mutex_unlock_thread(r);
 			return PTP_IO_ERR;
 		}
 
 		// Send data end packet, with payload
 		plength = ptpip_data_end_packet(r, data, length);
 		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock(r);
+			ptp_mutex_unlock_thread(r);
 			return PTP_IO_ERR;
 		}
 	} else {
 		// Single data packet
 		plength = ptp_new_data_packet(r, cmd, data, length);
 		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock(r);
+			ptp_mutex_unlock_thread(r);
 			ptp_verbose_log("Failed to send data packet (%d)\n", plength);
 			return PTP_IO_ERR;
 		}
 	}
 
 	if (ptp_receive_bulk_packets(r) < 0) {
-		ptp_mutex_unlock(r);
+		ptp_mutex_unlock_thread(r);
 		return PTP_IO_ERR;
 	}
 
@@ -232,7 +238,7 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 	r->transaction++;
 
 	if (ptp_get_return_code(r) != PTP_RC_OK) {
-		ptp_mutex_unlock(r);
+		ptp_mutex_unlock_thread(r);
 		return PTP_CHECK_CODE;
 	}
 
