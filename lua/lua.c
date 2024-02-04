@@ -11,6 +11,8 @@
 #include <camlib.h>
 
 struct PtpRuntime *luaptp_get_runtime(lua_State *L);
+
+// lua-cjson
 void lua_json_decode(lua_State *l, const char *json_text, int json_len);
 void json_create_config(lua_State *l);
 
@@ -137,12 +139,22 @@ static int mylua_test(lua_State *L) {
 	return 1;
 }
 
+static int mylua_connect(lua_State *L) {
+	struct PtpRuntime *r = luaptp_get_runtime(L);
+
+	lua_pushinteger(L, 0);
+
+	return 1;
+}
+
+
 static const luaL_Reg ptplib[] = {
 	{"test",			mylua_test},
 	{"getDeviceInfo",	mylua_device_info},
 	{"takePicture",		mylua_take_picture},
 	{"setProperty",     mylua_set_property},
 	{"sendOperation",	mylua_send_operation},
+	{"connect",			mylua_connect},
 	{NULL, NULL}
 };
 
