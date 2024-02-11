@@ -92,7 +92,7 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	FD_SET(sockfd, &fdset);
 	struct timeval tv;
 	tv.tv_sec = 1;
-	tv.tv_usec = 1000 * 1000;
+	tv.tv_usec = 0;
 
 	if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
 		int so_error = 0;
