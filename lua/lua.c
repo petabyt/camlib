@@ -67,7 +67,6 @@ static int mylua_send_operation(lua_State *L) {
 
 	if (!lua_istable(L, 2)) {
 		return luaL_error(L, "arg2 expected array");
-		return -1;
 	}
 
 	struct PtpCommand cmd;
@@ -106,6 +105,10 @@ static int mylua_send_operation(lua_State *L) {
 	}
 
     lua_newtable(L);
+
+	lua_pushstring(L, "error");
+	lua_pushinteger(L, rc);
+	lua_settable(L, -3);
 
     lua_pushstring(L, "code");
     lua_pushinteger(L, ptp_get_return_code(r));

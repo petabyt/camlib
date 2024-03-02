@@ -182,22 +182,22 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 
 		// TODO: unsigned/unsigned compare
 		if (read >= r->data_length - r->max_packet_size) {
-			ptp_verbose_log("recieve_bulk_packets: Not enough memory\n");
-			return PTP_OUT_OF_MEM;
+			rc = ptp_buffer_resize(r, read + r->max_packet_size);
+			if (rc) return rc;
 		}
 
 		if (rc != r->max_packet_size) {
-			ptp_verbose_log("recieve_bulk_packets: Read %d bytes\n", read);
+			ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
 			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 
 			// Read the response packet if only a data packet was sent (as per spec, always is 12 bytes)
 			if (c->type == PTP_PACKET_TYPE_DATA) {
 				rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
-				ptp_verbose_log("recieve_bulk_packets: Recieved response packet: %d\n", rc);
+				ptp_verbose_log("receive_bulk_packets: Received response packet: %d\n", rc);
 				read += rc;
 			}
 
-			ptp_verbose_log("recieve_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
+			ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
 
 			return read;
 		}

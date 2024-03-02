@@ -28,7 +28,7 @@ void ptp_verbose_log(char *fmt, ...);
 void ptp_panic(char *fmt, ...);
 
 // 4mb recommended default buffer size
-#define CAMLIB_DEFAULT_SIZE 8000000
+#define CAMLIB_DEFAULT_SIZE 1000000
 
 // Transparency pixel used in liveview processor. Will be packed as RGB uint32
 // uncompressed array of pixels in little-endian. This will be used as the first byte.

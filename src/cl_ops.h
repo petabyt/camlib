@@ -44,6 +44,8 @@ int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle);
 /// @note Not thread safe.
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max);
+/// @brief Download an object
+int ptp_get_object(struct PtpRuntime *r, int handle);
 /// @brief Download an object from handle, to a local file (uses GetPartialObject)
 int ptp_download_object(struct PtpRuntime *r, int handle, FILE *stream, size_t max);
 /// @brief Recieve a generic list of all properties received in DeviceInfo

@@ -13,11 +13,14 @@
 // Must be provided
 int cam_lua_setup(lua_State *L);
 
+int luaopen_cjson(lua_State *l);
+
 static char error_buffer[64];
 
 static struct CamLuaTasks {
 	int tasks;
 	struct lua_State *L[MAX_LUA_CONCURRENT];
+	int state[MAX_LUA_CONCURRENT];
 }lua_tasks = {0};
 
 const char *cam_lua_get_error() {
@@ -49,6 +52,14 @@ int lua_script_run_loop(int id) {
 	return 0;
 }
 
+static int get_task_id(lua_State *L) {
+	for (int i = 0; i < lua_tasks.tasks; i++) {
+		if (L == lua_tasks.L[i]) return i;
+	}
+
+	return -1;
+}
+
 static int lua_script_print(lua_State *L) {
 	const char *str = luaL_checkstring(L, 1);
 	ptp_verbose_log("Lua: %s\n", str);
@@ -75,12 +86,21 @@ static int mylua_itoa(lua_State* L) {
 	return 1;
 }
 
+int lua_mark_dead(lua_State *L) {
+	int id = get_task_id(L);
+	if (id == -1) abort();
+	lua_tasks.state[id] = 1;
+	return 1;
+}
+
 lua_State *cam_lua_state() {
 	lua_State *L = luaL_newstate();
 	luaopen_ptp(L);
 	luaopen_base(L);
+	luaL_requiref(L, "json", luaopen_cjson, 1);
 	luaL_requiref(L, "ptp", luaopen_ptp, 1);
 	lua_register(L, "print", lua_script_print);
+	lua_register(L, "exit", lua_mark_dead);
 	lua_register(L, "setStatusText", lua_script_set_status);
 	cam_lua_setup(L);
 	return L;
@@ -110,15 +130,28 @@ int cam_run_lua_script(const char *buffer) {
 }
 
 lua_State *cam_new_task(int *id) {
+	(*id) = -1;
 	if (lua_tasks.tasks >= MAX_LUA_CONCURRENT) {
-		return NULL;
+		for (int i = 0; i < lua_tasks.tasks; i++) {
+			if (lua_tasks.state[i] == 1) {
+				(*id) = i;
+				lua_close(lua_tasks.L[i]);
+				lua_tasks.L[i] = 0;
+				break;
+			}
+		}
+		if ((*id) == -1) {
+			return NULL;
+		}
+	} else {
+		(*id) = lua_tasks.tasks;
+		lua_tasks.tasks++;
 	}
 
 	lua_State *L = cam_lua_state();
 
-	*id = lua_tasks.tasks;
-	lua_tasks.L[lua_tasks.tasks] = L;
-	lua_tasks.tasks++;
+	lua_tasks.L[(*id)] = L;
+	lua_tasks.state[(*id)] = 0;
 
 	return L;
 }

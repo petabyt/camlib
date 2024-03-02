@@ -187,6 +187,7 @@ int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length) {
 
 // Generate a USB-only BulkContainer packet
 int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
+	if (cmd->param_length > 5) ptp_panic("cmd->param_length more than 5");
 	struct PtpBulkContainer bulk;
 	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
 
