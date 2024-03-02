@@ -46,7 +46,7 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
 int ptp_receive_bulk_packets(struct PtpRuntime *r);
 int ptp_read_int(struct PtpRuntime *r, void *to, int length);
 
-int ptp_device_close(struct PtpRuntime *r);
+int ptp_device_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
 
 // Upload file data as packets, but upload r->data till length first
 int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
@@ -62,6 +62,6 @@ int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port);
 int ptpip_event_send(struct PtpRuntime *r, void *data, int size);
 int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
 
-int ptpip_close(struct PtpRuntime *r);
+int ptpip_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
 
 #endif

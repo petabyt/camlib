@@ -157,51 +157,60 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	int read = 0;
 
-	while (1) {
-		int rc = 0;
-		while (rc <= 0 && r->wait_for_response) {
-			rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+	// Try and get the first 512 bytes
+	int rc = 0;
+	while (rc <= 0 && r->wait_for_response) {
+		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
 
-			r->wait_for_response--;
+		r->wait_for_response--;
 
-			if (rc > 0) break;
+		if (rc < 0) break;
 
-			if (r->wait_for_response) {
-				ptp_verbose_log("Trying again...");
-				CAMLIB_SLEEP(CAMLIB_WAIT_MS);
-			}
-		}
-		r->wait_for_response = r->response_wait_default;
-
-		if (rc < 0) {
-			ptp_verbose_log("Failed to read packets: %d\n", rc);
-			return PTP_IO_ERR;
-		}
-
-		read += rc;
-
-		// TODO: unsigned/unsigned compare
-		if (read >= r->data_length - r->max_packet_size) {
-			rc = ptp_buffer_resize(r, read + r->max_packet_size);
-			if (rc) return rc;
-		}
-
-		if (rc != r->max_packet_size) {
-			ptp_verbose_log("receive_bulk_packets: Read %d bytes\n", read);
-			struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
-
-			// Read the response packet if only a data packet was sent (as per spec, always is 12 bytes)
-			if (c->type == PTP_PACKET_TYPE_DATA) {
-				rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
-				ptp_verbose_log("receive_bulk_packets: Received response packet: %d\n", rc);
-				read += rc;
-			}
-
-			ptp_verbose_log("receive_bulk_packets: Return code: 0x%X\n", ptp_get_return_code(r));
-
-			return read;
+		if (r->wait_for_response) {
+			ptp_verbose_log("Trying again...");
+			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
+	r->wait_for_response = r->response_wait_default;
+
+	if (rc < 0) {
+		ptp_verbose_log("Failed to read packets: %d\n", rc);
+		return PTP_IO_ERR;
+	}
+
+	read += rc;
+
+	if (read < 12) {
+		ptp_verbose_log("Couldn't get basic packet: %d\n", rc);
+		return PTP_IO_ERR;
+	}
+
+	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
+
+	// 512 is always enough for the response packet
+	if (c->type == PTP_PACKET_TYPE_RESPONSE) {
+		return 0;
+	}
+
+	// Reallocate enough to fill the rest of data and response packet
+	if (c->type == PTP_PACKET_TYPE_DATA && r->data_length < (c->length + r->max_packet_size)) {
+		rc = ptp_buffer_resize(r, c->length + r->max_packet_size);
+		c = (struct PtpBulkContainer *)(r->data);
+		if (rc) return rc;
+	}
+
+	while (read < c->length) {
+		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+		if (rc < 0) return PTP_IO_ERR;
+		read += rc;
+	}
+
+	ptp_verbose_log("Read %d bytes\n", read);
+
+	rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+	if (rc < 0) return PTP_IO_ERR;
+
+	return 0;
 }
 
 // For USB packets over IP, we can't do any LibUSB/LibWPD performance tricks. reads will just time out.
