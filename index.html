@@ -75,28 +75,28 @@ $(function() {
   <div class="headertitle"><div class="title">camlib </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a portable Picture Transfer Protocol (PTP) library written from scratch in C.</p>
+<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a Picture Transfer Protocol (PTP) library written in C.</p>
 <p><a href="https://danielc.dev/camlib/">Documentation</a></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Design</h1>
 <ul>
-<li>Data parsing, packet building, and packet sending/recieving is all done in a single buffer (grows as needed)</li>
+<li>Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)</li>
 <li>Will not perform memory allocations between operations</li>
+<li>Thread safe (optional)</li>
 <li>Portable, works well on many different platforms</li>
-<li>No macros, only clean C API - everything is a function that can be accessed from other languages</li>
-<li>I'm writing this while writing <a href="git@github.com:petabyt/vcam.git">vcam</a> at the same time, so my vendor opcode implementations are (maybe) more reliabile than others ;)</li>
+<li>No macros, API uses only C ABI</li>
+<li>Regression tested against <a href="https://github.com/petabyt/vcam">https://github.com/petabyt/vcam</a></li>
 </ul>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Checklist</h1>
 <ul>
 <li>[x] Complete working implemention of PTP as per ISO 15740</li>
-<li>[x] Working Linux, Android, and Windows backends</li>
-<li>[x] JSON bindings for high level languages</li>
-<li>[x] Real time camera previews (EOS, Magic Lantern)</li>
-<li>[x] Implement most EOS/Canon vendor OCs</li>
-<li>[x] ISO PTP/IP implementation</li>
-<li>[x] <strike>Fuji WiFi and USB support</strike> (code moved to <a href="https://github.com/petabyt/fudge/">https://github.com/petabyt/fudge/</a>)</li>
-<li>[x] Lua bindings (for embedding)</li>
+<li>[x] Working PTP/IP implementation</li>
+<li>[x] Working natively on Linux, MacOS, Windows, and Android</li>
+<li>[x] Can convert most data structures to JSON</li>
+<li>[x] Camera liveviews</li>
+<li>[x] Implements most EOS/Canon vendor OCs</li>
+<li>[x] Optional lua bindings</li>
 <li>[x] (Mostly) thread safe</li>
 <li>[x] Regression testing (vcam)</li>
 <li>[ ] Sony support</li>
@@ -144,7 +144,7 @@ Sample</h1>
 </div><!-- fragment --><p> Explore the filesystem: </p><div class="fragment"><div class="line">struct UintArray *arr;</div>
 <div class="line">int rc = ptp_get_storage_ids(r, &amp;arr);</div>
 <div class="line">int id = arr-&gt;data[0];</div>
-<div class="line"> </div>
+<div class="line">free(arr);</div>
 <div class="line">rc = ptp_get_object_handles(r, id, PTP_OF_JPEG, 0, &amp;arr);</div>
 <div class="line"> </div>
 <div class="line">for (int i = 0; i &lt; arr-&gt;length; i++) {</div>
