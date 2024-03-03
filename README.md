@@ -1,25 +1,24 @@
 # camlib
-This is a portable Picture Transfer Protocol (PTP) library written from scratch in C.
+This is a Picture Transfer Protocol (PTP) library written in C.
 
 [Documentation](https://danielc.dev/camlib/)
 
 ## Design
-- Data parsing, packet building, and packet sending/recieving is all done in a single buffer (grows as needed)
+- Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)
 - Will not perform memory allocations between operations
+- Thread safe (optional)
 - Portable, works well on many different platforms
-- No macros, only clean C API - everything is a function that can be accessed from other languages
-- I'm writing this while writing [vcam](git@github.com:petabyt/vcam.git) at the same time,
-so my vendor opcode implementations are (maybe) more reliabile than others ;)
+- No macros, API uses only C ABI
+- Regression tested against https://github.com/petabyt/vcam
 
 ## Checklist
 - [x] Complete working implemention of PTP as per ISO 15740
-- [x] Working Linux, Android, and Windows backends
-- [x] JSON bindings for high level languages
-- [x] Real time camera previews (EOS, Magic Lantern)
-- [x] Implement most EOS/Canon vendor OCs
-- [x] ISO PTP/IP implementation
-- [x] ~~Fuji WiFi and USB support~~ (code moved to https://github.com/petabyt/fudge/)
-- [x] Lua bindings (for embedding)
+- [x] Working PTP/IP implementation
+- [x] Working natively on Linux, MacOS, Windows, and Android
+- [x] Can convert most data structures to JSON
+- [x] Camera liveviews
+- [x] Implements most EOS/Canon vendor OCs
+- [x] Optional lua bindings
 - [x] (Mostly) thread safe
 - [x] Regression testing (vcam)
 - [ ] Sony support
@@ -74,7 +73,7 @@ Explore the filesystem:
 struct UintArray *arr;
 int rc = ptp_get_storage_ids(r, &arr);
 int id = arr->data[0];
-
+free(arr);
 rc = ptp_get_object_handles(r, id, PTP_OF_JPEG, 0, &arr);
 
 for (int i = 0; i < arr->length; i++) {
