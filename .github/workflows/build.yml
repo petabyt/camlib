@@ -21,7 +21,7 @@ jobs:
         make dec
 
     - name: Unit test script
-      run: sh test/ci.sh
+      run: bash test/ci.sh
 
   macOS-build:
     runs-on: macos-latest
