@@ -122,7 +122,8 @@ struct PtpRuntime {
 	/// is 512, but certain comm backends can manage more. For TCP, this isn't used.
 	int max_packet_size;
 
-	/// @brief Info about current connection, used to detect the vendor, supported opodes.
+	/// @brief Info about current connection, used to detect camera type, supported opodes, etc
+	/// @note Set by ptp_parse_device_info.
 	struct PtpDeviceInfo *di;
 	int device_type;
 
@@ -249,17 +250,20 @@ int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 uint8_t ptp_read_uint8(void *dat);
 uint16_t ptp_read_uint16(void *dat);
 uint32_t ptp_read_uint32(void *dat);
-void ptp_read_string(void *dat, char *string, int max);
-int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
-int ptp_read_uint32_array(void *dat, uint16_t *buf, int max);
-int ptp_wide_string(char *buffer, int max, char *input);
 void ptp_write_uint8(void *dat, uint8_t b);
 int ptp_write_uint32(void *dat, uint32_t b);
+
+void ptp_read_string(void *dat, char *string, int max);
+int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
 int ptp_write_string(void *dat, char *string);
-int ptp_write_utf8_string(void *dat, char *string);
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
 void ptp_read_utf8_string(void *dat, char *string, int max);
+
+int ptp_read_string2(uint8_t *dat, char *string, int max);
+int ptp_write_string2(uint8_t *dat, char *string);
+int ptp_write_utf8_string(void *dat, char *string);
+int ptp_read_uint16_array2(uint8_t *dat, uint16_t *buf, int max, int *length);
 
 inline static int ptp_write_u8 (void *buf, uint8_t out) { ((uint8_t *)buf)[0] = out; return 1; }
 inline static int ptp_write_u16(void *buf, uint16_t out) { ((uint16_t *)buf)[0] = out; return 2; }

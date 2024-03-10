@@ -57,6 +57,8 @@ int ptp_vcam_magic() {
 		if (rc) return rc;
 	}
 
+	//rc = ptp_eos_evproc_run(&r, "EnableBootDisk %d 'aasd'", 10);
+
 	ptp_close(&r);
 	return 0;
 }
@@ -149,6 +151,12 @@ int test_fs() {
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
+	struct PtpDevPropDesc pd;
+	rc = ptp_get_prop_desc(&r, PTP_PC_BatteryLevel, &pd);
+	if (rc) return rc;
+	assert(pd.current_value == 50);
+	assert(pd.default_value == 50);
+
 	struct PtpArray *arr;
 	rc = ptp_get_storage_ids(&r, &arr);
 	if (rc) return rc;
@@ -164,6 +172,13 @@ int test_fs() {
 
 	ptp_storage_info_json(&si, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
+
+/* Not implemented in vcam!
+	struct PtpObjectInfo oi = {0};
+	strcpy(oi.filename, "test.jpg");
+	rc = ptp_send_object_info(&r, id, 0, &oi);
+	if (rc) return rc;
+*/
 
 	rc = ptp_get_object_handles(&r, id, 0, 0, &arr);
 	if (rc) return rc;

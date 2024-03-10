@@ -24,17 +24,6 @@ static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	return r;
 }
 
-// We do not have proper UTF16 support for now
-static void format_sane_string(char *string) {
-	for (int i = 0; string[i] != '\0'; i++) {
-		if (string[i] < 0) {
-			string[i] = '?';
-		} else if (string[i] < 32) {
-			string[i] = ' ';
-		}
-	}
-}
-
 int ptp_get_data_size(void *d, int type) {
 	switch (type) {
 	case PTP_TC_INT8:
@@ -61,31 +50,35 @@ int ptp_get_data_size(void *d, int type) {
 	return 0;
 }
 
-int ptp_parse_data(void *d, int type) {
+int ptp_parse_data(void *d, int type, int *out) {
+	uint8_t a;
+	uint16_t b;
+	uint32_t c;
 	switch (type) {
 	case PTP_TC_INT8:
 	case PTP_TC_UINT8:
-		return (uint8_t)ptp_read_uint8(d);
+		ptp_read_u8(d, &a); (*out) = (int)a; return 1;
 	case PTP_TC_INT16:
 	case PTP_TC_UINT16:
-		return (uint16_t)ptp_read_uint16(d);
+		ptp_read_u16(d, &b); (*out) = (int)b; return 2;
 	case PTP_TC_INT32:
 	case PTP_TC_UINT32:
-		return (uint32_t)ptp_read_uint32(d);
+		ptp_read_u16(d, &b); (*out) = (int)b; return 4;
 	}
 
-	return ptp_get_data_size(*((void **)d), type);
+	// skip the array
+	return ptp_get_data_size(d, type);
 }
 
 int ptp_parse_prop_value(struct PtpRuntime *r) {
-	void *d = ptp_get_payload(r);
+	uint8_t *d = ptp_get_payload(r);
 	switch (ptp_get_payload_length(r)) {
 	case 1:
-		return (int)(((uint8_t *)d)[0]);
+		return (int)(d[0]);
 	case 2:
-		return (int)(((uint16_t *)d)[0]);
+		return (int)(d[0]);
 	case 4:
-		return (int)(((uint32_t *)d)[0]);
+		return (int)(d[0]);
 	}
 
 	return -1;
@@ -95,8 +88,8 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
 	d += PTP_PROP_DESC_VAR_START;
-	oi->default_value = ptp_parse_data(&d, oi->data_type);
-	oi->current_value = ptp_parse_data(&d, oi->data_type);
+	d += ptp_parse_data(d, oi->data_type, &oi->default_value);
+	d += ptp_parse_data(d, oi->data_type, &oi->current_value);
 
 	// TODO: Form flag + form (for properties like date/time)
 	return 0;
@@ -106,38 +99,36 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
 	d += PTP_OBJ_INFO_VAR_START;
-	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
-	ptp_read_string(&d, oi->date_created, sizeof(oi->date_created));
-	ptp_read_string(&d, oi->date_modified, sizeof(oi->date_modified));
-	ptp_read_string(&d, oi->keywords, sizeof(oi->keywords));
+	d += ptp_read_string2(d, oi->filename, sizeof(oi->filename));
+	d += ptp_read_string2(d, oi->date_created, sizeof(oi->date_created));
+	d += ptp_read_string2(d, oi->date_modified, sizeof(oi->date_modified));
+	d += ptp_read_string2(d, oi->keywords, sizeof(oi->keywords));
 
 	return 0;
 }
 
 // TODO: Different API
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **dat, int max) {
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *buf, int max) {
 	if (1024 > max) {
 		return 0;
 	}
 
-	uint8_t **ptr = (uint8_t **)(dat);
-	memcpy(*ptr, oi, PTP_OBJ_INFO_VAR_START);
-	(*ptr) += PTP_OBJ_INFO_VAR_START;
-
-	int length = PTP_OBJ_INFO_VAR_START;
+	memcpy(buf, oi, PTP_OBJ_INFO_VAR_START);
+	buf += PTP_OBJ_INFO_VAR_START;
 
 	// If the string is empty, don't add it to the packet
+	int of = PTP_OBJ_INFO_VAR_START;
 	if (oi->filename[0] != '\0')
-		length += ptp_write_string((ptr), oi->filename);
+		of += ptp_write_string2(buf + of, oi->filename);
 	if (oi->date_created[0] != '\0')
-		length += ptp_write_string((ptr), oi->date_created);
+		of += ptp_write_string2(buf + of, oi->date_created);
 	if (oi->date_modified[0] != '\0')
-		length += ptp_write_string((ptr), oi->date_modified);
+		of += ptp_write_string2(buf + of, oi->date_modified);
 	if (oi->keywords[0] != '\0')
-		length += ptp_write_string((ptr), oi->keywords);
+		of += ptp_write_string2(buf + of, oi->keywords);
 
 	// Return pointer length added
-	return length;
+	return of;
 }
 
 void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length) {
@@ -166,34 +157,29 @@ void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
-	void *e = ptp_get_payload(r);
+	uint8_t *e = ptp_get_payload(r);
 
-	di->standard_version = ptp_read_uint16(&e);
-	di->vendor_ext_id = ptp_read_uint32(&e);
-	di->version = ptp_read_uint16(&e);
+	e += ptp_read_u16(e, &di->standard_version);
+	e += ptp_read_u32(e, &di->vendor_ext_id);
+	e += ptp_read_u16(e, &di->version);
 
-	ptp_read_string(&e, di->extensions, sizeof(di->extensions));
+	e += ptp_read_string2(e, di->extensions, sizeof(di->extensions));
+	
+	e += ptp_read_u16(e, &di->functional_mode);
 
-	di->functional_mode = ptp_read_uint16(&e);
+	e += ptp_read_uint16_array2(e, di->ops_supported, sizeof(di->ops_supported) / 2, &di->ops_supported_length);
+	e += ptp_read_uint16_array2(e, di->events_supported, sizeof(di->events_supported) / 2, &di->events_supported_length);
+	e += ptp_read_uint16_array2(e, di->props_supported, sizeof(di->props_supported) / 2, &di->props_supported_length);
+	e += ptp_read_uint16_array2(e, di->capture_formats, sizeof(di->capture_formats) / 2, &di->capture_formats_length);
+	e += ptp_read_uint16_array2(e, di->playback_formats, sizeof(di->playback_formats) / 2, &di->playback_formats_length);
 
-	di->ops_supported_length = ptp_read_uint16_array(&e, di->ops_supported, sizeof(di->ops_supported) / 2);
-	di->events_supported_length = ptp_read_uint16_array(&e, di->events_supported, sizeof(di->events_supported) / 2);
-	di->props_supported_length = ptp_read_uint16_array(&e, di->props_supported, sizeof(di->props_supported) / 2);
-	di->capture_formats_length = ptp_read_uint16_array(&e, di->capture_formats, sizeof(di->capture_formats) / 2);
-	di->playback_formats_length = ptp_read_uint16_array(&e, di->playback_formats, sizeof(di->playback_formats) / 2);
+	e += ptp_read_string2(e, di->manufacturer, sizeof(di->manufacturer));	
+	e += ptp_read_string2(e, di->model, sizeof(di->model));
 
-	ptp_read_string(&e, di->manufacturer, sizeof(di->manufacturer));	
-	ptp_read_string(&e, di->model, sizeof(di->model));
+	e += ptp_read_string2(e, di->device_version, sizeof(di->device_version));
+	e += ptp_read_string2(e, di->serial_number, sizeof(di->serial_number));
 
-	ptp_read_string(&e, di->device_version, sizeof(di->device_version));
-	ptp_read_string(&e, di->serial_number, sizeof(di->serial_number));
-
-	format_sane_string(di->manufacturer);
-	format_sane_string(di->model);
-	format_sane_string(di->device_version);
-	format_sane_string(di->serial_number);
-
-	r->di = di;
+	r->di = di; // set last parsed di
 
 	return 0;
 }
@@ -531,7 +517,7 @@ int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *o
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
 	d += PTP_FUJI_OBJ_INFO_VAR_START;
-	ptp_read_string(&d, oi->filename, sizeof(oi->filename));
+	d += ptp_read_string2(d, oi->filename, sizeof(oi->filename));
 
 	/* TODO: Figure out payload later:
 		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00

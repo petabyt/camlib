@@ -51,12 +51,21 @@ void ptp_read_string(void *dat, char *string, int max) {
 	int y = 0;
 	while (y < length) {
 		string[y] = (char)ptp_read_uint8(dat);
+		if (string[y] < 0) string[y] = '?'; // TODO: utf16 -> utf8
+		else if (string[y] != '\0' && string[y] < 32) string[y] = ' ';
 		ptp_read_uint8(dat); // skip \0
 		y++;
 		if (y >= max) { break; }
 	}
 
 	string[y] = '\0';
+}
+
+// Read standard UTF16 string
+int ptp_read_string2(uint8_t *dat, char *string, int max) {
+	uint8_t *two = dat;
+	ptp_read_string(&two, string, max);
+	return two - dat;
 }
 
 int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
@@ -73,6 +82,12 @@ int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
 	return n;
 }
 
+int ptp_read_uint16_array2(uint8_t *dat, uint16_t *buf, int max, int *length) {
+	uint8_t *two = dat;
+	(*length) = ptp_read_uint16_array(&two, buf, max);
+	return two - dat;
+}
+
 int ptp_write_string(void *dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
@@ -87,14 +102,22 @@ int ptp_write_string(void *dat, char *string) {
 	return (length * 2) + 2;
 }
 
+int ptp_write_string2(uint8_t *dat, char *string) {
+	uint8_t *old = dat;
+	return ptp_write_string(&dat, string);
+}
+
 int ptp_write_utf8_string(void *dat, char *string) {
-	for (int i = 0; string[i] != '\0'; i++) {
-		ptp_write_uint8(dat, string[i]);
+	char *o = (char *)dat;
+	int x = 0;
+	while (string[x] != '\0') {
+		o[x] = string[x];
+		x++;
 	}
 
-	ptp_write_uint8(dat, '\0');
-
-	return strlen(string) + 1;
+	o[x] = '\0';
+	x++;
+	return x;
 }
 
 // Write null-terminated UTF16 string
@@ -123,6 +146,7 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	return i / 2;
 }
 
+#if 0
 // Read null terminated UTF8 string
 void ptp_read_utf8_string(void *dat, char *string, int max) {
 	uint8_t **p = (uint8_t **)dat;
@@ -137,6 +161,22 @@ void ptp_read_utf8_string(void *dat, char *string, int max) {
 
 	(*p)++;
 	string[y] = '\0';
+}
+#endif
+
+int ptp_read_utf8_string2(void *dat, char *string, int max) {
+	char *d = (char *)dat;
+	int x = 0;
+	while (d[x] != '\0') {
+		string[x] = d[x];
+		x++;
+		if (x > max - 1) break;
+	}
+
+	string[x] = '\0';
+	x++;
+
+	return x;
 }
 
 // PTP/IP-specific packet

@@ -183,20 +183,18 @@ static struct Tokens *lex_evproc_command(char string[]) {
 	return toks;
 }
 
-char *canon_evproc_pack(int *length, char *string) {
+char *canon_evproc_pack(int *out_length, char *string) {
+	int length = 0;
 	// Allocate some memory for the footer, we will use this later
 	void *footer = malloc(500);
-	void *footer_ptr = footer;
 	uint32_t *long_args = footer;
 	int footer_length = 0;
 
 	// Set long_args to zero
-	footer_length += ptp_write_uint32(&footer_ptr, 0);
+	footer_length += ptp_write_u32(footer + footer_length, 0);
 
 	struct Tokens *toks = lex_evproc_command(string);
 
-	// You will need to make sure your request never exceeds this
-	// I can't be bothered to add bound checks
 	char *data = malloc(500);
 
 	if (toks->length == 0) {
@@ -209,16 +207,16 @@ char *canon_evproc_pack(int *length, char *string) {
 		int len = strlen(toks->t[0].string);
 		memcpy(data, toks->t[0].string, len);
 		data[len] = '\0';
-		(*length) += len + 1;
+		length += len + 1;
 	} else {
 		ptp_verbose_log("Error, first parameter must be plain text.\n");
 		return NULL;
 	}
 
 	// First uint32 is the number of parameters, we will save this ptr and modify it as we parse
-	uint32_t *num_args = (uint32_t *)(data + (*length));
+	uint32_t *num_args = (uint32_t *)(data + length);
 	(*num_args) = 0;
-	(*length) += 4;
+	length += 4;
 
 	// Pack parameters into data
 	for (int t = 1; t < toks->length; t++) {
@@ -229,8 +227,8 @@ char *canon_evproc_pack(int *length, char *string) {
 			integer.type = EOS_TOK_INT;
 			integer.number = toks->t[t].integer;
 
-			memcpy(data + (*length), &integer, sizeof(struct EvProcParam));
-			(*length) += sizeof(struct EvProcParam);
+			memcpy(data + length, &integer, sizeof(struct EvProcParam));
+			length += sizeof(struct EvProcParam);
 
 			(*num_args)++;
 		} break;
@@ -241,12 +239,12 @@ char *canon_evproc_pack(int *length, char *string) {
 			pstring.type = EOS_TOK_STR;
 			pstring.size = strlen(toks->t[t].string) + 1;
 
-			memcpy(data + (*length), &pstring, sizeof(struct EvProcParam));
+			memcpy(data + length, &pstring, sizeof(struct EvProcParam));
 
-			(*length) += sizeof(struct EvProcParam);
+			length += sizeof(struct EvProcParam);
 
-			footer_length += ptp_write_uint32((void **)&footer_ptr, 0);
-			footer_length += ptp_write_utf8_string((void **)&footer_ptr, toks->t[t].string);
+			footer_length += ptp_write_u32(footer + footer_length, 0);
+			footer_length += ptp_write_utf8_string(footer + footer_length, toks->t[t].string);
 			(*long_args)++;
 
 			(*num_args)++;
@@ -255,9 +253,11 @@ char *canon_evproc_pack(int *length, char *string) {
 	}
 
 	if (footer_length) {
-		memcpy(data + (*length), footer, footer_length);
-		(*length) += footer_length;
+		memcpy(data + length, footer, footer_length);
+		length += footer_length;
 	}
+
+	(*out_length) = length;
 
 	free(footer);
 	free(toks);

@@ -197,7 +197,7 @@ struct PtpFujiObjectInfo {
 #pragma pack(pop)
 
 #ifdef CAMLIB_INCLUDE_IMPL
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void **d, int max);
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *buf, int max);
 
 int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
