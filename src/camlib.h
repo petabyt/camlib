@@ -253,17 +253,17 @@ uint32_t ptp_read_uint32(void *dat);
 void ptp_write_uint8(void *dat, uint8_t b);
 int ptp_write_uint32(void *dat, uint32_t b);
 
-void ptp_read_string(void *dat, char *string, int max);
-int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
-int ptp_write_string(void *dat, char *string);
+//void ptp_read_string(void *dat, char *string, int max);
+//int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
+//int ptp_write_string(void *dat, char *string);
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
 int ptp_read_utf8_string(void *dat, char *string, int max);
 
-int ptp_read_string2(uint8_t *dat, char *string, int max);
-int ptp_write_string2(uint8_t *dat, char *string);
+int ptp_read_string(uint8_t *dat, char *string, int max);
+int ptp_write_string(uint8_t *dat, char *string);
 int ptp_write_utf8_string(void *dat, char *string);
-int ptp_read_uint16_array2(uint8_t *dat, uint16_t *buf, int max, int *length);
+int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length);
 
 inline static int ptp_write_u8 (void *buf, uint8_t out) { ((uint8_t *)buf)[0] = out; return 1; }
 inline static int ptp_write_u16(void *buf, uint16_t out) { ((uint16_t *)buf)[0] = out; return 2; }

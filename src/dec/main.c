@@ -4,13 +4,13 @@
 #include <camlib.h>
 
 int decode_eos_evproc(FILE *f, int length, uint8_t *data) {
+	int of = 0;
 	char buffer[64];
 
-	void *d = data;
+	of += ptp_read_utf8_string(d + of, buffer, sizeof(buffer));
 
-	ptp_read_utf8_string(&d, buffer, sizeof(buffer));
-
-	uint32_t len = ptp_read_uint32(&d);
+	uint32_t len;
+	of += ptp_read_u32(data + of, &len);
 
 	fprintf(f, "- Command name: %s\n", buffer);
 	fprintf(f, "- Parameters: %u\n", len);

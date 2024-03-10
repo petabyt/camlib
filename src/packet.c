@@ -45,7 +45,7 @@ int ptp_write_uint32(void *dat, uint32_t b) {
 }
 
 // Read standard UTF16 string
-void ptp_read_string(void *dat, char *string, int max) {
+void ptp_read_string_(void *dat, char *string, int max) {
 	int length = (int)ptp_read_uint8(dat);
 
 	int y = 0;
@@ -62,13 +62,13 @@ void ptp_read_string(void *dat, char *string, int max) {
 }
 
 // Read standard UTF16 string
-int ptp_read_string2(uint8_t *dat, char *string, int max) {
+int ptp_read_string(uint8_t *dat, char *string, int max) {
 	uint8_t *two = dat;
-	ptp_read_string(&two, string, max);
+	ptp_read_string_(&two, string, max);
 	return two - dat;
 }
 
-int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
+int ptp_read_uint16_array_(void *dat, uint16_t *buf, int max) {
 	int n = ptp_read_uint32(dat);
 
 	for (int i = 0; i < n; i++) {
@@ -82,13 +82,13 @@ int ptp_read_uint16_array(void *dat, uint16_t *buf, int max) {
 	return n;
 }
 
-int ptp_read_uint16_array2(uint8_t *dat, uint16_t *buf, int max, int *length) {
+int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
 	uint8_t *two = dat;
-	(*length) = ptp_read_uint16_array(&two, buf, max);
+	(*length) = ptp_read_uint16_array_(&two, buf, max);
 	return two - dat;
 }
 
-int ptp_write_string(void *dat, char *string) {
+int ptp_write_string_(void *dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
 
@@ -102,8 +102,8 @@ int ptp_write_string(void *dat, char *string) {
 	return (length * 2) + 2;
 }
 
-int ptp_write_string2(uint8_t *dat, char *string) {
-	return ptp_write_string(&dat, string);
+int ptp_write_string(uint8_t *dat, char *string) {
+	return ptp_write_string_(&dat, string);
 }
 
 int ptp_write_utf8_string(void *dat, char *string) {
@@ -146,21 +146,6 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 }
 
 int ptp_read_utf8_string(void *dat, char *string, int max) {
-	char *d = (char *)dat;
-	int x = 0;
-	while (d[x] != '\0') {
-		string[x] = d[x];
-		x++;
-		if (x > max - 1) break;
-	}
-
-	string[x] = '\0';
-	x++;
-
-	return x;
-}
-
-int ptp_read_utf8_string2(void *dat, char *string, int max) {
 	char *d = (char *)dat;
 	int x = 0;
 	while (d[x] != '\0') {

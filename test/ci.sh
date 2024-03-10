@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e 
+set -o pipefail
 
 cp test/ci-config.mak config.mak
 cd ..

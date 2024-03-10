@@ -99,10 +99,10 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
 	d += PTP_OBJ_INFO_VAR_START;
-	d += ptp_read_string2(d, oi->filename, sizeof(oi->filename));
-	d += ptp_read_string2(d, oi->date_created, sizeof(oi->date_created));
-	d += ptp_read_string2(d, oi->date_modified, sizeof(oi->date_modified));
-	d += ptp_read_string2(d, oi->keywords, sizeof(oi->keywords));
+	d += ptp_read_string(d, oi->filename, sizeof(oi->filename));
+	d += ptp_read_string(d, oi->date_created, sizeof(oi->date_created));
+	d += ptp_read_string(d, oi->date_modified, sizeof(oi->date_modified));
+	d += ptp_read_string(d, oi->keywords, sizeof(oi->keywords));
 
 	return 0;
 }
@@ -119,13 +119,13 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t
 	// If the string is empty, don't add it to the packet
 	int of = PTP_OBJ_INFO_VAR_START;
 	if (oi->filename[0] != '\0')
-		of += ptp_write_string2(buf + of, oi->filename);
+		of += ptp_write_string(buf + of, oi->filename);
 	if (oi->date_created[0] != '\0')
-		of += ptp_write_string2(buf + of, oi->date_created);
+		of += ptp_write_string(buf + of, oi->date_created);
 	if (oi->date_modified[0] != '\0')
-		of += ptp_write_string2(buf + of, oi->date_modified);
+		of += ptp_write_string(buf + of, oi->date_modified);
 	if (oi->keywords[0] != '\0')
-		of += ptp_write_string2(buf + of, oi->keywords);
+		of += ptp_write_string(buf + of, oi->keywords);
 
 	// Return pointer length added
 	return of;
@@ -163,21 +163,21 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	e += ptp_read_u32(e, &di->vendor_ext_id);
 	e += ptp_read_u16(e, &di->version);
 
-	e += ptp_read_string2(e, di->extensions, sizeof(di->extensions));
+	e += ptp_read_string(e, di->extensions, sizeof(di->extensions));
 	
 	e += ptp_read_u16(e, &di->functional_mode);
 
-	e += ptp_read_uint16_array2(e, di->ops_supported, sizeof(di->ops_supported) / 2, &di->ops_supported_length);
-	e += ptp_read_uint16_array2(e, di->events_supported, sizeof(di->events_supported) / 2, &di->events_supported_length);
-	e += ptp_read_uint16_array2(e, di->props_supported, sizeof(di->props_supported) / 2, &di->props_supported_length);
-	e += ptp_read_uint16_array2(e, di->capture_formats, sizeof(di->capture_formats) / 2, &di->capture_formats_length);
-	e += ptp_read_uint16_array2(e, di->playback_formats, sizeof(di->playback_formats) / 2, &di->playback_formats_length);
+	e += ptp_read_uint16_array(e, di->ops_supported, sizeof(di->ops_supported) / 2, &di->ops_supported_length);
+	e += ptp_read_uint16_array(e, di->events_supported, sizeof(di->events_supported) / 2, &di->events_supported_length);
+	e += ptp_read_uint16_array(e, di->props_supported, sizeof(di->props_supported) / 2, &di->props_supported_length);
+	e += ptp_read_uint16_array(e, di->capture_formats, sizeof(di->capture_formats) / 2, &di->capture_formats_length);
+	e += ptp_read_uint16_array(e, di->playback_formats, sizeof(di->playback_formats) / 2, &di->playback_formats_length);
 
-	e += ptp_read_string2(e, di->manufacturer, sizeof(di->manufacturer));	
-	e += ptp_read_string2(e, di->model, sizeof(di->model));
+	e += ptp_read_string(e, di->manufacturer, sizeof(di->manufacturer));	
+	e += ptp_read_string(e, di->model, sizeof(di->model));
 
-	e += ptp_read_string2(e, di->device_version, sizeof(di->device_version));
-	e += ptp_read_string2(e, di->serial_number, sizeof(di->serial_number));
+	e += ptp_read_string(e, di->device_version, sizeof(di->device_version));
+	e += ptp_read_string(e, di->serial_number, sizeof(di->serial_number));
 
 	r->di = di; // set last parsed di
 
@@ -517,7 +517,7 @@ int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *o
 	uint8_t *d = ptp_get_payload(r);
 	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
 	d += PTP_FUJI_OBJ_INFO_VAR_START;
-	d += ptp_read_string2(d, oi->filename, sizeof(oi->filename));
+	d += ptp_read_string(d, oi->filename, sizeof(oi->filename));
 
 	/* TODO: Figure out payload later:
 		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00

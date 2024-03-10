@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e 
+set -o pipefail
 
 cp test/myci-config.mak config.mak
 cd ../vcam/
