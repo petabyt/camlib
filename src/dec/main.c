@@ -7,31 +7,31 @@ int decode_eos_evproc(FILE *f, int length, uint8_t *data) {
 	int of = 0;
 	char buffer[64];
 
-	of += ptp_read_utf8_string(d + of, buffer, sizeof(buffer));
+	of += ptp_read_utf8_string(data + of, buffer, sizeof(buffer));
 
-	uint32_t len;
+	uint32_t len, temp, type, val, p3, p4;
 	of += ptp_read_u32(data + of, &len);
 
 	fprintf(f, "- Command name: %s\n", buffer);
 	fprintf(f, "- Parameters: %u\n", len);
 
 	for (int i = 0; i < (int)len; i++) {
-		uint32_t type = ptp_read_uint32(&d);
+		of += ptp_read_u32(data + of, &type);
 		if (type == 2) {
-			uint32_t val = ptp_read_uint32(&d);
-			uint32_t p3 = ptp_read_uint32(&d);
-			uint32_t p4 = ptp_read_uint32(&d);
+			of += ptp_read_u32(data + of, &val);
+			of += ptp_read_u32(data + of, &p3);
+			of += ptp_read_u32(data + of, &p4);
 			fprintf(f, "- Int param: %X (%X, %X)\n", val, p3, p4);
-			ptp_read_uint32(&d); // size
+			of += ptp_read_u32(data + of, &temp); // size
 		} else if (type == 4) {
-			uint32_t val = ptp_read_uint32(&d);
-			ptp_read_uint32(&d);
-			ptp_read_uint32(&d);
-			ptp_read_uint32(&d);
-			ptp_read_uint32(&d);
-			ptp_read_uint32(&d);
+			of += ptp_read_u32(data + of, &val);
+			of += ptp_read_u32(data + of, &temp);
+			of += ptp_read_u32(data + of, &temp);
+			of += ptp_read_u32(data + of, &temp);
+			of += ptp_read_u32(data + of, &temp);
+			of += ptp_read_u32(data + of, &temp);
 
-			ptp_read_utf8_string(&d, buffer, sizeof(buffer));
+			of += ptp_read_utf8_string(data + of, buffer, sizeof(buffer));
 			fprintf(f, "- String param: %s\n", buffer);
 		} else {
 			fprintf(f, "Unknown type %x\n", type);
