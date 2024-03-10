@@ -258,7 +258,7 @@ int ptp_read_uint16_array(void *dat, uint16_t *buf, int max);
 int ptp_write_string(void *dat, char *string);
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);
-void ptp_read_utf8_string(void *dat, char *string, int max);
+int ptp_read_utf8_string(void *dat, char *string, int max);
 
 int ptp_read_string2(uint8_t *dat, char *string, int max);
 int ptp_write_string2(uint8_t *dat, char *string);

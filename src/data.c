@@ -63,7 +63,7 @@ int ptp_parse_data(void *d, int type, int *out) {
 		ptp_read_u16(d, &b); (*out) = (int)b; return 2;
 	case PTP_TC_INT32:
 	case PTP_TC_UINT32:
-		ptp_read_u16(d, &b); (*out) = (int)b; return 4;
+		ptp_read_u32(d, &c); (*out) = (int)c; return 4;
 	}
 
 	// skip the array
@@ -108,7 +108,7 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 }
 
 // TODO: Different API
-int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *buf, int max) {
+int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t *buf, int max) {
 	if (1024 > max) {
 		return 0;
 	}

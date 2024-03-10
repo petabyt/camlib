@@ -204,7 +204,7 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 	cmd.params[0] = storage_id;
 	cmd.params[1] = handle;
 
-	char temp[1024];
+	uint8_t temp[1024];
 	int length = ptp_pack_object_info(r, oi, temp, sizeof(temp));
 	if (length == 0) {
 		return PTP_OUT_OF_MEM;

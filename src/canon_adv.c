@@ -186,8 +186,8 @@ static struct Tokens *lex_evproc_command(char string[]) {
 char *canon_evproc_pack(int *out_length, char *string) {
 	int length = 0;
 	// Allocate some memory for the footer, we will use this later
-	void *footer = malloc(500);
-	uint32_t *long_args = footer;
+	char *footer = malloc(500);
+	uint32_t *long_args = (uint32_t *)footer;
 	int footer_length = 0;
 
 	// Set long_args to zero

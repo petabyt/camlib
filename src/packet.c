@@ -103,7 +103,6 @@ int ptp_write_string(void *dat, char *string) {
 }
 
 int ptp_write_string2(uint8_t *dat, char *string) {
-	uint8_t *old = dat;
 	return ptp_write_string(&dat, string);
 }
 
@@ -146,23 +145,20 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	return i / 2;
 }
 
-#if 0
-// Read null terminated UTF8 string
-void ptp_read_utf8_string(void *dat, char *string, int max) {
-	uint8_t **p = (uint8_t **)dat;
-
-	int y = 0;
-	while ((char)(**p) != '\0') {
-		string[y] = (char)(**p);
-		(*p)++;
-		y++;
-		if (y >= max) { break; }
+int ptp_read_utf8_string(void *dat, char *string, int max) {
+	char *d = (char *)dat;
+	int x = 0;
+	while (d[x] != '\0') {
+		string[x] = d[x];
+		x++;
+		if (x > max - 1) break;
 	}
 
-	(*p)++;
-	string[y] = '\0';
+	string[x] = '\0';
+	x++;
+
+	return x;
 }
-#endif
 
 int ptp_read_utf8_string2(void *dat, char *string, int max) {
 	char *d = (char *)dat;
