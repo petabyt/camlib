@@ -106,9 +106,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>data_length</b></td></
 <tr class="separator:a7ca3bc643084556785ca656fd96e90be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab07e398c60b4ca2c53a84e653a9bdec" id="r_aab07e398c60b4ca2c53a84e653a9bdec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab07e398c60b4ca2c53a84e653a9bdec">max_packet_size</a></td></tr>
 <tr class="separator:aab07e398c60b4ca2c53a84e653a9bdec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e7184353de80d51e6f975c7085ffe2" id="r_ad6e7184353de80d51e6f975c7085ffe2"><td class="memItemLeft" align="right" valign="top"><a id="ad6e7184353de80d51e6f975c7085ffe2" name="ad6e7184353de80d51e6f975c7085ffe2"></a>
-struct PtpDeviceInfo *&#160;</td><td class="memItemRight" valign="bottom"><b>di</b></td></tr>
-<tr class="memdesc:ad6e7184353de80d51e6f975c7085ffe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Info about current connection, used to detect the vendor, supported opodes. <br /></td></tr>
+<tr class="memitem:ad6e7184353de80d51e6f975c7085ffe2" id="r_ad6e7184353de80d51e6f975c7085ffe2"><td class="memItemLeft" align="right" valign="top">struct PtpDeviceInfo *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad6e7184353de80d51e6f975c7085ffe2">di</a></td></tr>
+<tr class="memdesc:ad6e7184353de80d51e6f975c7085ffe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Info about current connection, used to detect camera type, supported opodes, etc.  <br /></td></tr>
 <tr class="separator:ad6e7184353de80d51e6f975c7085ffe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a211e18fbaa2c3b218a2addc054e3e4a9" id="r_a211e18fbaa2c3b218a2addc054e3e4a9"><td class="memItemLeft" align="right" valign="top"><a id="a211e18fbaa2c3b218a2addc054e3e4a9" name="a211e18fbaa2c3b218a2addc054e3e4a9"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>device_type</b></td></tr>
@@ -171,6 +170,23 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
 
 <p>Global buffer for data reading and writing. </p>
 <dl class="section note"><dt>Note</dt><dd>This is volatile - it will grow in size (pointer will change) when needed. </dd></dl>
+
+</div>
+</div>
+<a id="ad6e7184353de80d51e6f975c7085ffe2" name="ad6e7184353de80d51e6f975c7085ffe2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6e7184353de80d51e6f975c7085ffe2">&#9670;&#160;</a></span>di</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct PtpDeviceInfo* PtpRuntime::di</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Info about current connection, used to detect camera type, supported opodes, etc. </p>
+<dl class="section note"><dt>Note</dt><dd>Set by ptp_parse_device_info. </dd></dl>
 
 </div>
 </div>
