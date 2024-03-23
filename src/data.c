@@ -56,7 +56,7 @@ int ptp_get_data_size(void *d, int type) {
 	return 0;
 }
 
-int ptp_parse_data(void *d, int type, int *out) {
+int ptp_parse_data_u32(void *d, int type, int *out) {
 	uint8_t a;
 	uint16_t b;
 	uint32_t c;
@@ -90,7 +90,7 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 	return -1;
 }
 
-static int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
+int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
 	int size;
 	uint32_t length32;
 	uint8_t length8;
@@ -102,7 +102,7 @@ static int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **da
 	case PTP_TC_UINT16:
 	case PTP_TC_INT32:
 	case PTP_TC_UINT32:
-		return ptp_parse_data(d, type, u32);
+		return ptp_parse_data_u32(d, type, u32);
 	case PTP_TC_INT64:
 	case PTP_TC_UINT64:
 		(*data) = malloc(8);
@@ -145,9 +145,9 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 	d += ptp_read_u8(d, &oi->form_type);
 
 	if (oi->form_type == PTP_RangeForm) {
-		d += ptp_parse_data(d, oi->data_type, &oi->range_form.min);
-		d += ptp_parse_data(d, oi->data_type, &oi->range_form.max);
-		d += ptp_parse_data(d, oi->data_type, &oi->range_form.step);
+		d += ptp_parse_data_u32(d, oi->data_type, &oi->range_form.min);
+		d += ptp_parse_data_u32(d, oi->data_type, &oi->range_form.max);
+		d += ptp_parse_data_u32(d, oi->data_type, &oi->range_form.step);
 	} else if (oi->form_type == PTP_EnumerationForm) {
 		uint16_t num_values = 0;
 		d += ptp_read_u16(d, &num_values);
@@ -318,20 +318,20 @@ const char *eval_protection(int code) {
 
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	int curr = sprintf(buffer, "{");
-	curr += snprintf(buffer + curr, max - curr, "\"storage_id\": %u,", so->storage_id);
-	curr += snprintf(buffer + curr, max - curr, "\"compressedSize\": %u,", so->compressed_size);
-	curr += snprintf(buffer + curr, max - curr, "\"parent\": %u,", so->parent_obj);
-	curr += snprintf(buffer + curr, max - curr, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
-	curr += snprintf(buffer + curr, max - curr, "\"format_int\": %u,", so->obj_format);
-	curr += snprintf(buffer + curr, max - curr, "\"protection\": \"%s\",", eval_protection(so->protection));
-	curr += snprintf(buffer + curr, max - curr, "\"filename\": \"%s\",", so->filename);
+	curr += osnprintf(buffer, curr, max, "\"storage_id\": %u,", so->storage_id);
+	curr += osnprintf(buffer, curr, max, "\"compressedSize\": %u,", so->compressed_size);
+	curr += osnprintf(buffer, curr, max, "\"parent\": %u,", so->parent_obj);
+	curr += osnprintf(buffer, curr, max, "\"format\": \"%s\",", eval_obj_format(so->obj_format));
+	curr += osnprintf(buffer, curr, max, "\"format_int\": %u,", so->obj_format);
+	curr += osnprintf(buffer, curr, max, "\"protection\": \"%s\",", eval_protection(so->protection));
+	curr += osnprintf(buffer, curr, max, "\"filename\": \"%s\",", so->filename);
 	if (so->compressed_size != 0) {
-		curr += snprintf(buffer + curr, max - curr, "\"imgWidth\": %u,", so->img_width);
-		curr += snprintf(buffer + curr, max - curr, "\"imgHeight\": %u,", so->img_height);
+		curr += osnprintf(buffer, curr, max, "\"imgWidth\": %u,", so->img_width);
+		curr += osnprintf(buffer, curr, max, "\"imgHeight\": %u,", so->img_height);
 	}
-	curr += snprintf(buffer + curr, max - curr, "\"dateCreated\": \"%s\",", so->date_created);
-	curr += snprintf(buffer + curr, max - curr, "\"dateModified\": \"%s\"", so->date_modified);
-	curr += snprintf(buffer + curr, max - curr, "}");
+	curr += osnprintf(buffer, curr, max, "\"dateCreated\": \"%s\",", so->date_created);
+	curr += osnprintf(buffer, curr, max, "\"dateModified\": \"%s\"", so->date_modified);
+	curr += osnprintf(buffer, curr, max, "}");
 
 	return curr;
 }
@@ -572,6 +572,7 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 	return curr;
 }
 
+// TODO: move to fudge
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
 	void *dat = r->data + 12;
 
