@@ -111,7 +111,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// Logging+panic mechanism, define it yourself or link in log.c</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keywordtype">void</span> ptp_verbose_log(<span class="keywordtype">char</span> *fmt, ...);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordtype">void</span> ptp_panic(<span class="keywordtype">char</span> *fmt, ...);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>__attribute__ ((noreturn)) <span class="keywordtype">void</span> ptp_panic(<span class="keywordtype">char</span> *fmt, ...);</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">// 4mb recommended default buffer size</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#define CAMLIB_DEFAULT_SIZE 1000000</span></div>
