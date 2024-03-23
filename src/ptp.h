@@ -661,6 +661,9 @@ struct PtpIpInitPacket {
 #define PTP_TC_UINT64ARRAY	0x4008
 #define PTP_TC_STRING		0xFFFF
 
+#define PTP_RangeForm	0x1
+#define PTP_EnumerationForm	0x2
+
 // Used for socket initialization
 #define PTPIP_INIT_COMMAND_REQ	0x1
 #define PTPIP_INIT_COMMAND_ACK	0x2
@@ -679,16 +682,18 @@ struct PtpIpInitPacket {
 #define PTPIP_PING				0xD
 #define PTPIP_PONG				0xE
 
+#define USB_VENDOR_CANON 0x4A9
+
+// ISO number for PTP/IP
+#define PTP_IP_PORT 15740
+
 // Standard interface Class ID for PTP.
 // See https://en.wikipedia.org/wiki/USB#Device_classes
 #define PTP_CLASS_ID 6
 
-#define USB_VENDOR_CANON 0x4A9
-
-// ISO number for PTP/IP, seems to be standard (?)
-#define PTP_IP_PORT 15740
-
-// Vendor init/USB codes, not specifically PTP
+// bRequest codes
+#define MTP_REQ_CANCEL              0x64
+#define MTP_REQ_GET_EXT_EVENT_DATA  0x65
 #define USB_REQ_RESET			0x66
 #define USB_REQ_STATUS			0x67
 #define USB_REQ_GET_STATUS		0x00

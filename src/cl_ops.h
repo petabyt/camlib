@@ -29,7 +29,7 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
 int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length);
-int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd);
+int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpPropDesc *pd);
 /// @brief Gets a list of object handles in a storage device or folder.
 // @param id storage ID
 // @param format Can specify file format ID, or zero for all IDs

@@ -25,7 +25,7 @@
 
 // Logging+panic mechanism, define it yourself or link in log.c
 void ptp_verbose_log(char *fmt, ...);
-void ptp_panic(char *fmt, ...);
+__attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 
 // 4mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 1000000

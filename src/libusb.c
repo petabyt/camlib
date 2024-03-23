@@ -36,6 +36,8 @@ int ptp_comm_init(struct PtpRuntime *r) {
 
 		ptp_verbose_log("Initializing libusb...\n");
 		libusb_init(&(backend->ctx));
+
+		//libusb_set_option(backend->ctx, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_DEBUG);
 	}
 
 	return 0;
@@ -297,7 +299,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 	const struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 
 	if (backend == NULL || r->io_kill_switch) {
-		return -1;
+		return -11;
 	}
 
 	int transferred;
@@ -306,6 +308,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 		backend->endpoint_out,
 		(unsigned char *)to, length, &transferred, PTP_TIMEOUT);
 	if (rc) {
+		perror("libusb_bulk_transfer");
 		return -1;
 	}
 

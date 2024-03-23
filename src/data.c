@@ -12,6 +12,7 @@
 // Custom snprint with offset - for safer string building
 static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	if (size - cur < 0) {
+		ptp_panic("osnprintf overflow %d/%d", cur, size);
 		return 0;
 	}
 
@@ -25,6 +26,8 @@ static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 }
 
 int ptp_get_data_size(void *d, int type) {
+	uint32_t length32;
+	uint8_t length8;
 	switch (type) {
 	case PTP_TC_INT8:
 	case PTP_TC_UINT8:
@@ -42,11 +45,14 @@ int ptp_get_data_size(void *d, int type) {
 	case PTP_TC_UINT16ARRAY:
 	case PTP_TC_UINT32ARRAY:
 	case PTP_TC_UINT64ARRAY:
-		return ((uint32_t *)d)[0];
+		ptp_read_u32(d, &length32);
+		return length32;
 	case PTP_TC_STRING:
-		return ((uint8_t *)d)[0];
+		ptp_read_u8(d, &length8);
+		return length8;
 	}
 
+	ptp_panic("Invalid size read");
 	return 0;
 }
 
@@ -84,14 +90,80 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 	return -1;
 }
 
-int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi) {
-	uint8_t *d = ptp_get_payload(r);
-	memcpy(oi, d, PTP_PROP_DESC_VAR_START);
-	d += PTP_PROP_DESC_VAR_START;
-	d += ptp_parse_data(d, oi->data_type, &oi->default_value);
-	d += ptp_parse_data(d, oi->data_type, &oi->current_value);
+static int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
+	int size;
+	uint32_t length32;
+	uint8_t length8;
+	int len_total;
+	switch (type) {
+	case PTP_TC_INT8:
+	case PTP_TC_UINT8:
+	case PTP_TC_INT16:
+	case PTP_TC_UINT16:
+	case PTP_TC_INT32:
+	case PTP_TC_UINT32:
+		return ptp_parse_data(d, type, u32);
+	case PTP_TC_INT64:
+	case PTP_TC_UINT64:
+		(*data) = malloc(8);
+		memcpy((*data), d, 8);
+		return 8;
+	case PTP_TC_UINT8ARRAY:
+		size = 1;
+	case PTP_TC_UINT16ARRAY:
+		size = 2;
+	case PTP_TC_UINT32ARRAY:
+		size = 4;
+	case PTP_TC_UINT64ARRAY:
+		size = 8;
+		ptp_read_u32(d, &length32);
+		(*data) = malloc(4 + length32 * size);
+		memcpy((*data), d, 4 + length32 * size);
+		return 4 + length32 * size;
+	case PTP_TC_STRING:
+		ptp_read_u8(d, &length8);
+		len_total = 1 + (length8 * 2);
+		(*data) = malloc(len_total);
+		memcpy((*data), d, len_total);
+		return len_total;
+	default:
+		ptp_panic("Unknown data type %d\n", type);
+	}
+}
 
-	// TODO: Form flag + form (for properties like date/time)
+int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
+	uint8_t *d = ptp_get_payload(r);
+
+	d += ptp_read_u16(d, &oi->code);
+	d += ptp_read_u16(d, &oi->data_type);
+	d += ptp_read_u8(d, &oi->read_only);
+
+	// TODO: Arrays will be ignored
+	d += parse_data_data_or_u32(d, oi->data_type, &oi->default_value32, &oi->default_value);
+	d += parse_data_data_or_u32(d, oi->data_type, &oi->current_value32, &oi->current_value);
+
+	d += ptp_read_u8(d, &oi->form_type);
+
+	if (oi->form_type == PTP_RangeForm) {
+		d += ptp_parse_data(d, oi->data_type, &oi->range_form.min);
+		d += ptp_parse_data(d, oi->data_type, &oi->range_form.max);
+		d += ptp_parse_data(d, oi->data_type, &oi->range_form.step);
+	} else if (oi->form_type == PTP_EnumerationForm) {
+		uint16_t num_values = 0;
+		d += ptp_read_u16(d, &num_values);
+		int length = 0;
+		for (uint32_t i = 0; i < num_values; i++) {
+			length += ptp_get_data_size(d + length, oi->data_type);
+		}
+		struct PtpEnumerationForm *form = (struct PtpEnumerationForm *)malloc(sizeof(struct PtpEnumerationForm) + length);
+		form->length = num_values;
+		memcpy(form->data, d, length);
+		oi->enum_form = form;
+	} else {
+		ptp_panic("Unknown form type %d\n", oi->form_type);
+		return -1;
+	}
+
 	return 0;
 }
 

@@ -63,7 +63,7 @@ int ptp_vcam_magic() {
 	return 0;
 }
 
-// Test case for EOS T6/1300D (most common DSLR)
+// Test case for EOS T6/1300D vcam
 int test_eos_t6() {
 	struct PtpRuntime r;
 
@@ -138,6 +138,33 @@ int test_bind() {
 	return 0;
 }
 
+int test_props() {
+	struct PtpRuntime r;
+
+	int rc = test_setup_usb(&r);
+	if (rc) return rc;
+
+	struct PtpPropDesc pd;
+	rc = ptp_get_prop_desc(&r, PTP_PC_BatteryLevel, &pd);
+	if (rc) return rc;
+	assert(pd.current_value32 == 50);
+	assert(pd.default_value32 == 50);
+
+	assert(pd.range_form.min == 0);
+	assert(pd.range_form.max == 100);
+	assert(pd.range_form.step == 1);
+
+	rc = ptp_get_prop_desc(&r, PTP_PC_ImageSize, &pd);
+	if (rc) return rc;
+
+	char buffer[128];
+	ptp_read_string(pd.default_value, buffer, sizeof(buffer));
+	assert(!strcmp(buffer, "640x480"));
+
+	ptp_close(&r);
+	return 0;
+}
+
 int test_fs() {
 	struct PtpRuntime r;
 
@@ -150,12 +177,6 @@ int test_fs() {
 	char buffer[2048];
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
-
-	struct PtpDevPropDesc pd;
-	rc = ptp_get_prop_desc(&r, PTP_PC_BatteryLevel, &pd);
-	if (rc) return rc;
-	assert(pd.current_value == 50);
-	assert(pd.default_value == 50);
 
 	struct PtpArray *arr;
 	rc = ptp_get_storage_ids(&r, &arr);
@@ -265,6 +286,10 @@ int main() {
 	if (rc) return rc;
 
 	rc = ptp_vcam_magic();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_props();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 

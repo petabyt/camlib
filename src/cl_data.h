@@ -83,15 +83,30 @@ struct PtpObjectInfo {
 	char keywords[64];
 };
 
-struct PtpDevPropDesc {
+struct PtpEnumerationForm {
+	uint16_t length;
+	char data[];
+};
+
+struct PtpRangeForm {
+	int min;
+	int max;
+	int step;
+};
+
+struct PtpPropDesc {
 	uint16_t code;
 	uint16_t data_type;
 	uint8_t read_only; // (get/set)
 
-	#define PTP_PROP_DESC_VAR_START 5
+	uint32_t default_value32;
+	uint32_t current_value32;
+	void *current_value;
+	void *default_value;
 
-	int default_value;
-	int current_value;
+	uint8_t form_type;
+	struct PtpRangeForm range_form;
+	struct PtpEnumerationForm *enum_form;
 };
 
 struct PtpObjPropDesc {
@@ -202,7 +217,7 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t
 int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
-int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpDevPropDesc *oi);
+int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);

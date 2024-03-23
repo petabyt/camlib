@@ -247,7 +247,7 @@ int ptp_get_prop_value(struct PtpRuntime *r, int code) {
 	return ptp_send(r, &cmd);
 }
 
-int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpDevPropDesc *pd) {
+int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpPropDesc *pd) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_GetDevicePropDesc;
 	cmd.param_length = 1;
