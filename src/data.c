@@ -388,9 +388,12 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	return len;
 }
 
-int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
-	uint32_t code = ptp_read_uint32(d);
-	uint32_t value = ptp_read_uint32(d);
+int ptp_eos_prop_next(void *d, struct PtpGenericEvent *p) {
+	uint32_t code, value, tmp;
+
+	int of = 0;
+	of += ptp_read_u32(d + of, &code);
+	of += ptp_read_u32(d + of, &value);
 
 	const char *name = ptp_get_enum_all(code);
 	const char *str_value = NULL;
@@ -414,8 +417,11 @@ int ptp_eos_prop_next(void **d, struct PtpGenericEvent *p) {
 		name = "battery";
 		break;
 	case PTP_PC_EOS_ImageFormat: {
-			int data[5] = {value, ptp_read_uint32(d), ptp_read_uint32(d),
-				ptp_read_uint32(d), ptp_read_uint32(d)};
+			int data[5] = {value};
+			of += ptp_read_u32(d + of, &data[1]);
+			of += ptp_read_u32(d + of, &data[2]);
+			of += ptp_read_u32(d + of, &data[3]);
+			of += ptp_read_u32(d + of, &data[4]);
 			if (value == 1) {
 				value = ptp_eos_get_imgformat_value(data);
 			} else {
@@ -481,9 +487,10 @@ int ptp_eos_events_length(struct PtpRuntime *r) {
 	int length = 0;
 	while (dp != NULL) {
 		if (dp >= (uint8_t *)ptp_get_payload(r) + ptp_get_payload_length(r)) break;
-		void *d = dp;
-		uint32_t size = ptp_read_uint32(&d);
-		uint32_t type = ptp_read_uint32(&d);
+		uint8_t *d = dp;
+		uint32_t size, type;
+		d += ptp_read_u32(d, &size);
+		d += ptp_read_u32(d, &type);
 
 		dp += size;
 
@@ -505,32 +512,34 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 	if (length < 0) return length;
 
 	(*p) = malloc(sizeof(struct PtpGenericEvent) * length);
+	struct PtpGenericEvent *p_base = (*p);
 
 	uint8_t *dp = ptp_get_payload(r);
 	for (int i = 0; i < length; i++) {
-		// TODO: Simplify these triple pointers
-		struct PtpGenericEvent *cur = &((*p)[i]);
+		struct PtpGenericEvent *cur = &p_base[i];
 		memset(cur, 0, sizeof(struct PtpGenericEvent));
 
-		// Read header
 		void *d = dp;
-		uint32_t size = ptp_read_uint32(&d);
-		uint32_t type = ptp_read_uint32(&d);
+
+		uint32_t size, type;
+		d += ptp_read_u32(d, &size);
+		d += ptp_read_u32(d, &type);
 
 		// Detect termination or overflow
 		if (type == 0) break;
 
 		switch (type) {
 		case PTP_EC_EOS_PropValueChanged:
-			ptp_eos_prop_next(&d, cur);
+			d += ptp_eos_prop_next(d, cur);
 			break;
 		case PTP_EC_EOS_InfoCheckComplete:
 		case PTP_PC_EOS_FocusInfoEx:
 			cur->name = ptp_get_enum_all(type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {
-			uint32_t a = ptp_read_uint32(&d);
-			uint32_t b = ptp_read_uint32(&d);
+			uint32_t a, b;
+			d += ptp_read_u32(d, &a);
+			d += ptp_read_u32(d, &b);
 			cur->name = "request object transfer";
 			cur->code = a;
 			cur->value = b;
@@ -541,16 +550,16 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			cur->value = obj->a;
 			} break;
 		case PTP_EC_EOS_AvailListChanged: {
-			uint32_t code = ptp_read_uint32(&d);
-			uint32_t dat_type = ptp_read_uint32(&d);
-			uint32_t count = ptp_read_uint32(&d);
+			uint32_t code, dat_type, count;
+			d += ptp_read_u32(d, &code);
+			d += ptp_read_u32(d, &dat_type);
+			d += ptp_read_u32(d, &count);
 
 			int payload_size = (size - 20);
 
 			// Make sure to not divide by zero :)
 			if (payload_size != 0 && count != 0) {
 				int memb_size = payload_size / count;
-			
 				ptp_set_prop_avail_info(r, code, memb_size, count, d);
 			}
 			} break;
@@ -574,7 +583,6 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 	int curr = osnprintf(buffer, 0, max, "[");
 	for (int i = 0; i < length; i++) {
-		// Don't put comma for last entry
 		char *end = ",";
 		if (i - 1 == length) end = "";
 
@@ -601,12 +609,12 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 // TODO: move to fudge
 int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
-	void *dat = r->data + 12;
+	uint8_t *d = ptp_get_payload(r);
 
-	resp->x1 = ptp_read_uint32(&dat);
-	resp->x2 = ptp_read_uint32(&dat);
-	resp->x3 = ptp_read_uint32(&dat);
-	resp->x4 = ptp_read_uint32(&dat);
+	d += ptp_read_u32(d, &resp->x1);
+	d += ptp_read_u32(d, &resp->x2);
+	d += ptp_read_u32(d, &resp->x3);
+	d += ptp_read_u32(d, &resp->x4);
 
 	ptp_read_unicode_string(resp->cam_name, (char *)(dat), sizeof(resp->cam_name));
 
@@ -629,3 +637,4 @@ int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *o
 
 	return 0;
 }
+
