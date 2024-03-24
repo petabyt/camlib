@@ -8,7 +8,6 @@
 // (accessing a 32 bit integer at an unaligned address - but some might have problems)
 #pragma pack(push, 1)
 
-// 4 Seems like a good limit?
 struct PtpStorageIds {
 	uint32_t length;
 	uint32_t data[4];
@@ -74,8 +73,6 @@ struct PtpObjectInfo {
 	uint16_t assoc_type; // association
 	uint32_t assoc_desc;
 	uint32_t sequence_num;
-
-	#define PTP_OBJ_INFO_VAR_START 52
 
 	char filename[64];
 	char date_created[32];

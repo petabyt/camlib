@@ -45,30 +45,28 @@ int ptp_write_uint32(void *dat, uint32_t b) {
 }
 
 // Read standard UTF16 string
-void ptp_read_string_(void *dat, char *string, int max) {
-	int length = (int)ptp_read_uint8(dat);
+int ptp_read_string(uint8_t *d, char *string, int max) {
+	int of = 0;
+	uint8_t length;
+	of += ptp_read_u8(d + of, &length);
 
-	int y = 0;
-	while (y < length) {
-		string[y] = (char)ptp_read_uint8(dat);
-		if (string[y] < 0) string[y] = '?'; // TODO: utf16 -> utf8
-		else if (string[y] != '\0' && string[y] < 32) string[y] = ' ';
-		ptp_read_uint8(dat); // skip \0
-		y++;
-		if (y >= max) { break; }
+	uint8_t i = 0;
+	while (i < length) {
+		uint16_t wchr;
+		of += ptp_read_u16(d + of, &wchr);
+		if (wchr > 128) wchr = '?';
+		else if (wchr != '\0' && wchr < 32) wchr = ' ';
+		string[i] = (char)wchr;
+		i++;
+		if (i >= max) break;
 	}
 
-	string[y] = '\0';
+	string[i] = '\0';
+
+	return of;
 }
 
-// Read standard UTF16 string
-int ptp_read_string(uint8_t *dat, char *string, int max) {
-	uint8_t *two = dat;
-	ptp_read_string_(&two, string, max);
-	return two - dat;
-}
-
-int ptp_read_uint16_array_(void *dat, uint16_t *buf, int max) {
+static int ptp_read_uint16_array_(void *dat, uint16_t *buf, int max) {
 	int n = ptp_read_uint32(dat);
 
 	for (int i = 0; i < n; i++) {
@@ -88,7 +86,7 @@ int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
 	return two - dat;
 }
 
-int ptp_write_string_(void *dat, char *string) {
+static int ptp_write_string_(void *dat, char *string) {
 	int length = strlen(string);
 	ptp_write_uint8(dat, length);
 
@@ -236,7 +234,6 @@ int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data
 	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 	c->length += data_length;
 
-	// Data packets are always 12 bytes (no parameters)
 	memcpy(r->data + 12, data, data_length);
 	
 	return length + data_length;

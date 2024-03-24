@@ -9,7 +9,7 @@
 
 #include <camlib.h>
 
-// Custom snprint with offset - for safer string building
+// Custom snprint with offset
 static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	if (size - cur < 0) {
 		ptp_panic("osnprintf overflow %d/%d", cur, size);
@@ -138,7 +138,6 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 	d += ptp_read_u16(d, &oi->data_type);
 	d += ptp_read_u8(d, &oi->read_only);
 
-	// TODO: Arrays will be ignored
 	d += parse_data_data_or_u32(d, oi->data_type, &oi->default_value32, &oi->default_value);
 	d += parse_data_data_or_u32(d, oi->data_type, &oi->current_value32, &oi->current_value);
 
@@ -169,8 +168,23 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	uint8_t *d = ptp_get_payload(r);
-	memcpy(oi, d, PTP_OBJ_INFO_VAR_START);
-	d += PTP_OBJ_INFO_VAR_START;
+
+	d += ptp_read_u32(d, &oi->storage_id);
+	d += ptp_read_u16(d, &oi->obj_format);
+	d += ptp_read_u16(d, &oi->protection);
+	d += ptp_read_u32(d, &oi->compressed_size);
+	d += ptp_read_u16(d, &oi->thumb_format);
+	d += ptp_read_u32(d, &oi->thumb_compressed_size);
+	d += ptp_read_u32(d, &oi->thumb_width);
+	d += ptp_read_u32(d, &oi->thumb_height);
+	d += ptp_read_u32(d, &oi->img_width);
+	d += ptp_read_u32(d, &oi->img_height);
+	d += ptp_read_u32(d, &oi->img_bit_depth);
+	d += ptp_read_u32(d, &oi->parent_obj);
+	d += ptp_read_u16(d, &oi->assoc_type);
+	d += ptp_read_u32(d, &oi->assoc_desc);
+	d += ptp_read_u32(d, &oi->sequence_num);
+
 	d += ptp_read_string(d, oi->filename, sizeof(oi->filename));
 	d += ptp_read_string(d, oi->date_created, sizeof(oi->date_created));
 	d += ptp_read_string(d, oi->date_modified, sizeof(oi->date_modified));
@@ -185,11 +199,24 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t
 		return 0;
 	}
 
-	memcpy(buf, oi, PTP_OBJ_INFO_VAR_START);
-	buf += PTP_OBJ_INFO_VAR_START;
+	int of = 0;
+	of += ptp_write_u32(buf + of, oi->storage_id);
+	of += ptp_write_u16(buf + of, oi->obj_format);
+	of += ptp_write_u16(buf + of, oi->protection);
+	of += ptp_write_u32(buf + of, oi->compressed_size);
+	of += ptp_write_u16(buf + of, oi->thumb_format);
+	of += ptp_write_u32(buf + of, oi->thumb_compressed_size);
+	of += ptp_write_u32(buf + of, oi->thumb_width);
+	of += ptp_write_u32(buf + of, oi->thumb_height);
+	of += ptp_write_u32(buf + of, oi->img_width);
+	of += ptp_write_u32(buf + of, oi->img_height);
+	of += ptp_write_u32(buf + of, oi->img_bit_depth);
+	of += ptp_write_u32(buf + of, oi->parent_obj);
+	of += ptp_write_u16(buf + of, oi->assoc_type);
+	of += ptp_write_u32(buf + of, oi->assoc_desc);
+	of += ptp_write_u32(buf + of, oi->sequence_num);
 
 	// If the string is empty, don't add it to the packet
-	int of = PTP_OBJ_INFO_VAR_START;
 	if (oi->filename[0] != '\0')
 		of += ptp_write_string(buf + of, oi->filename);
 	if (oi->date_created[0] != '\0')
@@ -290,7 +317,7 @@ int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
 	return curr;
 }
 
-const char *eval_obj_format(int code) {
+static const char *eval_obj_format(int code) {
 	char *x = ptp_get_enum_all(code);
 	switch (code) {
 	case PTP_OF_Association:
@@ -301,7 +328,7 @@ const char *eval_obj_format(int code) {
 	}
 }
 
-const char *eval_protection(int code) {
+static const char *eval_protection(int code) {
 	switch (code) {
 	case 0x0:
 		return "none";
@@ -336,7 +363,7 @@ int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
 	return curr;
 }
 
-const char *eval_storage_type(int id) {
+static const char *eval_storage_type(int id) {
 	switch (id) {
 	case 1:
 		return "FixedROM";
