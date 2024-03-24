@@ -285,11 +285,11 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="comment">// Packet builder/unpacker helper functions. These accept a pointer-to-pointer</span></div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="comment">// and will advance the dereferenced pointer by amount read. Mostly for internal use.</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="comment">// These functions accept (void *), but really wants (void **), but (void **) would require casting in every call</span></div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>uint8_t ptp_read_uint8(<span class="keywordtype">void</span> *dat);</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>uint16_t ptp_read_uint16(<span class="keywordtype">void</span> *dat);</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>uint32_t ptp_read_uint32(<span class="keywordtype">void</span> *dat);</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="keywordtype">void</span> ptp_write_uint8(<span class="keywordtype">void</span> *dat, uint8_t b);</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="keywordtype">int</span> ptp_write_uint32(<span class="keywordtype">void</span> *dat, uint32_t b);</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="comment">//uint8_t ptp_read_uint8(void *dat);</span></div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span><span class="comment">//uint16_t ptp_read_uint16(void *dat);</span></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="comment">//uint32_t ptp_read_uint32(void *dat);</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="comment">//void ptp_write_uint8(void *dat, uint8_t b);</span></div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="comment">//int ptp_write_uint32(void *dat, uint32_t b);</span></div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordtype">int</span> ptp_write_unicode_string(<span class="keywordtype">char</span> *dat, <span class="keywordtype">char</span> *<span class="keywordtype">string</span>);</div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keywordtype">int</span> ptp_read_unicode_string(<span class="keywordtype">char</span> *buffer, <span class="keywordtype">char</span> *dat, <span class="keywordtype">int</span> max);</div>
