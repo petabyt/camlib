@@ -243,14 +243,14 @@ void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *
 
 	int size_all = 4 + strlen(out) + 1 + file_size;
 	*length = size_all;
-	char *data = malloc(size_all);
+	uint8_t *data = malloc(size_all);
 	if (data == NULL) return NULL;
 
-	void *d_ptr = (void *)data;
-	ptp_write_uint32(&d_ptr, strlen(out) + 1);
-	ptp_write_utf8_string(&d_ptr, out);
+	int of = 0;
+	of += ptp_write_u32(data + of, strlen(out) + 1);
+	of += ptp_write_utf8_string(data + of, out);
 
-	fread(d_ptr, 1, file_size, f);
+	fread(data + of, 1, file_size, f);
 
 	return data;
 }
@@ -388,7 +388,7 @@ int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
 	return len;
 }
 
-int ptp_eos_prop_next(void *d, struct PtpGenericEvent *p) {
+int ptp_eos_prop_next(uint8_t *d, struct PtpGenericEvent *p) {
 	uint32_t code, value, tmp;
 
 	int of = 0;
@@ -417,7 +417,7 @@ int ptp_eos_prop_next(void *d, struct PtpGenericEvent *p) {
 		name = "battery";
 		break;
 	case PTP_PC_EOS_ImageFormat: {
-			int data[5] = {value};
+			uint32_t data[5] = {value};
 			of += ptp_read_u32(d + of, &data[1]);
 			of += ptp_read_u32(d + of, &data[2]);
 			of += ptp_read_u32(d + of, &data[3]);
@@ -519,7 +519,7 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 		struct PtpGenericEvent *cur = &p_base[i];
 		memset(cur, 0, sizeof(struct PtpGenericEvent));
 
-		void *d = dp;
+		uint8_t *d = dp;
 
 		uint32_t size, type;
 		d += ptp_read_u32(d, &size);
@@ -616,7 +616,7 @@ int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
 	d += ptp_read_u32(d, &resp->x3);
 	d += ptp_read_u32(d, &resp->x4);
 
-	ptp_read_unicode_string(resp->cam_name, (char *)(dat), sizeof(resp->cam_name));
+	ptp_read_unicode_string(resp->cam_name, (char *)d, sizeof(resp->cam_name));
 
 	return 0;
 }

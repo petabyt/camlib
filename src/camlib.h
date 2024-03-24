@@ -247,11 +247,11 @@ int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 // Packet builder/unpacker helper functions. These accept a pointer-to-pointer
 // and will advance the dereferenced pointer by amount read. Mostly for internal use.
 // These functions accept (void *), but really wants (void **), but (void **) would require casting in every call
-uint8_t ptp_read_uint8(void *dat);
-uint16_t ptp_read_uint16(void *dat);
-uint32_t ptp_read_uint32(void *dat);
-void ptp_write_uint8(void *dat, uint8_t b);
-int ptp_write_uint32(void *dat, uint32_t b);
+//uint8_t ptp_read_uint8(void *dat);
+//uint16_t ptp_read_uint16(void *dat);
+//uint32_t ptp_read_uint32(void *dat);
+//void ptp_write_uint8(void *dat, uint8_t b);
+//int ptp_write_uint32(void *dat, uint32_t b);
 
 int ptp_write_unicode_string(char *dat, char *string);
 int ptp_read_unicode_string(char *buffer, char *dat, int max);

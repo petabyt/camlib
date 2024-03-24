@@ -9,34 +9,34 @@
 #include <ptp.h>
 #include <camlib.h>
 
-uint8_t ptp_read_uint8(void *dat) {
+static uint8_t ptp_read_uint8(void *dat) {
 	uint8_t **p = (uint8_t **)dat;
 	uint8_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-uint16_t ptp_read_uint16(void *dat) {
+static uint16_t ptp_read_uint16(void *dat) {
 	uint16_t **p = (uint16_t **)dat;
 	uint16_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-uint32_t ptp_read_uint32(void *dat) {
+static uint32_t ptp_read_uint32(void *dat) {
 	uint32_t **p = (uint32_t **)dat;
 	uint32_t x = (**p);
 	(*p)++;
 	return x;
 }
 
-void ptp_write_uint8(void *dat, uint8_t b) {
+static void ptp_write_uint8(void *dat, uint8_t b) {
 	uint8_t **ptr = (uint8_t **)dat;
 	(**ptr) = b;
 	(*ptr)++;
 }
 
-int ptp_write_uint32(void *dat, uint32_t b) {
+static int ptp_write_uint32(void *dat, uint32_t b) {
 	uint32_t **ptr = (uint32_t **)dat;
 	(**ptr) = b;
 	(*ptr)++;

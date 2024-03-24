@@ -230,7 +230,7 @@ int ptp_eos_get_shutter(int data, int dir);
 int ptp_eos_get_iso(int data, int dir);
 int ptp_eos_get_aperture(int data, int dir);
 int ptp_eos_get_white_balance(int data, int dir);
-int ptp_eos_get_imgformat_value(int data[5]);
+int ptp_eos_get_imgformat_value(uint32_t data[5]);
 
 void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length);
 

@@ -219,7 +219,7 @@ int ptp_eos_get_aperture(int data, int dir) {
 // Converts to camlib wrapper types (enum ImageFormats)
 struct CanonImageFormats {
 	int value;
-	int data[9];
+	uint32_t data[9];
 }canon_imgformats[] = {
 	{IMG_FORMAT_RAW, {1, 16, 6, 0, 4}}, // RAW
 	{IMG_FORMAT_STD, {1, 16, 1, 0, 2}}, // STD
@@ -227,7 +227,7 @@ struct CanonImageFormats {
 	{IMG_FORMAT_RAW_JPEG, {2, 16, 6, 0, 4, 16, 1, 0, 3}}, // RAW + HIGH JPG
 };
 
-int ptp_eos_get_imgformat_value(int data[5]) {
+int ptp_eos_get_imgformat_value(uint32_t data[5]) {
 	for (int i = 0; i < (int)(sizeof(canon_imgformats) / sizeof(struct CanonImageFormats)); i++) {
 		if (!memcmp(canon_imgformats[i].data, data, sizeof(int) * 5)) {
 			return canon_imgformats[i].value;
