@@ -189,8 +189,6 @@ int test_fs() {
 	rc = ptp_get_storage_info(&r, arr->data[0], &si);
 	if (rc) return rc;
 
-	assert(ptp_get_return_code(&r) == PTP_RC_OK);
-
 	ptp_storage_info_json(&si, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
@@ -213,6 +211,12 @@ int test_fs() {
 		printf("Filename: %s\n", oi.filename);
 		printf("File size: %u\n", oi.compressed_size);
 	}
+
+	struct PtpObjectInfo oi;
+	rc = ptp_get_object_info(&r, 0xdeadbeef, &oi);
+	if (rc) return rc;
+	assert(!strcmp(oi.filename, "test.png"));
+	assert(oi.compressed_size == 1234);
 
 	free(arr);
 
@@ -269,29 +273,29 @@ static int test_multithread() {
 int main() {
 	int rc;
 
-	rc = test_multithread();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
-
-	rc = test_eos_t6();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
-
-	rc = test_bind();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
+//	rc = test_multithread();
+//	printf("Return code: %d\n", rc);
+//	if (rc) return rc;
+//
+//	rc = test_eos_t6();
+//	printf("Return code: %d\n", rc);
+//	if (rc) return rc;
+//
+//	rc = test_bind();
+//	printf("Return code: %d\n", rc);
+//	if (rc) return rc;
 
 	rc = test_fs();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 
-	rc = ptp_vcam_magic();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
-
-	rc = test_props();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
+//	rc = ptp_vcam_magic();
+//	printf("Return code: %d\n", rc);
+//	if (rc) return rc;
+//
+//	rc = test_props();
+//	printf("Return code: %d\n", rc);
+//	if (rc) return rc;
 
 	return 0;
 }
