@@ -72,6 +72,12 @@ int test_eos_t6() {
 	int rc = test_setup_usb(&r);
 	if (rc) return rc;
 
+	rc = ptp_get_device_info(&r, &di);
+	if (rc) return rc;
+	char buffer[2048];
+	ptp_device_info_json(&di, buffer, sizeof(buffer));
+	printf("%s\n", buffer);
+
 	if (ptp_device_type(&r) == PTP_DEV_EOS) {
 		ptp_eos_set_remote_mode(&r, 1);
 		ptp_eos_set_event_mode(&r, 1);
@@ -83,13 +89,7 @@ int test_eos_t6() {
 	char events_json[4096];
 	ptp_eos_events_json(&r, events_json, sizeof(events_json));
 
-	puts(events_json);
-
-	rc = ptp_get_device_info(&r, &di);
-	if (rc) return rc;
-	char buffer[2048];
-	ptp_device_info_json(&di, buffer, sizeof(buffer));
-	printf("%s\n", buffer);
+	printf("Events: %s\n", events_json);
 
 	assert(!strcmp(di.manufacturer, "Canon Inc."));
 	assert(!strcmp(di.extensions, "G-V: 1.0;"));
@@ -273,29 +273,29 @@ static int test_multithread() {
 int main() {
 	int rc;
 
-//	rc = test_multithread();
-//	printf("Return code: %d\n", rc);
-//	if (rc) return rc;
-//
-//	rc = test_eos_t6();
-//	printf("Return code: %d\n", rc);
-//	if (rc) return rc;
-//
-//	rc = test_bind();
-//	printf("Return code: %d\n", rc);
-//	if (rc) return rc;
+	rc = test_multithread();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_eos_t6();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_bind();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
 
 	rc = test_fs();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 
-//	rc = ptp_vcam_magic();
-//	printf("Return code: %d\n", rc);
-//	if (rc) return rc;
-//
-//	rc = test_props();
-//	printf("Return code: %d\n", rc);
-//	if (rc) return rc;
+	rc = ptp_vcam_magic();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
+
+	rc = test_props();
+	printf("Return code: %d\n", rc);
+	if (rc) return rc;
 
 	return 0;
 }
