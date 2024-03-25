@@ -27,6 +27,7 @@ int ptp_validate_property_value(struct PtpRuntime *r, int prop_code, uint32_t va
 			break;
 		default:
 			ptp_panic("Unsupported PTP prop length %X\n", prop_code);
+			return 0;
 		}
 
 		if (value == cur_val) {

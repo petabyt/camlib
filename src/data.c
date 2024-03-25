@@ -606,35 +606,3 @@ int ptp_eos_events_json(struct PtpRuntime *r, char *buffer, int max) {
 
 	return curr;
 }
-
-// TODO: move to fudge
-int ptp_fuji_get_init_info(struct PtpRuntime *r, struct PtpFujiInitResp *resp) {
-	uint8_t *d = ptp_get_payload(r);
-
-	d += ptp_read_u32(d, &resp->x1);
-	d += ptp_read_u32(d, &resp->x2);
-	d += ptp_read_u32(d, &resp->x3);
-	d += ptp_read_u32(d, &resp->x4);
-
-	ptp_read_unicode_string(resp->cam_name, (char *)d, sizeof(resp->cam_name));
-
-	return 0;
-}
-
-int ptp_fuji_parse_object_info(struct PtpRuntime *r, struct PtpFujiObjectInfo *oi) {
-	uint8_t *d = ptp_get_payload(r);
-	memcpy(oi, d, PTP_FUJI_OBJ_INFO_VAR_START);
-	d += PTP_FUJI_OBJ_INFO_VAR_START;
-	d += ptp_read_string(d, oi->filename, sizeof(oi->filename));
-
-	/* TODO: Figure out payload later:
-		0D 44 00 53 00 43 00 46 00 35 00 30 00 38 00 37 00 2E 00 4A 00 50 00 47 00
-		00 00 10 32 00 30 00 31 00 35 00 30 00 35 00 32 00 34 00 54 00 30 00 31 00
-		31 00 37 00 31 00 30 00 00 00 00 0E 4F 00 72 00 69 00 65 00 6E 00 74 00 61
-		00 74 00 69 00 6F 00 6E 00 3A 00 31 00 00 00 0C 00 00 00 03 00 01 20 0E 00
-		00 00 00
-	*/
-
-	return 0;
-}
-

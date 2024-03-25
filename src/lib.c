@@ -162,7 +162,7 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	int rc = ptp_receive_bulk_packets(r);
 	if (rc < 0) {
 		ptp_mutex_unlock_thread(r);
-		ptp_verbose_log("Failed to recieve packets: %d\n", rc);
+		ptp_verbose_log("Failed to receive packets: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
