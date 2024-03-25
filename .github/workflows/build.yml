@@ -15,13 +15,19 @@ jobs:
     - name: Install dependencies
       run: sudo apt install libusb-1.0-0-dev clang-tools
 
+    - name: Clone latest vcam
+      run: |
+        git clone https://github.com/petabyt/vcam
+        cd vcam
+        make libusb.so
+
     - name: Build
       run: |
         scan-build make libcamlib.so
         make dec
 
-    - name: Unit test script
-      run: bash test/ci.sh
+    - name: Run main unit test
+      run: make test
 
   macOS-build:
     runs-on: macos-latest
