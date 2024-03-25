@@ -17,6 +17,7 @@ jobs:
 
     - name: Clone latest vcam
       run: |
+        cd ../
         git clone https://github.com/petabyt/vcam
         cd vcam
         make libusb.so
