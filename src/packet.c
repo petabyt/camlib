@@ -9,41 +9,6 @@
 #include <ptp.h>
 #include <camlib.h>
 
-static uint8_t ptp_read_uint8(void *dat) {
-	uint8_t **p = (uint8_t **)dat;
-	uint8_t x = (**p);
-	(*p)++;
-	return x;
-}
-
-static uint16_t ptp_read_uint16(void *dat) {
-	uint16_t **p = (uint16_t **)dat;
-	uint16_t x = (**p);
-	(*p)++;
-	return x;
-}
-
-static uint32_t ptp_read_uint32(void *dat) {
-	uint32_t **p = (uint32_t **)dat;
-	uint32_t x = (**p);
-	(*p)++;
-	return x;
-}
-
-static void ptp_write_uint8(void *dat, uint8_t b) {
-	uint8_t **ptr = (uint8_t **)dat;
-	(**ptr) = b;
-	(*ptr)++;
-}
-
-static int ptp_write_uint32(void *dat, uint32_t b) {
-	uint32_t **ptr = (uint32_t **)dat;
-	(**ptr) = b;
-	(*ptr)++;
-
-	return 4;
-}
-
 // Read standard UTF16 string
 int ptp_read_string(uint8_t *d, char *string, int max) {
 	int of = 0;
@@ -66,44 +31,39 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 	return of;
 }
 
-static int ptp_read_uint16_array_(void *dat, uint16_t *buf, int max) {
-	int n = ptp_read_uint32(dat);
+int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
+	int of = 0;
 
-	for (int i = 0; i < n; i++) {
+	uint32_t n;
+	of += ptp_read_u32(dat + of, &n);
+
+	for (uint32_t i = 0; i < n; i++) {
 		if (i >= max) {
-			(void)ptp_read_uint16(dat);
+			ptp_panic("ptp_read_uint16_array overflow\n");
 		} else {
-			buf[i] = ptp_read_uint16(dat);
+			of += ptp_read_u16(buf + of, &buf[i]);
 		}
 	}
 
-	return n;
+	return of;
 }
 
-int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
-	uint8_t *two = dat;
-	(*length) = ptp_read_uint16_array_(&two, buf, max);
-	return two - dat;
-}
+// Write standard PTP wchar string
+int ptp_write_string(uint8_t *dat, char *string) {
+	int of = 0;
 
-static int ptp_write_string_(void *dat, char *string) {
-	int length = strlen(string);
-	ptp_write_uint8(dat, length);
+	uint32_t length = strlen(string);
+	of += ptp_write_u8(dat + of, length);
 
 	for (int i = 0; i < length; i++) {
-		ptp_write_uint8(dat, string[i]);
-		ptp_write_uint8(dat, '\0');
+		of += ptp_write_u8(dat + of, string[i]);
+		of += ptp_write_u8(dat + of, '\0');
 	}
 
-	ptp_write_uint8(dat, '\0');
-
-	return (length * 2) + 2;
+	return of;
 }
 
-int ptp_write_string(uint8_t *dat, char *string) {
-	return ptp_write_string_(&dat, string);
-}
-
+// Write normal UTF-8 string
 int ptp_write_utf8_string(void *dat, char *string) {
 	char *o = (char *)dat;
 	int x = 0;
@@ -128,7 +88,7 @@ int ptp_write_unicode_string(char *dat, char *string) {
 	return i;
 }
 
-// Reaed null-terminated UTF16 string
+// Read null-terminated UTF16 string
 int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	int i;
 	for (i = 0; dat[i] != '\0'; i += 2) {

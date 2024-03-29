@@ -144,6 +144,11 @@ int test_props() {
 	int rc = test_setup_usb(&r);
 	if (rc) return rc;
 
+	rc = ptp_get_prop_value(&r, PTP_PC_BatteryLevel);
+	if (rc) return rc;
+	printf("Test parse: %d\n", ptp_parse_prop_value(&r));
+	assert(ptp_parse_prop_value(&r) == 50);
+
 	struct PtpPropDesc pd;
 	rc = ptp_get_prop_desc(&r, PTP_PC_BatteryLevel, &pd);
 	if (rc) return rc;

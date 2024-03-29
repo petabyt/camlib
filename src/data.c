@@ -77,17 +77,22 @@ int ptp_parse_data_u32(void *d, int type, int *out) {
 }
 
 int ptp_parse_prop_value(struct PtpRuntime *r) {
-	uint8_t *d = ptp_get_payload(r);
+	int type;
 	switch (ptp_get_payload_length(r)) {
 	case 1:
-		return (int)(d[0]);
+		type = PTP_TC_UINT8; break;
 	case 2:
-		return (int)(d[0]);
+		type = PTP_TC_UINT16; break;
 	case 4:
-		return (int)(d[0]);
+		type = PTP_TC_UINT32; break;
+	default:
+		ptp_panic("ptp_parse_prop_value: unknown data type");
 	}
 
-	return -1;
+	int out;
+	ptp_parse_data_u32(ptp_get_payload(r), type, &out);
+
+	return out;
 }
 
 int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
