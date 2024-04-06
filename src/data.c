@@ -85,8 +85,10 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 		type = PTP_TC_UINT16; break;
 	case 4:
 		type = PTP_TC_UINT32; break;
+	case 0:
+		return -1;
 	default:
-		ptp_panic("ptp_parse_prop_value: unknown data type");
+		ptp_panic("ptp_parse_prop_value: unknown data type size");
 	}
 
 	int out;
