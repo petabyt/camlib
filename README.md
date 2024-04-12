@@ -1,7 +1,7 @@
 # camlib
 This is a Picture Transfer Protocol (PTP) library written in C.
 
-[Documentation](https://danielc.dev/camlib/)
+[Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
 
 ## Design
 - Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)
@@ -19,7 +19,7 @@ This is a Picture Transfer Protocol (PTP) library written in C.
 - [x] Camera liveviews
 - [x] Implements most EOS/Canon vendor OCs
 - [x] Optional lua bindings
-- [x] (Mostly) thread safe
+- [x] Thread safe (optional)
 - [x] Regression testing (vcam)
 - [ ] Sony support
 - [ ] Pentax support
@@ -70,7 +70,7 @@ return ptp_send_data(r, &cmd, dat, sizeof(dat));
 ```
 Explore the filesystem:
 ```
-struct UintArray *arr;
+struct PtpArray *arr;
 int rc = ptp_get_storage_ids(r, &arr);
 int id = arr->data[0];
 free(arr);

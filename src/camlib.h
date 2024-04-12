@@ -173,76 +173,96 @@ struct PtpArray {
 
 /// @brief Returns the return code (RC) currently in the data buffer.
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 int ptp_get_return_code(struct PtpRuntime *r);
 
 /// @brief Get number of parameters in packet in data buffer
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 int ptp_get_param_length(struct PtpRuntime *r);
 
 /// @brief Get parameter at index i
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 uint32_t ptp_get_param(struct PtpRuntime *r, int i);
 
 /// @brief Get transaction ID of packet in the data buffer
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 int ptp_get_last_transaction_id(struct PtpRuntime *r);
 
 /// @brief Get ptr of packet payload in data buffer, after packet header
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 uint8_t *ptp_get_payload(struct PtpRuntime *r);
 
 /// @brief Get length of payload returned by ptp_get_payload
 /// @note Not thread safe.
+/// @memberof PtpRuntime
 int ptp_get_payload_length(struct PtpRuntime *r);
 
 /// @brief Allocate new PtpRuntime based on bitfield options - see PtpConnType
+/// @memberof PtpRuntime
 struct PtpRuntime *ptp_new(int options);
 
 /// @brief Reset all session-specific fields of PtpRuntime - both libusb and libwpd backends call
 /// this before establishing connection, so calling this is not required
+/// @memberof PtpRuntime
 void ptp_reset(struct PtpRuntime *r);
 
 /// @brief Init PtpRuntime locally - uses default recommended settings (USB)
+/// @memberof PtpRuntime
 void ptp_init(struct PtpRuntime *r);
 
 /// @brief Frees PtpRuntime data buffer - doesn't free the actual structure, or device info (yet)
+/// @memberof PtpRuntime
 void ptp_close(struct PtpRuntime *r);
 
 /// @brief Send a command request to the device with no data phase
+/// @memberof PtpRuntime
 int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 /// @brief Send a command request to the device with a data phase (thread safe)
+/// @memberof PtpRuntime
 int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
 
 /// @brief Try and get an event from the camera over int endpoint (USB-only)
+/// @memberof PtpRuntime
 int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 
 /// @brief Unlock the IO mutex (unless it was kept locked)
+/// @memberof PtpRuntime
 void ptp_mutex_unlock(struct PtpRuntime *r);
 
 /// @brief Keep the mutex locked one more time for the current thread
 /// @note  When calling a thread-safe function, this will garuntee the mutex locked, in the
 /// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
 /// @note camlib uses a recursive mutex.
+/// @memberof PtpRuntime
 void ptp_mutex_keep_locked(struct PtpRuntime *r);
 
 /// @brief Lock the IO mutex - only should be used by backend
+/// @memberof PtpRuntime
 void ptp_mutex_lock(struct PtpRuntime *r);
 
 /// @brief Gets type of device from r->di
 /// @returns enum PtpDeviceType
+/// @memberof PtpRuntime
 int ptp_device_type(struct PtpRuntime *r);
 
 /// @brief Check if an opcode is supported by looking through supported props in r->di
 /// @returns 1 if yes, 0 if no
+/// @memberof PtpRuntime
 int ptp_check_opcode(struct PtpRuntime *r, int opcode);
 
 /// @brief Check if a property code is supported by looking through supported props in r->di
 /// @returns 1 if yes, 0 if no
+/// @memberof PtpRuntime
 int ptp_check_prop(struct PtpRuntime *r, int code);
 
 /// @brief Mostly for internal use - realloc the data buffer
 /// @note r->data will be reassigned, any old references must be updated
+/// @memberof PtpRuntime
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 
 int ptp_write_unicode_string(char *dat, char *string);
