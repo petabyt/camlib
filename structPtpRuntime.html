@@ -156,6 +156,86 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_lock</b> (s
 <tr class="memitem:ac2f65b693efaf4fc67b7837a312dfdd6" id="r_ac2f65b693efaf4fc67b7837a312dfdd6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac2f65b693efaf4fc67b7837a312dfdd6">ptp_buffer_resize</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, size_t size)</td></tr>
 <tr class="memdesc:ac2f65b693efaf4fc67b7837a312dfdd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mostly for internal use - realloc the data buffer.  <br /></td></tr>
 <tr class="separator:ac2f65b693efaf4fc67b7837a312dfdd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e3e2f6a3ed05320359532d77f744893" id="r_a5e3e2f6a3ed05320359532d77f744893"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e3e2f6a3ed05320359532d77f744893">ptp_set_generic_property</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, char *name, int value)</td></tr>
+<tr class="memdesc:a5e3e2f6a3ed05320359532d77f744893"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a generic property - abstraction over SetDeviceProp.  <br /></td></tr>
+<tr class="separator:a5e3e2f6a3ed05320359532d77f744893"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa317218a1bbbd18bc3b20ae9db1624f9" id="r_aa317218a1bbbd18bc3b20ae9db1624f9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa317218a1bbbd18bc3b20ae9db1624f9">ptp_pre_take_picture</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="memdesc:aa317218a1bbbd18bc3b20ae9db1624f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call before taking a picture - this is generally for 'focusing' On some cameras this does nothing.  <br /></td></tr>
+<tr class="separator:aa317218a1bbbd18bc3b20ae9db1624f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aace66256ef8a5a751e1b1bdf38787aa1" id="r_aace66256ef8a5a751e1b1bdf38787aa1"><td class="memItemLeft" align="right" valign="top"><a id="aace66256ef8a5a751e1b1bdf38787aa1" name="aace66256ef8a5a751e1b1bdf38787aa1"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_take_picture</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="memdesc:aace66256ef8a5a751e1b1bdf38787aa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call after calling ptp_pre_take_picture - this time a picture will be taken. <br /></td></tr>
+<tr class="separator:aace66256ef8a5a751e1b1bdf38787aa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1f078ea0df6b7f09bba6af0643f10b5" id="r_ac1f078ea0df6b7f09bba6af0643f10b5"><td class="memItemLeft" align="right" valign="top"><a id="ac1f078ea0df6b7f09bba6af0643f10b5" name="ac1f078ea0df6b7f09bba6af0643f10b5"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_open_session</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="memdesc:ac1f078ea0df6b7f09bba6af0643f10b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a new session - required for most commands. <br /></td></tr>
+<tr class="separator:ac1f078ea0df6b7f09bba6af0643f10b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf8f6f64887e4a2848903e863f8afe72" id="r_acf8f6f64887e4a2848903e863f8afe72"><td class="memItemLeft" align="right" valign="top"><a id="acf8f6f64887e4a2848903e863f8afe72" name="acf8f6f64887e4a2848903e863f8afe72"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_close_session</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="separator:acf8f6f64887e4a2848903e863f8afe72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f9f29703ccabe8b832ba07e2076f908" id="r_a8f9f29703ccabe8b832ba07e2076f908"><td class="memItemLeft" align="right" valign="top"><a id="a8f9f29703ccabe8b832ba07e2076f908" name="a8f9f29703ccabe8b832ba07e2076f908"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_device_info</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct PtpDeviceInfo *<a class="el" href="#ad6e7184353de80d51e6f975c7085ffe2">di</a>)</td></tr>
+<tr class="separator:a8f9f29703ccabe8b832ba07e2076f908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa81a7d45b24e770e249f03e8e991aee8" id="r_aa81a7d45b24e770e249f03e8e991aee8"><td class="memItemLeft" align="right" valign="top"><a id="aa81a7d45b24e770e249f03e8e991aee8" name="aa81a7d45b24e770e249f03e8e991aee8"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_init_capture</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int storage_id, int object_format)</td></tr>
+<tr class="separator:aa81a7d45b24e770e249f03e8e991aee8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d1216f58897e6ca35124a58c7f9758e" id="r_a2d1216f58897e6ca35124a58c7f9758e"><td class="memItemLeft" align="right" valign="top"><a id="a2d1216f58897e6ca35124a58c7f9758e" name="a2d1216f58897e6ca35124a58c7f9758e"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_init_open_capture</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int storage_id, int object_format)</td></tr>
+<tr class="separator:a2d1216f58897e6ca35124a58c7f9758e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac820409424e3de810ecbdc39d0a0b144" id="r_ac820409424e3de810ecbdc39d0a0b144"><td class="memItemLeft" align="right" valign="top"><a id="ac820409424e3de810ecbdc39d0a0b144" name="ac820409424e3de810ecbdc39d0a0b144"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_terminate_open_capture</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int trans)</td></tr>
+<tr class="separator:ac820409424e3de810ecbdc39d0a0b144"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a019e88d5f344b9f0905801e54c6b4b1f" id="r_a019e88d5f344b9f0905801e54c6b4b1f"><td class="memItemLeft" align="right" valign="top"><a id="a019e88d5f344b9f0905801e54c6b4b1f" name="a019e88d5f344b9f0905801e54c6b4b1f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_storage_info</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int id, struct PtpStorageInfo *si)</td></tr>
+<tr class="separator:a019e88d5f344b9f0905801e54c6b4b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a935dcfc1df1871caf21ae26f7508c62a" id="r_a935dcfc1df1871caf21ae26f7508c62a"><td class="memItemLeft" align="right" valign="top"><a id="a935dcfc1df1871caf21ae26f7508c62a" name="a935dcfc1df1871caf21ae26f7508c62a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_send_object_info</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int storage_id, int handle, struct PtpObjectInfo *oi)</td></tr>
+<tr class="separator:a935dcfc1df1871caf21ae26f7508c62a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4e392052808ce00f4e463c3c35f824b" id="r_ac4e392052808ce00f4e463c3c35f824b"><td class="memItemLeft" align="right" valign="top"><a id="ac4e392052808ce00f4e463c3c35f824b" name="ac4e392052808ce00f4e463c3c35f824b"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_prop_value</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int code)</td></tr>
+<tr class="separator:ac4e392052808ce00f4e463c3c35f824b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29dbbd00763b8b3c3f7fa9f585e68462" id="r_a29dbbd00763b8b3c3f7fa9f585e68462"><td class="memItemLeft" align="right" valign="top"><a id="a29dbbd00763b8b3c3f7fa9f585e68462" name="a29dbbd00763b8b3c3f7fa9f585e68462"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_set_prop_value</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int code, int value)</td></tr>
+<tr class="separator:a29dbbd00763b8b3c3f7fa9f585e68462"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9665bd77daba7e3bcba02e9876e174be" id="r_a9665bd77daba7e3bcba02e9876e174be"><td class="memItemLeft" align="right" valign="top"><a id="a9665bd77daba7e3bcba02e9876e174be" name="a9665bd77daba7e3bcba02e9876e174be"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_set_prop_value_data</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int code, void *<a class="el" href="#a7f23f0512393ff28362cd8cbf7d7d71e">data</a>, int length)</td></tr>
+<tr class="separator:a9665bd77daba7e3bcba02e9876e174be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0df861658fefb547a48fd77a8c4983a9" id="r_a0df861658fefb547a48fd77a8c4983a9"><td class="memItemLeft" align="right" valign="top"><a id="a0df861658fefb547a48fd77a8c4983a9" name="a0df861658fefb547a48fd77a8c4983a9"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_prop_desc</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int code, struct PtpPropDesc *pd)</td></tr>
+<tr class="separator:a0df861658fefb547a48fd77a8c4983a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad09031095738de83df9db2c0bc358f92" id="r_ad09031095738de83df9db2c0bc358f92"><td class="memItemLeft" align="right" valign="top"><a id="ad09031095738de83df9db2c0bc358f92" name="ad09031095738de83df9db2c0bc358f92"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_object_handles</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int id, int format, int in, struct <a class="el" href="structPtpArray.html">PtpArray</a> **a)</td></tr>
+<tr class="memdesc:ad09031095738de83df9db2c0bc358f92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a list of object handles in a storage device or folder. <br /></td></tr>
+<tr class="separator:ad09031095738de83df9db2c0bc358f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33df534a00c0d1d46c54253c675daded" id="r_a33df534a00c0d1d46c54253c675daded"><td class="memItemLeft" align="right" valign="top"><a id="a33df534a00c0d1d46c54253c675daded" name="a33df534a00c0d1d46c54253c675daded"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_object_info</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, uint32_t handle, struct PtpObjectInfo *oi)</td></tr>
+<tr class="separator:a33df534a00c0d1d46c54253c675daded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4a84a1fd879b66442b9ae571077b5bd" id="r_ae4a84a1fd879b66442b9ae571077b5bd"><td class="memItemLeft" align="right" valign="top"><a id="ae4a84a1fd879b66442b9ae571077b5bd" name="ae4a84a1fd879b66442b9ae571077b5bd"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_move_object</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int storage_id, int handle, int folder)</td></tr>
+<tr class="separator:ae4a84a1fd879b66442b9ae571077b5bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd9eaa7bf7d47741b46be439a4f01fb7" id="r_afd9eaa7bf7d47741b46be439a4f01fb7"><td class="memItemLeft" align="right" valign="top"><a id="afd9eaa7bf7d47741b46be439a4f01fb7" name="afd9eaa7bf7d47741b46be439a4f01fb7"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_delete_object</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int handle, int format_code)</td></tr>
+<tr class="separator:afd9eaa7bf7d47741b46be439a4f01fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1349640be24b23301f82338a4e89202e" id="r_a1349640be24b23301f82338a4e89202e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1349640be24b23301f82338a4e89202e">ptp_get_thumbnail</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int handle)</td></tr>
+<tr class="memdesc:a1349640be24b23301f82338a4e89202e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw JPEG data is accessible from <a class="el" href="#a82fdb25285ca30f1ca7614f416edad13" title="Get ptr of packet payload in data buffer, after packet header.">ptp_get_payload()</a>  <br /></td></tr>
+<tr class="separator:a1349640be24b23301f82338a4e89202e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1730ddab297b7c9f0a7619bf4f379571" id="r_a1730ddab297b7c9f0a7619bf4f379571"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1730ddab297b7c9f0a7619bf4f379571">ptp_get_partial_object</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, uint32_t handle, int offset, int max)</td></tr>
+<tr class="separator:a1730ddab297b7c9f0a7619bf4f379571"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2a74dc474f1a9f03242a1ac689875ca" id="r_ab2a74dc474f1a9f03242a1ac689875ca"><td class="memItemLeft" align="right" valign="top"><a id="ab2a74dc474f1a9f03242a1ac689875ca" name="ab2a74dc474f1a9f03242a1ac689875ca"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_object</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int handle)</td></tr>
+<tr class="memdesc:ab2a74dc474f1a9f03242a1ac689875ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Download an object. <br /></td></tr>
+<tr class="separator:ab2a74dc474f1a9f03242a1ac689875ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39a3a5f00b93263321de0080a9bfb639" id="r_a39a3a5f00b93263321de0080a9bfb639"><td class="memItemLeft" align="right" valign="top"><a id="a39a3a5f00b93263321de0080a9bfb639" name="a39a3a5f00b93263321de0080a9bfb639"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_download_object</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, int handle, FILE *stream, size_t max)</td></tr>
+<tr class="memdesc:a39a3a5f00b93263321de0080a9bfb639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Download an object from handle, to a local file (uses GetPartialObject) <br /></td></tr>
+<tr class="separator:a39a3a5f00b93263321de0080a9bfb639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0d253bf202fa9823e1d49fb016f541f" id="r_ae0d253bf202fa9823e1d49fb016f541f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae0d253bf202fa9823e1d49fb016f541f">ptp_get_all_known</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct <a class="el" href="structPtpGenericEvent.html">PtpGenericEvent</a> **s, int *length)</td></tr>
+<tr class="memdesc:ae0d253bf202fa9823e1d49fb016f541f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recieve a generic list of all properties received in DeviceInfo This is similar to getting all events, but for first startup when you know nothing. Some vendors do this, but this gets all the properties manually.  <br /></td></tr>
+<tr class="separator:ae0d253bf202fa9823e1d49fb016f541f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab71c60e32fb92e3c5458431006c57da" id="r_aab71c60e32fb92e3c5458431006c57da"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab71c60e32fb92e3c5458431006c57da">ptpip_init_events</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="separator:aab71c60e32fb92e3c5458431006c57da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a608fc909a1d17cf3e8ad39b261c994bf" id="r_a608fc909a1d17cf3e8ad39b261c994bf"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a608fc909a1d17cf3e8ad39b261c994bf">ptpip_init_command_request</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, char *device_name)</td></tr>
+<tr class="separator:a608fc909a1d17cf3e8ad39b261c994bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -304,6 +384,40 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
 
 </div>
 </div>
+<a id="ae0d253bf202fa9823e1d49fb016f541f" name="ae0d253bf202fa9823e1d49fb016f541f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0d253bf202fa9823e1d49fb016f541f">&#9670;&#160;</a></span>ptp_get_all_known()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_get_all_known </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structPtpGenericEvent.html">PtpGenericEvent</a> **</td>          <td class="paramname"><span class="paramname"><em>s</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>length</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Recieve a generic list of all properties received in DeviceInfo This is similar to getting all events, but for first startup when you know nothing. Some vendors do this, but this gets all the properties manually. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">s</td><td>Output structure, caller must free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a86c195e74507973ca1a0350686d24b48" name="a86c195e74507973ca1a0350686d24b48"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a86c195e74507973ca1a0350686d24b48">&#9670;&#160;</a></span>ptp_get_last_transaction_id()</h2>
 
@@ -368,6 +482,38 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
 
 </div>
 </div>
+<a id="a1730ddab297b7c9f0a7619bf4f379571" name="a1730ddab297b7c9f0a7619bf4f379571"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1730ddab297b7c9f0a7619bf4f379571">&#9670;&#160;</a></span>ptp_get_partial_object()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_get_partial_object </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>handle</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>offset</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>max</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>Not thread safe. </dd></dl>
+
+</div>
+</div>
 <a id="a82fdb25285ca30f1ca7614f416edad13" name="a82fdb25285ca30f1ca7614f416edad13"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a82fdb25285ca30f1ca7614f416edad13">&#9670;&#160;</a></span>ptp_get_payload()</h2>
 
@@ -428,6 +574,30 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
 
 </div>
 </div>
+<a id="a1349640be24b23301f82338a4e89202e" name="a1349640be24b23301f82338a4e89202e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1349640be24b23301f82338a4e89202e">&#9670;&#160;</a></span>ptp_get_thumbnail()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_get_thumbnail </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>handle</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Raw JPEG data is accessible from <a class="el" href="#a82fdb25285ca30f1ca7614f416edad13" title="Get ptr of packet payload in data buffer, after packet header.">ptp_get_payload()</a> </p>
+<dl class="section note"><dt>Note</dt><dd>Not thread safe. </dd></dl>
+
+</div>
+</div>
 <a id="aa24a3ce43b4f53f37731bd03d9735129" name="aa24a3ce43b4f53f37731bd03d9735129"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa24a3ce43b4f53f37731bd03d9735129">&#9670;&#160;</a></span>ptp_mutex_keep_locked()</h2>
 
@@ -447,6 +617,95 @@ struct <a class="el" href="structPtpPropAvail.html">PtpPropAvail</a> *&#160;</td
 <dl class="section note"><dt>Note</dt><dd>When calling a thread-safe function, this will garuntee the mutex locked, in the case that you want to continue using the buffer. Must be unlocked or will cause deadlock. </dd>
 <dd>
 camlib uses a recursive mutex. </dd></dl>
+
+</div>
+</div>
+<a id="aa317218a1bbbd18bc3b20ae9db1624f9" name="aa317218a1bbbd18bc3b20ae9db1624f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa317218a1bbbd18bc3b20ae9db1624f9">&#9670;&#160;</a></span>ptp_pre_take_picture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_pre_take_picture </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Call before taking a picture - this is generally for 'focusing' On some cameras this does nothing. </p>
+<dl class="section note"><dt>Note</dt><dd>This is meant for a onMouseDown-like event. ptp_take_picture should be called on onMouseUp </dd></dl>
+
+</div>
+</div>
+<a id="a5e3e2f6a3ed05320359532d77f744893" name="a5e3e2f6a3ed05320359532d77f744893"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e3e2f6a3ed05320359532d77f744893">&#9670;&#160;</a></span>ptp_set_generic_property()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_set_generic_property </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>name</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>value</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a generic property - abstraction over SetDeviceProp. </p>
+<dl class="section note"><dt>Note</dt><dd>May reject writes if an invalid property is found (see event code) </dd></dl>
+
+</div>
+</div>
+<a id="a608fc909a1d17cf3e8ad39b261c994bf" name="a608fc909a1d17cf3e8ad39b261c994bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a608fc909a1d17cf3e8ad39b261c994bf">&#9670;&#160;</a></span>ptpip_init_command_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptpip_init_command_request </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>device_name</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>PTP/IP only </dd></dl>
+
+</div>
+</div>
+<a id="aab71c60e32fb92e3c5458431006c57da" name="aab71c60e32fb92e3c5458431006c57da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab71c60e32fb92e3c5458431006c57da">&#9670;&#160;</a></span>ptpip_init_events()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptpip_init_events </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>PTP/IP only </dd></dl>
 
 </div>
 </div>
@@ -549,8 +808,9 @@ camlib uses a recursive mutex. </dd></dl>
 
 </div>
 </div>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<hr/>The documentation for this struct was generated from the following files:<ul>
 <li>src/<a class="el" href="camlib_8h_source.html">camlib.h</a></li>
+<li>src/<a class="el" href="cl__ops_8h_source.html">cl_ops.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
