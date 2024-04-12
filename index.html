@@ -76,7 +76,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a>This is a Picture Transfer Protocol (PTP) library written in C.</p>
-<p><a href="https://danielc.dev/camlib/">Documentation</a></p>
+<p><a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Design</h1>
 <ul>
@@ -97,7 +97,7 @@ Checklist</h1>
 <li>[x] Camera liveviews</li>
 <li>[x] Implements most EOS/Canon vendor OCs</li>
 <li>[x] Optional lua bindings</li>
-<li>[x] (Mostly) thread safe</li>
+<li>[x] Thread safe (optional)</li>
 <li>[x] Regression testing (vcam)</li>
 <li>[ ] Sony support</li>
 <li>[ ] Pentax support</li>
@@ -141,7 +141,7 @@ Sample</h1>
 <div class="line">cmd.params[0] = 1234;</div>
 <div class="line">uint32_t dat[2] = {123, 123};</div>
 <div class="line">return ptp_send_data(r, &amp;cmd, dat, sizeof(dat));</div>
-</div><!-- fragment --><p> Explore the filesystem: </p><div class="fragment"><div class="line">struct UintArray *arr;</div>
+</div><!-- fragment --><p> Explore the filesystem: </p><div class="fragment"><div class="line">struct PtpArray *arr;</div>
 <div class="line">int rc = ptp_get_storage_ids(r, &amp;arr);</div>
 <div class="line">int id = arr-&gt;data[0];</div>
 <div class="line">free(arr);</div>
