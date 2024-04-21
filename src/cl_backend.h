@@ -54,11 +54,11 @@ int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
 // Reads the incoming packet to file, starting after an optional offset
 int ptp_freceive_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
 
-int ptpip_connect(struct PtpRuntime *r, char *addr, int port);
+int ptpip_connect(struct PtpRuntime *r, const char *addr, int port);
 int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size);
 int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size);
 
-int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port);
+int ptpip_connect_events(struct PtpRuntime *r, const char *addr, int port);
 int ptpip_event_send(struct PtpRuntime *r, void *data, int size);
 int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
 

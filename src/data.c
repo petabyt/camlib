@@ -109,7 +109,7 @@ int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
 	case PTP_TC_UINT16:
 	case PTP_TC_INT32:
 	case PTP_TC_UINT32:
-		return ptp_parse_data_u32(d, type, u32);
+		return ptp_parse_data_u32(d, type, (int *)u32);
 	case PTP_TC_INT64:
 	case PTP_TC_UINT64:
 		(*data) = malloc(8);

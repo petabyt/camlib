@@ -123,13 +123,14 @@ static struct PtpIpBackend *init_comm(struct PtpRuntime *r) {
 	return (struct PtpIpBackend *)r->comm_backend;
 }
 
-int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
+int ptpip_connect(struct PtpRuntime *r, const char *addr, int port) {
 	int fd = ptpip_new_timeout_socket(addr, port);
 
 	struct PtpIpBackend *b = init_comm(r);
 
 	if (fd > 0) {
 		b->fd = fd;
+		r->io_kill_switch = 0;
 		return 0;
 	} else {
 		b->fd = 0;
@@ -137,7 +138,7 @@ int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
 	}
 }
 
-int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port) {
+int ptpip_connect_events(struct PtpRuntime *r, const char *addr, int port) {
 	int fd = ptpip_new_timeout_socket(addr, port);
 
 	struct PtpIpBackend *b = init_comm(r);

@@ -50,7 +50,7 @@ static int ptp_eos_set_validate_prop(struct PtpRuntime *r, int prop_code, uint32
 	return ptp_eos_set_prop_value(r, prop_code, value);
 }
 
-int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value) {
+int ptp_set_generic_property(struct PtpRuntime *r, const char *name, int value) {
 	int dev = ptp_device_type(r);
 	int rc = 0;
 	if (!strcmp(name, "aperture")) {

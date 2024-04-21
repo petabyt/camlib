@@ -221,9 +221,15 @@ int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, str
 	cmd.params[1] = format;
 	cmd.params[2] = in;
 
+	ptp_mutex_keep_locked(r);
+
 	int rc = ptp_send(r, &cmd);
+	if (rc) goto end;
 
 	(*a) = dup_uint_array((void *)ptp_get_payload(r));
+
+	end:;
+	ptp_mutex_unlock(r);
 
 	return rc;
 }
@@ -253,11 +259,16 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpPropDesc *pd) {
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	int x = ptp_send(r, &cmd);
+	ptp_mutex_keep_locked(r);
+	int rc = ptp_send(r, &cmd);
+	if (rc) goto end;
 
 	ptp_parse_prop_desc(r, pd);
 
-	return x;
+	end:;
+	ptp_mutex_unlock(r);
+
+	return rc;
 }
 
 int ptp_get_thumbnail(struct PtpRuntime *r, int handle) {

@@ -7,11 +7,11 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	return -1;	
 }
 
-int ptpip_connect(struct PtpRuntime *r, char *addr, int port) {
+int ptpip_connect(struct PtpRuntime *r, const char *addr, int port) {
 	return -1;
 }
 
-int ptpip_connect_events(struct PtpRuntime *r, char *addr, int port) {
+int ptpip_connect_events(struct PtpRuntime *r, const char *addr, int port) {
 	return -1;
 }
 

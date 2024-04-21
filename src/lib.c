@@ -106,7 +106,7 @@ void ptpusb_free_device_list(struct PtpDeviceEntry *e) {
 
 int ptp_buffer_resize(struct PtpRuntime *r, size_t size) {
 	if (size < r->data_length) {
-		ptp_panic("You cannot downside the data buffer");
+		ptp_panic("You cannot downsize the data buffer (%u -> %u)", r->data_length, size);
 	}
 	// realloc with a little extra space to minimize reallocs later on
 	static int extra = 100;

@@ -5,7 +5,7 @@
 /// @brief Set a generic property - abstraction over SetDeviceProp
 /// @note May reject writes if an invalid property is found (see event code)
 /// @memberof PtpRuntime
-int ptp_set_generic_property(struct PtpRuntime *r, char *name, int value);
+int ptp_set_generic_property(struct PtpRuntime *r, const char *name, int value);
 
 /// @brief Call before taking a picture - this is generally for 'focusing'
 /// On some cameras this does nothing.

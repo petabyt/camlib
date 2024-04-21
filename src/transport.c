@@ -42,7 +42,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 	int rc = 0;
 	int read = 0;
 
-	while (rc <= 0 && r->wait_for_response) {
+	while (r->wait_for_response) {
 		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 
 		r->wait_for_response--;
@@ -50,7 +50,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 		if (rc > 0) break;
 
 		if (r->wait_for_response) {
-			ptp_verbose_log("Trying again...");
+			ptp_verbose_log("Trying again...\n");
 			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
@@ -126,7 +126,7 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 			return PTP_IO_ERR;
 		}
 	} else if (h->type == PTPIP_COMMAND_RESPONSE) {
-		ptp_verbose_log("Recieved response packet\n");
+		ptp_verbose_log("Received response packet\n");
 	} else {
 		ptp_verbose_log("Unexpected packet: %X\n", h->type);
 		return PTP_IO_ERR;
@@ -167,7 +167,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		if (rc < 0) break;
 
 		if (r->wait_for_response) {
-			ptp_verbose_log("Trying again...");
+			ptp_verbose_log("Trying again...\n");
 			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
@@ -218,7 +218,7 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 	int rc = 0;
 	int read = 0;
 
-	while (rc <= 0 && r->wait_for_response) {
+	while (r->wait_for_response) {
 		rc = ptpip_cmd_read(r, r->data + of + read, 4);
 
 		r->wait_for_response--;
@@ -226,7 +226,7 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 		if (rc > 0) break;
 
 		if (r->wait_for_response) {
-			ptp_verbose_log("Trying again...");
+			ptp_verbose_log("Trying again...\n");
 			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
@@ -308,6 +308,7 @@ int ptpipusb_receive_bulk_packets(struct PtpRuntime *r) {
 }
 
 int ptp_receive_bulk_packets(struct PtpRuntime *r) {
+	if (r->io_kill_switch) return -1;
 	if (r->connection_type == PTP_IP) {
 		return ptpip_receive_bulk_packets(r);
 	} else if (r->connection_type == PTP_USB) {
