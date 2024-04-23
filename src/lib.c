@@ -108,6 +108,7 @@ int ptp_buffer_resize(struct PtpRuntime *r, size_t size) {
 	if (size < r->data_length) {
 		ptp_panic("You cannot downsize the data buffer (%u -> %u)", r->data_length, size);
 	}
+
 	// realloc with a little extra space to minimize reallocs later on
 	static int extra = 100;
 	ptp_verbose_log("Extending IO buffer to %X\n", size + extra);
@@ -130,7 +131,6 @@ void ptp_mutex_keep_locked(struct PtpRuntime *r) {
 	pthread_mutex_lock(r->mutex);
 }
 
-// 'pop' the mutex stack, will only unlock the mutex once stack is at zero
 void ptp_mutex_unlock(struct PtpRuntime *r) {
 	if (r->mutex == NULL) return;
 	pthread_mutex_unlock(r->mutex);
@@ -165,12 +165,6 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		ptp_verbose_log("Failed to receive packets: %d\n", rc);
 		return PTP_IO_ERR;
 	}
-
-	// if (ptp_get_last_transaction_id(r) != r->transaction) {
-		// ptp_verbose_log("Mismatch transaction ID\n");
-		// ptp_mutex_unlock(r);
-		// return PTP_IO_ERR;
-	// }
 
 	r->transaction++;
 
@@ -231,13 +225,6 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		ptp_mutex_unlock_thread(r);
 		return PTP_IO_ERR;
 	}
-
-	// TODO: doesn't work on windows (IDs are made up)
-	//if (ptp_get_last_transaction_id(r) != r->transaction) {
-		//ptp_verbose_log("ptp_send_data: Mismatch transaction ID (%d/%d)\n", ptp_get_last_transaction_id(r), r->transaction);
-		//ptp_mutex_unlock(r);
-		//return PTP_IO_ERR;
-	//}
 
 	r->transaction++;
 

@@ -38,7 +38,7 @@ static int set_nonblocking_io(int sockfd, int enable) {
 	return fcntl(sockfd, F_SETFL, flags);
 }
 
-int ptpip_new_timeout_socket(char *addr, int port) {
+int ptpip_new_timeout_socket(const char *addr, int port) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	int yes = 1;
