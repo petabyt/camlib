@@ -30,12 +30,6 @@ __attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 // 4mb recommended default buffer size
 #define CAMLIB_DEFAULT_SIZE 1000000
 
-// Transparency pixel used in liveview processor. Will be packed as RGB uint32
-// uncompressed array of pixels in little-endian. This will be used as the first byte.
-#ifndef PTP_LV_TRANSPARENCY_PIXEL
-	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
-#endif
-
 /// @brief Camlib library errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
@@ -47,6 +41,7 @@ enum PtpGeneralError {
 	PTP_RUNTIME_ERR = -6,
 	PTP_UNSUPPORTED = -7,
 	PTP_CHECK_CODE = -8,
+	PTP_CANCELED = -9,
 };
 
 /// @brief Evaluates PtpGeneralError into string message

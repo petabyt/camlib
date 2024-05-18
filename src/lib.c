@@ -190,12 +190,16 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		ptp_buffer_resize(r, 100 + length);
 	}
 
+	//usleep(2000);
+
 	// Send operation request (data phase later on)
 	int plength = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_bulk_packets(r, plength) != plength) {
 		ptp_mutex_unlock_thread(r);
 		return PTP_IO_ERR;
 	}
+
+	//usleep(2000);
 
 	if (r->connection_type == PTP_IP) {
 		// Send data start packet first (only has payload length)

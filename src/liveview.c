@@ -13,6 +13,12 @@
 
 #define MAX_EOS_JPEG_SIZE 550000
 
+// Transparency pixel used in liveview processor. Will be packed as RGB uint32
+// uncompressed array of pixels in little-endian. This will be used as the first byte.
+#ifndef PTP_LV_TRANSPARENCY_PIXEL
+	#define PTP_LV_TRANSPARENCY_PIXEL 0x0
+#endif
+
 #define PTP_ML_LvWidth 360
 #define PTP_ML_LvHeight 240
 
