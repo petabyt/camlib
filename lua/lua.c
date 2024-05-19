@@ -22,7 +22,7 @@ static int mylua_set_property(lua_State *L) {
 	const char *name = luaL_checkstring(L, 1);
 	int value = lua_tointeger(L, 1);
 
-	int rc = ptp_set_generic_property(r, (char *)name, value);
+	int rc = ptp_set_generic_property(r, name, value);
 
 	lua_pushinteger(L, rc);
 
