@@ -9,6 +9,14 @@
 #include <ptp.h>
 #include <camlib.h>
 
+static void boundcheck(uint8_t *bs, uint8_t *be, int size) {
+	if (be == NULL) return;
+	if ((uintptr_t)bs > (uintptr_t)be) ptp_panic("PTP: bs after be\n");
+	if (((uintptr_t)be - (uintptr_t)bs) < (uintptr_t)size) {
+		ptp_panic("PTP: buffer overflow %p-%p (%u)\n", bs, be, size);
+	}
+}
+
 // Read standard UTF16 string
 int ptp_read_string(uint8_t *d, char *string, int max) {
 	int of = 0;
@@ -46,6 +54,21 @@ int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
 	}
 
 	return of;
+}
+
+int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, int *length) {
+	int of = 0;
+	uint32_t n;
+	of += ptp_read_u32(bs + of, &n);
+	boundcheck(bs, be, 4 * n + 4);
+	for (uint32_t i = 0; i < n; i++) {
+		if (i >= max) {
+			ptp_panic("ptp_read_uint16_array overflow\n");
+		} else {
+			of += ptp_read_u16(bs + of, &buf[i]);
+		}
+	}
+	return of;	
 }
 
 // Write standard PTP wchar string

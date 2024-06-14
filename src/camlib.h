@@ -27,7 +27,7 @@
 void ptp_verbose_log(char *fmt, ...);
 __attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 
-// 4mb recommended default buffer size
+// 1mb default buffer size
 #define CAMLIB_DEFAULT_SIZE 1000000
 
 /// @brief Camlib library errors, not PTP return codes
@@ -267,6 +267,7 @@ int ptp_read_string(uint8_t *dat, char *string, int max);
 int ptp_write_string(uint8_t *dat, char *string);
 int ptp_write_utf8_string(void *dat, char *string);
 int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length);
+int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, int *length);
 inline static int ptp_write_u8 (void *buf, uint8_t out) { ((uint8_t *)buf)[0] = out; return 1; }
 inline static int ptp_write_u16(void *buf, uint16_t out) { ((uint16_t *)buf)[0] = out; return 2; }
 inline static int ptp_write_u32(void *buf, uint32_t out) { ((uint32_t *)buf)[0] = out; return 4; }

@@ -263,27 +263,27 @@ void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *
 }
 
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
-	uint8_t *e = ptp_get_payload(r);
+	uint8_t *b = ptp_get_payload(r);
+	uint8_t *e = b + r->data_length;
 
-	e += ptp_read_u16(e, &di->standard_version);
-	e += ptp_read_u32(e, &di->vendor_ext_id);
-	e += ptp_read_u16(e, &di->version);
+	b += ptp_read_u16(b, &di->standard_version);
+	b += ptp_read_u32(b, &di->vendor_ext_id);
+	b += ptp_read_u16(b, &di->version);
 
-	e += ptp_read_string(e, di->extensions, sizeof(di->extensions));
-	
-	e += ptp_read_u16(e, &di->functional_mode);
+	b += ptp_read_string(b, di->extensions, sizeof(di->extensions));
+	b += ptp_read_u16(b, &di->functional_mode);
 
-	e += ptp_read_uint16_array(e, di->ops_supported, sizeof(di->ops_supported) / 2, &di->ops_supported_length);
-	e += ptp_read_uint16_array(e, di->events_supported, sizeof(di->events_supported) / 2, &di->events_supported_length);
-	e += ptp_read_uint16_array(e, di->props_supported, sizeof(di->props_supported) / 2, &di->props_supported_length);
-	e += ptp_read_uint16_array(e, di->capture_formats, sizeof(di->capture_formats) / 2, &di->capture_formats_length);
-	e += ptp_read_uint16_array(e, di->playback_formats, sizeof(di->playback_formats) / 2, &di->playback_formats_length);
+	b += ptp_read_uint16_array_s(b, e, di->ops_supported, sizeof(di->ops_supported) / 2, &di->ops_supported_length);
+	b += ptp_read_uint16_array_s(b, e, di->events_supported, sizeof(di->events_supported) / 2, &di->events_supported_length);
+	b += ptp_read_uint16_array_s(b, e, di->props_supported, sizeof(di->props_supported) / 2, &di->props_supported_length);
+	b += ptp_read_uint16_array_s(b, e, di->capture_formats, sizeof(di->capture_formats) / 2, &di->capture_formats_length);
+	b += ptp_read_uint16_array_s(b, e, di->playback_formats, sizeof(di->playback_formats) / 2, &di->playback_formats_length);
 
-	e += ptp_read_string(e, di->manufacturer, sizeof(di->manufacturer));	
-	e += ptp_read_string(e, di->model, sizeof(di->model));
+	b += ptp_read_string(b, di->manufacturer, sizeof(di->manufacturer));	
+	b += ptp_read_string(b, di->model, sizeof(di->model));
 
-	e += ptp_read_string(e, di->device_version, sizeof(di->device_version));
-	e += ptp_read_string(e, di->serial_number, sizeof(di->serial_number));
+	b += ptp_read_string(b, di->device_version, sizeof(di->device_version));
+	b += ptp_read_string(b, di->serial_number, sizeof(di->serial_number));
 
 	r->di = di; // set last parsed di
 
