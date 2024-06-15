@@ -30,7 +30,7 @@ int ptp_comm_init(struct PtpRuntime *r) {
 int ptp_device_init(struct PtpRuntime *r) {
 	if (!r->io_kill_switch) {
 		ptp_verbose_log("Connection is active\n");
-		return NULL;
+		return PTP_IO_ERR;
 	}
 
 	ptp_comm_init(r);
@@ -72,19 +72,24 @@ int ptp_device_init(struct PtpRuntime *r) {
 	return PTP_NO_DEVICE;
 }
 
-// Unimplemented, don't use yet
-#if 0
+// Unimplemented, don't use
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
-	return NULL;
+	ptp_panic("Unsupported");
 }
 
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
-	// Unimplemented
-	return PTP_IO_ERR;
+	ptp_panic("Unsupported");
 }
-#endif
 
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
+	ptp_panic("Unsupported");
+}
+
+int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
+	ptp_panic("Unsupported");
+}
+
+int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 	if (r->io_kill_switch) return PTP_IO_ERR;
 
 	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
@@ -140,7 +145,12 @@ int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
 	return 0;
 }
 
-int ptp_receive_bulk_packets(struct PtpRuntime *r) {
+//int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
+//
+//	return 0;
+//}
+
+int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	if (r->io_kill_switch) return PTP_IO_ERR;
 
 	// Don't do anything if the data phase was already sent

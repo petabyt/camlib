@@ -10,29 +10,53 @@
 
 #include <camlib.h>
 
-// Sending data out is much easier, can be a portable implementation
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+__attribute__((weak))
+int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	int x;
 	while (1) {
-		if (r->connection_type == PTP_USB) {
-			x = ptp_cmd_write(r, r->data + sent, length);
-		} else if (r->connection_type == PTP_IP || r->connection_type == PTP_IP_USB) {
-			x = ptpip_cmd_write(r, r->data + sent, length);
-		}
+		x = ptp_cmd_write(r, r->data + sent, length);
 
 		if (x < 0) {
-			ptp_verbose_log("send_bulk_packet: %d\n", x);
+			ptp_verbose_log("send_bulk_packet: %d\n", __func__, x);
 			return PTP_IO_ERR;
 		}
 		
 		sent += x;
 		
 		if (sent > length) {
-			ptp_verbose_log("send_bulk_packet: Sent too many bytes: %d\n", sent);
+			ptp_verbose_log("%s: Sent too many bytes: %d\n", __func__, sent);
 			return sent;
 		} else if (sent == length) {
-			ptp_verbose_log("send_bulk_packet: Sent %d/%d bytes\n", sent, length);
+			ptp_verbose_log("%s: Sent %d/%d bytes\n", __func__, sent, length);
+			return sent;			
+		}
+	}
+}
+
+int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+	if (r->connection_type == PTP_USB) {
+		return ptpusb_send_bulk_packets(r, length);
+	}
+	int sent = 0;
+	int x;
+	while (1) {
+		if (r->connection_type == PTP_IP || r->connection_type == PTP_IP_USB) {
+			x = ptpip_cmd_write(r, r->data + sent, length);
+		}
+
+		if (x < 0) {
+			ptp_verbose_log("send_bulk_packet: %d\n", __func__, x);
+			return PTP_IO_ERR;
+		}
+		
+		sent += x;
+		
+		if (sent > length) {
+			ptp_verbose_log("%s: Sent too many bytes: %d\n", __func__, sent);
+			return sent;
+		} else if (sent == length) {
+			ptp_verbose_log("%s: Sent %d/%d bytes\n", __func__, sent, length);
 			return sent;			
 		}
 	}
@@ -154,6 +178,7 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 // until we don't, then packet is over. This makes the code simpler and gives a reduces
 // calls to the backend, which increases performance. This isn't possible with sockets - 
 // the read will time out in most cases.
+__attribute__((weak))
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	int read = 0;
 
