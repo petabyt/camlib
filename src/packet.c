@@ -63,7 +63,7 @@ int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, in
 	boundcheck(bs, be, 4 * n + 4);
 	for (uint32_t i = 0; i < n; i++) {
 		if (i >= max) {
-			ptp_panic("ptp_read_uint16_array overflow\n");
+			ptp_panic("ptp_read_uint16_array overflow %i >= %d\n", i, n);
 		} else {
 			of += ptp_read_u16(bs + of, &buf[i]);
 		}

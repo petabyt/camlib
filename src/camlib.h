@@ -129,6 +129,8 @@ struct PtpRuntime {
 	/// @brief For session comm/io structures (holds backend instance pointers)
 	void *comm_backend;
 
+	void *userdata;
+
 	/// @brief Optional (see CAMLIB_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 

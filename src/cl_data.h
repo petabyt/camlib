@@ -31,10 +31,10 @@ struct PtpDeviceInfo {
 	uint16_t ops_supported[256];
 
 	int events_supported_length;
-	uint16_t events_supported[128];
+	uint16_t events_supported[256];
 
 	int props_supported_length;
-	uint16_t props_supported[128];
+	uint16_t props_supported[256];
 
 	int capture_formats_length;
 	uint16_t capture_formats[32];
@@ -82,7 +82,7 @@ struct PtpObjectInfo {
 
 struct PtpEnumerationForm {
 	uint16_t length;
-	char data[];
+	uint8_t data[];
 };
 
 struct PtpRangeForm {
@@ -169,6 +169,7 @@ int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
 int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi);
+int ptp_prop_desc_json(struct PtpPropDesc *pd, char *buffer, int max);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);

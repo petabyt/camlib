@@ -65,12 +65,15 @@ int ptp_parse_data_u32(void *d, int type, int *out) {
 	case PTP_TC_UINT8:
 		ptp_read_u8(d, &a); (*out) = (int)a; return 1;
 	case PTP_TC_INT16:
+		ptp_read_u16(d, &b); (*out) = (int)((short)b); return 2;
 	case PTP_TC_UINT16:
 		ptp_read_u16(d, &b); (*out) = (int)b; return 2;
 	case PTP_TC_INT32:
 	case PTP_TC_UINT32:
 		ptp_read_u32(d, &c); (*out) = (int)c; return 4;
 	}
+
+	// TODO: function to preserve signedness
 
 	// skip the array
 	return ptp_get_data_size(d, type);
@@ -171,6 +174,60 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 	}
 
 	return 0;
+}
+
+int ptp_prop_desc_json(struct PtpPropDesc *pd, char *buffer, int max) {
+	int curr = osnprintf(buffer, curr, max, "{\n");
+	curr += osnprintf(buffer, curr, max, "\"code\": %d,\n", pd->code);
+	curr += osnprintf(buffer, curr, max, "\"type\": %d,\n", pd->data_type);
+
+	switch (pd->data_type) {
+		case PTP_TC_INT8:
+		case PTP_TC_UINT8:
+		case PTP_TC_INT16:
+		case PTP_TC_UINT16:
+		case PTP_TC_INT32:
+		case PTP_TC_UINT32:
+		case PTP_TC_INT64:
+		case PTP_TC_UINT64:
+			curr += osnprintf(buffer, curr, max, "\"currentValue32\": %d,\n", pd->current_value32);
+			curr += osnprintf(buffer, curr, max, "\"defaultValue32\": %u,\n", pd->default_value32);
+			break;
+		case PTP_TC_UINT8ARRAY:
+		case PTP_TC_UINT16ARRAY:
+		case PTP_TC_UINT32ARRAY:
+		case PTP_TC_UINT64ARRAY:
+			curr += osnprintf(buffer, curr, max, "\"currentValueArray\": %d,\n", 0);
+			break;
+//		case PTP_TC_STRING:
+	}
+
+	if (pd->form_type == PTP_RangeForm) {
+		curr += osnprintf(buffer, curr, max, "\"validEntries\": [");
+		for (int i = pd->range_form.min; i < pd->range_form.max; i += pd->range_form.step) {
+			char *end = ", ";
+			if (i >= pd->range_form.max - pd->range_form.step) end = "";
+			curr += osnprintf(buffer, curr, max, "%d%s", i, end);
+		}
+		curr += osnprintf(buffer, curr, max, "],\n");
+	} else {
+		curr += osnprintf(buffer, curr, max, "\"validEntries\": [");
+		int of = 0;
+		for (int i = 0; i < pd->enum_form->length; i++) {
+			char *end = ", ";
+			if (i >= pd->enum_form->length - 1) end = "";
+			uint32_t value;
+			void *data = NULL;
+			of += parse_data_data_or_u32(pd->enum_form->data + of, pd->data_type, &value, &data);
+			curr += osnprintf(buffer, curr, max, "%d%s", value, end);
+		}
+		curr += osnprintf(buffer, curr, max, "],\n");
+	}
+
+	curr += osnprintf(buffer, curr, max, "\"form_type\": %d\n", pd->form_type);
+
+	curr += osnprintf(buffer, curr, max, "}");
+	return curr;
 }
 
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
