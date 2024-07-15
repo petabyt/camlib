@@ -1,17 +1,18 @@
 # camlib
 This is a Picture Transfer Protocol (PTP) library written in C.
-
 [Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
+
+*(Unfinished, use at your own risk)*  
 
 ## Design
 - Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)
 - Will not perform memory allocations between operations
 - Thread safe (optional)
-- Portable, works well on many different platforms
-- No macros, API uses only C ABI
+- Portable, tested on Linux/OSX/Windows/Android/iOS
+- No macros, plain C API
 - Regression tested against https://github.com/petabyt/vcam
 
-## Checklist
+## Roadmap
 - [x] Complete working implemention of PTP as per ISO 15740
 - [x] Working PTP/IP implementation
 - [x] Working natively on Linux, MacOS, Windows, and Android
@@ -19,10 +20,9 @@ This is a Picture Transfer Protocol (PTP) library written in C.
 - [x] Camera liveviews
 - [x] Implements most EOS/Canon vendor OCs
 - [x] Optional lua bindings
-- [x] Thread safe (optional)
+- [x] Thread safe
 - [x] Regression testing (vcam)
 - [ ] Sony support
-- [ ] Pentax support
 
 ## Sample
 Get device info:
