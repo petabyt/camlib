@@ -88,20 +88,21 @@ $(function(){ initResizable(false); });
   <div class="headertitle"><div class="title">camlib </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a Picture Transfer Protocol (PTP) library written in C.</p>
-<p><a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
+<div class="textblock"><p><a class="anchor" id="md_README"></a>This is a Picture Transfer Protocol (PTP) library written in C. <a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
+<p>*(Unfinished, use at your own risk)* <br  />
+</p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Design</h1>
 <ul>
 <li>Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)</li>
 <li>Will not perform memory allocations between operations</li>
 <li>Thread safe (optional)</li>
-<li>Portable, works well on many different platforms</li>
-<li>No macros, API uses only C ABI</li>
+<li>Portable, tested on Linux/OSX/Windows/Android/iOS</li>
+<li>No macros, plain C API</li>
 <li>Regression tested against <a href="https://github.com/petabyt/vcam">https://github.com/petabyt/vcam</a></li>
 </ul>
 <h1><a class="anchor" id="autotoc_md2"></a>
-Checklist</h1>
+Roadmap</h1>
 <ul class="check">
 <li class="checked">Complete working implemention of PTP as per ISO 15740</li>
 </ul>
@@ -124,14 +125,11 @@ Checklist</h1>
 <li class="checked">Optional lua bindings</li>
 </ul>
 <ul class="check">
-<li class="checked">Thread safe (optional)</li>
+<li class="checked">Thread safe</li>
 </ul>
 <ul class="check">
 <li class="checked">Regression testing (vcam)</li>
 <li class="unchecked">Sony support</li>
-</ul>
-<ul class="check">
-<li class="unchecked">Pentax support</li>
 </ul>
 <h1><a class="anchor" id="autotoc_md3"></a>
 Sample</h1>
