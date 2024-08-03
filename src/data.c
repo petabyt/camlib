@@ -176,8 +176,8 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 	return 0;
 }
 
-int ptp_prop_desc_json(struct PtpPropDesc *pd, char *buffer, int max) {
-	int curr = osnprintf(buffer, curr, max, "{\n");
+int ptp_prop_desc_json(const struct PtpPropDesc *pd, char *buffer, int max) {
+	int curr = osnprintf(buffer, 0, max, "{\n");
 	curr += osnprintf(buffer, curr, max, "\"code\": %d,\n", pd->code);
 	curr += osnprintf(buffer, curr, max, "\"type\": %d,\n", pd->data_type);
 
@@ -347,7 +347,7 @@ int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di) {
 	return 0;
 }
 
-int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max) {
+int ptp_device_info_json(const struct PtpDeviceInfo *di, char *buffer, int max) {
 	int curr = osnprintf(buffer, 0, max, "{\n    \"opsSupported\": [");
 	for (int i = 0; i < di->ops_supported_length; i++) {
 		char *end = ", ";
@@ -407,7 +407,7 @@ static const char *eval_protection(int code) {
 	}
 }
 
-int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max) {
+int ptp_object_info_json(const struct PtpObjectInfo *so, char *buffer, int max) {
 	int curr = sprintf(buffer, "{");
 	curr += osnprintf(buffer, curr, max, "\"storage_id\": %u,", so->storage_id);
 	curr += osnprintf(buffer, curr, max, "\"compressedSize\": %u,", so->compressed_size);
@@ -442,7 +442,7 @@ static const char *eval_storage_type(int id) {
 	}
 }
 
-int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max) {
+int ptp_storage_info_json(const struct PtpStorageInfo *so, char *buffer, int max) {
 	int len = osnprintf(buffer, 0, max, "{");
 	len += osnprintf(buffer, len, max, "\"storageType\": \"%s\",", eval_storage_type(so->storage_type));
 	len += osnprintf(buffer, len, max, "\"fsType\": %u,", so->fs_type);

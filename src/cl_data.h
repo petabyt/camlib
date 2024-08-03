@@ -167,12 +167,12 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t
 
 int ptp_parse_prop_value(struct PtpRuntime *r);
 int ptp_parse_device_info(struct PtpRuntime *r, struct PtpDeviceInfo *di);
-int ptp_device_info_json(struct PtpDeviceInfo *di, char *buffer, int max);
+int ptp_device_info_json(const struct PtpDeviceInfo *di, char *buffer, int max);
 int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi);
-int ptp_prop_desc_json(struct PtpPropDesc *pd, char *buffer, int max);
+int ptp_prop_desc_json(const struct PtpPropDesc *pd, char *buffer, int max);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
-int ptp_storage_info_json(struct PtpStorageInfo *so, char *buffer, int max);
-int ptp_object_info_json(struct PtpObjectInfo *so, char *buffer, int max);
+int ptp_storage_info_json(const struct PtpStorageInfo *so, char *buffer, int max);
+int ptp_object_info_json(const struct PtpObjectInfo *so, char *buffer, int max);
 
 int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p);
 void *ptp_open_eos_events(struct PtpRuntime *r);
