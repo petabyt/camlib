@@ -89,48 +89,49 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<p>This is a Picture Transfer Protocol (PTP) library written in C. <a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
+<p>This is a Picture Transfer Protocol (PTP) library written in C.</p>
+<p><a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
 <p><em>(Unfinished, use at your own risk)</em> <br  />
 </p>
 <h1><a class="anchor" id="autotoc_md1"></a>
-Design</h1>
-<ul>
-<li>Data parsing, packet building, and I/O is all done in a single buffer (grows as needed)</li>
-<li>Will not perform memory allocations between operations</li>
-<li>Thread safe (optional)</li>
-<li>Portable, tested on Linux/OSX/Windows/Android/iOS</li>
-<li>No macros, plain C API</li>
-<li>Regression tested against <a href="https://github.com/petabyt/vcam">https://github.com/petabyt/vcam</a></li>
-</ul>
-<h1><a class="anchor" id="autotoc_md2"></a>
 Roadmap</h1>
 <ul class="check">
 <li class="checked">Complete working implemention of PTP as per ISO 15740</li>
 </ul>
 <ul class="check">
-<li class="checked">Working PTP/IP implementation</li>
+<li class="checked">Implement PTP/IP</li>
 </ul>
 <ul class="check">
-<li class="checked">Working natively on Linux, MacOS, Windows, and Android</li>
+<li class="checked">Tested and working on Linux, MacOS, Windows, Android, and iOS</li>
 </ul>
 <ul class="check">
-<li class="checked">Can convert most data structures to JSON</li>
+<li class="checked">Work natively on Windows witout libusb (<a href="https://github.com/petabyt/libwpd">libwpd</a>)</li>
 </ul>
 <ul class="check">
-<li class="checked">Camera liveviews</li>
+<li class="checked">Fcuntions to convert most data structures to JSON</li>
 </ul>
 <ul class="check">
-<li class="checked">Implements most EOS/Canon vendor OCs</li>
+<li class="checked">Implement most EOS/Canon features</li>
 </ul>
 <ul class="check">
 <li class="checked">Optional lua bindings</li>
 </ul>
 <ul class="check">
-<li class="checked">Thread safe</li>
+<li class="checked">Thread safety</li>
 </ul>
 <ul class="check">
-<li class="checked">Regression testing (vcam)</li>
+<li class="checked">CI/Regression testing (vcam)</li>
+</ul>
+<ul class="check">
+<li class="checked">Fujifilm support: Available <a href="https://github.com/petabyt/fudge">here as libfudge</a></li>
 <li class="unchecked">Sony support</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Design</h1>
+<ul>
+<li>Thread-safe</li>
+<li>No macros</li>
+<li>Uses a single in/out buffer (no memory allocations between operations)</li>
 </ul>
 <h1><a class="anchor" id="autotoc_md3"></a>
 Sample</h1>
