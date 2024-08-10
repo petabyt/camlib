@@ -1,17 +1,9 @@
 # Camlib C API
 
-Camlib uses *no macros*, so it's easy to use camlib from any language that has a basic C FFI. It would be trivial to
-write a binding for Rust.
+Camlib read and writes all data in a single buffer. When incoming data is parsed, it's also parsed in this buffer.
+This reduces the number of memory allocations needed for a single transaction (generally it will be zero), and simplifies memory management.
 
-Camlib also uses a single-buffer design. This means that all data, whether it comes in or out, is read, written, packed, and unpacked in a *single multi-megabyte buffer*.
-This is not done to reduce memory usage, but to decrease complexity and reduce the number of `malloc()` calls. It also helps prevent rogue memory leaks, which
-is crucial for apps, which have a very low memory limit.
-
-This means that functions processing or using this data *must* keep the operation mutex locked until processing is done, so long as
-the caller isn't making the application thread-safe. In a single-threaded application, there is no need for it to be thread-safe.
-
-Camlib was designed to run on a single thread, through a thread-safe server returning `bind` requests. This works well
-in many applications, but I'm slowly working on making it thread-safe for more complicated appliations.
+In a multithreaded application, this buffer must be protected by a mutex. See `ptp_mutex_` functions.
 
 ## `void ptp_init(struct PtpRuntime *r);`
 Initializes a `struct PtpRuntime`. The struct is pretty small. This allocates the a large buffer to `r.data`.
