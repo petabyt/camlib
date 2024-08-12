@@ -22,7 +22,7 @@ libcamlib.so: $(FILES) $(EXTRAS)
 ifeq ($(TARGET),m)
 CFLAGS += -I/usr/local/include/libusb-1.0
 libcamlib.dylib: $(FILES)
-	$(CC) -shared $(FILES) -L/usr/local/lib -lusb-1.0 -o libcamlib.so
+	$(CC) -shared $(FILES) -L/usr/local/lib `pkg-config --cflags --libs libusb` -o libcamlib.so
 endif
 
 %.o: %.c
