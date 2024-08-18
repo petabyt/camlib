@@ -143,7 +143,10 @@ struct PtpRuntime {
 
 	/// @brief For devices that implement it, this will hold a linked list of properties and an array of their supported values.
 	/// generic_ functions will reject set property calls if an invalid value is written.
+	/// @note: Optional
 	struct PtpPropAvail *avail;
+
+	struct ObjectCache *oc;
 };
 
 /// @brief Generic event / property change
@@ -296,6 +299,7 @@ void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int 
 void *ptp_dup_payload(struct PtpRuntime *r);
 
 // Write r->data to a file called DUMP
+/// @note Debugging only
 int ptp_dump(struct PtpRuntime *r);
 
 #define CAMLIB_INCLUDE_IMPL
@@ -315,5 +319,15 @@ int ptp_dump(struct PtpRuntime *r);
 	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
 	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
 #endif
+
+typedef void ptp_object_found_callback(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *arg);
+
+// Object service api (object.c) - optional
+struct ObjectCache *ptp_create_object_service(int *handles, int length, ptp_object_found_callback *callback, void *arg);
+struct PtpObjectInfo *ptp_object_service_get(struct PtpRuntime *r, struct ObjectCache *oc, int handle);
+struct PtpObjectInfo *ptp_object_service_get_index(struct PtpRuntime *r, struct ObjectCache *oc, int req_i);
+int ptp_object_service_length(struct PtpRuntime *r, struct ObjectCache *oc);
+int ptp_object_service_step(struct PtpRuntime *r, struct ObjectCache *oc);
+void ptp_object_service_add_priority(struct PtpRuntime *r, struct ObjectCache *oc, int handle);
 
 #endif
