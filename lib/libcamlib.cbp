@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libcamlib" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="build/bin/Debug/libcamlib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="build/obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-DBUILD_DLL" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="user32" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="build/bin/Release/libcamlib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="build/obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-DBUILD_DLL" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="user32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="../src" />
+			<Add directory="../../libusb/include" />
+		</Compiler>
+		<Linker>
+			<Add library="../../libusb/MinGW64/static/libusb-1.0.dll.a" />
+		</Linker>
+		<Unit filename="../src/lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/libusb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/no_ip.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/packet.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/transport.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lc_main.cpp" />
+		<Unit filename="lc_main.h" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>

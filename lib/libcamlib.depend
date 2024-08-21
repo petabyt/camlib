@@ -1,0 +1,137 @@
+# depslib dependency file v1.0
+1724249548 source:c:\programming\vs\camlib\src\lib.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<camlib.h>
+	<ptp.h>
+
+1724250741 c:\programming\vs\camlib\src\camlib.h
+	<stdio.h>
+	<stdint.h>
+	<pthread.h>
+	"ptp.h"
+	<unistd.h>
+	"cl_data.h"
+	"cl_backend.h"
+	"cl_ops.h"
+	"cl_enum.h"
+	"cl_bind.h"
+
+1724221973 c:\programming\vs\camlib\src\ptp.h
+	<stdint.h>
+
+1724250030 c:\programming\vs\camlib\src\cl_data.h
+
+1724250116 c:\programming\vs\camlib\src\cl_backend.h
+
+1724250353 c:\programming\vs\camlib\src\cl_ops.h
+
+1724250212 c:\programming\vs\camlib\src\cl_enum.h
+
+1724250163 c:\programming\vs\camlib\src\cl_bind.h
+
+1724248613 source:c:\programming\vs\camlib\src\libusb.c
+	<errno.h>
+	<stdio.h>
+	<stdlib.h>
+	<libusb.h>
+	<string.h>
+	<camlib.h>
+	<ptp.h>
+
+1706476649 c:\programming\vs\libusb\include\libusb.h
+	<basetsd.h>
+	<limits.h>
+	<stdint.h>
+	<sys/types.h>
+	<sys/time.h>
+	<time.h>
+	<windows.h>
+	<winsock.h>
+
+1724221973 source:c:\programming\vs\camlib\src\log.c
+	<stdio.h>
+	<stdarg.h>
+	<stdlib.h>
+	<camlib.h>
+
+1724221973 source:c:\programming\vs\camlib\src\no_ip.c
+	<camlib.h>
+	<ptp.h>
+
+1724221973 source:c:\programming\vs\camlib\src\packet.c
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<assert.h>
+	<ptp.h>
+	<camlib.h>
+
+1724221973 source:c:\programming\vs\camlib\src\transport.c
+	<stdio.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<camlib.h>
+
+1724249847 source:c:\programming\vs\camlib\lib\lc_main.cpp
+	"lc_main.h"
+	<stdio.h>
+	<stdint.h>
+	<pthread.h>
+	<libusb.h>
+	<camlib.h>
+	<lib.c>
+	<log.c>
+	<packet.c>
+	<transport.c>
+	<no_ip.c>
+	<libusb.c>
+
+1724248874 c:\programming\vs\camlib\lib\lc_main.h
+	<windows.h>
+
+1724249548 c:\programming\vs\camlib\src\lib.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<camlib.h>
+	<ptp.h>
+
+1724221973 c:\programming\vs\camlib\src\log.c
+	<stdio.h>
+	<stdarg.h>
+	<stdlib.h>
+	<camlib.h>
+
+1724221973 c:\programming\vs\camlib\src\packet.c
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<assert.h>
+	<ptp.h>
+	<camlib.h>
+
+1724221973 c:\programming\vs\camlib\src\transport.c
+	<stdio.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<camlib.h>
+
+1724221973 c:\programming\vs\camlib\src\no_ip.c
+	<camlib.h>
+	<ptp.h>
+
+1724248613 c:\programming\vs\camlib\src\libusb.c
+	<errno.h>
+	<stdio.h>
+	<stdlib.h>
+	<libusb.h>
+	<string.h>
+	<camlib.h>
+	<ptp.h>
+
+1724248080 c:\programming\vs\camlib\lib\cl_backend.h
+

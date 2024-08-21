@@ -3,10 +3,10 @@
 
 #define MAX_ENUM_LENGTH 64
 
-int ptp_enum_all(char *string);
-int ptp_enum(int type, char *string);
-char *ptp_get_enum(int type, int vendor, int id);
-char *ptp_get_enum_all(int id);
+DLL_EXPORT int ptp_enum_all(char *string);
+DLL_EXPORT int ptp_enum(int type, char *string);
+DLL_EXPORT char *ptp_get_enum(int type, int vendor, int id);
+DLL_EXPORT char *ptp_get_enum_all(int id);
 
 extern char *enum_null;
 

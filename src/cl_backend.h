@@ -22,46 +22,46 @@ struct PtpDeviceEntry {
 	struct PtpDeviceEntry *next;
 };
 
-int ptp_comm_init(struct PtpRuntime *r);
-struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
-void ptpusb_free_device_list(struct PtpDeviceEntry *e);
-int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
+DLL_EXPORT int ptp_comm_init(struct PtpRuntime *r);
+DLL_EXPORT struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
+DLL_EXPORT void ptpusb_free_device_list(struct PtpDeviceEntry *e);
+DLL_EXPORT int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
 
 // Init comm (if not already) and connect to the first device available
-int ptp_device_init(struct PtpRuntime *r);
+DLL_EXPORT int ptp_device_init(struct PtpRuntime *r);
 
 // Temporary :)
 #define ptp_send_bulk_packet DEPRECATED_USE_ptp_cmd_write_INSTEAD
 #define ptp_receive_bulk_packet DEPRECATED_USE_ptp_cmd_read_INSTEAD
 
 // Bare IO, send a single 512 byte packet. Return negative or NULL on error.
-int ptp_cmd_write(struct PtpRuntime *r, void *to, int length);
-int ptp_cmd_read(struct PtpRuntime *r, void *to, int length);
+DLL_EXPORT int ptp_cmd_write(struct PtpRuntime *r, void *to, int length);
+DLL_EXPORT int ptp_cmd_read(struct PtpRuntime *r, void *to, int length);
 
 // Reset the pipe, can clear issues
-int ptp_device_reset(struct PtpRuntime *r);
+DLL_EXPORT int ptp_device_reset(struct PtpRuntime *r);
 
 // Recieve all packets, and whatever else (common logic for all backends)
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
-int ptp_receive_bulk_packets(struct PtpRuntime *r);
-int ptp_read_int(struct PtpRuntime *r, void *to, int length);
+DLL_EXPORT int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
+DLL_EXPORT int ptp_receive_bulk_packets(struct PtpRuntime *r);
+DLL_EXPORT int ptp_read_int(struct PtpRuntime *r, void *to, int length);
 
-int ptp_device_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
+DLL_EXPORT int ptp_device_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
 
 // Upload file data as packets, but upload r->data till length first
-int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
+DLL_EXPORT int ptp_fsend_packets(struct PtpRuntime *r, int length, FILE *stream);
 
 // Reads the incoming packet to file, starting after an optional offset
-int ptp_freceive_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
+DLL_EXPORT int ptp_freceive_bulk_packets(struct PtpRuntime *r, FILE *stream, int of);
 
-int ptpip_connect(struct PtpRuntime *r, const char *addr, int port);
-int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size);
-int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size);
+DLL_EXPORT int ptpip_connect(struct PtpRuntime *r, const char *addr, int port);
+DLL_EXPORT int ptpip_cmd_write(struct PtpRuntime *r, void *data, int size);
+DLL_EXPORT int ptpip_cmd_read(struct PtpRuntime *r, void *data, int size);
 
-int ptpip_connect_events(struct PtpRuntime *r, const char *addr, int port);
-int ptpip_event_send(struct PtpRuntime *r, void *data, int size);
-int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
+DLL_EXPORT int ptpip_connect_events(struct PtpRuntime *r, const char *addr, int port);
+DLL_EXPORT int ptpip_event_send(struct PtpRuntime *r, void *data, int size);
+DLL_EXPORT int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
 
-int ptpip_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
+DLL_EXPORT int ptpip_close(struct PtpRuntime *r); // TODO: Disconnect, confusing with ptp_close
 
 #endif

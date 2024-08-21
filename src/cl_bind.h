@@ -25,11 +25,11 @@ struct BindReq {
 };
 
 // Run a binding - will return JSON
-int bind_run(struct PtpRuntime *r, char *req, char *buffer, int size);
+DLL_EXPORT int bind_run(struct PtpRuntime *r, char *req, char *buffer, int size);
 
 // Run a binding directly from the structure
-int bind_run_req(struct PtpRuntime *r, struct BindReq *bind, char *buffer, int max);
+DLL_EXPORT int bind_run_req(struct PtpRuntime *r, struct BindReq *bind, char *buffer, int max);
 
-void bind_parse(struct BindReq *br, char *req);
+DLL_EXPORT void bind_parse(struct BindReq *br, char *req);
 
 #endif
