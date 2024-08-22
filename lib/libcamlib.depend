@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1724249548 source:c:\programming\vs\camlib\src\lib.c
+1724251954 source:c:\programming\vs\camlib\src\lib.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -31,7 +31,7 @@
 
 1724250163 c:\programming\vs\camlib\src\cl_bind.h
 
-1724248613 source:c:\programming\vs\camlib\src\libusb.c
+1724251968 source:c:\programming\vs\camlib\src\libusb.c
 	<errno.h>
 	<stdio.h>
 	<stdlib.h>
@@ -75,7 +75,7 @@
 	<string.h>
 	<camlib.h>
 
-1724249847 source:c:\programming\vs\camlib\lib\lc_main.cpp
+1724251637 source:c:\programming\vs\camlib\lib\lc_main.cpp
 	"lc_main.h"
 	<stdio.h>
 	<stdint.h>
@@ -83,16 +83,16 @@
 	<libusb.h>
 	<camlib.h>
 	<lib.c>
+	<libusb.c>
 	<log.c>
+	<no_ip.c>
 	<packet.c>
 	<transport.c>
-	<no_ip.c>
-	<libusb.c>
 
-1724248874 c:\programming\vs\camlib\lib\lc_main.h
+1724251214 c:\programming\vs\camlib\lib\lc_main.h
 	<windows.h>
 
-1724249548 c:\programming\vs\camlib\src\lib.c
+1724251954 c:\programming\vs\camlib\src\lib.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -124,7 +124,7 @@
 	<camlib.h>
 	<ptp.h>
 
-1724248613 c:\programming\vs\camlib\src\libusb.c
+1724251968 c:\programming\vs\camlib\src\libusb.c
 	<errno.h>
 	<stdio.h>
 	<stdlib.h>
@@ -134,4 +134,16 @@
 	<ptp.h>
 
 1724248080 c:\programming\vs\camlib\lib\cl_backend.h
+
+1724255376 source:c:\programming\vs\camlib\src\ip.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<fcntl.h>
+	<errno.h>
+	<sys/types.h>
+	<winsock.h>
+	<camlib.h>
+	<ptp.h>
 

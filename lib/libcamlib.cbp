@@ -46,7 +46,11 @@
 		</Compiler>
 		<Linker>
 			<Add library="../../libusb/MinGW64/static/libusb-1.0.dll.a" />
+			<Add library="libws2_32.a" />
 		</Linker>
+		<Unit filename="../src/ip.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../src/lib.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -54,9 +58,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/log.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../src/no_ip.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/packet.c">

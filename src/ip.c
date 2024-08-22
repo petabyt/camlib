@@ -8,11 +8,18 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netinet/tcp.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+
+#ifdef WIN32
+   #include <winsock.h>
+
+   typedef int socklen_t;
+#else
+  #include <sys/socket.h>
+  #include <sys/select.h>
+  #include <netinet/tcp.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+#endif
 
 #include <camlib.h>
 #include <ptp.h>
@@ -25,6 +32,9 @@ struct PtpIpBackend {
 };
 
 static int set_nonblocking_io(int sockfd, int enable) {
+ #ifdef WIN32
+    return ioctlsocket(sockfd, FIONBIO, (unsigned long *) &enable);
+ #else
 	int flags = fcntl(sockfd, F_GETFL, 0);
 	if (flags == -1)
 		return -1;
@@ -36,6 +46,7 @@ static int set_nonblocking_io(int sockfd, int enable) {
 	}
 
 	return fcntl(sockfd, F_SETFL, flags);
+ #endif
 }
 
 int ptpip_new_timeout_socket(const char *addr, int port) {
@@ -117,7 +128,7 @@ int ptpip_new_timeout_socket(const char *addr, int port) {
 
 static struct PtpIpBackend *init_comm(struct PtpRuntime *r) {
 	if (r->comm_backend == NULL) {
-		r->comm_backend = calloc(1, sizeof(struct PtpIpBackend)); 
+		r->comm_backend = calloc(1, sizeof(struct PtpIpBackend));
 	}
 
 	return (struct PtpIpBackend *)r->comm_backend;
