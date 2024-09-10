@@ -22,5 +22,6 @@ void ptp_panic(char *fmt, ...) {
 	vprintf(fmt, args);
 	va_end(args);
 	fflush(stdout);
+	putchar('\n');
 	abort();
 }

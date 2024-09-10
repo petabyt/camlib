@@ -74,7 +74,7 @@ int test_eos_t6() {
 
 	rc = ptp_get_device_info(&r, &di);
 	if (rc) return rc;
-	char buffer[2048];
+	char buffer[4096];
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
@@ -155,7 +155,7 @@ int test_fs() {
 	struct PtpDeviceInfo di;
 	rc = ptp_get_device_info(&r, &di);
 	if (rc) return rc;
-	char buffer[2048];
+	char buffer[4096];
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);
 
@@ -208,11 +208,11 @@ int test_fs() {
 static void *thread(void *arg) {
 	struct PtpRuntime *r = (struct PtpRuntime *)arg;
 
-	if (rand() & 1 == 0) {
+	if ((rand() & 1) == 0) {
 		struct PtpDeviceInfo di;
 		int rc = ptp_get_device_info(r, &di);
 		if (rc) goto err;
-		char buffer[2048];
+		char buffer[4096];
 		ptp_device_info_json(&di, buffer, sizeof(buffer));
 		printf("%s\n", buffer);
 	} else {
