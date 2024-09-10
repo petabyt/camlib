@@ -17,7 +17,7 @@ jobs:
 
     - name: Clone latest vcam
       run: |
-        bash https://raw.githubusercontent.com/petabyt/vcam/master/install.sh
+        curl https://raw.githubusercontent.com/petabyt/vcam/master/install.sh | bash
 
     - name: Build
       run: |
