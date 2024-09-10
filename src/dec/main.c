@@ -43,9 +43,10 @@ int decode_eos_evproc(FILE *f, int length, uint8_t *data) {
 
 int main(int argc, char *argv[]) {
 	if (argc < 3) {
-		puts(
+		printf(
+			"Camlib PTP decoder utility - Compiled " __DATE__ "\n"
 			"Usage:\n"
-			"ptpd <dump_file> <output_file>");
+			"ptpd <dump_file> <output_file>\n");
 		return 0;
 	}
 
@@ -178,5 +179,6 @@ int main(int argc, char *argv[]) {
 
 	fclose(f);
 	free(buffer);
+	printf("Wrote to %s\n", argv[2]);
 	return 0;
 }
