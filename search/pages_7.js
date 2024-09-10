@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wip_0',['Magic Lantern PTP Ext (WIP)',['../md_docs_2ml.html',1,'']]]
+  ['work_0',['How does PTP work?',['../md_docs_2ptp.html',1,'']]]
 ];

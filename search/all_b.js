@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['response_5fwait_5fdefault_0',['response_wait_default',['../structPtpRuntime.html#a37501cfcd57c6d29d2201bccfa822d0e',1,'PtpRuntime']]],
-  ['roadmap_1',['Roadmap',['../index.html#autotoc_md1',1,'']]]
+  ['quick_20overview_20of_20ptp_20standard_0',['Quick Overview of PTP Standard',['../md_docs_2ptp.html#autotoc_md16',1,'']]]
 ];

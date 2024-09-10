@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['for_20camlib_0',['Documentation For Camlib',['../md_docs_2ptp.html',1,'']]]
+  ['how_20does_20ptp_20work_0',['How does PTP work?',['../md_docs_2ptp.html',1,'']]]
 ];
