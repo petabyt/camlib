@@ -3,7 +3,7 @@ This is a Picture Transfer Protocol (PTP) library written in C.
 
 [Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
 
-*(Unfinished, use at your own risk)*  
+*(This library doesn't have a stable release yet, use at your own risk)*  
 
 ## Roadmap
 - [x] Complete working implemention of PTP as per ISO 15740
@@ -16,7 +16,6 @@ This is a Picture Transfer Protocol (PTP) library written in C.
 - [x] Thread safety
 - [x] CI/Regression testing (vcam)
 - [x] Fujifilm support: Available [here as libfudge](https://github.com/petabyt/fudge)
-- [ ] Sony support
 
 ## Design
 - Thread-safe
