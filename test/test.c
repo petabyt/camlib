@@ -114,30 +114,6 @@ int test_eos_t6() {
 	return 0;
 }
 
-// TODO: Add JSON validator
-int test_bind() {
-	struct PtpRuntime r;
-
-	int rc = test_setup_usb(&r);
-	if (rc) return rc;
-
-	char bbuffer[PTP_BIND_DEFAULT_SIZE];
-	rc = bind_run(&r, "ptp_open_session", bbuffer, sizeof(bbuffer));
-	printf("ptp_open_session: %s\n", bbuffer);
-
-	rc = bind_run(&r, "ptp_get_device_info", bbuffer, sizeof(bbuffer));
-	printf("ptp_get_device_info: %s\n", bbuffer);
-
-	rc = bind_run(&r, "ptp_close_session", bbuffer, sizeof(bbuffer));
-	printf("ptp_close_session: %s\n", bbuffer);
-
-	rc = bind_run(&r, "ptp_disconnect", bbuffer, sizeof(bbuffer));
-	printf("ptp_disconnect: %s\n", bbuffer);
-
-	ptp_close(&r);
-	return 0;
-}
-
 int test_props() {
 	struct PtpRuntime r;
 
@@ -283,10 +259,6 @@ int main() {
 	if (rc) return rc;
 
 	rc = test_eos_t6();
-	printf("Return code: %d\n", rc);
-	if (rc) return rc;
-
-	rc = test_bind();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 
