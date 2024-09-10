@@ -18,7 +18,7 @@ int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 		x = ptp_cmd_write(r, r->data + sent, length);
 
 		if (x < 0) {
-			ptp_verbose_log("send_bulk_packet: %d\n", __func__, x);
+			ptp_verbose_log("%s: %d\n", __func__, x);
 			return PTP_IO_ERR;
 		}
 		

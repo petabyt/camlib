@@ -5,6 +5,10 @@
 #include <string.h>
 
 struct ObjectCache {
+	// List of indexes to priority objects
+	// List of indexes to access object list -> status[i].info or status[i]->thumb
+	// GetObjects will traverse index list and return downloaded objects
+
 	// Unoptimized array
 	struct ObjectStatus {
 		int handle;
@@ -137,4 +141,9 @@ struct ObjectCache *ptp_create_object_service(int *handles, int length, ptp_obje
 	}
 
 	return oc;
+}
+
+void ptp_free_object_service(struct ObjectCache *oc) {
+	free(oc->status);
+	free(oc);
 }
