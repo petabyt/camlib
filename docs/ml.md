@@ -1,4 +1,6 @@
-# Magic Lantern PTP Ext (WIP)
+# Magic Lantern PTP Ext
+
+**draft, do not use this**
 
 Magic Lantern had a custom PTP opcode, (`0xA1E8`) but it's been left disabled since around 2012. This is a specification
 for a new opcode extension for ML, using only opcode `0x1998` (after CHDK's `0x9999`).

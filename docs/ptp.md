@@ -1,4 +1,4 @@
-# Documentation For Camlib
+# How does PTP work?
 - PDF Reference for PTP and MTP: https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement
 - PTP/IP has no free public reference :(
 
