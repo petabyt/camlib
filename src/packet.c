@@ -60,6 +60,7 @@ int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, in
 	int of = 0;
 	uint32_t n;
 	of += ptp_read_u32(bs + of, &n);
+	(*length) = n;
 	boundcheck(bs, be, 4 * n + 4);
 	for (uint32_t i = 0; i < n; i++) {
 		if (i >= max) {
