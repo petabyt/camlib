@@ -171,22 +171,23 @@ typedef void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_fo
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a9fa077df1a63de2388ae3428b9defd2f" id="r_a9fa077df1a63de2388ae3428b9defd2f"><td class="memItemLeft" align="right" valign="top"><a id="a9fa077df1a63de2388ae3428b9defd2f" name="a9fa077df1a63de2388ae3428b9defd2f"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fa077df1a63de2388ae3428b9defd2f">PtpGeneralError</a> { <br />
+<tr class="memitem:a9fa077df1a63de2388ae3428b9defd2f" id="r_a9fa077df1a63de2388ae3428b9defd2f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fa077df1a63de2388ae3428b9defd2f">PtpGeneralError</a> { <br />
 &#160;&#160;<b>PTP_OK</b> = 0
-, <b>PTP_NO_DEVICE</b> = -1
-, <b>PTP_NO_PERM</b> = -2
-, <b>PTP_OPEN_FAIL</b> = -3
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa2b7ab22ac83d3cca579a663f28a87eca">PTP_NO_DEVICE</a> = -1
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2facf86b39141e38033a9f26bcde63681f3">PTP_NO_PERM</a> = -2
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa88bf42a9045fae4232a711ff5f7ea223">PTP_OPEN_FAIL</a> = -3
 , <br />
-&#160;&#160;<b>PTP_OUT_OF_MEM</b> = -4
-, <b>PTP_IO_ERR</b> = -5
-, <b>PTP_RUNTIME_ERR</b> = -6
-, <b>PTP_UNSUPPORTED</b> = -7
+&#160;&#160;<a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fad7b5d94a6766a38a465375688e4b740e">PTP_OUT_OF_MEM</a> = -4
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa86c997554de6876e8141e174a6518a66">PTP_IO_ERR</a> = -5
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa49f251229c1a3a6bcdc11554ed780885">PTP_RUNTIME_ERR</a> = -6
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fad6a32c999f672344284e734de090b18d">PTP_UNSUPPORTED</a> = -7
 , <br />
-&#160;&#160;<b>PTP_CHECK_CODE</b> = -8
-, <b>PTP_CANCELED</b> = -9
+&#160;&#160;<a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa1ec9bfed0536843eae27c034f7fbc458">PTP_CHECK_CODE</a> = -8
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2faba5665878d11d706436a8fd714aa8f44">PTP_CANCELED</a> = -9
+, <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2fa83904f9b02a37b8f4e7ad6a8c9f349c9">PTP_COMMAND_IGNORED</a> = -10
 <br />
  }</td></tr>
-<tr class="memdesc:a9fa077df1a63de2388ae3428b9defd2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Camlib library errors, not PTP return codes. <br /></td></tr>
+<tr class="memdesc:a9fa077df1a63de2388ae3428b9defd2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Camlib library errors, not PTP return codes.  <a href="#a9fa077df1a63de2388ae3428b9defd2f">More...</a><br /></td></tr>
 <tr class="separator:a9fa077df1a63de2388ae3428b9defd2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58ba8584a918cea5af6d05cac0cf3313" id="r_a58ba8584a918cea5af6d05cac0cf3313"><td class="memItemLeft" align="right" valign="top"><a id="a58ba8584a918cea5af6d05cac0cf3313" name="a58ba8584a918cea5af6d05cac0cf3313"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>PtpLiveViewType</b> { <br />
 &#160;&#160;<b>PTP_LV_NONE</b> = 0
@@ -449,6 +450,46 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_ad
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">ptp_get_last_transaction_id(__VA_ARGS__)</div>
 </div><!-- fragment -->
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a9fa077df1a63de2388ae3428b9defd2f" name="a9fa077df1a63de2388ae3428b9defd2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fa077df1a63de2388ae3428b9defd2f">&#9670;&#160;</a></span>PtpGeneralError</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a9fa077df1a63de2388ae3428b9defd2f">PtpGeneralError</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Camlib library errors, not PTP return codes. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa2b7ab22ac83d3cca579a663f28a87eca" name="a9fa077df1a63de2388ae3428b9defd2fa2b7ab22ac83d3cca579a663f28a87eca"></a>PTP_NO_DEVICE&#160;</td><td class="fielddoc"><p>No device found (USB) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2facf86b39141e38033a9f26bcde63681f3" name="a9fa077df1a63de2388ae3428b9defd2facf86b39141e38033a9f26bcde63681f3"></a>PTP_NO_PERM&#160;</td><td class="fielddoc"><p>EPERM or other permission denied error. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa88bf42a9045fae4232a711ff5f7ea223" name="a9fa077df1a63de2388ae3428b9defd2fa88bf42a9045fae4232a711ff5f7ea223"></a>PTP_OPEN_FAIL&#160;</td><td class="fielddoc"><p>Found device, but failed to connect. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fad7b5d94a6766a38a465375688e4b740e" name="a9fa077df1a63de2388ae3428b9defd2fad7b5d94a6766a38a465375688e4b740e"></a>PTP_OUT_OF_MEM&#160;</td><td class="fielddoc"><p>malloc failed </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa86c997554de6876e8141e174a6518a66" name="a9fa077df1a63de2388ae3428b9defd2fa86c997554de6876e8141e174a6518a66"></a>PTP_IO_ERR&#160;</td><td class="fielddoc"><p>General IO or communication error. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa49f251229c1a3a6bcdc11554ed780885" name="a9fa077df1a63de2388ae3428b9defd2fa49f251229c1a3a6bcdc11554ed780885"></a>PTP_RUNTIME_ERR&#160;</td><td class="fielddoc"><p>Unexpected, unhandled, or illegal behavior. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fad6a32c999f672344284e734de090b18d" name="a9fa077df1a63de2388ae3428b9defd2fad6a32c999f672344284e734de090b18d"></a>PTP_UNSUPPORTED&#160;</td><td class="fielddoc"><p>Operation or functionality isn't implemented or supported. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa1ec9bfed0536843eae27c034f7fbc458" name="a9fa077df1a63de2388ae3428b9defd2fa1ec9bfed0536843eae27c034f7fbc458"></a>PTP_CHECK_CODE&#160;</td><td class="fielddoc"><p>response code is not PTP_RC_OK </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2faba5665878d11d706436a8fd714aa8f44" name="a9fa077df1a63de2388ae3428b9defd2faba5665878d11d706436a8fd714aa8f44"></a>PTP_CANCELED&#160;</td><td class="fielddoc"><p>Operation (such as download) was canceled by another thread. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9fa077df1a63de2388ae3428b9defd2fa83904f9b02a37b8f4e7ad6a8c9f349c9" name="a9fa077df1a63de2388ae3428b9defd2fa83904f9b02a37b8f4e7ad6a8c9f349c9"></a>PTP_COMMAND_IGNORED&#160;</td><td class="fielddoc"><p>No response. </p>
+<dl class="section note"><dt>Note</dt><dd>Used internally only </dd></dl>
+</td></tr>
+</table>
+
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>

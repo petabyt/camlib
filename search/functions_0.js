@@ -33,6 +33,6 @@ var searchData=
   ['ptp_5fsend_5fdata_30',['ptp_send_data',['../structPtpRuntime.html#a04dd3974506089f9c0b248e94b34a0ed',1,'PtpRuntime']]],
   ['ptp_5fset_5fgeneric_5fproperty_31',['ptp_set_generic_property',['../structPtpRuntime.html#a14deac23d2f24cc1188c499a1255e5f9',1,'PtpRuntime']]],
   ['ptp_5ftake_5fpicture_32',['ptp_take_picture',['../structPtpRuntime.html#aace66256ef8a5a751e1b1bdf38787aa1',1,'PtpRuntime']]],
-  ['ptpip_5finit_5fcommand_5frequest_33',['ptpip_init_command_request',['../structPtpRuntime.html#a608fc909a1d17cf3e8ad39b261c994bf',1,'PtpRuntime']]],
+  ['ptpip_5finit_5fcommand_5frequest_33',['ptpip_init_command_request',['../structPtpRuntime.html#a35ecd085b423e6312a5214b1d0573e4c',1,'PtpRuntime']]],
   ['ptpip_5finit_5fevents_34',['ptpip_init_events',['../structPtpRuntime.html#aab71c60e32fb92e3c5458431006c57da',1,'PtpRuntime']]]
 ];
