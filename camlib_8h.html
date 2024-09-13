@@ -241,9 +241,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_verbose_log</b> (
 const char *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_perror</b> (int rc)</td></tr>
 <tr class="memdesc:a4be7b7db9e745e655b26523a9429b009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluates PtpGeneralError into string message. <br /></td></tr>
 <tr class="separator:a4be7b7db9e745e655b26523a9429b009"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c2d617cd9bb32537e1448e54e1bad72" id="r_a5c2d617cd9bb32537e1448e54e1bad72"><td class="memItemLeft" align="right" valign="top"><a id="a5c2d617cd9bb32537e1448e54e1bad72" name="a5c2d617cd9bb32537e1448e54e1bad72"></a>
-PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_unicode_string</b> (char *dat, char *string)</td></tr>
-<tr class="separator:a5c2d617cd9bb32537e1448e54e1bad72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a253afe7ab3ee3c7d0f6e47cf4f42e02d" id="r_a253afe7ab3ee3c7d0f6e47cf4f42e02d"><td class="memItemLeft" align="right" valign="top"><a id="a253afe7ab3ee3c7d0f6e47cf4f42e02d" name="a253afe7ab3ee3c7d0f6e47cf4f42e02d"></a>
+PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_unicode_string</b> (char *dat, const char *string)</td></tr>
+<tr class="separator:a253afe7ab3ee3c7d0f6e47cf4f42e02d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12130af7fe9958fd7c1bf556794a54d7" id="r_a12130af7fe9958fd7c1bf556794a54d7"><td class="memItemLeft" align="right" valign="top"><a id="a12130af7fe9958fd7c1bf556794a54d7" name="a12130af7fe9958fd7c1bf556794a54d7"></a>
 PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_unicode_string</b> (char *buffer, char *dat, int max)</td></tr>
 <tr class="separator:a12130af7fe9958fd7c1bf556794a54d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -253,15 +253,15 @@ PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_utf8_stri
 <tr class="memitem:a37d57e64590b5e507b2f7cee01f4463e" id="r_a37d57e64590b5e507b2f7cee01f4463e"><td class="memItemLeft" align="right" valign="top"><a id="a37d57e64590b5e507b2f7cee01f4463e" name="a37d57e64590b5e507b2f7cee01f4463e"></a>
 PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_string</b> (uint8_t *dat, char *string, int max)</td></tr>
 <tr class="separator:a37d57e64590b5e507b2f7cee01f4463e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c1bca94f2a06e32dae7fcfa1af8d79a" id="r_a8c1bca94f2a06e32dae7fcfa1af8d79a"><td class="memItemLeft" align="right" valign="top"><a id="a8c1bca94f2a06e32dae7fcfa1af8d79a" name="a8c1bca94f2a06e32dae7fcfa1af8d79a"></a>
-PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_string</b> (uint8_t *dat, char *string)</td></tr>
-<tr class="separator:a8c1bca94f2a06e32dae7fcfa1af8d79a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4502b03bcba9e80aed94b4c8ed903949" id="r_a4502b03bcba9e80aed94b4c8ed903949"><td class="memItemLeft" align="right" valign="top"><a id="a4502b03bcba9e80aed94b4c8ed903949" name="a4502b03bcba9e80aed94b4c8ed903949"></a>
-PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_utf8_string</b> (void *dat, char *string)</td></tr>
-<tr class="separator:a4502b03bcba9e80aed94b4c8ed903949"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a211f249c934406471d457a3f7bf2ad22" id="r_a211f249c934406471d457a3f7bf2ad22"><td class="memItemLeft" align="right" valign="top"><a id="a211f249c934406471d457a3f7bf2ad22" name="a211f249c934406471d457a3f7bf2ad22"></a>
-PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_uint16_array</b> (uint8_t *dat, uint16_t *buf, int max, int *length)</td></tr>
-<tr class="separator:a211f249c934406471d457a3f7bf2ad22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10f3bb7aa8e44b2127e92b3baddcc788" id="r_a10f3bb7aa8e44b2127e92b3baddcc788"><td class="memItemLeft" align="right" valign="top"><a id="a10f3bb7aa8e44b2127e92b3baddcc788" name="a10f3bb7aa8e44b2127e92b3baddcc788"></a>
+PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_string</b> (uint8_t *dat, const char *string)</td></tr>
+<tr class="separator:a10f3bb7aa8e44b2127e92b3baddcc788"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5b0df5a9e6600619172f49cb43e78d3" id="r_ac5b0df5a9e6600619172f49cb43e78d3"><td class="memItemLeft" align="right" valign="top"><a id="ac5b0df5a9e6600619172f49cb43e78d3" name="ac5b0df5a9e6600619172f49cb43e78d3"></a>
+PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_write_utf8_string</b> (void *dat, const char *string)</td></tr>
+<tr class="separator:ac5b0df5a9e6600619172f49cb43e78d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4d7c72a699e399112d696dde8966fc6" id="r_ab4d7c72a699e399112d696dde8966fc6"><td class="memItemLeft" align="right" valign="top"><a id="ab4d7c72a699e399112d696dde8966fc6" name="ab4d7c72a699e399112d696dde8966fc6"></a>
+PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_uint16_array</b> (const uint8_t *dat, uint16_t *buf, int max, int *length)</td></tr>
+<tr class="separator:ab4d7c72a699e399112d696dde8966fc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbe616f67aa4393c7c991acef53174e6" id="r_afbe616f67aa4393c7c991acef53174e6"><td class="memItemLeft" align="right" valign="top"><a id="afbe616f67aa4393c7c991acef53174e6" name="afbe616f67aa4393c7c991acef53174e6"></a>
 PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_read_uint16_array_s</b> (uint8_t *bs, uint8_t *be, uint16_t *buf, int max, int *length)</td></tr>
 <tr class="separator:afbe616f67aa4393c7c991acef53174e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
