@@ -95,6 +95,7 @@ enum ImageFormats {
 
 /// @brief Tells lib what backend and packet style to use
 enum PtpConnType {
+	// why this this a bitmask??
 	PTP_IP = (1 << 0),
 	PTP_IP_USB = (1 << 1), // TCP-based, but using USB-style packets (Fujifilm)
 	PTP_USB = (1 << 2),
@@ -141,7 +142,7 @@ struct PtpRuntime {
 	int device_type;
 
 	/// @brief For Windows compatibility, this is set to indicate lenth for a data packet
-	/// that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called.
+	/// that will be sent after a command packet. Will be set to zero when ptp_send_packet is called.
 	int data_phase_length;
 
 	/// @brief For session comm/io structures (holds backend instance pointers)
@@ -253,6 +254,10 @@ PUB int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 /// @memberof PtpRuntime
 PUB void ptp_mutex_unlock(struct PtpRuntime *r);
 
+/// @brief Completely unlock the mutex for the current thread, to ensure there isn't a deadlock
+/// @memberof PtpRuntime
+PUB void ptp_mutex_unlock_thread(struct PtpRuntime *r);
+
 /// @brief Keep the mutex locked one more time for the current thread
 /// @note  When calling a thread-safe function, this will garuntee the mutex locked, in the
 /// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
@@ -318,7 +323,7 @@ void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int 
 
 void *ptp_dup_payload(struct PtpRuntime *r);
 
-// Write r->data to a file called DUMP
+/// @brief Write r->data to a file called DUMP
 /// @note Debugging only
 int ptp_dump(struct PtpRuntime *r);
 

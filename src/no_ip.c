@@ -7,7 +7,7 @@ int ptpip_new_timeout_socket(char *addr, int port) {
 	return -1;	
 }
 
-int ptpip_connect(struct PtpRuntime *r, const char *addr, int port) {
+int ptpip_connect(struct PtpRuntime *r, const char *addr, int port, int extra_tmout) {
 	return -1;
 }
 

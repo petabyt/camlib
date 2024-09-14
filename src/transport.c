@@ -33,7 +33,7 @@ int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 	}
 }
 
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length) {
+int ptp_send_packet(struct PtpRuntime *r, int length) {
 	if (r->connection_type == PTP_USB) {
 		return ptpusb_send_bulk_packets(r, length);
 	}
@@ -82,7 +82,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 
 	if (rc < 0) {
 		ptp_verbose_log("Failed to read packet length: %d\n", rc);
-		return PTP_IO_ERR;
+		return PTP_COMMAND_IGNORED;
 	}
 
 	if (rc < 4) {
@@ -258,7 +258,7 @@ int ptpipusb_read_packet(struct PtpRuntime *r, int of) {
 
 	if (rc < 0) {
 		ptp_verbose_log("Failed to read packet length: %d\n", rc);
-		return PTP_IO_ERR;
+		return PTP_COMMAND_IGNORED;
 	}
 
 	if (rc < 4) {
@@ -319,6 +319,7 @@ int ptpipusb_receive_bulk_packets(struct PtpRuntime *r) {
 	// Handle data phase
 	if (c->type == PTP_PACKET_TYPE_DATA) {
 		rc = ptpipusb_read_packet(r, read);
+		if (rc == PTP_COMMAND_IGNORED) rc = PTP_IO_ERR; // Command was not ignored as we got a data packet
 		if (rc < 0) return rc;
 
 		read += rc;
@@ -330,7 +331,7 @@ int ptpipusb_receive_bulk_packets(struct PtpRuntime *r) {
 	return read;
 }
 
-int ptp_receive_bulk_packets(struct PtpRuntime *r) {
+int ptp_receive_all_packets(struct PtpRuntime *r) {
 	if (r->io_kill_switch) return -1;
 	if (r->connection_type == PTP_IP) {
 		return ptpip_receive_bulk_packets(r);

@@ -54,10 +54,12 @@ int ptp_device_reset(struct PtpRuntime *r);
 
 /// @brief Send packets in r->data
 /// @memberof PTP/USB
-int ptp_send_bulk_packets(struct PtpRuntime *r, int length);
+int ptp_send_packet(struct PtpRuntime *r, int length);
+
 /// @brief Receive all packets into r->data
 /// @memberof PTP/USB
-int ptp_receive_bulk_packets(struct PtpRuntime *r);
+int ptp_receive_all_packets(struct PtpRuntime *r);
+
 /// @brief Poll the interrupt endpoint
 /// @memberof PTP/USB
 int ptp_read_int(struct PtpRuntime *r, void *to, int length);

@@ -146,35 +146,88 @@ void ptp_mutex_unlock_thread(struct PtpRuntime *r) {
 	while (pthread_mutex_unlock(r->mutex) == 0); 
 }
 
+static int ptp_check_rc(struct PtpRuntime *r) {
+	if (ptp_get_return_code(r) != PTP_RC_OK) {
+		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
+		return PTP_CHECK_CODE;
+	}
+
+	return 0;
+}
+
+static int ptp_send_try(struct PtpRuntime *r, struct PtpCommand *cmd) {
+	int length = ptp_new_cmd_packet(r, cmd);
+	if (ptp_send_packet(r, length) != length) {
+		ptp_verbose_log("Didn't send all packets\n");
+		return PTP_IO_ERR;
+	}
+
+	int rc = ptp_receive_all_packets(r);
+	if (rc < 0) {
+		ptp_verbose_log("Failed to receive packets: %d\n", rc);
+		return rc;
+	}
+
+	return 0;
+}
+
 // Perform a generic command transaction - no data phase
 int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	ptp_mutex_lock(r);
 
 	r->data_phase_length = 0;
 
-	int length = ptp_new_cmd_packet(r, cmd);
-	if (ptp_send_bulk_packets(r, length) != length) {
+	int rc = ptp_send_try(r, cmd);
+	if (rc == PTP_COMMAND_IGNORED) {
+		ptp_verbose_log("Command ignored, trying again...\n");
+		rc = ptp_send_try(r, cmd);
+		if (rc) {
+			ptp_verbose_log("Command ignored again.\n");
+			ptp_mutex_unlock(r);
+			return PTP_IO_ERR;
+		}
+	} else if (rc) {
 		ptp_mutex_unlock_thread(r);
-		ptp_verbose_log("Didn't send all packets\n");
-		return PTP_IO_ERR;
-	}
-
-	int rc = ptp_receive_bulk_packets(r);
-	if (rc < 0) {
-		ptp_mutex_unlock_thread(r);
-		ptp_verbose_log("Failed to receive packets: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
 	r->transaction++;
 
-	if (ptp_get_return_code(r) != PTP_RC_OK) {
-		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
-		ptp_mutex_unlock_thread(r);
-		return PTP_CHECK_CODE;
-	}
-	
+	rc = ptp_check_rc(r);
 	ptp_mutex_unlock(r);
+	return rc;
+}
+
+static int ptp_send_data_try(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+	// Send operation request (data packet later on)
+	int plength = ptp_new_cmd_packet(r, cmd);
+	if (ptp_send_packet(r, plength) != plength) {
+		return PTP_IO_ERR;
+	}
+
+	if (r->connection_type == PTP_IP) {
+		// Send data start packet first (only has payload length)
+		plength = ptpip_data_start_packet(r, length);
+		if (ptp_send_packet(r, plength) != plength) {
+			return PTP_IO_ERR;
+		}
+
+		// Send data end packet, with payload
+		plength = ptpip_data_end_packet(r, data, length);
+		if (ptp_send_packet(r, plength) != plength) {
+			return PTP_IO_ERR;
+		}
+	} else {
+		// Single data packet
+		plength = ptp_new_data_packet(r, cmd, data, length);
+		if (ptp_send_packet(r, plength) != plength) {
+			ptp_verbose_log("Failed to send data packet (%d)\n", plength);
+			return PTP_IO_ERR;
+		}
+	}
+
+	int rc = ptp_receive_all_packets(r);
+	if (rc < 0) return rc;
 	return 0;
 }
 
@@ -190,51 +243,27 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		ptp_buffer_resize(r, 100 + length);
 	}
 
-	// Send operation request (data phase later on)
-	int plength = ptp_new_cmd_packet(r, cmd);
-	if (ptp_send_bulk_packets(r, plength) != plength) {
-		ptp_mutex_unlock_thread(r);
-		return PTP_IO_ERR;
-	}
-
-	if (r->connection_type == PTP_IP) {
-		// Send data start packet first (only has payload length)
-		plength = ptpip_data_start_packet(r, length);
-		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock_thread(r);
+	// If our command is ignored (we get 0 bytes as a response), try sending the
+	// commands again.
+	int rc = ptp_send_data_try(r, cmd, data, length);
+	if (rc == PTP_COMMAND_IGNORED) {
+		ptp_verbose_log("Command ignored, trying again...\n");
+		rc = ptp_send_data_try(r, cmd, data, length);
+		if (rc) {
+			ptp_verbose_log("Command ignored again.\n");
+			ptp_mutex_unlock(r);
 			return PTP_IO_ERR;
 		}
-
-		// Send data end packet, with payload
-		plength = ptpip_data_end_packet(r, data, length);
-		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock_thread(r);
-			return PTP_IO_ERR;
-		}
-	} else {
-		// Single data packet
-		plength = ptp_new_data_packet(r, cmd, data, length);
-		if (ptp_send_bulk_packets(r, plength) != plength) {
-			ptp_mutex_unlock_thread(r);
-			ptp_verbose_log("Failed to send data packet (%d)\n", plength);
-			return PTP_IO_ERR;
-		}
-	}
-
-	if (ptp_receive_bulk_packets(r) < 0) {
-		ptp_mutex_unlock_thread(r);
+	} else if (rc) {
+		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 
 	r->transaction++;
 
-	if (ptp_get_return_code(r) != PTP_RC_OK) {
-		ptp_mutex_unlock_thread(r);
-		return PTP_CHECK_CODE;
-	}
-
+	rc = ptp_check_rc(r);
 	ptp_mutex_unlock(r);
-	return 0;
+	return rc;
 }
 
 int ptp_device_type(struct PtpRuntime *r) {
