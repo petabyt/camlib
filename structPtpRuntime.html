@@ -150,6 +150,10 @@ PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_event</b> 
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_unlock</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
 <tr class="memdesc:aab6f6615255ef672a7170fac815c8fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unlock the IO mutex (unless it was kept locked) <br /></td></tr>
 <tr class="separator:aab6f6615255ef672a7170fac815c8fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6f46ce011eb239897a9756d11c60d57" id="r_ae6f46ce011eb239897a9756d11c60d57"><td class="memItemLeft" align="right" valign="top"><a id="ae6f46ce011eb239897a9756d11c60d57" name="ae6f46ce011eb239897a9756d11c60d57"></a>
+PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_unlock_thread</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="memdesc:ae6f46ce011eb239897a9756d11c60d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completely unlock the mutex for the current thread, to ensure there isn't a deadlock. <br /></td></tr>
+<tr class="separator:ae6f46ce011eb239897a9756d11c60d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd673777a9471de1d465f16c570e8ed6" id="r_afd673777a9471de1d465f16c570e8ed6"><td class="memItemLeft" align="right" valign="top">PUB void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd673777a9471de1d465f16c570e8ed6">ptp_mutex_keep_locked</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
 <tr class="memdesc:afd673777a9471de1d465f16c570e8ed6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keep the mutex locked one more time for the current thread.  <br /></td></tr>
 <tr class="separator:afd673777a9471de1d465f16c570e8ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -280,7 +284,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>device_type</b></td></
 <tr class="separator:a211e18fbaa2c3b218a2addc054e3e4a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba6907846454805fb1cec573aafe65e4" id="r_aba6907846454805fb1cec573aafe65e4"><td class="memItemLeft" align="right" valign="top"><a id="aba6907846454805fb1cec573aafe65e4" name="aba6907846454805fb1cec573aafe65e4"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>data_phase_length</b></td></tr>
-<tr class="memdesc:aba6907846454805fb1cec573aafe65e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">For Windows compatibility, this is set to indicate lenth for a data packet that will be sent after a command packet. Will be set to zero when ptp_send_bulk_packets is called. <br /></td></tr>
+<tr class="memdesc:aba6907846454805fb1cec573aafe65e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">For Windows compatibility, this is set to indicate lenth for a data packet that will be sent after a command packet. Will be set to zero when ptp_send_packet is called. <br /></td></tr>
 <tr class="separator:aba6907846454805fb1cec573aafe65e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a536ce5f5409e194a56c006fe8bb3d454" id="r_a536ce5f5409e194a56c006fe8bb3d454"><td class="memItemLeft" align="right" valign="top"><a id="a536ce5f5409e194a56c006fe8bb3d454" name="a536ce5f5409e194a56c006fe8bb3d454"></a>
 void *&#160;</td><td class="memItemRight" valign="bottom"><b>comm_backend</b></td></tr>
