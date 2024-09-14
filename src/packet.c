@@ -39,7 +39,7 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 	return of;
 }
 
-int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
+int ptp_read_uint16_array(const uint8_t *dat, uint16_t *buf, int max, int *length) {
 	int of = 0;
 
 	uint32_t n;
@@ -49,7 +49,7 @@ int ptp_read_uint16_array(uint8_t *dat, uint16_t *buf, int max, int *length) {
 		if (i >= max) {
 			ptp_panic("ptp_read_uint16_array overflow\n");
 		} else {
-			of += ptp_read_u16(buf + of, &buf[i]);
+			of += ptp_read_u16(dat + of, &buf[i]);
 		}
 	}
 
@@ -73,7 +73,7 @@ int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, in
 }
 
 // Write standard PTP wchar string
-int ptp_write_string(uint8_t *dat, char *string) {
+int ptp_write_string(uint8_t *dat, const char *string) {
 	int of = 0;
 
 	uint32_t length = strlen(string);
@@ -88,7 +88,7 @@ int ptp_write_string(uint8_t *dat, char *string) {
 }
 
 // Write normal UTF-8 string
-int ptp_write_utf8_string(void *dat, char *string) {
+int ptp_write_utf8_string(void *dat, const char *string) {
 	char *o = (char *)dat;
 	int x = 0;
 	while (string[x] != '\0') {
@@ -102,7 +102,7 @@ int ptp_write_utf8_string(void *dat, char *string) {
 }
 
 // Write null-terminated UTF16 string
-int ptp_write_unicode_string(char *dat, char *string) {
+int ptp_write_unicode_string(char *dat, const char *string) {
 	int i;
 	for (i = 0; string[i] != '\0'; i++) {
 		dat[i * 2] = string[i];

@@ -16,7 +16,7 @@ int ptp_comm_init(struct PtpRuntime *r) {
 	r->max_packet_size = 512;
 
 	// in libwpd, this will only coinitalize this thread.
-	wpd_init(1, L"Camlib WPD");
+	wpd_init(0, L"Camlib WPD");
 
 	if (r->comm_backend != NULL) return 0;
 

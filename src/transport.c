@@ -1,7 +1,7 @@
 // Packet transport interface for PTPUSB, PTPIP, and PTPUSBIP - uses OS IO functions
 // Don't include this file with Windows/LibWPD builds. LibWPD replaces this file.
 
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2024 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
 #include <stdint.h>
@@ -10,7 +10,6 @@
 
 #include <camlib.h>
 
-__attribute__((weak))
 int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	int x;
@@ -178,7 +177,6 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 // until we don't, then packet is over. This makes the code simpler and gives a reduces
 // calls to the backend, which increases performance. This isn't possible with sockets - 
 // the read will time out in most cases.
-__attribute__((weak))
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	int read = 0;
 
