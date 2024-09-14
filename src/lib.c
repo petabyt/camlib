@@ -185,12 +185,10 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 	// Required for libWPD and PTP/IP
 	r->data_phase_length = length;
 
-	// These numbers are not exact, but it's fine
+	// Resize buffer if needed
 	if (length + 50 > r->data_length) {
 		ptp_buffer_resize(r, 100 + length);
 	}
-
-	//usleep(2000);
 
 	// Send operation request (data phase later on)
 	int plength = ptp_new_cmd_packet(r, cmd);
@@ -198,8 +196,6 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		ptp_mutex_unlock_thread(r);
 		return PTP_IO_ERR;
 	}
-
-	//usleep(2000);
 
 	if (r->connection_type == PTP_IP) {
 		// Send data start packet first (only has payload length)

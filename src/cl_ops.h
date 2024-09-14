@@ -105,7 +105,7 @@ int ptpip_init_events(struct PtpRuntime *r);
 
 /// @note PTP/IP only
 /// @memberof PtpRuntime
-int ptpip_init_command_request(struct PtpRuntime *r, char *device_name);
+int ptpip_init_command_request(struct PtpRuntime *r, const char *device_name);
 
 // EOS Only functions - not for Canon point and shoot
 int ptp_eos_get_viewfinder_data(struct PtpRuntime *r);

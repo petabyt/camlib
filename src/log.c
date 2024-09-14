@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include <camlib.h>
 
+int camlib_verbose = 1;
 void ptp_verbose_log(char *fmt, ...) {
-#ifdef VERBOSE
-	va_list args;
-	va_start(args, fmt);
-	vprintf(fmt, args);
-	va_end(args);
-#endif
+	if (camlib_verbose) {
+		va_list args;
+		va_start(args, fmt);
+		vprintf(fmt, args);
+		va_end(args);
+	}
 }
 
 __attribute__ ((noreturn))

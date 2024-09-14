@@ -39,15 +39,27 @@ __attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 /// @brief Camlib library errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
+	/// @brief No device found (USB)
 	PTP_NO_DEVICE = -1,
+	/// @brief EPERM or other permission denied error
 	PTP_NO_PERM = -2,
+	/// @brief Found device, but failed to connect
 	PTP_OPEN_FAIL = -3,
+	/// @brief malloc failed
 	PTP_OUT_OF_MEM = -4,
+	/// @brief General IO or communication error
 	PTP_IO_ERR = -5,
+	/// @brief Unexpected, unhandled, or illegal behavior
 	PTP_RUNTIME_ERR = -6,
+	/// @brief Operation or functionality isn't implemented or supported
 	PTP_UNSUPPORTED = -7,
+	/// @brief response code is not PTP_RC_OK
 	PTP_CHECK_CODE = -8,
+	/// @brief Operation (such as download) was canceled by another thread
 	PTP_CANCELED = -9,
+	/// @brief No response 
+	/// @note Used internally only
+	PTP_COMMAND_IGNORED = -10,
 };
 
 /// @brief Evaluates PtpGeneralError into string message

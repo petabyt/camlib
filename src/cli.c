@@ -39,7 +39,12 @@ static int run_binding(struct Options *o, struct BindReq *br) {
 	ptp_open_session(r);
 
 	int rc = bind_run_req(r, br);
+	if (rc > 0) {
+		printf("Command %s does not exist.\n", br->name);
+	}
 	if (rc) return rc;
+
+	putchar('\n');
 
 	ptp_close_session(r);
 
@@ -62,12 +67,11 @@ static int parse_run(struct Options *o, int argc, char **argv, int i) {
 	struct BindReq br;
 	br.params_length = 0;
 	br.bytes_length = 0;
-	br.buffer = malloc(5000);
 	br.string = NULL;
 	br.out = out_printf;
 	br.out_bytes = NULL;
 
-	memset(br.params, 0, sizeof(int) * BIND_MAX_PARAM);
+	memset(br.params, 0, sizeof(br.params));
 	memset(br.name, 0, BIND_MAX_NAME);
 
 	strcpy(br.name, name);
@@ -80,11 +84,12 @@ static int parse_run(struct Options *o, int argc, char **argv, int i) {
 	}
 
 	int rc = run_binding(o, &br);
-	puts(br.buffer);
 	return rc;
 }
 
 int main(int argc, char **argv) {
+	extern int camlib_verbose;
+	camlib_verbose = 0;
 	struct Options o;
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--help")) {

@@ -8,11 +8,16 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netinet/tcp.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#ifdef WIN32
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
+#else
+	#include <sys/socket.h>
+	#include <sys/select.h>
+	#include <netinet/tcp.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+#endif
 
 #include <camlib.h>
 #include <ptp.h>
@@ -24,8 +29,54 @@ struct PtpIpBackend {
 	int evfd;
 };
 
-static int set_nonblocking_io(int sockfd, int enable) {
-	int flags = fcntl(sockfd, F_GETFL, 0);
+#ifdef WIN32
+static int set_nonblocking_io(int fd, int enable) {
+	// ...
+	return 0;
+}
+
+static void set_receive_timeout(int fd, int sec) {
+	DWORD x = sec * 1000;
+	int rc = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (void *)&x, sizeof(x));
+	if (rc < 0) {
+		ptp_verbose_log("Failed to set rcvtimeo: %d", errno);
+	}
+}
+
+static int get_sock_error(int fd) {
+	int so_error = 0;
+	socklen_t len = sizeof(so_error);
+	if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *)&so_error, &len) < 0) {
+		close(fd);
+		ptp_verbose_log("Failed to get socket options\n");
+		return -1;
+	}
+	return so_error;
+}
+#else
+static int get_sock_error(int fd) {
+	int so_error = 0;
+	socklen_t len = sizeof(so_error);
+	if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
+		close(fd);
+		ptp_verbose_log("Failed to get socket options\n");
+		return -1;
+	}
+	return so_error;
+}
+
+static void set_receive_timeout(int fd, int sec) {
+	struct timeval tv_rcv;
+	tv_rcv.tv_sec = 5;
+	tv_rcv.tv_usec = 0;
+	int rc = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv_rcv, sizeof(tv_rcv));
+	if (rc < 0) {
+		ptp_verbose_log("Failed to set rcvtimeo: %d", errno);
+	}
+}
+
+static int set_nonblocking_io(int fd, int enable) {
+	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1)
 		return -1;
 
@@ -35,8 +86,9 @@ static int set_nonblocking_io(int sockfd, int enable) {
 		flags &= ~O_NONBLOCK;
 	}
 
-	return fcntl(sockfd, F_SETFL, flags);
+	return fcntl(fd, F_SETFL, flags);
 }
+#endif
 
 int ptpip_new_timeout_socket(const char *addr, int port) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -95,13 +147,7 @@ int ptpip_new_timeout_socket(const char *addr, int port) {
 	tv.tv_usec = 0;
 
 	if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
-		int so_error = 0;
-		socklen_t len = sizeof(so_error);
-		if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
-			close(sockfd);
-			ptp_verbose_log("Failed to get socket options\n");
-			return -1;
-		}
+		int so_error = get_sock_error(sockfd);
 
 		if (so_error == 0) {
 			ptp_verbose_log("Connection established %s:%d (%d)\n", addr, port, sockfd);
@@ -123,7 +169,7 @@ static struct PtpIpBackend *init_comm(struct PtpRuntime *r) {
 	return (struct PtpIpBackend *)r->comm_backend;
 }
 
-int ptpip_connect(struct PtpRuntime *r, const char *addr, int port) {
+int ptpip_connect(struct PtpRuntime *r, const char *addr, int port, int extra_tmout) {
 	int fd = ptpip_new_timeout_socket(addr, port);
 
 	struct PtpIpBackend *b = init_comm(r);

@@ -23,7 +23,7 @@ static struct PtpArray *dup_uint_array(struct UintArray *arr) {
 	return dup;
 }
 
-int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
+int ptpip_init_command_request(struct PtpRuntime *r, const char *device_name) {
 	struct PtpIpInitPacket *p = (struct PtpIpInitPacket *)r->data;
 	memset(p, 0, sizeof(struct PtpIpInitPacket));
 	p->length = sizeof(struct PtpIpInitPacket);
@@ -37,7 +37,7 @@ int ptpip_init_command_request(struct PtpRuntime *r, char *device_name) {
 
 	p->minor_ver = 1;
 
-	ptp_write_unicode_string(p->device_name, "cam");
+	ptp_write_unicode_string(p->device_name, device_name);
 
 	if (ptpip_cmd_write(r, r->data, p->length) != p->length) return PTP_IO_ERR;
 

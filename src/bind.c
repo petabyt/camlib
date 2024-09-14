@@ -146,6 +146,15 @@ int bind_get_object_info(struct BindReq *bind, struct PtpRuntime *r) {
 	return len;
 }
 
+int bind_send_object_info(struct BindReq *bind, struct PtpRuntime *r) {
+	struct PtpObjectInfo oi;
+	strcpy(oi.filename, "FOO_BAR.JPG");
+	int x = ptp_send_object_info(r, 0, 0, &oi);
+	if (x) return bind->out(bind, "{\"error\": %d}", x);
+	int len = bind->out(bind, "{\"error\": %d}", x);
+	return len;
+}
+
 int bind_custom(struct BindReq *bind, struct PtpRuntime *r) {
 	struct PtpCommand cmd;
 	cmd.code = bind->params[0];
@@ -255,6 +264,15 @@ int bind_set_property(struct BindReq *bind, struct PtpRuntime *r) {
 	x = ptp_set_generic_property(r, bind->string, bind->params[0]);
 
 	return bind->out(bind, "{\"error\": %d}", x);
+}
+
+int bind_get_property(struct BindReq *bind, struct PtpRuntime *r) {
+	int x = ptp_get_prop_value(r, bind->params[0]);
+	if (x) {
+		return bind->out(bind, "{\"error\": %d}", x);
+	} else {
+		return bind->out(bind, "{\"error\": %d, \"value\": %u}", x, ptp_parse_prop_value(r));
+	}
 }
 
 int bind_get_events(struct BindReq *bind, struct PtpRuntime *r) {
@@ -541,9 +559,11 @@ struct RouteMap {
 	{"ptp_eos_set_event_mode", bind_eos_set_event_mode},
 
 	{"ptp_cancel_af", bind_cancel_af},
-
+	// Flip DSLR mirror up - or enter liveview
 	{"ptp_mirror_up", bind_mirror_up},
+	// Flip mirror down - or disable liveview
 	{"ptp_mirror_down", bind_mirror_down},
+	// Focus lens in/out
 	{"ptp_drive_lens", bind_drive_lens},
 	{"ptp_get_liveview_frame", bind_get_liveview_frame},
 	{"ptp_get_liveview_type", bind_get_liveview_type},
@@ -552,10 +572,13 @@ struct RouteMap {
 	{"ptp_ml_init_bmp_lv", bind_ml_init_bmp_lv},
 	{"ptp_init_liveview", bind_liveview_init},
 	{"ptp_deinit_liveview", bind_liveview_deinit},
+	// Try and detect manufacturer/type of device connected
 	{"ptp_get_device_type", bind_get_device_type},
+	// Get a generic list of events
 	{"ptp_get_events", bind_get_events},
 	{"ptp_get_all_props", bind_get_all_props},
 	{"ptp_set_property", bind_set_property},
+	{"ptp_get_property", bind_get_property},
 	{"ptp_get_enums", bind_get_enums},
 	{"ptp_get_status", bind_get_status},
 	{"ptp_get_return_code", bind_get_return_code},
@@ -563,6 +586,7 @@ struct RouteMap {
 	{"ptp_get_storage_info", bind_get_storage_info},
 	{"ptp_get_object_handles", bind_get_object_handles},
 	{"ptp_get_object_info", bind_get_object_info},
+	{"ptp_send_object_info", bind_send_object_info},
 	{"ptp_get_thumbnail", bind_get_thumbnail},
 	{"ptp_get_partial_object", bind_get_partial_object},
 	{"ptp_download_file", bind_download_file},
@@ -576,5 +600,5 @@ int bind_run_req(struct PtpRuntime *r, struct BindReq *bind) {
 		}
 	}
 
-	return -1;	
+	return 1;	
 }

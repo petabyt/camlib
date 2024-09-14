@@ -74,6 +74,10 @@ int test_eos_t6() {
 
 	rc = ptp_get_device_info(&r, &di);
 	if (rc) return rc;
+
+	// In the very least, at least all of the standard PTP props should be logged
+	assert(di.ops_supported_length > 5);
+
 	char buffer[4096];
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
 	printf("%s\n", buffer);

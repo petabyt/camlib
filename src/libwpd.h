@@ -18,14 +18,12 @@ typedef enum tagWPD_DEVICE_TYPES {
 
 struct LibWPDPtpCommand {
 	int code;
-
 	uint32_t params[5];
 	int param_length;
-
 	int data_length;
 };
 
-// Initialize thread
+/// @brief Initialize thread
 int wpd_init(int verbose, wchar_t *app_name);
 
 // Private, implemented by libwpd
@@ -35,30 +33,47 @@ struct WpdStruct {
 	void *values;
 };
 
-// Recieve an array of wide strings. Length is set in num_devices. Each string holds the device
-// ID, similar to Linux /dev/bus/usb/001
+/// @brief Create new WpdStruct object
+struct WpdStruct *wpd_new();
+
+/// @brief Recieve an array of wide strings. Length is set in num_devices. Each string holds the device
+/// ID, similar to Linux /dev/bus/usb/001
 wchar_t **wpd_get_devices(struct WpdStruct *wpd, int *num_devices);
 
-// Initialize the WpdStruct with the selected device ID wide string
+/// @brief Initialize the WpdStruct with a new connection to the selected device ID wide string
 int wpd_open_device(struct WpdStruct *wpd, wchar_t *device_id);
+
+/// @brief Close the device currently connected
 int wpd_close_device(struct WpdStruct* wpd);
 
-// Returns enum WPD_DEVICE_TYPES
+/// @brief Returns enum WPD_DEVICE_TYPES
 int wpd_get_device_type(struct WpdStruct *wpd);
 
-// Send command packet with no data packet, but expect data packet (device may not send data packet, that is fine)
-// Data packet should be recieved with wpd_receive_do_data
+/// @brief Generic USB writing command. Will store all sent data into a buffer, which will be processed when wpd_ptp_cmd_read is called.
+int wpd_ptp_cmd_write(struct WpdStruct *wpd, void *data, int size);
+
+/// @brief Processes all PTP packets sent through wpd_ptp_cmd_write, and performs operations. Will then store all results in the 'out' buffer.
+/// Every time this function is called, it will return data from the 'out' buffer, as requested by `size`.
+int wpd_ptp_cmd_read(struct WpdStruct *wpd, void *data, int size);
+
+
+// Manual old API:
+
+
+/// @brief Send command packet with no data packet, but expect data packet (device may not send data packet, that is fine)
+/// Data packet should be recieved with wpd_receive_do_data
 int wpd_receive_do_command(struct WpdStruct *wpd, struct LibWPDPtpCommand *cmd);
 
-// Get data payload from device, if any. cmd struct will be filled with response packet.
+/// @brief Get data payload from device, if any.
+/// @note cmd struct will be filled with the response packet
 int wpd_receive_do_data(struct WpdStruct *wpd, struct LibWPDPtpCommand *cmd, uint8_t *buffer, int length);
 
-// Send command packet with data phase, with no data packet response from device. Call wpd_send_do_data to get the response 
-// and data packets
+/// @brief Send command packet with data phase, with no data packet response from device. Call wpd_send_do_data to get the response 
+/// and data packets
 int wpd_send_do_command(struct WpdStruct* wpd, struct LibWPDPtpCommand* cmd, int length);
 
-// Send the actual data packet, if wpd_send_do_command was called with length != 0
-// cmd struct will be filled with the response packet
+/// @brief Send the actual data packet, if wpd_send_do_command was called with length != 0
+/// @note cmd struct will be filled with the response packet
 int wpd_send_do_data(struct WpdStruct* wpd, struct LibWPDPtpCommand* cmd, uint8_t *buffer, int length);
 
 #endif
