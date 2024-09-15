@@ -221,7 +221,7 @@ int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, str
 	cmd.params[1] = format;
 	cmd.params[2] = in;
 
-	ptp_mutex_keep_locked(r);
+	ptp_mutex_lock(r);
 
 	int rc = ptp_send(r, &cmd);
 	if (rc) goto end;
@@ -259,7 +259,7 @@ int ptp_get_prop_desc(struct PtpRuntime *r, int code, struct PtpPropDesc *pd) {
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	ptp_mutex_keep_locked(r);
+	ptp_mutex_lock(r);
 	int rc = ptp_send(r, &cmd);
 	if (rc) goto end;
 
@@ -335,7 +335,7 @@ int ptp_get_object(struct PtpRuntime *r, int handle) {
 int ptp_download_object(struct PtpRuntime *r, int handle, FILE *f, size_t max) {
 	int read = 0;
 	while (1) {
-		ptp_mutex_keep_locked(r);
+		ptp_mutex_lock(r);
 		int x = ptp_get_partial_object(r, handle, read, max);
 		if (x) {
 			ptp_mutex_unlock(r);
