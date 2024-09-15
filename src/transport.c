@@ -38,11 +38,8 @@ int ptp_send_packet(struct PtpRuntime *r, int length) {
 		return ptpusb_send_bulk_packets(r, length);
 	}
 	int sent = 0;
-	int x;
 	while (1) {
-		if (r->connection_type == PTP_IP || r->connection_type == PTP_IP_USB) {
-			x = ptpip_cmd_write(r, r->data + sent, length);
-		}
+		int x = ptpip_cmd_write(r, r->data + sent, length);
 
 		if (x < 0) {
 			ptp_verbose_log("send_bulk_packet: %d\n", __func__, x);
@@ -204,7 +201,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	read += rc;
 
 	if (read < 12) {
-		ptp_verbose_log("Couldn't get basic packet: %d\n", rc);
+		ptp_verbose_log("Couldn't get min packet size: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 

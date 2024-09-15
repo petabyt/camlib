@@ -87,16 +87,61 @@ static int parse_run(struct Options *o, int argc, char **argv, int i) {
 	return rc;
 }
 
+static int test(void) {
+	struct PtpRuntime *r = ptp_new(PTP_USB);
+
+	if (ptp_device_init(r)) {
+		printf("Device connection error\n");
+		return 1;
+	}
+
+	int rc = ptp_open_session(r);
+	if (rc) return rc;
+
+	struct PtpDeviceInfo di;
+
+	char buffer[2048];
+	rc = ptp_get_device_info(r, &di);
+	if (rc) return rc;
+	ptp_device_info_json(&di, buffer, sizeof(buffer));
+	printf("%s\n", buffer);
+
+	rc = ptp_eos_set_remote_mode(r, 1);
+	if (rc) return rc;
+	rc = ptp_eos_set_event_mode(r, 1);
+	if (rc) return rc;
+
+	for (int i = 0; i < 10; i++) {
+		rc = ptp_eos_get_event(r);
+		if (rc) return rc;
+		usleep(10000);
+	}
+
+	rc = ptp_close_session(r);
+	if (rc) return rc;
+
+	ptp_device_close(r);
+	ptp_close(r);
+	return 0;
+}
+
 int main(int argc, char **argv) {
 	extern int camlib_verbose;
-	camlib_verbose = 0;
+	camlib_verbose = 1;
 	struct Options o;
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--help")) {
 			return usage();
 		} else if (!strcmp(argv[i], "--run")) {
 			return parse_run(&o, argc, argv, i + 1);
+		} else if (!strcmp(argv[i], "--test")) {
+			int rc = test();
+			printf("Return code: %d\n", rc);
+			return rc;
 		}
 	}
+
+	return test();
+	
 	return usage();
 }

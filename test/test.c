@@ -213,11 +213,13 @@ static void *thread(void *arg) {
 	struct PtpRuntime *r = (struct PtpRuntime *)arg;
 
 	if ((rand() & 1) == 0) {
+		ptp_mutex_lock(r);
 		struct PtpDeviceInfo di;
 		int rc = ptp_get_device_info(r, &di);
 		if (rc) goto err;
 		char buffer[4096];
 		ptp_device_info_json(&di, buffer, sizeof(buffer));
+		ptp_mutex_unlock(r);
 		printf("%s\n", buffer);
 	} else {
 		struct PtpArray *arr;

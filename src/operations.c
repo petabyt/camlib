@@ -149,7 +149,7 @@ int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpArray **a) {
 	cmd.code = PTP_OC_GetStorageIDs;
 	cmd.param_length = 0;
 
-	ptp_mutex_keep_locked(r);
+	ptp_mutex_lock(r);
 
 	int rc = ptp_send(r, &cmd);
 

@@ -253,16 +253,10 @@ PUB int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
 /// @memberof PtpRuntime
 PUB void ptp_mutex_unlock(struct PtpRuntime *r);
 
-/// @brief Completely unlock the mutex for the current thread, to ensure there isn't a deadlock
+/// @brief Completely unlock the mutex for the current thread, to ensure there isn't a deadlock.
+/// This is normally used on handling errors, and when exiting a thread.
 /// @memberof PtpRuntime
 PUB void ptp_mutex_unlock_thread(struct PtpRuntime *r);
-
-/// @brief Keep the mutex locked one more time for the current thread
-/// @note  When calling a thread-safe function, this will garuntee the mutex locked, in the
-/// case that you want to continue using the buffer. Must be unlocked or will cause deadlock.
-/// @note camlib uses a recursive mutex.
-/// @memberof PtpRuntime
-PUB void ptp_mutex_keep_locked(struct PtpRuntime *r);
 
 /// @brief Lock the IO mutex - only should be used by backend
 /// @memberof PtpRuntime
