@@ -152,11 +152,8 @@ PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_unlock<
 <tr class="separator:aab6f6615255ef672a7170fac815c8fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6f46ce011eb239897a9756d11c60d57" id="r_ae6f46ce011eb239897a9756d11c60d57"><td class="memItemLeft" align="right" valign="top"><a id="ae6f46ce011eb239897a9756d11c60d57" name="ae6f46ce011eb239897a9756d11c60d57"></a>
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_unlock_thread</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
-<tr class="memdesc:ae6f46ce011eb239897a9756d11c60d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completely unlock the mutex for the current thread, to ensure there isn't a deadlock. <br /></td></tr>
+<tr class="memdesc:ae6f46ce011eb239897a9756d11c60d57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completely unlock the mutex for the current thread, to ensure there isn't a deadlock. This is normally used on handling errors, and when exiting a thread. <br /></td></tr>
 <tr class="separator:ae6f46ce011eb239897a9756d11c60d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd673777a9471de1d465f16c570e8ed6" id="r_afd673777a9471de1d465f16c570e8ed6"><td class="memItemLeft" align="right" valign="top">PUB void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd673777a9471de1d465f16c570e8ed6">ptp_mutex_keep_locked</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
-<tr class="memdesc:afd673777a9471de1d465f16c570e8ed6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keep the mutex locked one more time for the current thread.  <br /></td></tr>
-<tr class="separator:afd673777a9471de1d465f16c570e8ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35af7e9c296ee5cdbfba5a981454f0a0" id="r_a35af7e9c296ee5cdbfba5a981454f0a0"><td class="memItemLeft" align="right" valign="top"><a id="a35af7e9c296ee5cdbfba5a981454f0a0" name="a35af7e9c296ee5cdbfba5a981454f0a0"></a>
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_mutex_lock</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
 <tr class="memdesc:a35af7e9c296ee5cdbfba5a981454f0a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lock the IO mutex - only should be used by backend. <br /></td></tr>
@@ -618,28 +615,6 @@ struct ObjectCache *&#160;</td><td class="memItemRight" valign="bottom"><b>oc</b
 
 <p>Raw JPEG data is accessible from <a class="el" href="#a5b0a3f02a682c7f39e1e1611d200b27e" title="Get ptr of packet payload in data buffer, after packet header.">ptp_get_payload()</a> </p>
 <dl class="section note"><dt>Note</dt><dd>Not thread safe. </dd></dl>
-
-</div>
-</div>
-<a id="afd673777a9471de1d465f16c570e8ed6" name="afd673777a9471de1d465f16c570e8ed6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd673777a9471de1d465f16c570e8ed6">&#9670;&#160;</a></span>ptp_mutex_keep_locked()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">PUB void ptp_mutex_keep_locked </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Keep the mutex locked one more time for the current thread. </p>
-<dl class="section note"><dt>Note</dt><dd>When calling a thread-safe function, this will garuntee the mutex locked, in the case that you want to continue using the buffer. Must be unlocked or will cause deadlock. </dd>
-<dd>
-camlib uses a recursive mutex. </dd></dl>
 
 </div>
 </div>
