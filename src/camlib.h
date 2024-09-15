@@ -182,7 +182,6 @@ struct PtpCommand {
 	uint16_t code;
 	uint32_t params[5];
 	int param_length;
-	int data_length;
 };
 
 /// @brief Generic Struct for arrays

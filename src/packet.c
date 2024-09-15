@@ -143,12 +143,12 @@ int ptp_read_utf8_string(void *dat, char *string, int max) {
 }
 
 // PTP/IP-specific packet
-int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
+int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type, int data_length) {
 	struct PtpIpBulkContainer bulk;
 	int size = 18 + (sizeof(uint32_t) * cmd->param_length);
 	bulk.length = size;
 	bulk.type = type;
-	bulk.length += cmd->data_length;
+	bulk.length += data_length;
 	bulk.code = cmd->code;
 	bulk.transaction = r->transaction;
 
@@ -189,14 +189,14 @@ int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length) {
 }
 
 // Generate a USB-only BulkContainer packet
-int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
+int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type, int data_length) {
 	if (cmd->param_length > 5) ptp_panic("cmd->param_length more than 5");
 	struct PtpBulkContainer bulk;
 	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
 
 	bulk.length = size;
 	bulk.type = type;
-	bulk.length += cmd->data_length;
+	bulk.length += data_length;
 	bulk.code = cmd->code;
 	bulk.transaction = r->transaction;
 
@@ -213,24 +213,20 @@ int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type) {
 int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length) {
 	cmd->param_length = 0;
 
-	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA);
+	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA, data_length);
 
-	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
-	c->length += data_length;
-
-	memcpy(r->data + 12, data, data_length);
+	memcpy(r->data + length, data, data_length);
 	
 	return length + data_length;
 }
 
 // Generate a IP or USB style command packet (both are pretty similar)
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
-	cmd->data_length = 0;
 	if (r->connection_type == PTP_IP) {
-		int length = ptpip_bulk_packet(r, cmd, PTPIP_COMMAND_REQUEST);
+		int length = ptpip_bulk_packet(r, cmd, PTPIP_COMMAND_REQUEST, 0);
 		return length;
 	} else {
-		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_COMMAND);
+		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_COMMAND, 0);
 		return length;
 	}
 }

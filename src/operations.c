@@ -89,7 +89,7 @@ int ptp_open_session(struct PtpRuntime *r) {
 	cmd.code = PTP_OC_OpenSession;
 	cmd.params[0] = r->session;
 	cmd.param_length = 1;
-	cmd.data_length = 0;
+	//cmd.data_length = 0;
 
 	// PTP open session transaction ID is always 0
 	r->transaction = 0;
