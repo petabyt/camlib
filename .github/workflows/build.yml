@@ -19,7 +19,7 @@ jobs:
       run: curl https://raw.githubusercontent.com/petabyt/vcam/master/install.sh | bash
 
     - name: Build
-      run: scan-build make libcamlib.so
+      run: scan-build make libcamlib.a
 
     - name: Run main unit test
       run: make test
