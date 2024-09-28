@@ -60,6 +60,7 @@ struct PtpRuntime *ptp_new(int options) {
 }
 
 void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data) {
+	if (r->avail == NULL) abort();
 	// Traverse backwards to first item
 	struct PtpPropAvail *n;
 	for (n = r->avail; n != NULL; n = n->prev) {
