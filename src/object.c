@@ -50,7 +50,7 @@ int ptp_object_service_step(struct PtpRuntime *r, struct ObjectCache *oc) {
 	if (oc->curr >= oc->status_length) abort();
 	if (oc->curr == oc->status_length - 1) {
 		ptp_mutex_unlock(r);
-		return 0; // response code DONE
+		return 0;
 	}
 
 	int curr = oc->curr;
@@ -78,13 +78,15 @@ int ptp_object_service_step(struct PtpRuntime *r, struct ObjectCache *oc) {
 	oc->status[curr]->is_downloaded = 1;
 	oc->num_downloaded++;
 
-	oc->callback(r, &oc->status[curr]->info, oc->arg);
+	if (oc->callback) {
+		oc->callback(r, &oc->status[curr]->info, oc->arg);
+	}
 
 	oc->curr++;
 
 	ptp_mutex_unlock(r);
 
-	return 0;
+	return 1; // downloaded 1 object
 }
 
 int ptp_object_service_length(struct PtpRuntime *r, struct ObjectCache *oc) {

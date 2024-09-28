@@ -3,7 +3,7 @@
 CFLAGS := -Isrc/ -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations
 CFLAGS += -D CAMLIB_NO_COMPAT -D VERBOSE
 
-# Camlib needs to be compiled with these, with some exceptions:
+# Camlib needs to be compiled with these files, with some exceptions:
 # - log.c can be replaced with a custom logging mechanism
 # - ip.c can be replaced with no_ip.c
 # - libwpd.c or libusb.c can be replaced with no_usb.c
@@ -20,21 +20,24 @@ UNIX_LDFLAGS = $(shell pkg-config --libs libusb-1.0)
 UNIX_LIB_FILES := $(CAMLIB_CORE) $(EXTRAS) src/libusb.o
 WIN_LIB_FILES := $(CAMLIB_CORE) $(EXTRAS) src/libwpd.o
 
+all: $(SO)
+
 TARGET ?= l
 ifeq ($(TARGET),m) 
-all: libcamlib.dylib
+SO = libcamlib.dylib
 CFLAGS += $(UNIX_CFLAGS)
 libcamlib.dylib: $(UNIX_LIB_FILES)
 	$(CC) -shared $(UNIX_LIB_FILES) -L/usr/local/lib $(UNIX_CFLAGS) $(UNIX_LDFLAGS) -o libcamlib.dylib
 endif
 ifeq ($(TARGET),l)
-all: libcamlib.so
+SO = libcamlib.a
 CFLAGS += $(UNIX_CFLAGS)
-libcamlib.so: $(UNIX_LIB_FILES)
-	$(CC) -shared $(UNIX_LIB_FILES) -o libcamlib.so
+libcamlib.a: $(UNIX_LIB_FILES)
+	ar rcs libcamlib.a  $(UNIX_LIB_FILES)
+LDFLAGS := $(UNIX_LDFLAGS)
 endif
 ifeq ($(TARGET),w)
-all: libcamlib.dll
+SO = libcamlib.dll
 MINGW := x86_64-w64-mingw32
 CC := $(MINGW)-gcc
 CPP := $(MINGW)-c++
@@ -47,22 +50,18 @@ endif
 %.o: %.c
 	$(CC) -MMD -c $(CFLAGS) $< -o $@
 
--include src/*.d lua/*.d lua/lua-cjson/*.d
+-include src/*.d src/lua/*.d src/lua/lua-cjson/*.d
 
-DEC_FILES := src/dec/main.o src/enums.o src/enum_dump.o src/packet.o src/conv.o src/log.o
-dec: $(DEC_FILES)
-	$(CC) $(DEC_FILES) $(CFLAGS) -o $@
-
-camlib: src/cli.o $(WIN_LIB_FILES)
-	$(CC) src/cli.o $(WIN_LIB_FILES) $(CFLAGS) $(LDFLAGS) -o $@
+camlib: src/cli.o src/dec/main.o $(SO)
+	$(CC) src/cli.o src/dec/main.o $(CFLAGS) $(SO) $(LDFLAGS) -o $@
 
 # Run this thing frequently
 stringify:
 	python3 stringify.py
 
 clean:
-	rm -rf *.o src/*.o src/dec/*.o *.out test-ci test/*.o examples/*.o examples/*.d *.exe dec *.dll *.so DUMP \
-	lua/*.o lua/lua-cjson/*.o src/*.d examples/*.d lua/*.d lua/lua-cjson/*.d
+	rm -rf *.o src/*.o src/dec/*.o *.out test-ci test/*.o examples/*.o examples/*.d *.exe camlib *.dll *.so DUMP \
+	src/lua/*.o src/lua/lua-cjson/*.o src/*.d examples/*.d src/lua/*.d src/lua/lua-cjson/*.d
 	cd examples && make clean
 
 install: libcamlib.so

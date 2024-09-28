@@ -16,13 +16,10 @@ jobs:
       run: sudo apt install libusb-1.0-0-dev clang-tools
 
     - name: Clone latest vcam
-      run: |
-        curl https://raw.githubusercontent.com/petabyt/vcam/master/install.sh | bash
+      run: curl https://raw.githubusercontent.com/petabyt/vcam/master/install.sh | bash
 
     - name: Build
-      run: |
-        scan-build make libcamlib.so
-        make dec
+      run: scan-build make libcamlib.so
 
     - name: Run main unit test
       run: make test
@@ -36,5 +33,4 @@ jobs:
       run: brew install libusb --force
 
     - name: Build
-      run: |
-        make TARGET=m libcamlib.dylib
+      run: make TARGET=m libcamlib.dylib

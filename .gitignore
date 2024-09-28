@@ -13,6 +13,5 @@ test-ci
 libusb-fake-ptp
 *.so
 *.d
-dec
-ptpdec
 camlib
+*.a

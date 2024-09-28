@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <camlib.h>
 
+int ptp_decode_output(const char *input, const char *output);
+
 struct Options {
 	int do_open_sessions;	
 };
@@ -12,11 +14,13 @@ struct Options {
 static int usage() {
 	printf(
 		"camlib\n"
+		"  --dec <input_file> <output_file> Decode any PTP/USB packet dump into a readable text file\n"
 		"  --help\n"
 		"  --run <operation> <args>\n"
 		"  --dont-open-session (A session is opened/closed by default)\n"
 		"  --run ptp_hello_world 1 2 3 \"Hello, World\"\n"
 	);
+	printf("Compile date: " __DATE__ "\n");
 	return 0;
 }
 
@@ -138,10 +142,10 @@ int main(int argc, char **argv) {
 			int rc = test();
 			printf("Return code: %d\n", rc);
 			return rc;
+		} else if (!strcmp(argv[i], "--dec")) {
+			return ptp_decode_output(argv[i + 1], argv[i + 2]);
 		}
 	}
 
-	return test();
-	
 	return usage();
 }
