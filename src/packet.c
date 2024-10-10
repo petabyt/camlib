@@ -31,7 +31,7 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 		else if (wchr != '\0' && wchr < 32) wchr = ' ';
 		string[i] = (char)wchr;
 		i++;
-		if (i >= max) break;
+		if (i >= max - 1) break;
 	}
 
 	string[i] = '\0';
@@ -40,6 +40,7 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 }
 
 int ptp_read_uint16_array(const uint8_t *dat, uint16_t *buf, int max, int *length) {
+	ptp_panic("Unfinished\n");
 	int of = 0;
 
 	uint32_t n;
@@ -117,7 +118,7 @@ int ptp_read_unicode_string(char *buffer, char *dat, int max) {
 	int i;
 	for (i = 0; dat[i] != '\0'; i += 2) {
 		buffer[i / 2] = dat[i];
-		if (i >= max) {
+		if (i >= max - 2) {
 			buffer[(i / 2) + 1] = '\0';
 			return i;
 		}
@@ -283,7 +284,6 @@ int ptp_get_return_code(struct PtpRuntime *r) {
 	}
 }
 
-// Get ptr to payload
 uint8_t *ptp_get_payload(struct PtpRuntime *r) {
 	if (r->connection_type == PTP_IP) {
 		// For IP, payload is in the DATA_END packet

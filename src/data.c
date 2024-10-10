@@ -100,6 +100,20 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 	return out;
 }
 
+static int get_arr_item_size(int t) {
+	switch (t) {
+	case PTP_TC_UINT8ARRAY:
+		return 1;
+	case PTP_TC_UINT16ARRAY:
+		return 2;
+	case PTP_TC_UINT32ARRAY:
+		return 4;
+	case PTP_TC_UINT64ARRAY:
+		return 8;
+	}
+	ptp_panic("Unknown arr type\n");
+}
+
 int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
 	int size;
 	uint32_t length32;
@@ -119,17 +133,14 @@ int parse_data_data_or_u32(uint8_t *d, int type, uint32_t *u32, void **data) {
 		memcpy((*data), d, 8);
 		return 8;
 	case PTP_TC_UINT8ARRAY:
-		size = 1;
 	case PTP_TC_UINT16ARRAY:
-		size = 2;
 	case PTP_TC_UINT32ARRAY:
-		size = 4;
 	case PTP_TC_UINT64ARRAY:
-		size = 8;
+		size = get_arr_item_size(type);
 		ptp_read_u32(d, &length32);
-		(*data) = malloc(4 + length32 * size);
-		memcpy((*data), d, 4 + length32 * size);
-		return 4 + length32 * size;
+		(*data) = malloc(4 + (int)length32 * size);
+		memcpy((*data), d, 4 + (int)length32 * size);
+		return 4 + (int)length32 * size;
 	case PTP_TC_STRING:
 		ptp_read_u8(d, &length8);
 		len_total = 1 + (length8 * 2);
@@ -182,24 +193,26 @@ int ptp_prop_desc_json(const struct PtpPropDesc *pd, char *buffer, int max) {
 	curr += osnprintf(buffer, curr, max, "\"type\": %d,\n", pd->data_type);
 
 	switch (pd->data_type) {
-		case PTP_TC_INT8:
-		case PTP_TC_UINT8:
-		case PTP_TC_INT16:
-		case PTP_TC_UINT16:
-		case PTP_TC_INT32:
-		case PTP_TC_UINT32:
-		case PTP_TC_INT64:
-		case PTP_TC_UINT64:
-			curr += osnprintf(buffer, curr, max, "\"currentValue32\": %d,\n", pd->current_value32);
-			curr += osnprintf(buffer, curr, max, "\"defaultValue32\": %u,\n", pd->default_value32);
-			break;
-		case PTP_TC_UINT8ARRAY:
-		case PTP_TC_UINT16ARRAY:
-		case PTP_TC_UINT32ARRAY:
-		case PTP_TC_UINT64ARRAY:
-			curr += osnprintf(buffer, curr, max, "\"currentValueArray\": %d,\n", 0);
-			break;
-//		case PTP_TC_STRING:
+	case PTP_TC_INT8:
+	case PTP_TC_UINT8:
+	case PTP_TC_INT16:
+	case PTP_TC_UINT16:
+	case PTP_TC_INT32:
+	case PTP_TC_UINT32:
+	case PTP_TC_INT64:
+	case PTP_TC_UINT64:
+		curr += osnprintf(buffer, curr, max, "\"currentValue32\": %d,\n", pd->current_value32);
+		curr += osnprintf(buffer, curr, max, "\"defaultValue32\": %u,\n", pd->default_value32);
+		break;
+	case PTP_TC_UINT8ARRAY:
+	case PTP_TC_UINT16ARRAY:
+	case PTP_TC_UINT32ARRAY:
+	case PTP_TC_UINT64ARRAY: // TODO:
+		ptp_panic("Writeme\n");
+		break;
+	case PTP_TC_STRING:
+		ptp_panic("Writeme\n");
+		break;
 	}
 
 	if (pd->form_type == PTP_RangeForm) {

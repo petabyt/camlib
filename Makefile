@@ -69,8 +69,8 @@ install: libcamlib.so
 	-mkdir /usr/include/camlib
 	cp src/*.h /usr/include/camlib/
 
-test-ci: test/test.o $(UNIX_LIB_FILES)
-	$(CC) test/test.o $(UNIX_LIB_FILES) -lusb-vcam -lexif $(CFLAGS) -o test-ci
+test-ci: test/test.o test/data.o $(UNIX_LIB_FILES)
+	$(CC) test/test.o test/data.o $(UNIX_LIB_FILES) -lusb-vcam -lexif $(CFLAGS) -o test-ci
 
 test: test-ci
 	./test-ci

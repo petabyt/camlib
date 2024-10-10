@@ -144,7 +144,9 @@ void ptp_close(struct PtpRuntime *r) {
 void ptp_mutex_unlock_thread(struct PtpRuntime *r) {
 	if (r->mutex == NULL) return;
 	// Wait until we get EPERM (we do not own the mutex anymore)
-	while (pthread_mutex_unlock(r->mutex) == 0); 
+	while (pthread_mutex_unlock(r->mutex) == 0) {
+		ptp_verbose_log("WARN: pid %d had mutex locked\n", getpid());
+	}
 }
 
 static int ptp_check_rc(struct PtpRuntime *r) {

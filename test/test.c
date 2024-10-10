@@ -257,8 +257,13 @@ static int test_multithread() {
 	return 0;	
 }
 
+int test_data();
+
 int main() {
 	int rc;
+
+	rc = test_data();
+	if (rc) return rc;
 
 	rc = test_multithread();
 	printf("Return code: %d\n", rc);
