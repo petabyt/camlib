@@ -3,7 +3,7 @@
 #include <camlib.h>
 #include <stdint.h>
 
-int test_data() {
+int test_data(void) {
 	{
 		uint8_t buffer[] = {05, 'H', 00, 'e', 00, 'l', 00, 'l', 00 ,'o', 00};
 		char string[64];

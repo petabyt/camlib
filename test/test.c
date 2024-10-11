@@ -9,6 +9,8 @@
 
 #include <camlib.h>
 
+int test_data(void);
+
 int test_setup_usb(struct PtpRuntime *r) {
 	ptp_init(r);
 
@@ -257,9 +259,7 @@ static int test_multithread() {
 	return 0;	
 }
 
-int test_data();
-
-int main() {
+int main(void) {
 	int rc;
 
 	rc = test_data();

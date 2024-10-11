@@ -12,7 +12,7 @@ CAMLIB_CORE := operations.o packet.o enums.o data.o enum_dump.o lib.o canon.o li
 CAMLIB_CORE := $(addprefix src/,$(CAMLIB_CORE))
 
 # Implements CHDK and Magic Lantern functionality
-EXTRAS := src/canon_adv.o src/object.o
+EXTRAS := src/canon_adv.o
 
 # Unix-specific
 UNIX_CFLAGS = $(shell pkg-config --cflags libusb-1.0)
