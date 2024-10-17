@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['how_20does_20ptp_20work_0',['How does PTP work?',['../md_docs_2ptp.html',1,'']]]
+  ['io_5fkill_5fswitch_0',['io_kill_switch',['../structPtpRuntime.html#a295b65c4bba2f26117c04c041c5b48ab',1,'PtpRuntime']]]
 ];

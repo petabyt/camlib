@@ -88,10 +88,10 @@ $(function(){ initResizable(false); });
   <div class="headertitle"><div class="title">Magic Lantern PTP Ext</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md6"></a></p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md5"></a></p>
 <p><b>draft, do not use this</b></p>
 <p>Magic Lantern had a custom PTP opcode, (<code>0xA1E8</code>) but it's been left disabled since around 2012. This is a specification for a new opcode extension for ML, using only opcode <code>0x1998</code> (after CHDK's <code>0x9999</code>).</p>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 First Parameter</h1>
 <div class="fragment"><div class="line">#define ML_GetExtVersion   0</div>
 <div class="line">#define ML_GetCamInfo      1</div>
@@ -100,10 +100,10 @@ First Parameter</h1>
 <div class="line">#define ML_GetLiveviewData 3</div>
 <div class="line">#define ML_GetMenuBmpData  4</div>
 <div class="line">#define ML_GetBmpSpecs     5</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md8"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md7"></a>
 ML_GetExtVersion</h1>
 <p>Returns <code>uint32_t</code>: version, currently <code>0x00000001</code></p>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md8"></a>
 ML_GetCamInfo</h1>
 <p>Returns packed struct: </p><div class="fragment"><div class="line">struct CamInfo {</div>
 <div class="line">    uint8_t cpu_digic;</div>
@@ -113,22 +113,22 @@ ML_GetCamInfo</h1>
 <div class="line">    char build_date[32];</div>
 <div class="line">    char build_user[32];</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md9"></a>
 ML_SendFileInfo</h1>
 <p>Similar to <code>SendObjectInfo</code>. Requires data phase from initiator: </p><div class="fragment"><div class="line">struct {</div>
 <div class="line">    uint16_t format_code;</div>
 <div class="line">    char filename[32];</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md11"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md10"></a>
 ML_UploadFile</h1>
 <p>Requires data phase from initiator as follows:</p>
-<h1><a class="anchor" id="autotoc_md12"></a>
+<h1><a class="anchor" id="autotoc_md11"></a>
 ML_GetLiveviewData</h1>
 <p>Returns unprocessed data stored lvram. Format depends on the DIGIC generation, which can be retrieved from <code>ML_GetExtVersion</code>.</p>
-<h1><a class="anchor" id="autotoc_md13"></a>
+<h1><a class="anchor" id="autotoc_md12"></a>
 ML_GetMenuBmpData</h1>
 <p>Returns unprocessed BMP data - stores both Canon and Magic Lantern menus. Format depends on the DIGIC generation. Each pixel is a single byte. To process this data, <code>ML_GetBmpSpecs</code> must be used to get the width, height, and color palette for each pixel.</p>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md13"></a>
 ML_GetBmpSpecs</h1>
 <p>Returns info on how to process the BMP liveview data, starting with info on the pitch and width: </p><div class="fragment"><div class="line">struct Info {</div>
 <div class="line">    uint32_t lv_pitch;</div>

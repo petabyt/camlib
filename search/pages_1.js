@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['does_20ptp_20work_0',['How does PTP work?',['../md_docs_2ptp.html',1,'']]]
+  ['ext_0',['Magic Lantern PTP Ext',['../md_docs_2ml.html',1,'']]]
 ];
