@@ -31,15 +31,12 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
 /// @memberof PTP/USB
 void ptpusb_free_device_list(struct PtpDeviceEntry *e);
 /// @brief Open and connect to a device from the PtpDeviceEntry structure
+/// @note Sets kill switch to 0
 /// @memberof PTP/USB
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
 
 /// @brief Runs ptp_comm_init and connect to the first device available
 int ptp_device_init(struct PtpRuntime *r);
-
-// Temporary :)
-//#define ptp_send_bulk_packet DEPRECATED_USE_ptp_cmd_write_INSTEAD
-//#define ptp_receive_bulk_packet DEPRECATED_USE_ptp_cmd_read_INSTEAD
 
 /// @brief Send data over the raw command endpoint
 /// @memberof PTP/USB
@@ -48,7 +45,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length);
 /// @memberof PTP/USB
 int ptp_cmd_read(struct PtpRuntime *r, void *to, int length);
 
-/// @brief Reset the USB device or endpoint if there is communication issues
+/// @brief Reset the USB endpoints if possible
 /// @memberof PTP/USB
 int ptp_device_reset(struct PtpRuntime *r);
 
@@ -69,6 +66,7 @@ int ptp_read_int(struct PtpRuntime *r, void *to, int length);
 int ptp_device_close(struct PtpRuntime *r);
 
 /// @brief Connect to a TCP port on the default network adapter
+/// @note Sets kill switch to 0
 /// @memberof PTP/IP
 int ptpip_connect(struct PtpRuntime *r, const char *addr, int port, int extra_tmout);
 /// @memberof PTP/IP
@@ -85,5 +83,7 @@ int ptpip_event_read(struct PtpRuntime *r, void *data, int size);
 
 /// @memberof PTP/IP
 int ptpip_close(struct PtpRuntime *r);
+
+void ptpusb_free_device_list_entry(void *);
 
 #endif

@@ -76,8 +76,8 @@ enum PtpLiveViewType {
 /// @brief Unique camera types - each type should have similar opcodes and behavior
 enum PtpVendors {
 	PTP_DEV_EMPTY = 0,
-	PTP_DEV_EOS = 1,
-	PTP_DEV_CANON = 2,
+	PTP_DEV_EOS = 1, // EOS DSLR/Mirrorless systems
+	PTP_DEV_CANON = 2, // Older powershot cameras
 	PTP_DEV_NIKON = 3,
 	PTP_DEV_SONY = 4,
 	PTP_DEV_FUJI = 5,
@@ -94,11 +94,12 @@ enum ImageFormats {
 };
 
 /// @brief Tells lib what backend and packet style to use
+/// @note This is a bitmask so that it can be passed to ptp_new with other options.
 enum PtpConnType {
-	// why this this a bitmask??
 	PTP_IP = (1 << 0),
 	PTP_IP_USB = (1 << 1), // TCP-based, but using USB-style packets (Fujifilm)
 	PTP_USB = (1 << 2),
+	PTP_BLE = (1 << 3), // I can only dream...
 };
 
 /// @brief Linked list to handle currently possible values for a property
@@ -111,7 +112,7 @@ struct PtpPropAvail {
 	void *data;
 };
 
-/// @brief Holds all camlib instance info
+/// @brief Represents a single device connection
 /// @struct PtpRuntime
 struct PtpRuntime {
 	/// @brief Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
@@ -137,7 +138,7 @@ struct PtpRuntime {
 	int max_packet_size;
 
 	/// @brief Info about current connection, used to detect camera type, supported opodes, etc
-	/// @note Set by ptp_parse_device_info.
+	/// @note Set by ptp_parse_device_info. This should be NULL when this struct is created.
 	struct PtpDeviceInfo *di;
 	int device_type;
 
@@ -337,16 +338,5 @@ int ptp_dump(struct PtpRuntime *r);
 	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
 	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
 #endif
-
-typedef void ptp_object_found_callback(struct PtpRuntime *r, struct PtpObjectInfo *oi, void *arg);
-
-// Object service api (object.c) - optional
-// Not documented yet
-struct ObjectCache *ptp_create_object_service(int *handles, int length, ptp_object_found_callback *callback, void *arg);
-struct PtpObjectInfo *ptp_object_service_get(struct PtpRuntime *r, struct ObjectCache *oc, int handle);
-struct PtpObjectInfo *ptp_object_service_get_index(struct PtpRuntime *r, struct ObjectCache *oc, int req_i);
-int ptp_object_service_length(struct PtpRuntime *r, struct ObjectCache *oc);
-int ptp_object_service_step(struct PtpRuntime *r, struct ObjectCache *oc);
-void ptp_object_service_add_priority(struct PtpRuntime *r, struct ObjectCache *oc, int handle);
 
 #endif

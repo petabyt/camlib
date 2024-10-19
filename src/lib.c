@@ -9,15 +9,18 @@
 #include <ptp.h>
 
 void ptp_reset(struct PtpRuntime *r) {
+	if (r == NULL) abort();
 	r->io_kill_switch = 1;
 	r->transaction = 0;
 	r->session = 0;	
 	r->connection_type = PTP_USB;
 	r->response_wait_default = 1;
 	r->wait_for_response = 1;
+	r->comm_backend = NULL;
 }
 
 void ptp_init(struct PtpRuntime *r) {
+	if (r == NULL) abort();
 	memset(r, 0, sizeof(struct PtpRuntime));
 	ptp_reset(r);
 
@@ -100,6 +103,7 @@ void ptpusb_free_device_list(struct PtpDeviceEntry *e) {
 	struct PtpDeviceEntry *next;
 	while (e != NULL) {
 		next = e->next;
+		ptpusb_free_device_list_entry(e->device_handle_ptr);
 		free(e);
 		e = next;
 	}
@@ -190,7 +194,7 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 			return PTP_IO_ERR;
 		}
 	} else if (rc) {
-		ptp_mutex_unlock_thread(r);
+		ptp_mutex_unlock(r);
 		return PTP_IO_ERR;
 	}
 

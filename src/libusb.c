@@ -22,7 +22,7 @@ struct LibUSBBackend {
 };
 
 // TODO: If this is accidentally called in the middle of a connection, it will cause a huge fault
-int ptp_comm_init(struct PtpRuntime *r) {
+static int ptp_comm_init(struct PtpRuntime *r) {
 	ptp_reset(r);
 
 	// libusb 1.0 has no specificed limit for reads/writes
@@ -241,6 +241,10 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 
 	ptp_mutex_unlock(r);
 	return 0;
+}
+
+void ptpusb_free_device_list_entry(void *ptr) {
+	// TODO: free libusb_device
 }
 
 int ptp_device_init(struct PtpRuntime *r) {

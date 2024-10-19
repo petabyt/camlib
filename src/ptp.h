@@ -65,7 +65,7 @@ struct PtpIpStartDataPacket {
 	uint32_t length;
 	uint32_t type;
 	uint32_t transaction;
-	uint64_t data_phase_length;
+	uint64_t payload_length;
 };
 
 struct PtpIpEndDataPacket {
@@ -293,7 +293,7 @@ struct PtpIpInitPacket {
 #define PTP_OF_AVI				0x300A
 #define PTP_OF_MPEG				0x300B
 #define PTP_OF_ASF				0x300C
-#define PTP_OF_MOV				0x300D // guessing
+#define PTP_OF_MOV				0x300D
 #define PTP_OF_JPEG				0x3801
 #define PTP_OF_TIFF_EP			0x3802
 #define PTP_OF_FlashPix			0x3803

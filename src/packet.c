@@ -170,10 +170,10 @@ int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type, in
 
 int ptpip_data_start_packet(struct PtpRuntime *r, int data_length) {
 	struct PtpIpStartDataPacket *pkt = (struct PtpIpStartDataPacket *)(r->data);
-	pkt->length = 0x20;
+	pkt->length = 20; // fixme: This was 0x20, changed it (?????)
 	pkt->type = PTPIP_DATA_PACKET_START;
 	pkt->transaction = r->transaction;
-	pkt->data_phase_length = (uint64_t)data_length;	
+	pkt->payload_length = (uint64_t)data_length;
 
 	return pkt->length;
 }
@@ -318,7 +318,7 @@ int ptp_get_payload_length(struct PtpRuntime *r) {
 			ptp_panic("ptp_get_payload_length(): non data start packet");
 		}
 
-		return (int)ds->data_phase_length;
+		return (int)ds->payload_length;
 	} else {
 		struct PtpBulkContainer *bulk = (struct PtpBulkContainer*)(r->data);
 		return bulk->length - 12;
