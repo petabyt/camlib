@@ -475,25 +475,25 @@ int ptp_eos_prop_next(uint8_t *d, struct PtpGenericEvent *p) {
 	const char *name = ptp_get_enum_all(code);
 	const char *str_value = NULL;
 	switch (code) {
-	case PTP_PC_EOS_Aperture:
+	case PTP_DPC_EOS_Aperture:
 		value = ptp_eos_get_aperture(value, 0);
 		name = "aperture";
 		break;
-	case PTP_PC_EOS_ShutterSpeed:
+	case PTP_DPC_EOS_ShutterSpeed:
 		value = ptp_eos_get_shutter(value, 0);
 		name = "shutter speed";
 		break;
-	case PTP_PC_EOS_ISOSpeed:
+	case PTP_DPC_EOS_ISOSpeed:
 		value = ptp_eos_get_iso(value, 0);
 		name = "iso";
 		break;
-	case PTP_PC_EOS_BatteryPower:
+	case PTP_DPC_EOS_BatteryPower:
 		// EOS has 3 battery bars
 		value++;
 		if (value == 3) value = 4;
 		name = "battery";
 		break;
-	case PTP_PC_EOS_ImageFormat: {
+	case PTP_DPC_EOS_ImageFormat: {
 			uint32_t data[5] = {value};
 			of += ptp_read_u32(d + of, &data[1]);
 			of += ptp_read_u32(d + of, &data[2]);
@@ -506,7 +506,7 @@ int ptp_eos_prop_next(uint8_t *d, struct PtpGenericEvent *p) {
 			}
 			name = "image format";
 		} break;
-	case PTP_PC_EOS_VF_Output:
+	case PTP_DPC_EOS_VF_Output:
 		name = "mirror";
 		if (value == 0) {
 			str_value = "finder";
@@ -514,10 +514,10 @@ int ptp_eos_prop_next(uint8_t *d, struct PtpGenericEvent *p) {
 			str_value = "open";
 		}
 		break;
-	case PTP_PC_EOS_AEModeDial:
+	case PTP_DPC_EOS_AEModeDial:
 		name = "mode dial";
 		break;
-	case PTP_PC_EOS_FocusMode:
+	case PTP_DPC_EOS_FocusMode:
 		name = "focus mode";
 		if (value == 3) {
 			str_value = "MF";
@@ -525,11 +525,11 @@ int ptp_eos_prop_next(uint8_t *d, struct PtpGenericEvent *p) {
 			str_value = "AF";
 		}
 		break;
-	case PTP_PC_EOS_WhiteBalance:
+	case PTP_DPC_EOS_WhiteBalance:
 		name = "white balance";
 		value = ptp_eos_get_white_balance(value, 0);
 		break;
-	case PTP_PC_EOS_FocusInfoEx:
+	case PTP_DPC_EOS_FocusInfoEx:
 		name = "focused";
 		break;
 	}
@@ -610,7 +610,7 @@ int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p) {
 			d += ptp_eos_prop_next(d, cur);
 			break;
 		case PTP_EC_EOS_InfoCheckComplete:
-		case PTP_PC_EOS_FocusInfoEx:
+		case PTP_DPC_EOS_FocusInfoEx:
 			cur->name = ptp_get_enum_all(type);
 			break;
 		case PTP_EC_EOS_RequestObjectTransfer: {

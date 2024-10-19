@@ -116,11 +116,11 @@ int ptp_liveview_init(struct PtpRuntime *r) {
 		x = ptp_ml_init_bmp_lv(r);
 		if (x) return x;
 	case PTP_LV_EOS:
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3);
+		x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_VF_Output, 3);
 		if (x) return x;
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 4);
+		x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_CaptureDestination, 4);
 		if (x) return x;
-		//if (ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
+		//if (ptp_eos_set_prop_value(r, PTP_DPC_EOS_EVFMode, 1)) return PTP_CAM_ERR;
 		return 0;
 	}
 
@@ -134,9 +134,9 @@ int ptp_liveview_deinit(struct PtpRuntime *r) {
 	case PTP_LV_EOS_ML_BMP:
 		return 0;
 	case PTP_LV_EOS:
-		// x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
+		// x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_VF_Output, 0);
 		// if (x) return x;
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_CaptureDestination, 2);
+		x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_CaptureDestination, 2);
 		if (x) return x;
 		ptp_eos_hdd_capacity_push(r);
 		return 0;

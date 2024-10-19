@@ -61,7 +61,7 @@ stringify:
 
 clean:
 	rm -rf *.o src/*.o src/dec/*.o *.out test-ci test/*.o examples/*.o examples/*.d *.exe camlib *.dll *.so DUMP \
-	src/lua/*.o src/lua/lua-cjson/*.o src/*.d examples/*.d src/lua/*.d src/lua/lua-cjson/*.d
+	src/lua/*.o src/lua/lua-cjson/*.o src/*.d examples/*.d src/lua/*.d src/lua/lua-cjson/*.d *.a
 	cd examples && make clean
 
 install: libcamlib.so

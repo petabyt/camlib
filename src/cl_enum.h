@@ -14,7 +14,7 @@ enum PtpType {
 	PTP_ENUM = 0, // regular enums
 	PTP_OC = 1, // operation codes
 	PTP_OF = 2, // object formats
-	PTP_PC = 3, // property codes
+	PTP_DPC = 3, // property codes
 	PTP_EC = 4, // event codes
 	PTP_RC = 5, // return code
 	PTP_ST = 6, // storage type

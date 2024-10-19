@@ -55,20 +55,20 @@ int ptp_set_generic_property(struct PtpRuntime *r, const char *name, int value) 
 	int rc = 0;
 	if (!strcmp(name, "aperture")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_DPC_EOS_Aperture, ptp_eos_get_aperture(value, 1));
 		}
 	} else if (!strcmp(name, "iso")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_DPC_EOS_ISOSpeed, ptp_eos_get_iso(value, 1));
 		}
 	} else if (!strcmp(name, "shutter speed")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_validate_prop(r, PTP_PC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
+			rc = ptp_eos_set_validate_prop(r, PTP_DPC_EOS_ShutterSpeed, ptp_eos_get_shutter(value, 1));
 		}
 	} else if (!strcmp(name, "white balance")) {
 		if (dev == PTP_DEV_EOS) {
-			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_WhiteBalance, ptp_eos_get_white_balance(value, 1));
-			rc = ptp_eos_set_prop_value(r, PTP_PC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
+			rc = ptp_eos_set_prop_value(r, PTP_DPC_EOS_WhiteBalance, ptp_eos_get_white_balance(value, 1));
+			rc = ptp_eos_set_prop_value(r, PTP_DPC_EOS_EVFWBMode, ptp_eos_get_white_balance(value, 1));
 		}
 	} else if (!strcmp(name, "destination")) {
 		return PTP_UNSUPPORTED;
@@ -138,7 +138,7 @@ int ptp_get_all_known(struct PtpRuntime *r, struct PtpGenericEvent **s, int *len
 
 		// TODO: Get more props
 		switch (props[i]) {
-		case PTP_PC_BatteryLevel:
+		case PTP_DPC_BatteryLevel:
 			cur->name = "battery";
 			cur->value = v;
 			break;

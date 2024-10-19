@@ -126,13 +126,13 @@ int test_props() {
 	int rc = test_setup_usb(&r);
 	if (rc) return rc;
 
-	rc = ptp_get_prop_value(&r, PTP_PC_BatteryLevel);
+	rc = ptp_get_prop_value(&r, PTP_DPC_BatteryLevel);
 	if (rc) return rc;
 	printf("Test parse: %d\n", ptp_parse_prop_value(&r));
 	assert(ptp_parse_prop_value(&r) == 50);
 
 	struct PtpPropDesc pd;
-	rc = ptp_get_prop_desc(&r, PTP_PC_BatteryLevel, &pd);
+	rc = ptp_get_prop_desc(&r, PTP_DPC_BatteryLevel, &pd);
 	if (rc) return rc;
 	assert(pd.current_value32 == 50);
 	assert(pd.default_value32 == 50);
@@ -141,7 +141,7 @@ int test_props() {
 	assert(pd.range_form.max == 100);
 	assert(pd.range_form.step == 1);
 
-	rc = ptp_get_prop_desc(&r, PTP_PC_ImageSize, &pd);
+	rc = ptp_get_prop_desc(&r, PTP_DPC_ImageSize, &pd);
 	if (rc) return rc;
 
 	char buffer[128];

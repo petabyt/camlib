@@ -29,10 +29,9 @@ static int connect(struct PtpRuntime *r) {
 int main() {
 	struct PtpRuntime r;
 	ptp_generic_init(&r);
-	ptp_comm_init(&r);
 
-	connect(&r);
-	connect(&r);
+	if (connect(&r)) return 1;
+	if (connect(&r)) return 1;
 
 	return 0;
 }

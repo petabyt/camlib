@@ -444,7 +444,7 @@ int bind_cancel_af(struct BindReq *bind, struct PtpRuntime *r) {
 int bind_mirror_up(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 3);
+		x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_VF_Output, 3);
 	} else {
 		x = PTP_UNSUPPORTED;
 	}
@@ -455,7 +455,7 @@ int bind_mirror_up(struct BindReq *bind, struct PtpRuntime *r) {
 int bind_mirror_down(struct BindReq *bind, struct PtpRuntime *r) {
 	int x = 0;
 	if (ptp_device_type(r) == PTP_DEV_EOS) {
-		x = ptp_eos_set_prop_value(r, PTP_PC_EOS_VF_Output, 0);
+		x = ptp_eos_set_prop_value(r, PTP_DPC_EOS_VF_Output, 0);
 	} else {
 		x = PTP_UNSUPPORTED;
 	}

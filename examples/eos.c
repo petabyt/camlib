@@ -55,7 +55,7 @@ int main() {
 
 	struct PtpDevPropDesc desc;
 
-	ptp_get_prop_desc(&r, PTP_PC_EOS_ImageFormat, &desc);
+	ptp_get_prop_desc(&r, PTP_DPC_EOS_ImageFormat, &desc);
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

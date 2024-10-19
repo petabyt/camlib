@@ -36,7 +36,7 @@ int main() {
 	ptp_eos_set_event_mode(&r, 1);
 	ptp_eos_set_remote_mode(&r, 1);
 
-	int ret = ptp_eos_set_prop_value(&r, PTP_PC_EOS_ISOSpeed, ptp_eos_get_iso(100, 1));
+	int ret = ptp_eos_set_prop_value(&r, PTP_DPC_EOS_ISOSpeed, ptp_eos_get_iso(100, 1));
 	if (ret) {
 		printf("error setting prop %d\n", ret);
 	}

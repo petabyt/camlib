@@ -22,20 +22,19 @@ struct PtpDeviceEntry {
 	struct PtpDeviceEntry *next;
 };
 
-/// @brief Initialize communications context for the current thread
-int ptp_comm_init(struct PtpRuntime *r);
-
 /// @brief Get a linked list of USB or PTP Devices
 /// @memberof PTP/USB
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
+
 /// @memberof PTP/USB
 void ptpusb_free_device_list(struct PtpDeviceEntry *e);
+
 /// @brief Open and connect to a device from the PtpDeviceEntry structure
 /// @note Sets kill switch to 0
 /// @memberof PTP/USB
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry);
 
-/// @brief Runs ptp_comm_init and connect to the first device available
+/// @brief Connects to the first PTP device it finds
 int ptp_device_init(struct PtpRuntime *r);
 
 /// @brief Send data over the raw command endpoint
