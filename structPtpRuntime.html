@@ -93,7 +93,7 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 
-<p>Holds all camlib instance info.  
+<p>Represents a single device connection.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="camlib_8h_source.html">camlib.h</a>&gt;</code></p>
@@ -120,19 +120,19 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:af77f9c198842550488926acc6350a11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16ebc69184e82c377375ff8fc663339a" id="r_a16ebc69184e82c377375ff8fc663339a"><td class="memItemLeft" align="right" valign="top"><a id="a16ebc69184e82c377375ff8fc663339a" name="a16ebc69184e82c377375ff8fc663339a"></a>
 PUB struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_new</b> (int options)</td></tr>
-<tr class="memdesc:a16ebc69184e82c377375ff8fc663339a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate new <a class="el" href="structPtpRuntime.html" title="Holds all camlib instance info.">PtpRuntime</a> based on bitfield options - see PtpConnType. <br /></td></tr>
+<tr class="memdesc:a16ebc69184e82c377375ff8fc663339a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate new <a class="el" href="structPtpRuntime.html" title="Represents a single device connection.">PtpRuntime</a> based on bitfield options - see PtpConnType. <br /></td></tr>
 <tr class="separator:a16ebc69184e82c377375ff8fc663339a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b58d078aae65e43bca41d037ccdf2d5" id="r_a2b58d078aae65e43bca41d037ccdf2d5"><td class="memItemLeft" align="right" valign="top"><a id="a2b58d078aae65e43bca41d037ccdf2d5" name="a2b58d078aae65e43bca41d037ccdf2d5"></a>
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_reset</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
-<tr class="memdesc:a2b58d078aae65e43bca41d037ccdf2d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all session-specific fields of <a class="el" href="structPtpRuntime.html" title="Holds all camlib instance info.">PtpRuntime</a> - both libusb and libwpd backends call this before establishing connection, so calling this is not required. <br /></td></tr>
+<tr class="memdesc:a2b58d078aae65e43bca41d037ccdf2d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset all session-specific fields of <a class="el" href="structPtpRuntime.html" title="Represents a single device connection.">PtpRuntime</a> - both libusb and libwpd backends call this before establishing connection, so calling this is not required. <br /></td></tr>
 <tr class="separator:a2b58d078aae65e43bca41d037ccdf2d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13bae3755015236bc0d80f03262f8564" id="r_a13bae3755015236bc0d80f03262f8564"><td class="memItemLeft" align="right" valign="top"><a id="a13bae3755015236bc0d80f03262f8564" name="a13bae3755015236bc0d80f03262f8564"></a>
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_init</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
-<tr class="memdesc:a13bae3755015236bc0d80f03262f8564"><td class="mdescLeft">&#160;</td><td class="mdescRight">Init <a class="el" href="structPtpRuntime.html" title="Holds all camlib instance info.">PtpRuntime</a> locally - uses default recommended settings (USB) <br /></td></tr>
+<tr class="memdesc:a13bae3755015236bc0d80f03262f8564"><td class="mdescLeft">&#160;</td><td class="mdescRight">Init <a class="el" href="structPtpRuntime.html" title="Represents a single device connection.">PtpRuntime</a> locally - uses default recommended settings (USB) <br /></td></tr>
 <tr class="separator:a13bae3755015236bc0d80f03262f8564"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4d45b4f344f3094e4ede7c114df077c3" id="r_a4d45b4f344f3094e4ede7c114df077c3"><td class="memItemLeft" align="right" valign="top"><a id="a4d45b4f344f3094e4ede7c114df077c3" name="a4d45b4f344f3094e4ede7c114df077c3"></a>
 PUB void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_close</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
-<tr class="memdesc:a4d45b4f344f3094e4ede7c114df077c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees <a class="el" href="structPtpRuntime.html" title="Holds all camlib instance info.">PtpRuntime</a> data buffer - doesn't free the actual structure, or device info (yet) <br /></td></tr>
+<tr class="memdesc:a4d45b4f344f3094e4ede7c114df077c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees <a class="el" href="structPtpRuntime.html" title="Represents a single device connection.">PtpRuntime</a> data buffer - doesn't free the actual structure, or device info (yet) <br /></td></tr>
 <tr class="separator:a4d45b4f344f3094e4ede7c114df077c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a025478ecd387e2c1be6dfb7cc41488ea" id="r_a025478ecd387e2c1be6dfb7cc41488ea"><td class="memItemLeft" align="right" valign="top"><a id="a025478ecd387e2c1be6dfb7cc41488ea" name="a025478ecd387e2c1be6dfb7cc41488ea"></a>
 PUB int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_send</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct <a class="el" href="structPtpCommand.html">PtpCommand</a> *cmd)</td></tr>
@@ -310,7 +310,7 @@ struct ObjectCache *&#160;</td><td class="memItemRight" valign="bottom"><b>oc</b
 <tr class="separator:ac05fda8f29f7035e104d3be5284d6229"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Holds all camlib instance info. </p>
+<div class="textblock"><p>Represents a single device connection. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ab84ae8f97ce135a3702bb73959fc539c" name="ab84ae8f97ce135a3702bb73959fc539c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab84ae8f97ce135a3702bb73959fc539c">&#9670;&#160;</a></span>ptp_buffer_resize()</h2>
@@ -772,7 +772,7 @@ struct ObjectCache *&#160;</td><td class="memItemRight" valign="bottom"><b>oc</b
 </div><div class="memdoc">
 
 <p>Info about current connection, used to detect camera type, supported opodes, etc. </p>
-<dl class="section note"><dt>Note</dt><dd>Set by ptp_parse_device_info. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Set by ptp_parse_device_info. This should be NULL when this struct is created. </dd></dl>
 
 </div>
 </div>

@@ -92,7 +92,6 @@ $(function(){ initResizable(false); });
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">camlib.h File Reference</div></div>
@@ -117,7 +116,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Linked list to handle currently possible values for a property.  <a href="structPtpPropAvail.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structPtpRuntime.html">PtpRuntime</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds all camlib instance info.  <a href="structPtpRuntime.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a single device connection.  <a href="structPtpRuntime.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structPtpGenericEvent.html">PtpGenericEvent</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic event / property change.  <a href="structPtpGenericEvent.html#details">More...</a><br /></td></tr>
@@ -162,12 +161,6 @@ Macros</h2></td></tr>
 <tr class="separator:a9da663777c90ec281354709cbfb278f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af492fea5ca9fcc74ebf9654510dfa1dc" id="r_af492fea5ca9fcc74ebf9654510dfa1dc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af492fea5ca9fcc74ebf9654510dfa1dc">ptp_generic_send_data</a>(...)</td></tr>
 <tr class="separator:af492fea5ca9fcc74ebf9654510dfa1dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:ae54fcea86315e03841794d1a9aef00a6" id="r_ae54fcea86315e03841794d1a9aef00a6"><td class="memItemLeft" align="right" valign="top"><a id="ae54fcea86315e03841794d1a9aef00a6" name="ae54fcea86315e03841794d1a9aef00a6"></a>
-typedef void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_found_callback</b>(struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct PtpObjectInfo *oi, void *arg)</td></tr>
-<tr class="separator:ae54fcea86315e03841794d1a9aef00a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -222,11 +215,12 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a071af1086f88cebfda589bed30f09c25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d84e1a866c4b0808d10dd1b7125a639" id="r_a4d84e1a866c4b0808d10dd1b7125a639"><td class="memItemLeft" align="right" valign="top"><a id="a4d84e1a866c4b0808d10dd1b7125a639" name="a4d84e1a866c4b0808d10dd1b7125a639"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d84e1a866c4b0808d10dd1b7125a639">PtpConnType</a> { <b>PTP_IP</b> = (1 &lt;&lt; 0)
+<tr class="memitem:a4d84e1a866c4b0808d10dd1b7125a639" id="r_a4d84e1a866c4b0808d10dd1b7125a639"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d84e1a866c4b0808d10dd1b7125a639">PtpConnType</a> { <b>PTP_IP</b> = (1 &lt;&lt; 0)
 , <b>PTP_IP_USB</b> = (1 &lt;&lt; 1)
 , <b>PTP_USB</b> = (1 &lt;&lt; 2)
+, <b>PTP_BLE</b> = (1 &lt;&lt; 3)
  }</td></tr>
-<tr class="memdesc:a4d84e1a866c4b0808d10dd1b7125a639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tells lib what backend and packet style to use. <br /></td></tr>
+<tr class="memdesc:a4d84e1a866c4b0808d10dd1b7125a639"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tells lib what backend and packet style to use.  <a href="#a4d84e1a866c4b0808d10dd1b7125a639">More...</a><br /></td></tr>
 <tr class="separator:a4d84e1a866c4b0808d10dd1b7125a639"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -289,24 +283,6 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_dup_payload</b>
 <tr class="memitem:a3b2d987487466928731e65a97cfc4930" id="r_a3b2d987487466928731e65a97cfc4930"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b2d987487466928731e65a97cfc4930">ptp_dump</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
 <tr class="memdesc:a3b2d987487466928731e65a97cfc4930"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write r-&gt;data to a file called DUMP.  <br /></td></tr>
 <tr class="separator:a3b2d987487466928731e65a97cfc4930"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf5ee746e230fcc2ba8ef8c9cb297577" id="r_aaf5ee746e230fcc2ba8ef8c9cb297577"><td class="memItemLeft" align="right" valign="top"><a id="aaf5ee746e230fcc2ba8ef8c9cb297577" name="aaf5ee746e230fcc2ba8ef8c9cb297577"></a>
-struct ObjectCache *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_create_object_service</b> (int *handles, int length, ptp_object_found_callback *callback, void *arg)</td></tr>
-<tr class="separator:aaf5ee746e230fcc2ba8ef8c9cb297577"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a17c42f16a4ddd5ed2a1c240fd616d751" id="r_a17c42f16a4ddd5ed2a1c240fd616d751"><td class="memItemLeft" align="right" valign="top"><a id="a17c42f16a4ddd5ed2a1c240fd616d751" name="a17c42f16a4ddd5ed2a1c240fd616d751"></a>
-struct PtpObjectInfo *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_get</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct ObjectCache *oc, int handle)</td></tr>
-<tr class="separator:a17c42f16a4ddd5ed2a1c240fd616d751"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a848d3ba06b2e5dc644acf2a79ded56ab" id="r_a848d3ba06b2e5dc644acf2a79ded56ab"><td class="memItemLeft" align="right" valign="top"><a id="a848d3ba06b2e5dc644acf2a79ded56ab" name="a848d3ba06b2e5dc644acf2a79ded56ab"></a>
-struct PtpObjectInfo *&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_get_index</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct ObjectCache *oc, int req_i)</td></tr>
-<tr class="separator:a848d3ba06b2e5dc644acf2a79ded56ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa954f40108c110ad67bd550a2f0eefab" id="r_aa954f40108c110ad67bd550a2f0eefab"><td class="memItemLeft" align="right" valign="top"><a id="aa954f40108c110ad67bd550a2f0eefab" name="aa954f40108c110ad67bd550a2f0eefab"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_length</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct ObjectCache *oc)</td></tr>
-<tr class="separator:aa954f40108c110ad67bd550a2f0eefab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a13569ba22067ec81497883f0043356" id="r_a1a13569ba22067ec81497883f0043356"><td class="memItemLeft" align="right" valign="top"><a id="a1a13569ba22067ec81497883f0043356" name="a1a13569ba22067ec81497883f0043356"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_step</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct ObjectCache *oc)</td></tr>
-<tr class="separator:a1a13569ba22067ec81497883f0043356"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e9aa2d6ba43093b0d47217b4ff84abd" id="r_a0e9aa2d6ba43093b0d47217b4ff84abd"><td class="memItemLeft" align="right" valign="top"><a id="a0e9aa2d6ba43093b0d47217b4ff84abd" name="a0e9aa2d6ba43093b0d47217b4ff84abd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_add_priority</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct ObjectCache *oc, int handle)</td></tr>
-<tr class="separator:a0e9aa2d6ba43093b0d47217b4ff84abd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a6d5279f89ddbb2b576ceb79f2e0f1dc3" name="a6d5279f89ddbb2b576ceb79f2e0f1dc3"></a>
@@ -454,6 +430,23 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_object_service_ad
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a4d84e1a866c4b0808d10dd1b7125a639" name="a4d84e1a866c4b0808d10dd1b7125a639"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d84e1a866c4b0808d10dd1b7125a639">&#9670;&#160;</a></span>PtpConnType</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a4d84e1a866c4b0808d10dd1b7125a639">PtpConnType</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tells lib what backend and packet style to use. </p>
+<dl class="section note"><dt>Note</dt><dd>This is a bitmask so that it can be passed to ptp_new with other options. </dd></dl>
+
+</div>
+</div>
 <a id="a9fa077df1a63de2388ae3428b9defd2f" name="a9fa077df1a63de2388ae3428b9defd2f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9fa077df1a63de2388ae3428b9defd2f">&#9670;&#160;</a></span>PtpGeneralError</h2>
 
