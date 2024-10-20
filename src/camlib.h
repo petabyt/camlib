@@ -115,10 +115,11 @@ struct PtpPropAvail {
 /// @brief Represents a single device connection
 /// @struct PtpRuntime
 struct PtpRuntime {
-	/// @brief Set to 1 to kill all IO operations. By default, this is 1. When a valid connection
-	/// is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it
-	/// will be set to 1.
+	/// @brief Set to 1 when it is no longer safe to send any data to the device (socket closed, device unplugged)
 	uint8_t io_kill_switch;
+
+	/// @brief Set to 1 when it is no longer safe to run operations (device is unresponsive, pipe issues)
+	uint8_t operation_kill_switch;
 
 	/// @brief One of enum PtpConnType
 	/// @note Is set to USB by default

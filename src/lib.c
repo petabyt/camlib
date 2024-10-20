@@ -11,8 +11,9 @@
 void ptp_reset(struct PtpRuntime *r) {
 	if (r == NULL) abort();
 	r->io_kill_switch = 1;
+	r->operation_kill_switch = 1;
 	r->transaction = 0;
-	r->session = 0;	
+	r->session = 0;
 	r->connection_type = PTP_USB;
 	r->response_wait_default = 1;
 	r->wait_for_response = 1;
@@ -180,7 +181,12 @@ static int ptp_send_try(struct PtpRuntime *r, struct PtpCommand *cmd) {
 
 // Perform a generic command transaction - no data phase
 int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
+	if (r->operation_kill_switch) return PTP_IO_ERR;
 	ptp_mutex_lock(r);
+	if (r->operation_kill_switch) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
 
 	r->data_phase_length = 0;
 
@@ -190,11 +196,13 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 		rc = ptp_send_try(r, cmd);
 		if (rc) {
 			ptp_verbose_log("Command ignored again.\n");
+			r->operation_kill_switch = 1;
 			ptp_mutex_unlock(r);
 			return PTP_IO_ERR;
 		}
 	} else if (rc) {
 		ptp_mutex_unlock(r);
+		r->operation_kill_switch = 1;
 		return PTP_IO_ERR;
 	}
 
@@ -240,9 +248,14 @@ static int ptp_send_data_try(struct PtpRuntime *r, struct PtpCommand *cmd, void 
 
 // Perform a command request with a data phase to the camera
 int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+	if (r->operation_kill_switch) return PTP_IO_ERR;
 	ptp_mutex_lock(r);
+	if (r->operation_kill_switch) {
+		ptp_mutex_unlock(r);
+		return PTP_IO_ERR;
+	}
 
-	// Required for libWPD and PTP/IP
+	// Required for PTP/IP
 	r->data_phase_length = length;
 
 	// Resize buffer if needed
@@ -258,11 +271,13 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 		rc = ptp_send_data_try(r, cmd, data, length);
 		if (rc) {
 			ptp_verbose_log("Command ignored again.\n");
+			r->operation_kill_switch = 1;
 			ptp_mutex_unlock(r);
 			return PTP_IO_ERR;
 		}
 	} else if (rc) {
 		ptp_mutex_unlock(r);
+		r->operation_kill_switch = 1;
 		return PTP_IO_ERR;
 	}
 
@@ -275,7 +290,7 @@ int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int 
 
 int ptp_device_type(struct PtpRuntime *r) {
 	struct PtpDeviceInfo *di = r->di;
-	if (di == NULL) return PTP_DEV_EMPTY; // TODO: panic?
+	if (di == NULL) return PTP_DEV_EMPTY; // panic?
 	if (!strcmp(di->manufacturer, "Canon Inc.")) {
 		if (ptp_check_opcode(r, PTP_OC_EOS_GetStorageIDs)) {
 			return PTP_DEV_EOS;

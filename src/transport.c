@@ -329,7 +329,6 @@ int ptpipusb_receive_bulk_packets(struct PtpRuntime *r) {
 }
 
 int ptp_receive_all_packets(struct PtpRuntime *r) {
-	if (r->io_kill_switch) return -1;
 	if (r->connection_type == PTP_IP) {
 		return ptpip_receive_bulk_packets(r);
 	} else if (r->connection_type == PTP_USB) {

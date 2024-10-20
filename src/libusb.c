@@ -238,6 +238,7 @@ int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
 	}
 
 	r->io_kill_switch = 0;
+	r->operation_kill_switch = 0;
 
 	ptp_mutex_unlock(r);
 	return 0;
@@ -279,12 +280,14 @@ int ptp_device_init(struct PtpRuntime *r) {
 	}
 
 	r->io_kill_switch = 0;
+	r->operation_kill_switch = 0;
 
 	return 0;
 }
 
 int ptp_device_close(struct PtpRuntime *r) {
 	r->io_kill_switch = 1;
+	r->operation_kill_switch = 1;
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 	if (libusb_release_interface(backend->handle, 0)) {
 		return 1;
