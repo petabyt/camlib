@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['response_5fwait_5fdefault_0',['response_wait_default',['../structPtpRuntime.html#a37501cfcd57c6d29d2201bccfa822d0e',1,'PtpRuntime']]]
+  ['operation_5fkill_5fswitch_0',['operation_kill_switch',['../structPtpRuntime.html#ae599865d549d7e529312109f6af3f1ae',1,'PtpRuntime']]]
 ];

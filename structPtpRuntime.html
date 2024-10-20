@@ -255,8 +255,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_download_object</b
 Public Attributes</h2></td></tr>
 <tr class="memitem:a295b65c4bba2f26117c04c041c5b48ab" id="r_a295b65c4bba2f26117c04c041c5b48ab"><td class="memItemLeft" align="right" valign="top"><a id="a295b65c4bba2f26117c04c041c5b48ab" name="a295b65c4bba2f26117c04c041c5b48ab"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>io_kill_switch</b></td></tr>
-<tr class="memdesc:a295b65c4bba2f26117c04c041c5b48ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to 1 to kill all IO operations. By default, this is 1. When a valid connection is achieved by libusb, libwpd, and tcp backends, it will be set to 0. On IO error, it will be set to 1. <br /></td></tr>
+<tr class="memdesc:a295b65c4bba2f26117c04c041c5b48ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to 1 when it is no longer safe to send any data to the device (socket closed, device unplugged) <br /></td></tr>
 <tr class="separator:a295b65c4bba2f26117c04c041c5b48ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae599865d549d7e529312109f6af3f1ae" id="r_ae599865d549d7e529312109f6af3f1ae"><td class="memItemLeft" align="right" valign="top"><a id="ae599865d549d7e529312109f6af3f1ae" name="ae599865d549d7e529312109f6af3f1ae"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>operation_kill_switch</b></td></tr>
+<tr class="memdesc:ae599865d549d7e529312109f6af3f1ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to 1 when it is no longer safe to run operations (device is unresponsive, pipe issues) <br /></td></tr>
+<tr class="separator:ae599865d549d7e529312109f6af3f1ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed36a8eae0146cdb13a2fb5e7ca201a0" id="r_aed36a8eae0146cdb13a2fb5e7ca201a0"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed36a8eae0146cdb13a2fb5e7ca201a0">connection_type</a></td></tr>
 <tr class="memdesc:aed36a8eae0146cdb13a2fb5e7ca201a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">One of enum PtpConnType.  <br /></td></tr>
 <tr class="separator:aed36a8eae0146cdb13a2fb5e7ca201a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
