@@ -168,7 +168,7 @@ struct PtpRuntime {
 	/// @note: Optional
 	struct PtpPropAvail *avail;
 
-	struct ObjectCache *oc;
+	void *oc;
 };
 
 /// @brief Generic event / property change

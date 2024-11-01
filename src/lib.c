@@ -40,9 +40,7 @@ void ptp_init(struct PtpRuntime *r) {
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 
 	if (pthread_mutex_init(r->mutex, &attr)) {
-		ptp_verbose_log("Failed to init mutex\n");
-		free(r->mutex);
-		r->mutex = NULL;
+		ptp_panic("Failed to init mutex\n");
 	}
 	#endif
 }
@@ -155,7 +153,13 @@ void ptp_mutex_unlock_thread(struct PtpRuntime *r) {
 }
 
 static int ptp_check_rc(struct PtpRuntime *r) {
-	if (ptp_get_return_code(r) != PTP_RC_OK) {
+	int code = ptp_get_return_code(r);
+	// This is returned on Fuji cameras
+	if (code == 0xffff) {
+		ptp_verbose_log("Nonstandard goodbye return code 0xffff");
+		return PTP_IO_ERR;
+	}
+	if (code != PTP_RC_OK) {
 		ptp_verbose_log("Invalid return code: %X\n", ptp_get_return_code(r));
 		return PTP_CHECK_CODE;
 	}

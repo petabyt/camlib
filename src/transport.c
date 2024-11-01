@@ -1,6 +1,5 @@
 // Packet transport interface for PTPUSB, PTPIP, and PTPUSBIP - uses OS IO functions
-// Don't include this file with Windows/LibWPD builds. LibWPD replaces this file.
-
+// For Windows MTP, this calls functions in libwpd.c
 // Copyright 2024 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
@@ -170,21 +169,18 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 	return rc;
 }
 
-// Quirk of LibUSB/LibWPD - we can allowed read 512 bytes over and over again
-// until we don't, then packet is over. This makes the code simpler and gives a reduces
-// calls to the backend, which increases performance. This isn't possible with sockets - 
-// the read will time out in most cases.
+// MTP clients must support 512 byte bulk transactions, so this makes transmission simpler. And a little faster.
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	int read = 0;
 
 	// Try and get the first 512 bytes
 	int rc = 0;
-	while (rc <= 0 && r->wait_for_response) {
+	while (r->wait_for_response) {
 		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
 
 		r->wait_for_response--;
 
-		if (rc < 0) break;
+		if (rc > 0) break;
 
 		if (r->wait_for_response) {
 			ptp_verbose_log("Trying again...\n");
