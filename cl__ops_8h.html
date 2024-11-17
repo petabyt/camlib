@@ -90,6 +90,8 @@ $(function(){ initResizable(false); });
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">cl_ops.h File Reference</div></div>
 </div><!--header-->
@@ -97,8 +99,32 @@ $(function(){ initResizable(false); });
 
 <p><a href="cl__ops_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structPtpLiveviewParams.html">PtpLiveviewParams</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a58ba8584a918cea5af6d05cac0cf3313" id="r_a58ba8584a918cea5af6d05cac0cf3313"><td class="memItemLeft" align="right" valign="top"><a id="a58ba8584a918cea5af6d05cac0cf3313" name="a58ba8584a918cea5af6d05cac0cf3313"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>PtpLiveViewType</b> { <br />
+&#160;&#160;<b>PTP_LV_NONE</b> = 0
+, <b>PTP_LV_EOS</b> = 1
+, <b>PTP_LV_CANON</b> = 2
+, <b>PTP_LV_ML</b> = 3
+, <br />
+&#160;&#160;<b>PTP_LV_EOS_ML_BMP</b> = 4
+<br />
+ }</td></tr>
+<tr class="separator:a58ba8584a918cea5af6d05cac0cf3313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2f0f86e112e71420f71eaf91a52862c" id="r_ad2f0f86e112e71420f71eaf91a52862c"><td class="memItemLeft" align="right" valign="top"><a id="ad2f0f86e112e71420f71eaf91a52862c" name="ad2f0f86e112e71420f71eaf91a52862c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>PtpLiveViewFormat</b> { <b>PTP_LV_JPEG</b>
+ }</td></tr>
+<tr class="separator:ad2f0f86e112e71420f71eaf91a52862c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a12cc9d0c856954d55af41cb391a8124d" id="r_a12cc9d0c856954d55af41cb391a8124d"><td class="memItemLeft" align="right" valign="top"><a id="a12cc9d0c856954d55af41cb391a8124d" name="a12cc9d0c856954d55af41cb391a8124d"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_liveview_params</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct <a class="el" href="structPtpLiveviewParams.html">PtpLiveviewParams</a> *params)</td></tr>
+<tr class="separator:a12cc9d0c856954d55af41cb391a8124d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61bc40b52adf3c423d850587f0d368ba" id="r_a61bc40b52adf3c423d850587f0d368ba"><td class="memItemLeft" align="right" valign="top"><a id="a61bc40b52adf3c423d850587f0d368ba" name="a61bc40b52adf3c423d850587f0d368ba"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_get_storage_ids</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, struct <a class="el" href="structPtpArray.html">PtpArray</a> **a)</td></tr>
 <tr class="memdesc:a61bc40b52adf3c423d850587f0d368ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns allocated array of storage IDs call free() afterwards. <br /></td></tr>
@@ -175,6 +201,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_ml_init_bmp_lv</b>
 <tr class="memitem:a06fece53f458d28c479f4f3181734a90" id="r_a06fece53f458d28c479f4f3181734a90"><td class="memItemLeft" align="right" valign="top"><a id="a06fece53f458d28c479f4f3181734a90" name="a06fece53f458d28c479f4f3181734a90"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_ml_get_bmp_lv</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, uint32_t **buffer_ptr)</td></tr>
 <tr class="separator:a06fece53f458d28c479f4f3181734a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1db132d073a5fa4d44c46fc24e465641" id="r_a1db132d073a5fa4d44c46fc24e465641"><td class="memItemLeft" align="right" valign="top"><a id="a1db132d073a5fa4d44c46fc24e465641" name="a1db132d073a5fa4d44c46fc24e465641"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_ml_get_liveview_v1</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="separator:a1db132d073a5fa4d44c46fc24e465641"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ae524c749c9f5c045044f1a5691c5da" id="r_a3ae524c749c9f5c045044f1a5691c5da"><td class="memItemLeft" align="right" valign="top"><a id="a3ae524c749c9f5c045044f1a5691c5da" name="a3ae524c749c9f5c045044f1a5691c5da"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_chdk_get_version</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
 <tr class="separator:a3ae524c749c9f5c045044f1a5691c5da"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -196,7 +225,28 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_eos_evproc_return_
 <tr class="memitem:abfc13eba1eb9d83ac23b6bb3d5aa2099" id="r_abfc13eba1eb9d83ac23b6bb3d5aa2099"><td class="memItemLeft" align="right" valign="top"><a id="abfc13eba1eb9d83ac23b6bb3d5aa2099" name="abfc13eba1eb9d83ac23b6bb3d5aa2099"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>ptp_eos_fa_get_build_version</b> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r, char *buffer, int max)</td></tr>
 <tr class="separator:abfc13eba1eb9d83ac23b6bb3d5aa2099"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6f3342f1fc2eb22f237bc3391864906" id="r_ae6f3342f1fc2eb22f237bc3391864906"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6f3342f1fc2eb22f237bc3391864906">ptp_eos_get_liveview</a> (struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *r)</td></tr>
+<tr class="separator:ae6f3342f1fc2eb22f237bc3391864906"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ae6f3342f1fc2eb22f237bc3391864906" name="ae6f3342f1fc2eb22f237bc3391864906"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6f3342f1fc2eb22f237bc3391864906">&#9670;&#160;</a></span>ptp_eos_get_liveview()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ptp_eos_get_liveview </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structPtpRuntime.html">PtpRuntime</a> *</td>          <td class="paramname"><span class="paramname"><em>r</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>enum PtpGeneralError, 0 for 'camera is busy', or the size of the image in the payload </dd></dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
