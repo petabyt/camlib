@@ -224,6 +224,8 @@ int ptp_eos_get_liveview(struct PtpRuntime *r) {
 	if (rc == PTP_CHECK_CODE) {
 		if (ptp_get_return_code(r) == PTP_RC_CANON_NotReady) {
 			return 0;
+		} else {
+			return rc;
 		}
 	} else if (rc) return rc;
 

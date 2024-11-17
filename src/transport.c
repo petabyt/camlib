@@ -221,10 +221,21 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		read += rc;
 	}
 
-	ptp_verbose_log("Read %d bytes\n", read);
-
+	// Read response packet
 	rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+	if (rc == 0) {
+		CAMLIB_SLEEP(100);
+		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+	}
 	if (rc < 0) return PTP_IO_ERR;
+	read += rc;
+
+	if (c->type == PTP_PACKET_TYPE_DATA && read < (c->length + 12)) {
+		ptp_verbose_log("Response packet missing (%d %d)\n", read, c->length + 12);
+		return PTP_IO_ERR;
+	}
+
+	ptp_verbose_log("Read %d bytes\n", read);
 
 	return 0;
 }

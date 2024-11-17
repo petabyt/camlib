@@ -313,7 +313,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 		backend->endpoint_out,
 		(unsigned char *)to, length, &transferred, PTP_TIMEOUT);
 	if (rc) {
-		perror("libusb_bulk_transfer");
+		perror("libusb_bulk_transfer write");
 		return -1;
 	}
 
@@ -329,6 +329,7 @@ int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
 		backend->endpoint_in,
 		(unsigned char *)to, length, &transferred, PTP_TIMEOUT);
 	if (rc) {
+		perror("libusb_bulk_transfer read");
 		return -1;
 	}
 
