@@ -23,6 +23,7 @@ struct PtpDeviceEntry {
 };
 
 /// @brief Get a linked list of USB or PTP Devices
+/// @returns linked list of devices or NULL if no devices are connected (or OS error)
 /// @memberof PTP/USB
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r);
 

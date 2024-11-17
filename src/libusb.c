@@ -21,9 +21,10 @@ struct LibUSBBackend {
 	libusb_device_handle *handle;
 };
 
-// TODO: If this is accidentally called in the middle of a connection, it will cause a huge fault
-static int ptp_comm_init(struct PtpRuntime *r) {
-	ptp_reset(r);
+int ptp_comm_init(struct PtpRuntime *r) {
+	if (!r->io_kill_switch) {
+		ptp_panic("Connection is active\n");
+	}
 
 	// libusb 1.0 has no specificed limit for reads/writes
 	r->max_packet_size = 512 * 4;
@@ -33,6 +34,7 @@ static int ptp_comm_init(struct PtpRuntime *r) {
 		memset(r->comm_backend, 0, sizeof(struct LibUSBBackend));
 
 		struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
+		if (backend == NULL) ptp_panic("");
 
 		ptp_verbose_log("Initializing libusb...\n");
 		libusb_init(&(backend->ctx));
@@ -44,14 +46,10 @@ static int ptp_comm_init(struct PtpRuntime *r) {
 }
 
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
-	if (r->comm_backend == NULL) {
-		ptp_verbose_log("comm_backend is NULL\n");
-		return NULL;
-	}
+	ptp_comm_init(r);
 
 	if (!r->io_kill_switch) {
-		ptp_verbose_log("Connection is active\n");
-		return NULL;
+		ptp_panic("Connection is active\n");
 	}
 
 	ptp_mutex_lock(r);

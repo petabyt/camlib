@@ -10,8 +10,6 @@
 #include <libwpd.h>
 
 int ptp_comm_init(struct PtpRuntime *r) {
-	ptp_reset(r);
-
 	// We are not using low-level I/O operations, so this is never used
 	r->max_packet_size = 512;
 
@@ -32,7 +30,6 @@ int ptp_device_init(struct PtpRuntime *r) {
 	}
 
 	ptp_comm_init(r);
-
 	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
 	if (wpd == NULL) return PTP_IO_ERR;
 
@@ -69,13 +66,73 @@ int ptp_device_init(struct PtpRuntime *r) {
 	return PTP_NO_DEVICE;
 }
 
-// Unimplemented, don't use
 struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
-	ptp_panic("Unsupported");
+	ptp_comm_init(r);
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+
+	ptp_mutex_lock(r);
+
+	int num_devices = 0;
+	wchar_t **list = wpd_get_devices(wpd, &num_devices);
+	if (num_devices == 0) {
+		ptp_mutex_unlock(r);
+		return NULL;
+	}
+
+	struct PtpDeviceEntry *curr_ent = calloc(1, sizeof(struct PtpDeviceEntry));
+
+	struct PtpDeviceEntry *new_list = curr_ent;
+
+	for (int i = 0; i < num_devices; i++) {
+		if (i != 0) {
+			struct PtpDeviceEntry *next_ent = calloc(1, sizeof(struct PtpDeviceEntry));
+			next_ent->prev = curr_ent;
+			next_ent->next = NULL;
+			curr_ent->next = next_ent;
+			curr_ent = next_ent;
+		} else {
+			curr_ent->prev = NULL;
+		}
+
+		struct LibWPDDescriptor d;
+		int rc = wpd_parse_io_path(list[i], &d);
+		if (rc) ptp_panic("wpd_parse_io_path");
+
+		curr_ent->product_id = d.product_id;
+		curr_ent->vendor_id = d.vendor_id;
+		curr_ent->device_handle_ptr = list[i];
+	}
+
+	ptp_mutex_unlock(r);
+	return new_list;
 }
 
 int ptp_device_open(struct PtpRuntime *r, struct PtpDeviceEntry *entry) {
-	ptp_panic("Unsupported");
+	ptp_mutex_lock(r);
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+
+	int ret = wpd_open_device(wpd, entry->device_handle_ptr);
+	if (ret) {
+		ptp_mutex_unlock(r);
+		return PTP_OPEN_FAIL;
+	}
+
+	int type = wpd_get_device_type(wpd);
+	if (type == WPD_DEVICE_TYPE_CAMERA) {
+		r->io_kill_switch = 0;
+		r->operation_kill_switch = 0;
+		ptp_mutex_unlock(r);
+		return 0;
+	}
+
+	ptp_verbose_log("Device is not a camera!\n");
+
+	ptp_mutex_unlock(r);
+	return PTP_OPEN_FAIL;
+}
+
+void ptpusb_free_device_list_entry(void *handle) {
+	
 }
 
 int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {

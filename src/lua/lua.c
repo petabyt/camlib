@@ -32,10 +32,15 @@ static int mylua_set_property(lua_State *L) {
 static int mylua_device_info(lua_State *L) {
 	struct PtpRuntime *r = luaptp_get_runtime(L);
 
-	if (r->di == NULL) return 1;
+	struct PtpDeviceInfo	 di;
+	int rc = ptp_get_device_info(r, &di);
+	if (rc) {
+		lua_pushinteger(L, rc);
+		return 1;
+	}
 
 	char buffer[4096];
-	ptp_device_info_json(r->di, buffer, sizeof(buffer));
+	ptp_device_info_json(&di, buffer, sizeof(buffer));
 
 	lua_json_decode(L, buffer, strlen(buffer));
 

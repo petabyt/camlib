@@ -130,6 +130,7 @@ void ptp_mutex_lock(struct PtpRuntime *r) {
 	pthread_mutex_lock(r->mutex);
 }
 
+__attribute__((deprecated()))
 void ptp_mutex_keep_locked(struct PtpRuntime *r) {
 	if (r->mutex == NULL) return;
 	pthread_mutex_lock(r->mutex);

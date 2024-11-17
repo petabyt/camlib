@@ -15,7 +15,7 @@ int cam_lua_setup(lua_State *L);
 
 int luaopen_cjson(lua_State *l);
 
-static char error_buffer[64];
+static char error_buffer[512] = {0};
 
 static struct CamLuaTasks {
 	int tasks;
@@ -62,13 +62,13 @@ static int get_task_id(lua_State *L) {
 
 static int lua_script_print(lua_State *L) {
 	const char *str = luaL_checkstring(L, 1);
-	ptp_verbose_log("Lua: %s\n", str);
+	ptp_verbose_log("%s\n", str);
 	return 1;
 }
 
 static int lua_script_toast(lua_State *L) {
 	const char *str = luaL_checkstring(L, 1);
-	ptp_verbose_log("Lua: %s\n", str);
+	ptp_verbose_log("%s\n", str);
 	return 1;
 }
 
