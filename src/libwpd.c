@@ -160,6 +160,12 @@ int ptp_device_close(struct PtpRuntime *r) {
 	return 0;
 }
 
+int ptpusb_get_status(struct PtpRuntime *r) {
+	struct WpdStruct *wpd = (struct WpdStruct *)(r->comm_backend);
+	if (wpd == NULL) return PTP_IO_ERR;
+	return wpd_check_connected(wpd);
+}
+
 int ptp_device_reset(struct PtpRuntime *r) {
 	return 0;
 }

@@ -86,4 +86,7 @@ int ptpip_close(struct PtpRuntime *r);
 
 void ptpusb_free_device_list_entry(void *);
 
+/// @brief Get status of connected device
+int ptpusb_get_status(struct PtpRuntime *r);
+
 #endif
