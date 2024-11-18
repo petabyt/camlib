@@ -8,6 +8,10 @@
 #include <camlib.h>
 #include <ptp.h>
 
+// ptplv v1
+#define PTP_ML_LvWidth 360
+#define PTP_ML_LvHeight 240
+
 // Destination buffer size
 #define SCREEN_WIDTH 720
 #define SCREEN_HEIGHT 480
@@ -18,12 +22,12 @@
 
 static struct PtpMlLvInfo lv_info = {0};
 
-int yuv2rgb_rv[256];
-int yuv2rgb_gu[256];
-int yuv2rgb_gv[256];
-int yuv2rgb_bu[256];
+static int yuv2rgb_rv[256];
+static int yuv2rgb_gu[256];
+static int yuv2rgb_gv[256];
+static int yuv2rgb_bu[256];
 
-void precompute_yuv2rgb() {
+static void precompute_yuv2rgb() {
     for (int u = 0; u < 256; u++) {
         int8_t U = u;
         yuv2rgb_gu[u] = (-352 * U) / 1024;
@@ -37,11 +41,11 @@ void precompute_yuv2rgb() {
     }
 }
 
-int coerce(int x, int lo, int hi) {
+static inline int coerce(int x, int lo, int hi) {
     return ((x) < (lo)) ? (lo) : (((x) > (hi)) ? (hi) : (x));
 }
 
-void yuv2rgb(uint8_t Y, uint8_t U, uint8_t V, uint8_t *R, uint8_t *G, uint8_t *B) {
+static void yuv2rgb(uint8_t Y, uint8_t U, uint8_t V, uint8_t *R, uint8_t *G, uint8_t *B) {
     int v_and_ff = V & 0xFF;
     int u_and_ff = U & 0xFF;
     int v = Y + yuv2rgb_rv[v_and_ff];
@@ -73,8 +77,8 @@ int ptp_ml_init_bmp_lv(struct PtpRuntime *r) {
 int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	buffer_ptr[0] = NULL;
 
+	// Every 100 calls, get the LUT and bmp spec info
 	static int toggle = 0;
-
 	toggle++;
 	if (toggle > 100) {
 		ptp_ml_init_bmp_lv(r);
@@ -145,6 +149,14 @@ int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr) {
 	buffer_ptr[0] = frame;
 
 	return 0;
+}
+
+int ptp_ml_get_liveview_v1(struct PtpRuntime *r) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_ML_Live360x240;
+	cmd.param_length = 0;
+
+	return ptp_send(r, &cmd);
 }
 
 int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest) {

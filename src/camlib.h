@@ -65,14 +65,6 @@ enum PtpGeneralError {
 /// @brief Evaluates PtpGeneralError into string message
 const char *ptp_perror(int rc);
 
-enum PtpLiveViewType {
-	PTP_LV_NONE = 0,
-	PTP_LV_EOS = 1,
-	PTP_LV_CANON = 2,
-	PTP_LV_ML = 3, // ptplv v1
-	PTP_LV_EOS_ML_BMP = 4, // ptplv v2
-};
-
 /// @brief Unique camera types - each type should have similar opcodes and behavior
 enum PtpVendors {
 	PTP_DEV_EMPTY = 0,

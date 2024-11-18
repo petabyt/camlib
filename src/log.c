@@ -6,6 +6,7 @@
 #include <camlib.h>
 
 int camlib_verbose = 1;
+__attribute__((weak))
 void ptp_verbose_log(char *fmt, ...) {
 	if (camlib_verbose) {
 		va_list args;
@@ -16,6 +17,7 @@ void ptp_verbose_log(char *fmt, ...) {
 }
 
 __attribute__ ((noreturn))
+__attribute__((weak))
 void ptp_panic(char *fmt, ...) {
 	printf("PTP abort: ");
 	va_list args;

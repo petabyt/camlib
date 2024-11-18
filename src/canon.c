@@ -218,3 +218,24 @@ int ptp_eos_update_firmware(struct PtpRuntime *r, FILE *f, char *name) {
 		}
 	}
 }
+
+int ptp_eos_get_liveview(struct PtpRuntime *r) {
+	int rc = ptp_eos_get_viewfinder_data(r);
+	if (rc == PTP_CHECK_CODE) {
+		if (ptp_get_return_code(r) == PTP_RC_CANON_NotReady) {
+			return 0;
+		}
+	} else if (rc) return rc;
+
+	uint32_t length, type;
+
+	uint8_t *d = ptp_get_payload(r);
+	d += ptp_read_u32(d, &length);
+	d += ptp_read_u32(d, &type);
+
+	if (length == 0) {
+		return 0;
+	}
+
+	return length;
+}

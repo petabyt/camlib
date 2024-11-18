@@ -2,6 +2,27 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
+enum PtpLiveViewType {
+	PTP_LV_NONE = 0,
+	PTP_LV_EOS = 1,
+	PTP_LV_CANON = 2,
+	// ptpview v1, Old 360x240 manually computed 7fps liveview
+	PTP_LV_ML = 3,
+	// ptpview v2, only has bmp menu graphics
+	PTP_LV_EOS_ML_BMP = 4,
+};
+
+enum PtpLiveViewFormat {
+	PTP_LV_JPEG,
+};
+
+struct PtpLiveviewParams {
+	uint32_t payload_offset_to_data;
+	enum PtpLiveViewFormat format;
+};
+
+int ptp_liveview_params(struct PtpRuntime *r, struct PtpLiveviewParams *params);
+
 /// @brief Set a generic property - abstraction over SetDeviceProp
 /// @note May reject writes if an invalid property is found (see event code)
 /// @memberof PtpRuntime
@@ -139,6 +160,7 @@ int ptp_liveview_type(struct PtpRuntime *r);
 // Get Magic Lantern transparent menus buffer - see https://github.com/petabyt/ptpview
 int ptp_ml_init_bmp_lv(struct PtpRuntime *r);
 int ptp_ml_get_bmp_lv(struct PtpRuntime *r, uint32_t **buffer_ptr);
+int ptp_ml_get_liveview_v1(struct PtpRuntime *r);
 
 int ptp_chdk_get_version(struct PtpRuntime *r);
 int ptp_chdk_upload_file(struct PtpRuntime *r, char *input, char *dest);
@@ -149,5 +171,8 @@ int ptp_eos_exec_evproc(struct PtpRuntime *r, void *data, int length, int expect
 int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...);
 int ptp_eos_evproc_return_data(struct PtpRuntime *r);
 int ptp_eos_fa_get_build_version(struct PtpRuntime *r, char *buffer, int max);
+
+/// @returns enum PtpGeneralError, 0 for 'camera is busy', or the size of the image in the payload
+int ptp_eos_get_liveview(struct PtpRuntime *r);
 
 #endif
