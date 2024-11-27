@@ -17,7 +17,7 @@ void ptp_reset(struct PtpRuntime *r) {
 	r->connection_type = PTP_USB;
 	r->response_wait_default = 1;
 	r->wait_for_response = 1;
-	r->comm_backend = NULL;
+	r->comm_backend = NULL; // leak
 }
 
 void ptp_init(struct PtpRuntime *r) {

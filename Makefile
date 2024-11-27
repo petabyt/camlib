@@ -64,8 +64,8 @@ clean:
 	src/lua/*.o src/lua/lua-cjson/*.o src/*.d examples/*.d src/lua/*.d src/lua/lua-cjson/*.d *.a
 	cd examples && make clean
 
-install: libcamlib.so
-	cp libcamlib.so /usr/lib/
+install: libcamlib.a
+	cp libcamlib.a /usr/lib/
 	-mkdir /usr/include/camlib
 	cp src/*.h /usr/include/camlib/
 

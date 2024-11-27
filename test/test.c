@@ -213,6 +213,7 @@ int test_fs() {
 
 static void *thread(void *arg) {
 	struct PtpRuntime *r = (struct PtpRuntime *)arg;
+	if (r->operation_kill_switch) return NULL;
 
 	if ((rand() & 1) == 0) {
 		ptp_mutex_lock(r);
@@ -234,7 +235,7 @@ static void *thread(void *arg) {
 	pthread_exit(0);
 	err:;
 	printf("Error in thread %d\n", getpid());
-	ptp_close(r);
+	r->operation_kill_switch = 1;
 	exit(1);
 }
 
@@ -265,6 +266,7 @@ int main(void) {
 	rc = test_data();
 	if (rc) return rc;
 
+	printf("Testing multithreading\n");
 	rc = test_multithread();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
@@ -277,10 +279,12 @@ int main(void) {
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 
+	printf("Testing vcam magic\n");
 	rc = ptp_vcam_magic();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;
 
+	printf("Testing props...\n");
 	rc = test_props();
 	printf("Return code: %d\n", rc);
 	if (rc) return rc;

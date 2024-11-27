@@ -96,6 +96,7 @@ struct PtpPropDesc {
 	uint16_t data_type;
 	uint8_t read_only; // (get/set)
 
+	// uint32_t variables will be used for all types <= 4 bytes
 	uint32_t default_value32;
 	uint32_t current_value32;
 	void *current_value;

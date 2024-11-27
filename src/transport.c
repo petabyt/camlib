@@ -9,6 +9,21 @@
 
 #include <camlib.h>
 
+/*
+Rewrite of backend
+
+ptpip_read_packets:
+	ptpip_read_packet()
+
+ptpusb_read_all_packets():
+	while read(512) != 512
+	ptpusb_check_packets()
+
+ptpusbip_read_all_packets():
+	while read(512) != 512
+	ptpusb_check_packets()
+*/
+
 int ptpusb_send_bulk_packets(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	int x;
@@ -173,7 +188,8 @@ int ptpip_write_packet(struct PtpRuntime *r, int of) {
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	int read = 0;
 
-	// Try and get the first 512 bytes
+	//int max_packet_size = r->max_packet_size;
+
 	int rc = 0;
 	while (r->wait_for_response) {
 		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
@@ -203,39 +219,66 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 
 	struct PtpBulkContainer *c = (struct PtpBulkContainer *)(r->data);
 
-	// 512 is always enough for the response packet
+	// Response packet is read
 	if (c->type == PTP_PACKET_TYPE_RESPONSE) {
-		return 0;
-	}
+		if (read == c->length) {
+			return 0;
+		} else {
+			ptp_verbose_log("Read too much of packet: %d\n", read);
+			return PTP_IO_ERR;
+		}
+	} else {
+		// Reallocate enough to fill the rest of data and response packet
+		if (r->data_length < (c->length + r->max_packet_size)) {
+			rc = ptp_buffer_resize(r, c->length + r->max_packet_size);
+			if (rc) return rc;
+		}
 
-	// Reallocate enough to fill the rest of data and response packet
-	if (c->type == PTP_PACKET_TYPE_DATA && r->data_length < (c->length + r->max_packet_size)) {
-		rc = ptp_buffer_resize(r, c->length + r->max_packet_size);
-		c = (struct PtpBulkContainer *)(r->data);
-		if (rc) return rc;
-	}
+		// Make sure to read all of data packet
+		while (read <= c->length) {
+			rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+			if (rc < 0) {
+				ptp_verbose_log("error reading data packet\n");
+				return PTP_IO_ERR;
+			}
+			read += rc;
+		}
 
-	while (read < c->length) {
-		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
-		if (rc < 0) return PTP_IO_ERR;
-		read += rc;
-	}
+		// Read response packet
+		int resp_len = read - (int)c->length;
+		c = (struct PtpBulkContainer *)(r->data + c->length);
+		if (resp_len >= 4) {
+			int rest = c->length - resp_len;
+			if (rest != 0) {
+				rc = ptp_cmd_read(r, r->data + read, rest);
+				if (rc < 0) {
+					ptp_verbose_log("error reading resposne packet\n");
+					return PTP_IO_ERR;
+				}
+				read += rc;
+			}
 
-	// Read response packet
-	rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
-	if (rc == 0) {
-		CAMLIB_SLEEP(100);
-		rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
-	}
-	if (rc < 0) return PTP_IO_ERR;
-	read += rc;
+			if (resp_len > c->length) {
+				ptp_verbose_log("Read too much of packet\n");
+				return PTP_IO_ERR;
+			}
+		} else if (read - c->length >= 32) {
+			// packet read
+		} else {
+			// Read response packet
+			rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+			if (rc == 0) {
+				CAMLIB_SLEEP(100);
+				rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
+			}
+			if (rc < 0) {
+				printf("Error reading response packet 2\n");
+				return PTP_IO_ERR;
+			}
+			read += rc;
+		}
 
-	if (c->type == PTP_PACKET_TYPE_DATA && read < (c->length + 12)) {
-		ptp_verbose_log("Response packet missing (%d %d)\n", read, c->length + 12);
-		return PTP_IO_ERR;
 	}
-
-	ptp_verbose_log("Read %d bytes\n", read);
 
 	return 0;
 }

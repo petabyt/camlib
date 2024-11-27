@@ -25,7 +25,7 @@ static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	return r;
 }
 
-int ptp_get_data_size(void *d, int type) {
+int ptp_get_prop_size(uint8_t *d, int type) {
 	uint32_t length32;
 	uint8_t length8;
 	switch (type) {
@@ -42,17 +42,24 @@ int ptp_get_data_size(void *d, int type) {
 	case PTP_TC_UINT64:
 		return 8;
 	case PTP_TC_UINT8ARRAY:
+		ptp_read_u32(d, &length32);
+		return 4 + ((int)length32 * 1);
 	case PTP_TC_UINT16ARRAY:
+		ptp_read_u32(d, &length32);
+		return 4 + ((int)length32 * 2);
 	case PTP_TC_UINT32ARRAY:
+		ptp_read_u32(d, &length32);
+		return 4 + ((int)length32 * 4);
 	case PTP_TC_UINT64ARRAY:
 		ptp_read_u32(d, &length32);
-		return length32;
+		return 4 + ((int)length32 * 8);
 	case PTP_TC_STRING:
 		ptp_read_u8(d, &length8);
-		return length8;
+		return 1 + ((int)length8 * 2);
 	}
 
-	ptp_panic("Invalid size read");
+	ptp_panic("Unknown data type %d", type);
+	abort();
 	return 0;
 }
 
@@ -76,7 +83,7 @@ int ptp_parse_data_u32(void *d, int type, int *out) {
 	// TODO: function to preserve signedness
 
 	// skip the array
-	return ptp_get_data_size(d, type);
+	return ptp_get_prop_size(d, type);
 }
 
 int ptp_parse_prop_value(struct PtpRuntime *r) {
@@ -173,7 +180,7 @@ int ptp_parse_prop_desc(struct PtpRuntime *r, struct PtpPropDesc *oi) {
 		d += ptp_read_u16(d, &num_values);
 		int length = 0;
 		for (uint32_t i = 0; i < num_values; i++) {
-			length += ptp_get_data_size(d + length, oi->data_type);
+			length += ptp_get_prop_size(d + length, oi->data_type);
 		}
 		struct PtpEnumerationForm *form = (struct PtpEnumerationForm *)malloc(sizeof(struct PtpEnumerationForm) + length);
 		form->length = num_values;

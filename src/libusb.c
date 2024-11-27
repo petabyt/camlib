@@ -322,6 +322,7 @@ int ptp_cmd_write(struct PtpRuntime *r, void *to, int length) {
 
 int ptp_cmd_read(struct PtpRuntime *r, void *to, int length) {
 	const struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
+
 	if (backend == NULL || r->io_kill_switch) return -1;
 	int transferred = 0;
 	int rc = libusb_bulk_transfer(
