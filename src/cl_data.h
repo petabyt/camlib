@@ -1,12 +1,12 @@
+/** \file */ 
 // PTP data structures - some very similar to the exact MTP/PTP spec.
-// Variable sized arrays/strings are replaced with fixed arrays, to allow
-// packing and unpacking in the same struct.
 #ifndef CL_DATA_H
 #define CL_DATA_H
 
-// Need to avoid structure packing - most architectures are fine with this
-// (accessing a 32 bit integer at an unaligned address - but some might have problems)
-#pragma pack(push, 1)
+/// @defgroup Data Data structures
+/// @brief Functions to pack/unpack PTP data structures
+/// @addtogroup Data
+/// @{
 
 struct PtpStorageIds {
 	uint32_t length;
@@ -161,9 +161,6 @@ enum PtpCHDKCommands {
 	PTP_CHDK_UploadFile = 5,
 };
 
-#pragma pack(pop)
-
-#ifdef CAMLIB_INCLUDE_IMPL
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t *buf, int max);
 
 int ptp_parse_prop_value(struct PtpRuntime *r);
@@ -189,7 +186,5 @@ int ptp_eos_get_white_balance(int data, int dir);
 int ptp_eos_get_imgformat_value(uint32_t data[5]);
 
 void *ptp_pack_chdk_upload_file(struct PtpRuntime *r, char *in, char *out, int *length);
-
-#endif
 
 #endif

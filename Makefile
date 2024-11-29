@@ -1,6 +1,6 @@
 -include config.mak
 
-CFLAGS := -Isrc/ -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations
+CFLAGS := -Isrc/ -g -fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3
 CFLAGS += -D CAMLIB_NO_COMPAT -D VERBOSE
 
 # Camlib needs to be compiled with these files, with some exceptions:

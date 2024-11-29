@@ -1,3 +1,4 @@
+/** \file */ 
 #ifndef CL_BIND_H
 #define CL_BIND_H
 

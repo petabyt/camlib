@@ -1,4 +1,5 @@
-// Test device list API
+/// @file
+/// @brief Example of using the device list API
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ static int connect(struct PtpRuntime *r) {
 	}
 
 	if (ptp_device_init(r)) {
-		puts("Device connection error");
+		printf("Device connection error\n");
 		return 1;
 	}
 
@@ -27,11 +28,10 @@ static int connect(struct PtpRuntime *r) {
 }
 
 int main() {
-	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	struct PtpRuntime *r = ptp_new(PTP_USB);
 
-	if (connect(&r)) return 1;
-	if (connect(&r)) return 1;
+	if (connect(r)) return 1;
+	if (connect(r)) return 1;
 
 	return 0;
 }

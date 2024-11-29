@@ -1,7 +1,13 @@
+/** \file */ 
 #ifndef CL_ENUM_H
 #define CL_ENUM_H
 
 #define MAX_ENUM_LENGTH 64
+
+/// @defgroup Enums Enums
+/// @brief API to get string that represents PTP code
+/// @addtogroup Enums
+/// @{
 
 int ptp_enum_all(char *string);
 int ptp_enum(int type, char *string);
@@ -32,5 +38,7 @@ struct PtpEnum {
 
 extern int ptp_enums_length;
 extern struct PtpEnum ptp_enums[];
+
+/// @}
 
 #endif

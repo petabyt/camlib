@@ -63,6 +63,7 @@ int ptp_get_prop_size(uint8_t *d, int type) {
 	return 0;
 }
 
+// Cheap dumb function
 int ptp_parse_data_u32(void *d, int type, int *out) {
 	uint8_t a;
 	uint16_t b;
@@ -79,8 +80,6 @@ int ptp_parse_data_u32(void *d, int type, int *out) {
 	case PTP_TC_UINT32:
 		ptp_read_u32(d, &c); (*out) = (int)c; return 4;
 	}
-
-	// TODO: function to preserve signedness
 
 	// skip the array
 	return ptp_get_prop_size(d, type);

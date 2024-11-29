@@ -1,4 +1,5 @@
-// Test basic opcode, get device properties
+/// @file
+/// @brief Hello
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -23,10 +24,8 @@ int main() {
 	r.connection_type = PTP_IP;
 
 	char *ip = "192.168.1.2";
-	ip = "127.0.0.1";
-	int port = PTP_IP_PORT;
 	
-	if (ptpip_connect(&r, ip, port)) {
+	if (ptpip_connect(&r, ip, PTP_IP_PORT)) {
 		puts("Device connection error");
 		return 0;
 	}

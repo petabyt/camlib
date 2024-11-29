@@ -30,7 +30,6 @@ int main() {
 	cmd.code = PTP_OC_OpenSession;
 	cmd.params[0] = 1;
 	cmd.param_length = 1;
-	cmd.data_length = 0;
 
 	int l = ptp_new_cmd_packet(&r, &cmd);
 	print_bytes(r.data, l);
