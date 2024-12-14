@@ -126,14 +126,14 @@ struct PtpRuntime {
     uint8_t *data;
     int data_length;
 
-	/// @note For optimization on libusb, as many bytes as possible should be read at once. Generally this
-	/// is 512, but certain comm backends can manage more. For TCP, this isn't used.
+	/// @note Max size of a USB bulk transfer or max TCP packet size
+	/// @todo max packet size for IN and OUT
 	int max_packet_size;
 
 	/// @brief Info about current connection, used to detect camera type, supported opodes, etc
 	/// @note Set by ptp_parse_device_info. This should be NULL when this struct is created.
 	struct PtpDeviceInfo *di;
-	int device_type;
+	//int device_type;
 
 	/// @brief For Windows compatibility, this is set to indicate lenth for a data packet
 	/// that will be sent after a command packet. Will be set to zero when ptp_send_packet is called.
@@ -258,20 +258,53 @@ PUB int ptp_buffer_resize(struct PtpRuntime *r, size_t size);
 
 // Data structure functions
 PUB int ptp_write_unicode_string(char *dat, const char *string);
-PUB int ptp_read_unicode_string(char *buffer, char *dat, int max);
+PUB int ptp_read_unicode_string(char *buffer, const char *dat, int max);
 PUB int ptp_read_utf8_string(void *dat, char *string, int max);
 PUB int ptp_read_string(uint8_t *dat, char *string, int max);
 PUB int ptp_write_string(uint8_t *dat, const char *string);
 PUB int ptp_write_utf8_string(void *dat, const char *string);
 PUB int ptp_read_uint16_array(const uint8_t *dat, uint16_t *buf, int max, int *length);
 PUB int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, int *length);
-// TODO: This is bad
-inline static int ptp_write_u8 (void *buf, uint8_t out) { ((uint8_t *)buf)[0] = out; return 1; }
-inline static int ptp_write_u16(void *buf, uint16_t out) { ((uint16_t *)buf)[0] = out; return 2; }
-inline static int ptp_write_u32(void *buf, uint32_t out) { ((uint32_t *)buf)[0] = out; return 4; }
-inline static int ptp_read_u32 (const void *buf, uint32_t *out) { *out = ((const uint32_t *)buf)[0]; return 4; }
-inline static int ptp_read_u16 (const void *buf, uint16_t *out) { *out = ((const uint16_t *)buf)[0]; return 2; }
-inline static int ptp_read_u8  (const void *buf, uint8_t *out) { *out = ((const uint8_t *)buf)[0]; return 1; }
+inline static int ptp_write_u8(void *buf, uint8_t out) {
+	((uint8_t *)buf)[0] = out;
+	return 1;
+}
+inline static int ptp_write_u16(void *buf, uint16_t out) {
+	uint8_t *b = buf;
+	b[0] = out & 0xFF;
+	b[1] = (out >> 8) & 0xFF;
+	return 2;
+}
+inline static int ptp_write_u32(void *buf, uint32_t out) {
+	uint8_t *b = buf;
+	b[0] = out & 0xFF;
+	b[1] = (out >> 8) & 0xFF;
+	b[2] = (out >> 16) & 0xFF;
+	b[3] = (out >> 24) & 0xFF;
+	return 4;
+}
+inline static int ptp_read_u8(const void *buf, uint8_t *out) {
+	const uint8_t *b = buf;
+	*out = b[0];
+	return 1;
+}
+inline static int ptp_read_u16(const void *buf, uint16_t *out) {
+	const uint8_t *b = buf;
+	*out = (uint16_t)b[0] | ((uint16_t)b[1] << 8);
+	return 2;
+}
+inline static int ptp_read_u32(const void *buf, uint32_t *out) {
+	const uint8_t *b = buf;
+	*out = (uint32_t)b[0] | ((uint32_t)b[1] << 8) | ((uint32_t)b[2] << 16) | ((uint32_t)b[3] << 24);
+	return 4;
+}
+inline static int ptp_read_u64(const void *buf, uint64_t *out) {
+	uint32_t lo, hi;
+	ptp_read_u32(buf, &lo);
+	ptp_read_u32((const uint8_t *)buf + 4, &hi);
+	*out = ((uint64_t)hi << 32) | lo;
+	return 8;
+}
 
 // Build a new PTP/IP or PTP/USB command packet in r->data
 int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);

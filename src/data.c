@@ -25,6 +25,140 @@ static int osnprintf(char *str, int cur, int size, const char *format, ...) {
 	return r;
 }
 
+static void boundcheck(uint8_t *bs, uint8_t *be, int size) {
+	if (be == NULL) return;
+	if ((uintptr_t)bs > (uintptr_t)be) ptp_panic("PTP: bs after be\n");
+	if (((uintptr_t)be - (uintptr_t)bs) < (uintptr_t)size) {
+		ptp_panic("PTP: buffer overflow %p-%p (%u)\n", bs, be, size);
+	}
+}
+
+// Read standard UTF16 string
+int ptp_read_string(uint8_t *d, char *string, int max) {
+	int of = 0;
+	uint8_t length;
+	of += ptp_read_u8(d + of, &length);
+
+	uint8_t i = 0;
+	while (i < length) {
+		uint16_t wchr;
+		of += ptp_read_u16(d + of, &wchr);
+		if (wchr > 128) wchr = '?';
+		else if (wchr != '\0' && wchr < 32) wchr = ' ';
+		string[i] = (char)wchr;
+		i++;
+		if (i >= max - 1) break;
+	}
+
+	string[i] = '\0';
+
+	return of;
+}
+
+int ptp_read_uint16_array(const uint8_t *dat, uint16_t *buf, int max, int *length) {
+	ptp_panic("Unfinished\n");
+	int of = 0;
+
+	uint32_t n;
+	of += ptp_read_u32(dat + of, &n);
+
+	for (uint32_t i = 0; i < n; i++) {
+		if (i >= max) {
+			ptp_panic("ptp_read_uint16_array overflow\n");
+		} else {
+			of += ptp_read_u16(dat + of, &buf[i]);
+		}
+	}
+
+	return of;
+}
+
+int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, int *length) {
+	int of = 0;
+	uint32_t n;
+	of += ptp_read_u32(bs + of, &n);
+	(*length) = (int)n;
+	boundcheck(bs, be, 4 * (int)n + 4);
+	for (int i = 0; i < (int)n; i++) {
+		if (i >= max) {
+			ptp_panic("ptp_read_uint16_array overflow %i >= %d\n", i, n);
+		} else {
+			of += ptp_read_u16(bs + of, &buf[i]);
+		}
+	}
+	return of;
+}
+
+// Write standard PTP wchar string
+int ptp_write_string(uint8_t *dat, const char *string) {
+	int of = 0;
+
+	uint32_t length = strlen(string);
+	of += ptp_write_u8(dat + of, length);
+
+	for (int i = 0; i < (int)length; i++) {
+		of += ptp_write_u8(dat + of, string[i]);
+		of += ptp_write_u8(dat + of, '\0');
+	}
+
+	return of;
+}
+
+// Write normal UTF-8 string
+int ptp_write_utf8_string(void *dat, const char *string) {
+	char *o = (char *)dat;
+	int x = 0;
+	while (string[x] != '\0') {
+		o[x] = string[x];
+		x++;
+	}
+
+	o[x] = '\0';
+	x++;
+	return x;
+}
+
+// Write null-terminated UTF16 string
+int ptp_write_unicode_string(char *dat, const char *string) {
+	int i;
+	for (i = 0; string[i] != '\0'; i++) {
+		dat[i * 2] = string[i];
+		dat[i * 2 + 1] = '\0';
+	}
+	dat[i * 2 + 1] = '\0';
+	return i;
+}
+
+// Read null-terminated UTF16 string
+int ptp_read_unicode_string(char *buffer, const char *dat, int max) {
+	int i;
+	for (i = 0; dat[i] != '\0'; i += 2) {
+		buffer[i / 2] = dat[i];
+		if (i >= max - 2) {
+			buffer[(i / 2) + 1] = '\0';
+			return i;
+		}
+	}
+
+	buffer[(i / 2)] = '\0';
+	return i / 2;
+}
+
+int ptp_read_utf8_string(void *dat, char *string, int max) {
+	char *d = (char *)dat;
+	int x = 0;
+	while (d[x] != '\0') {
+		string[x] = d[x];
+		x++;
+		if (x > max - 1) break;
+	}
+
+	string[x] = '\0';
+	x++;
+
+	return x;
+}
+
 int ptp_get_prop_size(uint8_t *d, int type) {
 	uint32_t length32;
 	uint8_t length8;
@@ -97,7 +231,7 @@ int ptp_parse_prop_value(struct PtpRuntime *r) {
 	case 0:
 		return -1;
 	default:
-		ptp_panic("ptp_parse_prop_value: unknown data type size");
+		ptp_panic("ptp_parse_prop_value: unknown data type size %d", ptp_get_payload_length(r));
 	}
 
 	int out;
@@ -272,6 +406,25 @@ int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi) {
 	d += ptp_read_string(d, oi->date_created, sizeof(oi->date_created));
 	d += ptp_read_string(d, oi->date_modified, sizeof(oi->date_modified));
 	d += ptp_read_string(d, oi->keywords, sizeof(oi->keywords));
+
+	return 0;
+}
+
+int ptp_parse_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si) {
+	if (ptp_get_payload_length(r) < 26) {
+		return PTP_RUNTIME_ERR;
+	}
+
+	int of = 0;
+	uint8_t *b = ptp_get_payload(r);
+	of += ptp_read_u16(b + of, &si->storage_type);
+	of += ptp_read_u16(b + of, &si->fs_type);
+	of += ptp_read_u16(b + of, &si->access_capability);
+	of += ptp_read_u64(b + of, &si->max_capacity);
+	of += ptp_read_u64(b + of, &si->free_space);
+	of += ptp_read_u32(b + of, &si->free_objects);
+	of += ptp_read_string(b + of, si->storage_desc, sizeof(si->storage_desc));
+	of += ptp_read_string(b + of, si->volume_identifier, sizeof(si->volume_identifier));
 
 	return 0;
 }

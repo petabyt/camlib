@@ -11,7 +11,7 @@ struct Options {
 	int do_open_sessions;	
 };
 
-static int usage() {
+static int usage(void) {
 	printf(
 		"camlib\n"
 		"  --dec <input_file> <output_file> Decode any PTP/USB packet dump into a readable text file\n"

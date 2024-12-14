@@ -152,6 +152,11 @@ int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpArray **a) {
 	ptp_mutex_lock(r);
 
 	int rc = ptp_send(r, &cmd);
+	if (rc) {
+		(*a) = NULL;
+		ptp_mutex_unlock(r);
+		return rc;
+	}
 
 	(*a) = dup_uint_array((void *)ptp_get_payload(r));
 
@@ -166,11 +171,17 @@ int ptp_get_storage_info(struct PtpRuntime *r, int id, struct PtpStorageInfo *si
 	cmd.param_length = 1;
 	cmd.params[0] = id;
 
-	int rc = ptp_send(r, &cmd);
-	if (rc) return rc;
+	ptp_mutex_lock(r);
 
-	memcpy(si, ptp_get_payload(r), sizeof(struct PtpStorageInfo));
-	return 0;
+	int rc = ptp_send(r, &cmd);
+	if (rc) {
+		ptp_mutex_unlock(r);
+		return rc;
+	}
+
+	rc = ptp_parse_storage_info(r, si);
+	ptp_mutex_unlock(r);
+	return rc;
 }
 
 int ptp_get_partial_object(struct PtpRuntime *r, uint32_t handle, int offset, int max) {

@@ -80,6 +80,7 @@ int bind_get_device_info(struct BindReq *bind, struct PtpRuntime *r) {
 	}
 
 	int x = ptp_get_device_info(r, r->di);
+	ptp_dump(r);
 	if (x) {
 		return bind->out(bind, "{\"error\": %d}", x);
 	}
@@ -535,11 +536,16 @@ int bind_download_file(struct BindReq *bind, struct PtpRuntime *r) {
 	}
 }
 
+int bind_read_int(struct BindReq *bind, struct PtpRuntime *r) {
+	return bind->out(bind, "{\"error\": %d}", ptp_read_int(r, r->data, 8));
+}
+
 struct RouteMap {
 	char *name;
 	int (*call)(struct BindReq *, struct PtpRuntime *);
 }routes[] = {
 	{"ptp_hello_world", bind_hello_world},
+	{"ptp_read_int", bind_read_int},
 	{"ptp_status", bind_status},
 	{"ptp_reset", bind_reset},
 	{"ptp_init", bind_init},

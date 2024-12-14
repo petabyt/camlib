@@ -1,3 +1,4 @@
+#error "x"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +24,7 @@ static struct CamLuaTasks {
 	int state[MAX_LUA_CONCURRENT];
 }lua_tasks = {0};
 
-const char *cam_lua_get_error() {
+const char *cam_lua_get_error(void) {
 	return error_buffer;
 }
 

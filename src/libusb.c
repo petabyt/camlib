@@ -26,8 +26,11 @@ int ptp_comm_init(struct PtpRuntime *r) {
 		ptp_panic("Connection is active\n");
 	}
 
-	// libusb 1.0 has no specificed limit for reads/writes
-	r->max_packet_size = 512 * 4;
+	if (r->connection_type != PTP_USB) {
+		ptp_panic("incorrect connection_type");
+	}
+
+	r->max_packet_size = 512;
 
 	if (r->comm_backend == NULL) {
 		r->comm_backend = malloc(sizeof(struct LibUSBBackend));
@@ -142,6 +145,7 @@ struct PtpDeviceEntry *ptpusb_device_list(struct PtpRuntime *r) {
 			if (ep[i].bmAttributes == LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK) {
 				if (ep[i].bEndpointAddress & LIBUSB_ENDPOINT_IN) {
 					curr_ent->endpoint_in = ep[i].bEndpointAddress;
+					r->max_packet_size = ep[i].wMaxPacketSize;
 					ptp_verbose_log("Endpoint IN addr: 0x%X\n", ep[i].bEndpointAddress);
 				} else {
 					curr_ent->endpoint_out = ep[i].bEndpointAddress;
@@ -344,10 +348,11 @@ int ptp_read_int(struct PtpRuntime *r, void *to, int length) {
 	int rc = libusb_bulk_transfer(
 		backend->handle,
 		backend->endpoint_int,
-		(unsigned char *)to, length, &transferred, 10);
+		(unsigned char *)to, length, &transferred, 1000);
 	if (rc == LIBUSB_ERROR_NO_DEVICE) {
 		return PTP_IO_ERR;
 	} else if (rc == LIBUSB_ERROR_TIMEOUT) {
+		ptp_verbose_log("Timeout");
 		return 0;
 	}
 

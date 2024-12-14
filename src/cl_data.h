@@ -34,7 +34,7 @@ struct PtpDeviceInfo {
 	uint16_t events_supported[256];
 
 	int props_supported_length;
-	uint16_t props_supported[256];
+	uint16_t props_supported[512];
 
 	int capture_formats_length;
 	uint16_t capture_formats[32];
@@ -55,6 +55,8 @@ struct PtpStorageInfo {
 	uint64_t max_capacity;
 	uint64_t free_space;
 	uint32_t free_objects;
+	char storage_desc[128];
+	char volume_identifier[128];
 };
 
 struct PtpObjectInfo {
@@ -171,7 +173,7 @@ int ptp_prop_desc_json(const struct PtpPropDesc *pd, char *buffer, int max);
 int ptp_parse_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi);
 int ptp_storage_info_json(const struct PtpStorageInfo *so, char *buffer, int max);
 int ptp_object_info_json(const struct PtpObjectInfo *so, char *buffer, int max);
-
+int ptp_parse_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si);
 int ptp_eos_events(struct PtpRuntime *r, struct PtpGenericEvent **p);
 void *ptp_open_eos_events(struct PtpRuntime *r);
 void *ptp_get_eos_event(struct PtpRuntime *r, void *e, struct PtpCanonEvent *ce);

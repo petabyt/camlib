@@ -64,10 +64,11 @@ clean:
 	src/lua/*.o src/lua/lua-cjson/*.o src/*.d examples/*.d src/lua/*.d src/lua/lua-cjson/*.d *.a
 	cd examples && make clean
 
-install: libcamlib.a
+install: libcamlib.a camlib
 	cp libcamlib.a /usr/lib/
 	-mkdir /usr/include/camlib
 	cp src/*.h /usr/include/camlib/
+	cp camlib /usr/bin
 
 test-ci: test/test.o test/data.o $(UNIX_LIB_FILES)
 	$(CC) test/test.o test/data.o $(UNIX_LIB_FILES) -lusb-vcam -lexif $(CFLAGS) -o test-ci

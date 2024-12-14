@@ -27,7 +27,7 @@ int test_setup_usb(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_vcam_magic() {
+int ptp_vcam_magic(void) {
 	struct PtpRuntime r;
 
 	int rc = test_setup_usb(&r);
@@ -60,13 +60,14 @@ int ptp_vcam_magic() {
 	}
 
 	rc = ptp_eos_evproc_run(&r, "EnableBootDisk %d 'aasd'", 10);
+	if (rc) return rc;
 
 	ptp_close(&r);
 	return 0;
 }
 
 // Test case for EOS T6/1300D vcam
-int test_eos_t6() {
+int test_eos_t6(void) {
 	struct PtpRuntime r;
 
 	struct PtpDeviceInfo di;
@@ -120,7 +121,7 @@ int test_eos_t6() {
 	return 0;
 }
 
-int test_props() {
+int test_props(void) {
 	struct PtpRuntime r;
 
 	int rc = test_setup_usb(&r);
@@ -152,7 +153,7 @@ int test_props() {
 	return 0;
 }
 
-int test_fs() {
+int test_fs(void) {
 	struct PtpRuntime r;
 
 	int rc = test_setup_usb(&r);
@@ -239,7 +240,7 @@ static void *thread(void *arg) {
 	exit(1);
 }
 
-static int test_multithread() {
+static int test_multithread(void) {
 	struct PtpRuntime r;
 
 	int rc = test_setup_usb(&r);
