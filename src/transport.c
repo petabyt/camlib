@@ -13,9 +13,15 @@ int ptp_send_packet(struct PtpRuntime *r, int length) {
 	int sent = 0;
 	while (1) {
 		int max = length - sent;
-		if (r->max_packet_size != 512) ptp_panic("max packet size is not 512, %d", r->max_packet_size);
 		if (max > r->max_packet_size) max = r->max_packet_size;
-		int rc = ptp_cmd_write(r, r->data + sent, max);
+		int rc;
+		if (r->connection_type == PTP_USB) {
+			rc = ptp_cmd_write(r, r->data + sent, max);
+		} else if (r->connection_type == PTP_IP_USB) {
+			rc = ptpip_cmd_write(r, r->data + sent, max);
+		} else {
+			ptp_panic("illegal connection_type");
+		}
 
 		if (rc < 0) {
 			ptp_verbose_log("%s: %d\n", __func__, rc);
