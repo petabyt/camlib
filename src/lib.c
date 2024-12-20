@@ -143,6 +143,7 @@ void ptp_mutex_unlock(struct PtpRuntime *r) {
 
 void ptp_close(struct PtpRuntime *r) {
 	free(r->data);
+	// TODO: This should free the entire structure!
 }
 
 void ptp_mutex_unlock_thread(struct PtpRuntime *r) {

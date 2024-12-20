@@ -31,8 +31,7 @@ int ptp_send_packet(struct PtpRuntime *r, int length) {
 		sent += rc;
 		
 		if (sent > length) {
-			ptp_verbose_log("%s: Sent too many bytes: %d\n", __func__, sent);
-			return sent;
+			ptp_panic("BUG: Sent too many bytes (?)");
 		} else if (sent == length) {
 			ptp_verbose_log("%s: Sent %d/%d bytes\n", __func__, sent, length);
 			return sent;			
@@ -52,7 +51,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 		if (rc > 0) break;
 
 		if (r->wait_for_response) {
-			ptp_verbose_log("Trying again...\n");
+			ptp_error_log("Trying again...\n");
 			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
 		}
 	}
@@ -60,12 +59,12 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 	r->wait_for_response = r->response_wait_default;
 
 	if (rc < 0) {
-		ptp_verbose_log("Failed to read packet length: %d\n", rc);
+		ptp_error_log("Failed to read packet length: %d\n", rc);
 		return PTP_COMMAND_IGNORED;
 	}
 
 	if (rc < 4) {
-		ptp_verbose_log("Failed to read at least packet length: %d\n", rc);
+		ptp_error_log("Failed to read at least packet length: %d\n", rc);
 		return PTP_IO_ERR;
 	}
 
@@ -113,9 +112,10 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 
 	if (h->type == PTPIP_DATA_PACKET_START) {
 		rc = ptpip_read_packet(r, pk1_of);
+		if (rc < 0) return rc;
 		h = (struct PtpIpHeader *)(r->data + pk1_of);
 		if (h->type != PTPIP_DATA_PACKET_END) {
-			ptp_verbose_log("Didn't receive an END DATA packet (%d)\n", h->type);
+			ptp_error_log("Didn't receive an END DATA packet (%d)\n", h->type);
 			return PTP_IO_ERR;
 		}
 
@@ -125,13 +125,13 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 		if (rc < 0) return rc;
 		h = (struct PtpIpHeader *)(r->data + pk2_of);
 		if (h->type != PTPIP_COMMAND_RESPONSE) {
-			ptp_verbose_log("Non response packet after data end packet (%d)\n", h->type);
+			ptp_error_log("Non response packet after data end packet (%d)\n", h->type);
 			return PTP_IO_ERR;
 		}
 	} else if (h->type == PTPIP_COMMAND_RESPONSE) {
 		ptp_verbose_log("Received response packet\n");
 	} else {
-		ptp_verbose_log("Unexpected packet: %X\n", h->type);
+		ptp_error_log("Unexpected packet: %X\n", h->type);
 		return PTP_IO_ERR;
 	}
 
@@ -154,7 +154,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 			ptp_panic("illegal connection type");
 		}
 		if (rc < 0 && r->wait_for_response) {
-			ptp_verbose_log("Response error %d, trying again", rc);
+			ptp_error_log("Response error %d, trying again", rc);
 			r->wait_for_response--;
 			continue;
 		} else if (rc < 0) {
@@ -187,13 +187,13 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 			ptp_read_u32(&c->length, &data_length);
 			ptp_read_u16(&c->type, &type);
 			if (type != PTP_PACKET_TYPE_RESPONSE) {
-				ptp_verbose_log("Expected response packet but got %d\n", type);
+				ptp_error_log("Expected response packet but got %d\n", type);
 				return PTP_IO_ERR;
 			}
 			if (read == data_length + length) {
 				break;
 			} else if (read > data_length + length) {
-				ptp_verbose_log("Read too much data %d\n", read);
+				ptp_error_log("Read too much data %d\n", read);
 				return PTP_IO_ERR;
 			}
 		}

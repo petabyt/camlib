@@ -15,11 +15,14 @@ int ptp_list_devices(void) {
 		return 0;
 	}
 
+	int i = 0;
 	for (; list != NULL; list = list->next) {
-		printf("product id: %04x\n", list->product_id);
-		printf("vendor id: %04x\n", list->vendor_id);
-		printf("Vendor friendly name: '%s'\n", list->manufacturer);
-		printf("Model friendly name: '%s'\n", list->name);
+		printf("Device #%d:\n", i);
+		printf("  product id: %04x\n", list->product_id);
+		printf("  vendor id: %04x\n", list->vendor_id);
+		printf("  Vendor friendly name: '%s'\n", list->manufacturer);
+		printf("  Model friendly name: '%s'\n", list->name);
+		i++;
 	}
 
 	ptp_close(r);
@@ -27,7 +30,10 @@ int ptp_list_devices(void) {
 	return 0;
 }
 
-static struct PtpRuntime *ptp_connect_id(int id) {
+struct PtpRuntime *ptp_connect_from_id(int id) {
+	if (id == -1) {
+		ptp_panic("%s Bug: -1", __func__);
+	}
 	struct PtpRuntime *r = ptp_new(PTP_USB);
 	struct PtpDeviceEntry *list = ptpusb_device_list(r);
 
@@ -50,14 +56,14 @@ static struct PtpRuntime *ptp_connect_id(int id) {
 	return NULL;
 }
 
-int ptp_dump_device(void) {
-	struct PtpRuntime *r = ptp_connect_id(0);
+int ptp_dump_device(int dev_id) {
+	struct PtpRuntime *r = ptp_connect_from_id(dev_id);
 
 	struct PtpDeviceInfo di;
 	char buffer[4096];
 	ptp_get_device_info(r, &di);
 	ptp_device_info_json(&di, buffer, sizeof(buffer));
-	printf("%s\n", (char*)buffer);
+	printf("%s\n", (char *)buffer);
 
 	return 0;
 }

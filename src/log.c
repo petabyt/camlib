@@ -16,6 +16,14 @@ void ptp_verbose_log(char *fmt, ...) {
 	}
 }
 
+__attribute__((weak))
+void ptp_error_log(char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+}
+
 __attribute__ ((noreturn))
 __attribute__((weak))
 void ptp_panic(char *fmt, ...) {
