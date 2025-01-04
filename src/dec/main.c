@@ -63,6 +63,7 @@ int ptp_decode_output(const char *input, const char *output) {
 	}
 
 	int transaction = -1; // (Indicates unknown transaction)
+	int last_transaction = 0;
 	int last_type = 0;
 
 	int vendor = PTP_DEV_EOS;
@@ -82,12 +83,11 @@ int ptp_decode_output(const char *input, const char *output) {
 
 		if (c->type == PTP_PACKET_TYPE_COMMAND || c->type == PTP_PACKET_TYPE_DATA) {
 			filter &= vendor_oc == 0x10 || vendor_oc == 0x90 || vendor_oc == 0x91 || vendor_oc == 0x92 || vendor_oc == 0x98 || vendor_oc == 0xF0;
-
-			// Filter out EOS GetEvent and GetLiveViewData
-			filter &= c->code != 0x9116 && c->code != 0x9153;
 		} else if (c->type == PTP_PACKET_TYPE_RESPONSE) {
 			filter &= vendor_oc == 0x20;
 		}
+
+		if (transaction != -1 && (last_transaction - 10) > c->transaction) goto cnt;
 
 		if (!filter) goto cnt;
 
@@ -110,14 +110,11 @@ int ptp_decode_output(const char *input, const char *output) {
 			if (last_type == PTP_PACKET_TYPE_COMMAND) {
 				fprintf(f, "--- DATA Container ---\n");
 			} else if (last_type == PTP_PACKET_TYPE_DATA) {
-				fprintf(f, "%s--- Random DATA Container\n", newline);
+				//fprintf(f, "%s--- Random DATA Container\n", newline);
 			}
 		} else if (c->type == PTP_PACKET_TYPE_RESPONSE) {
 			fprintf(f, "%s--- RESPONSE Container ---\n", newline);
 			type = PTP_RC;
-		} else if (c->type == PTP_PACKET_TYPE_EVENT) {
-			fprintf(f, "%s--- EVENT Container\n", newline);
-			goto cnt;
 		}
 
 		char *enm = ptp_get_enum(type, vendor, c->code);
@@ -153,10 +150,13 @@ int ptp_decode_output(const char *input, const char *output) {
 				fprintf(f, "No data");
 			}
 			fprintf(f, "\n");
-
+#if 0
 			if (c->code == 0x9052) {
 				decode_eos_evproc(f, pl, ((uint8_t *)buffer) + addr + 12);
 			}
+#endif
+
+			last_transaction = (int)c->transaction;
 		}
 
 		last_type = c->type;

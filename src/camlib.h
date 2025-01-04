@@ -226,7 +226,7 @@ PUB void ptp_close(struct PtpRuntime *r);
 PUB int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd);
 
 /// @brief Send a command request to the device with a data phase (thread safe)
-PUB int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length);
+PUB int ptp_send_data(struct PtpRuntime *r, const struct PtpCommand *cmd, const void *data, int length);
 
 /// @brief Try and get an event from the camera over int endpoint (USB-only)
 PUB int ptp_get_event(struct PtpRuntime *r, struct PtpEventContainer *ec);
@@ -308,14 +308,14 @@ inline static int ptp_read_u64(const void *buf, uint64_t *out) {
 }
 
 // Build a new PTP/IP or PTP/USB command packet in r->data
-int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd);
+int ptp_new_cmd_packet(struct PtpRuntime *r, const struct PtpCommand *cmd);
 
 // Only for PTP_USB or PTP_USB_IP use
-int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length);
+int ptpusb_new_data_packet(struct PtpRuntime *r, const struct PtpCommand *cmd, const void *data, int data_length);
 
 // Only use for PTP_IP
 int ptpip_data_start_packet(struct PtpRuntime *r, int data_length);
-int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length);
+int ptpip_data_end_packet(struct PtpRuntime *r, const void *data, int data_length);
 
 // Used only by ptp_open_session
 void ptp_update_transaction(struct PtpRuntime *r, int t);

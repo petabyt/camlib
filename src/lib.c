@@ -221,7 +221,7 @@ int ptp_send(struct PtpRuntime *r, struct PtpCommand *cmd) {
 	return rc;
 }
 
-static int ptp_send_data_try(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+static int ptp_send_data_try(struct PtpRuntime *r, const struct PtpCommand *cmd, const void *data, int length) {
 	// Send operation request (data packet later on)
 	int plength = ptp_new_cmd_packet(r, cmd);
 	if (ptp_send_packet(r, plength) != plength) {
@@ -242,7 +242,7 @@ static int ptp_send_data_try(struct PtpRuntime *r, struct PtpCommand *cmd, void 
 		}
 	} else {
 		// Single data packet
-		plength = ptp_new_data_packet(r, cmd, data, length);
+		plength = ptpusb_new_data_packet(r, cmd, data, length);
 		if (ptp_send_packet(r, plength) != plength) {
 			ptp_verbose_log("Failed to send data packet (%d)\n", plength);
 			return PTP_IO_ERR;
@@ -255,7 +255,7 @@ static int ptp_send_data_try(struct PtpRuntime *r, struct PtpCommand *cmd, void 
 }
 
 // Perform a command request with a data phase to the camera
-int ptp_send_data(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int length) {
+int ptp_send_data(struct PtpRuntime *r, const struct PtpCommand *cmd, const void *data, int length) {
 	if (r->operation_kill_switch) return PTP_IO_ERR;
 	ptp_mutex_lock(r);
 	if (r->operation_kill_switch) {

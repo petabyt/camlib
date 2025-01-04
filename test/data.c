@@ -5,19 +5,27 @@
 
 int test_data(void) {
 	{
-		uint8_t buffer[] = {05, 'H', 00, 'e', 00, 'l', 00, 'l', 00 ,'o', 00};
+		uint8_t buffer[] = {06, 'H', 00, 'e', 00, 'l', 00, 'l', 00 ,'o', 00, 00, 00};
 		char string[64];
 		int rc = ptp_read_string(buffer, string, sizeof(string));
+		assert(rc == sizeof(buffer));
 		assert(!strcmp(string, "Hello"));
-		assert(rc == 11);
 	}
 
 	{
 		uint8_t buffer[64];
-		uint8_t ref[] = {05, 'H', 00, 'e', 00, 'l', 00, 'l', 00 ,'o', 00};
+		uint8_t ref[] = {06, 'H', 00, 'e', 00, 'l', 00, 'l', 00 ,'o', 00, 00, 00};
 		int rc = ptp_write_string(buffer, "Hello");
+		assert(rc == 13);
 		assert(!memcmp(buffer, ref, sizeof(ref)));
-		assert(rc == 11);
+	}
+
+	{
+		uint8_t buffer[64];
+		uint8_t ref[] = {0x0};
+		int rc = ptp_write_string(buffer, "");
+		assert(rc == 1);
+		assert(!memcmp(buffer, ref, sizeof(ref)));	
 	}
 
 	return 0;

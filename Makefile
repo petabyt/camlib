@@ -20,7 +20,7 @@ UNIX_LDFLAGS = $(shell pkg-config --libs libusb-1.0)
 UNIX_LIB_FILES := $(CAMLIB_CORE) $(EXTRAS) src/libusb.o
 WIN_LIB_FILES := $(CAMLIB_CORE) $(EXTRAS) src/libwpd.o
 
-all: $(SO)
+all: camlib $(SO)
 
 TARGET ?= l
 ifeq ($(TARGET),m) 

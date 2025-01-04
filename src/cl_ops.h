@@ -63,7 +63,10 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 
 int ptp_get_prop_value(struct PtpRuntime *r, int code);
 
+/// @brief Sets 32 bit value of a property
 int ptp_set_prop_value(struct PtpRuntime *r, int code, int value);
+/// @brief Sets 16 bit value of a property
+int ptp_set_prop_value16(struct PtpRuntime *r, int code, uint16_t value);
 
 int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length);
 

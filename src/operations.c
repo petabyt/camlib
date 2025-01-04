@@ -215,11 +215,9 @@ int ptp_send_object_info(struct PtpRuntime *r, int storage_id, int handle, struc
 	cmd.params[0] = storage_id;
 	cmd.params[1] = handle;
 
-	uint8_t temp[1024];
+	uint8_t temp[2048];
 	int length = ptp_pack_object_info(r, oi, temp, sizeof(temp));
-	if (length == 0) {
-		return PTP_OUT_OF_MEM;
-	}
+	if (length < 0) return length;
 
 	return ptp_send_data(r, &cmd, temp, length);
 }
@@ -310,9 +308,17 @@ int ptp_set_prop_value(struct PtpRuntime *r, int code, int value) {
 	cmd.param_length = 1;
 	cmd.params[0] = code;
 
-	uint32_t dat[] = {value};
+	uint32_t dat[] = {(uint32_t)value};
 
 	return ptp_send_data(r, &cmd, dat, sizeof(dat));
+}
+
+int ptp_set_prop_value16(struct PtpRuntime *r, int code, uint16_t value) {
+	struct PtpCommand cmd;
+	cmd.code = PTP_OC_SetDevicePropValue;
+	cmd.param_length = 1;
+	cmd.params[0] = code;
+	return ptp_send_data(r, &cmd, &value, 2);
 }
 
 int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int length) {

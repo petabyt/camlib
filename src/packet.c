@@ -10,7 +10,7 @@
 #include <camlib.h>
 
 // PTP/IP-specific packet
-int ptpip_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type, int data_length) {
+int ptpip_bulk_packet(struct PtpRuntime *r, const struct PtpCommand *cmd, int type, int data_length) {
 	struct PtpIpBulkContainer bulk;
 	int size = 18 + (sizeof(uint32_t) * cmd->param_length);
 	bulk.length = size;
@@ -44,7 +44,7 @@ int ptpip_data_start_packet(struct PtpRuntime *r, int data_length) {
 	return pkt->length;
 }
 
-int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length) {
+int ptpip_data_end_packet(struct PtpRuntime *r, const void *data, int data_length) {
 	struct PtpIpEndDataPacket *pkt = (struct PtpIpEndDataPacket *)(r->data);
 	pkt->length = 12 + data_length;
 	pkt->type = PTPIP_DATA_PACKET_END;
@@ -55,46 +55,38 @@ int ptpip_data_end_packet(struct PtpRuntime *r, void *data, int data_length) {
 	return pkt->length;
 }
 
-// Generate a USB-only BulkContainer packet
-int ptpusb_bulk_packet(struct PtpRuntime *r, struct PtpCommand *cmd, int type, int data_length) {
-	if (cmd->param_length > 5) ptp_panic("cmd->param_length more than 5");
+int ptpusb_new_data_packet(struct PtpRuntime *r, const struct PtpCommand *cmd, const void *data, int data_length) {
+	uint32_t size = 12 + data_length;
 	struct PtpBulkContainer bulk;
-	int size = 12 + (sizeof(uint32_t) * cmd->param_length);
-
-	bulk.length = size;
-	bulk.type = type;
-	bulk.length += data_length;
-	bulk.code = cmd->code;
-	bulk.transaction = r->transaction;
-
-	for (int i = 0; i < 5; i++) {
-		bulk.params[i] = cmd->params[i];
-	}
-
-	memcpy(r->data, &bulk, size);
-
-	return size;
+	ptp_write_u32(&bulk.length, size);
+	ptp_write_u32(&bulk.type, PTP_PACKET_TYPE_DATA);
+	ptp_write_u32(&bulk.code, cmd->code);
+	ptp_write_u32(&bulk.transaction, r->transaction);
+	memcpy(r->data, &bulk, 12);
+	memcpy(r->data + 12, data, data_length);
+	return (int)size;
 }
 
-// Only for PTP_USB or PTP_USB_IP
-int ptp_new_data_packet(struct PtpRuntime *r, struct PtpCommand *cmd, void *data, int data_length) {
-	cmd->param_length = 0;
-
-	int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_DATA, data_length);
-
-	memcpy(r->data + length, data, data_length);
-	
-	return length + data_length;
+int ptpusb_new_cmd_packet(struct PtpRuntime *r, const struct PtpCommand *cmd) {
+	uint32_t size = 12 + (4 * cmd->param_length);
+	struct PtpBulkContainer bulk;
+	ptp_write_u32(&bulk.length, size);
+	ptp_write_u32(&bulk.type, PTP_PACKET_TYPE_COMMAND);
+	ptp_write_u32(&bulk.code, cmd->code);
+	ptp_write_u32(&bulk.transaction, r->transaction);
+	for (int i = 0; i < cmd->param_length; i++) {
+		ptp_write_u32(&bulk.params[i], cmd->params[i]);
+	}
+	memcpy(r->data, &bulk, size);
+	return (int)size;
 }
 
 // Generate a IP or USB style command packet (both are pretty similar)
-int ptp_new_cmd_packet(struct PtpRuntime *r, struct PtpCommand *cmd) {
+int ptp_new_cmd_packet(struct PtpRuntime *r, const struct PtpCommand *cmd) {
 	if (r->connection_type == PTP_IP) {
-		int length = ptpip_bulk_packet(r, cmd, PTPIP_COMMAND_REQUEST, 0);
-		return length;
+		return ptpip_bulk_packet(r, cmd, PTPIP_COMMAND_REQUEST, 0);
 	} else {
-		int length = ptpusb_bulk_packet(r, cmd, PTP_PACKET_TYPE_COMMAND, 0);
-		return length;
+		return ptpusb_new_cmd_packet(r, cmd);
 	}
 }
 

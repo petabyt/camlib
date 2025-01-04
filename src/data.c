@@ -38,10 +38,14 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 	int of = 0;
 	uint8_t length;
 	of += ptp_read_u8(d + of, &length);
+	if (length == 0) {
+		string[0] = '\0';
+		return of;
+	}
 
 	uint8_t i = 0;
+	uint16_t wchr = 0x0;
 	while (i < length) {
-		uint16_t wchr;
 		of += ptp_read_u16(d + of, &wchr);
 		if (wchr > 128) wchr = '?';
 		else if (wchr != '\0' && wchr < 32) wchr = ' ';
@@ -50,7 +54,11 @@ int ptp_read_string(uint8_t *d, char *string, int max) {
 		if (i >= max - 1) break;
 	}
 
-	string[i] = '\0';
+	if (wchr != 0x0) {
+		ptp_verbose_log("PTP String does not have null terminator!\n");
+	} else {
+		string[i] = '\0';
+	}
 
 	return of;
 }
@@ -89,17 +97,24 @@ int ptp_read_uint16_array_s(uint8_t *bs, uint8_t *be, uint16_t *buf, int max, in
 	return of;
 }
 
-// Write standard PTP wchar string
+// Write standard MTP compliant string
 int ptp_write_string(uint8_t *dat, const char *string) {
 	int of = 0;
 
 	uint32_t length = strlen(string);
-	of += ptp_write_u8(dat + of, length);
+	if (length == 0) {
+		// 'An empty string is represented by a single 8-bit integer containing a value of 0x00.'
+		ptp_write_u8(dat, 0x0);
+		return 1;
+	}
+	of += ptp_write_u8(dat + of, length + 1);
 
-	for (int i = 0; i < (int)length; i++) {
+	for (int i = 0; i < length; i++) {
 		of += ptp_write_u8(dat + of, string[i]);
 		of += ptp_write_u8(dat + of, '\0');
 	}
+
+	of += ptp_write_u16(dat + of, 0x0);
 
 	return of;
 }
@@ -118,7 +133,7 @@ int ptp_write_utf8_string(void *dat, const char *string) {
 	return x;
 }
 
-// Write null-terminated UTF16 string
+// Write wchar string
 int ptp_write_unicode_string(char *dat, const char *string) {
 	int i;
 	for (i = 0; string[i] != '\0'; i++) {
@@ -428,7 +443,6 @@ int ptp_parse_storage_info(struct PtpRuntime *r, struct PtpStorageInfo *si) {
 	return 0;
 }
 
-// TODO: Different API
 int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t *buf, int max) {
 	if (1024 > max) {
 		return 0;
@@ -450,18 +464,10 @@ int ptp_pack_object_info(struct PtpRuntime *r, struct PtpObjectInfo *oi, uint8_t
 	of += ptp_write_u16(buf + of, oi->assoc_type);
 	of += ptp_write_u32(buf + of, oi->assoc_desc);
 	of += ptp_write_u32(buf + of, oi->sequence_num);
-
-	// If the string is empty, don't add it to the packet
-	if (oi->filename[0] != '\0')
-		of += ptp_write_string(buf + of, oi->filename);
-	if (oi->date_created[0] != '\0')
-		of += ptp_write_string(buf + of, oi->date_created);
-	if (oi->date_modified[0] != '\0')
-		of += ptp_write_string(buf + of, oi->date_modified);
-	if (oi->keywords[0] != '\0')
-		of += ptp_write_string(buf + of, oi->keywords);
-
-	// Return pointer length added
+	of += ptp_write_string(buf + of, oi->filename);
+	of += ptp_write_string(buf + of, oi->date_created);
+	of += ptp_write_string(buf + of, oi->date_modified);
+	of += ptp_write_string(buf + of, oi->keywords);
 	return of;
 }
 
