@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.4.4...3.5.0)
 
 project(camlib)
 
-set(CMAKE_C_FLAGS "-fpic -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D CAMLIB_NO_COMPAT -D VERBOSE")
+option(PTP_CANON_ADV "Include implementation for advanced Canon features" ON)
+option(PTP_STUFF "Include extra functions for debugging/testing" ON)
+option(PTP_DEFAULT_LOGGING "Include default log/panic/error implementation" ON)
+option(PTP_INCLUDE_CLI "Include CLI program" OFF)
 
-# Camlib core source files
 set(CAMLIB_CORE
     src/operations.c
     src/packet.c
@@ -20,33 +22,42 @@ set(CAMLIB_CORE
     src/conv.c
     src/generic.c
     src/transport.c
-    src/log.c
-	src/canon_adv.c
 )
+if(PTP_CANON_ADV)
+    list(APPEND CAMLIB_CORE src/canon_adv.c)
+endif()
+if(PTP_STUFF)
+    list(APPEND CAMLIB_CORE src/stuff.c)
+endif()
+if(PTP_DEFAULT_LOGGING)
+    list(APPEND CAMLIB_CORE src/log.c)
+endif()
 
 if(UNIX)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
-
     set(PLATFORM_LIB_FILES ${CAMLIB_CORE} src/libusb.c)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBUSB_CFLAGS}")
-    set(CMAKE_SHARED_LINKER_FLAGS "${LIBUSB_LDFLAGS}")
+    set(PLATFORM_LIBS ${LIBUSB_LIBRARIES})
+    set(PLATFORM_DIRS ${LIBUSB_INCLUDE_DIRS})
 elseif(WIN32)
     set(PLATFORM_LIB_FILES ${CAMLIB_CORE} src/libwpd.c)
-    set(MINGW_LIBS
-        -lwpd -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32
-        -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc -lstdc++ -lgcc -lpthread -lssp -lurlmon -luuid -lws2_32
-    )
-    set(CMAKE_SHARED_LINKER_FLAGS "${MINGW_LIBS}")
+    set(PLATFORM_LIBS /usr/x86_64-w64-mingw32/lib/libwpd.a)
 endif()
 
-add_library(libcamlib SHARED ${PLATFORM_LIB_FILES})
-target_include_directories(libcamlib PUBLIC ${PROJECT_SOURCE_DIR}/src)
+add_library(libcamlib STATIC ${PLATFORM_LIB_FILES})
+target_compile_options(libcamlib
+        PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
+        PUBLIC -DCAMLIB_NO_COMPAT
+)
+target_include_directories(libcamlib PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
+target_link_libraries(libcamlib PRIVATE ${PLATFORM_LIBS})
 set_target_properties(libcamlib PROPERTIES OUTPUT_NAME libcamlib)
 
-add_executable(camlib
-    src/cli.c
-    src/dec/main.c
-)
-target_include_directories(camlib PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(camlib libcamlib ${LIBUSB_LIBRARIES} pcap)
+if(PTP_INCLUDE_CLI)
+    add_executable(camlib
+        src/cli.c
+        src/dec/main.c
+    )
+    target_include_directories(camlib PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_link_libraries(camlib libcamlib ${LIBUSB_LIBRARIES} pcap)
+endif()
