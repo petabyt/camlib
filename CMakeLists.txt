@@ -46,8 +46,8 @@ endif()
 
 add_library(libcamlib STATIC ${PLATFORM_LIB_FILES})
 target_compile_options(libcamlib
-        PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
-        PUBLIC -DCAMLIB_NO_COMPAT
+    PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
+    PUBLIC -DCAMLIB_NO_COMPAT
 )
 target_include_directories(libcamlib PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
 target_link_libraries(libcamlib PRIVATE ${PLATFORM_LIBS})

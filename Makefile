@@ -53,7 +53,7 @@ endif
 -include src/*.d src/lua/*.d src/lua/lua-cjson/*.d
 
 camlib: src/cli.o src/dec/main.o $(SO)
-	$(CC) src/cli.o src/dec/main.o $(CFLAGS) $(SO) $(LDFLAGS) -o $@
+	$(CC) src/cli.o src/dec/main.o $(CFLAGS) $(SO) $(LDFLAGS) `pkg-config --libs libpcap` -o $@
 
 # Run this thing frequently
 stringify:

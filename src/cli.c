@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <camlib.h>
 
-int ptp_decode_output(const char *input, const char *output);
+int ptp_decode_output(const char *mode, const char *input, const char *output);
 
 struct Options {
 	int do_open_sessions;	
@@ -143,7 +143,9 @@ int main(int argc, char **argv) {
 			printf("Return code: %d\n", rc);
 			return rc;
 		} else if (!strcmp(argv[i], "--dec")) {
-			return ptp_decode_output(argv[i + 1], argv[i + 2]);
+			char *type = "wifi";
+			if ((argc - i) > 3) type = argv[i + 3];
+			return ptp_decode_output(type, argv[i + 1], argv[i + 2]);
 		}
 	}
 

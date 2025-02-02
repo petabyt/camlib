@@ -363,7 +363,7 @@ int ptpusb_get_status(struct PtpRuntime *r) {
 	struct LibUSBBackend *backend = (struct LibUSBBackend *)r->comm_backend;
 	if (backend == NULL || r->io_kill_switch) return -1;
 	char buffer[2];
-	int rc = libusb_control_transfer(backend->handle, 0x80, 0, 0, 0, buffer, 2, 1000);
+	int rc = libusb_control_transfer(backend->handle, 0x80, 0, 0, 0, (unsigned char *)buffer, 2, 1000);
 	if (rc) return -1;
 	return 0;
 }
