@@ -330,12 +330,13 @@ int ptp_set_prop_value_data(struct PtpRuntime *r, int code, void *data, int leng
 	return ptp_send_data(r, &cmd, data, length);
 }
 
-int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code) {
+int ptp_delete_object(struct PtpRuntime *r, int handle) {
 	struct PtpCommand cmd;
 	cmd.code = PTP_OC_DeleteObject;
-	cmd.param_length = 2;
+	cmd.param_length = 1;
 	cmd.params[0] = handle;
-	cmd.params[1] = format_code;
+	// TODO: Want a separate function to handle this
+	//cmd.params[1] = format_code;
 
 	return ptp_send(r, &cmd);	
 }

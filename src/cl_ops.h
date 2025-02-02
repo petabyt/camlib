@@ -83,7 +83,7 @@ int ptp_get_object_info(struct PtpRuntime *r, uint32_t handle, struct PtpObjectI
 
 int ptp_move_object(struct PtpRuntime *r, int storage_id, int handle, int folder);
 
-int ptp_delete_object(struct PtpRuntime *r, int handle, int format_code);
+int ptp_delete_object(struct PtpRuntime *r, int handle);
 
 /// @brief Raw JPEG data is accessible from ptp_get_payload()
 /// @note Not thread safe.

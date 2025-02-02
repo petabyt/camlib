@@ -154,7 +154,7 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 			ptp_panic("illegal connection type");
 		}
 		if (rc < 0 && r->wait_for_response) {
-			ptp_error_log("Response error %d, trying again", rc);
+			ptp_error_log("Response error %d, trying again\n", rc);
 			r->wait_for_response--;
 			continue;
 		} else if (rc < 0) {
