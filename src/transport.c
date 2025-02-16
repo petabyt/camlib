@@ -27,14 +27,14 @@ int ptp_send_packet(struct PtpRuntime *r, int length) {
 			ptp_verbose_log("%s: %d\n", __func__, rc);
 			return PTP_IO_ERR;
 		}
-		
+
 		sent += rc;
-		
+
 		if (sent > length) {
 			ptp_panic("BUG: Sent too many bytes (?)");
 		} else if (sent == length) {
 			ptp_verbose_log("%s: Sent %d/%d bytes\n", __func__, sent, length);
-			return sent;			
+			return sent;
 		}
 	}
 }
@@ -142,10 +142,15 @@ int ptpip_receive_bulk_packets(struct PtpRuntime *r) {
 
 int ptpusb_read_all_packets(struct PtpRuntime *r) {
 	r->wait_for_response = r->response_wait_default;
-
+	int rc;
 	int read = 0;
+	int read_attempts = 0;
 	while (1) {
-		int rc;
+		if (r->data_length < (read + r->max_packet_size)) {
+			rc = ptp_buffer_resize(r, read + r->max_packet_size);
+			if (rc) return rc;
+		}
+
 		if (r->connection_type == PTP_USB) {
 			rc = ptp_cmd_read(r, r->data + read, r->max_packet_size);
 		} else if (r->connection_type == PTP_IP_USB) {
@@ -156,13 +161,23 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		if (rc < 0 && r->wait_for_response) {
 			ptp_error_log("Response error %d, trying again\n", rc);
 			r->wait_for_response--;
+			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
+			read_attempts++;
+			continue;
+		} else if (rc == 0 && r->wait_for_response) {
+			ptp_error_log("Got nothing, trying again\n", rc);
+			r->wait_for_response--;
+			read_attempts++;
 			continue;
 		} else if (rc < 0) {
 			return PTP_IO_ERR;
 		}
 		read += rc;
 
-		// TODO: if read is 0 for long enough, return PTP_COMMAND_IGNORED
+		if (r->wait_for_response == 0 && read_attempts) {
+			ptp_error_log("Too many attempts, didn't get enough bytes\n");
+			return PTP_COMMAND_IGNORED;
+		}
 
 		// Min packet size is at least read
 		if (read < 12) continue;

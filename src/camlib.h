@@ -161,6 +161,7 @@ struct PtpRuntime {
 	/// @note: Optional
 	struct PtpPropAvail *avail;
 
+	// TODO: Fudge uses this, should be moved to userdata struct
 	void *oc;
 };
 
@@ -271,13 +272,13 @@ inline static int ptp_write_u8(void *buf, uint8_t out) {
 	return 1;
 }
 inline static int ptp_write_u16(void *buf, uint16_t out) {
-	uint8_t *b = buf;
+	uint8_t *b = (uint8_t *)buf;
 	b[0] = out & 0xFF;
 	b[1] = (out >> 8) & 0xFF;
 	return 2;
 }
 inline static int ptp_write_u32(void *buf, uint32_t out) {
-	uint8_t *b = buf;
+	uint8_t *b = (uint8_t *)buf;
 	b[0] = out & 0xFF;
 	b[1] = (out >> 8) & 0xFF;
 	b[2] = (out >> 16) & 0xFF;
@@ -285,17 +286,17 @@ inline static int ptp_write_u32(void *buf, uint32_t out) {
 	return 4;
 }
 inline static int ptp_read_u8(const void *buf, uint8_t *out) {
-	const uint8_t *b = buf;
+	const uint8_t *b = (const uint8_t *)buf;
 	*out = b[0];
 	return 1;
 }
 inline static int ptp_read_u16(const void *buf, uint16_t *out) {
-	const uint8_t *b = buf;
+	const uint8_t *b = (const uint8_t *)buf;
 	*out = (uint16_t)b[0] | ((uint16_t)b[1] << 8);
 	return 2;
 }
 inline static int ptp_read_u32(const void *buf, uint32_t *out) {
-	const uint8_t *b = buf;
+	const uint8_t *b = (const uint8_t *)buf;
 	*out = (uint32_t)b[0] | ((uint32_t)b[1] << 8) | ((uint32_t)b[2] << 16) | ((uint32_t)b[3] << 24);
 	return 4;
 }
