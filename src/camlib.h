@@ -20,7 +20,7 @@
 #ifndef CAMLIB_SLEEP
 	#include <unistd.h>
 	//int usleep(unsigned int usec);
-	#define CAMLIB_SLEEP(ms) usleep(ms * 1000)
+	#define CAMLIB_SLEEP(ms) usleep((unsigned int)(ms) * 1000)
 #endif
 
 #ifdef WIN32
@@ -29,13 +29,16 @@
 #define PUB
 #endif
 
-// Logging+panic mechanism, define it yourself or link in log.c
-void ptp_verbose_log(char *fmt, ...);
-void ptp_error_log(char *fmt, ...);
-__attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
-
 // 1mb default buffer size
 #define CAMLIB_DEFAULT_SIZE 1000000
+
+// Logging+panic mechanism, define it yourself or link in log.c
+/// @brief Verbose log debugging info, could be called dozens of times per second
+void ptp_verbose_log(char *fmt, ...);
+/// @brief Used for critical IO errors, (not runtime errors)
+void ptp_error_log(char *fmt, ...);
+/// @brief Client has no way out, crash the application
+__attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 
 /// @brief Camlib library errors, not PTP return codes
 enum PtpGeneralError {
@@ -128,7 +131,7 @@ struct PtpRuntime {
     int data_length;
 
 	/// @note Max size of a USB bulk transfer or max TCP packet size
-	/// @todo max packet size for IN and OUT
+	/// @todo need to have a max packet size for both IN and OUT
 	int max_packet_size;
 
 	/// @brief Info about current connection, used to detect camera type, supported opodes, etc
@@ -319,11 +322,13 @@ int ptpip_data_start_packet(struct PtpRuntime *r, int data_length);
 int ptpip_data_end_packet(struct PtpRuntime *r, const void *data, int data_length);
 
 // Used only by ptp_open_session
+__attribute__((deprecated()))
 void ptp_update_transaction(struct PtpRuntime *r, int t);
 
 // Set avail info for prop
 void ptp_set_prop_avail_info(struct PtpRuntime *r, int code, int memb_size, int cnt, void *data);
 
+__attribute__((deprecated()))
 void *ptp_dup_payload(struct PtpRuntime *r);
 
 /// @brief Write r->data to a file called DUMP
@@ -347,5 +352,7 @@ int ptp_dump(struct PtpRuntime *r);
 	#define ptp_generic_send(...) ptp_send(__VA_ARGS__)
 	#define ptp_generic_send_data(...) ptp_send_data(__VA_ARGS__)
 #endif
+
+#undef PUB // avoid conflict
 
 #endif

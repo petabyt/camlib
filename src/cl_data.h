@@ -13,12 +13,6 @@ struct PtpStorageIds {
 	uint32_t data[4];
 };
 
-// TODO: Rename PtpUintArray
-struct UintArray {
-	uint32_t length;
-	uint32_t data[];
-};
-
 // To store unpacked device info data, after parsing
 struct PtpDeviceInfo {
 	uint16_t standard_version;

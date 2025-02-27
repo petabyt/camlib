@@ -9,15 +9,18 @@
 #include <camlib.h>
 #include <ptp.h>
 
-static struct PtpArray *dup_uint_array(struct UintArray *arr) {
-	struct PtpArray *dup = malloc(4 + arr->length * 4);
-	if (dup == NULL) return NULL;
+static struct PtpArray *dup_uint_array(const uint8_t *buf) {
+	uint32_t length;
+	int of = ptp_read_u32(buf, &length);
 
-	memcpy(dup, arr, 4 + arr->length * 4);
+	struct PtpArray *dup = malloc(4 + length * 4);
+	if (dup == NULL) ptp_panic("oom");
 
-	ptp_write_u32(&dup->length, arr->length);
-	for (int i = 0; i < arr->length; i++) {
-		ptp_write_u32(&dup->data[i], arr->data[i]);
+	dup->length = length;
+	for (int i = 0; i < length; i++) {
+		uint32_t memb = 0;
+		of += ptp_read_u32(buf + of, &memb);
+		dup->data[i] = memb;
 	}
 
 	return dup;
@@ -158,7 +161,7 @@ int ptp_get_storage_ids(struct PtpRuntime *r, struct PtpArray **a) {
 		return rc;
 	}
 
-	(*a) = dup_uint_array((void *)ptp_get_payload(r));
+	(*a) = dup_uint_array(ptp_get_payload(r));
 
 	ptp_mutex_unlock(r);
 	
@@ -235,7 +238,7 @@ int ptp_get_object_handles(struct PtpRuntime *r, int id, int format, int in, str
 	int rc = ptp_send(r, &cmd);
 	if (rc) goto end;
 
-	(*a) = dup_uint_array((void *)ptp_get_payload(r));
+	(*a) = dup_uint_array(ptp_get_payload(r));
 
 	end:;
 	ptp_mutex_unlock(r);
