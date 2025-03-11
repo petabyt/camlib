@@ -7,7 +7,8 @@
 
 #include <camlib.h>
 
-static int connect(struct PtpRuntime *r) {
+int main() {
+	struct PtpRuntime *r = ptp_new(PTP_USB);
 	struct PtpDeviceEntry *list = ptpusb_device_list(r);
 
 	printf("Starting list\n");
@@ -24,15 +25,6 @@ static int connect(struct PtpRuntime *r) {
 	ptp_close_session(r);
 
 	ptp_device_close(r);
-	return 0;
-}
-
-int main() {
-	struct PtpRuntime *r = ptp_new(PTP_USB);
-
-	if (connect(r)) return 1;
-	if (connect(r)) return 1;
-
 	return 0;
 }
 

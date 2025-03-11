@@ -22,7 +22,7 @@ void print_bytes(uint8_t *bytes, int n) {
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	r.connection_type = PTP_IP;
 

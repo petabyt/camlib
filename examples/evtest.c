@@ -10,7 +10,7 @@
 struct PtpRuntime r;
 
 int main() {
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	if (ptp_device_init(&r)) {
 		puts("Device connection error");

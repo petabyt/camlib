@@ -15,17 +15,17 @@ int ptp_set_prop_value_16(struct PtpRuntime *r, int code, int value) {
 
 	uint16_t dat[] = {(uint16_t)value};
 
-	return ptp_generic_send_data(r, &cmd, dat, sizeof(dat));
+	return ptp_send_data(r, &cmd, dat, sizeof(dat));
 }
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 	r.connection_type = PTP_IP;
 
 	char *ip = "192.168.1.2";
 	
-	if (ptpip_connect(&r, ip, PTP_IP_PORT)) {
+	if (ptpip_connect(&r, ip, PTP_IP_PORT, 1000)) {
 		puts("Device connection error");
 		return 0;
 	}
@@ -37,17 +37,17 @@ int main() {
 
 	puts("Done initing");
 
-	if (ptpip_connect_events(&r, ip, port)) {
-		puts("Events connection error");
-		return 0;
-	}
-
-	printf("Waiting to send event ask\n");
-
-	if (ptpip_init_events(&r)) {
-		printf("Event init error\n");
-		return 1;
-	}
+//	if (ptpip_connect_events(&r, ip, PTP_IP_PORT)) {
+//		puts("Events connection error");
+//		return 0;
+//	}
+//
+//	printf("Waiting to send event ask\n");
+//
+//	if (ptpip_init_events(&r)) {
+//		printf("Event init error\n");
+//		return 1;
+//	}
 
 	ptp_open_session(&r);
 

@@ -1,4 +1,4 @@
-// Stress test for windows binding
+// libwpd test
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -9,12 +9,12 @@
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	struct PtpDeviceInfo di;
 
 	if (ptp_device_init(&r)) {
-		puts("Couldn't find a device.");
+		printf("Couldn't find a device.\n");
 		return 0;
 	}
 
@@ -43,6 +43,7 @@ int main() {
 
 	ptp_device_close(&r);
 
+	printf("Press any key to close\n");
 	getchar();
 
 	return 0;

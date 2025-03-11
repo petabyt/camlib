@@ -8,7 +8,7 @@
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	struct PtpDeviceInfo di;
 
@@ -19,8 +19,9 @@ int main() {
 
 	ptp_open_session(&r);
 
-	struct UintArray *arr;
+	struct PtpArray *arr;
 	int rc = ptp_get_storage_ids(&r, &arr);
+	if (arr->length == 0) abort();
 	int id = arr->data[0];
 
 	struct PtpObjectInfo oi;
@@ -32,7 +33,7 @@ int main() {
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);
-	ptp_generic_close(&r);
+	ptp_close(&r);
 
 	return 0;
 }

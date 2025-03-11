@@ -1,4 +1,3 @@
-// TODO: Merge cli/dec
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

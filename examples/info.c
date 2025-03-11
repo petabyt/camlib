@@ -7,7 +7,7 @@
 
 int main() {
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	struct PtpDeviceInfo di;
 
@@ -25,7 +25,7 @@ int main() {
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);
-	ptp_generic_close(&r);
+	ptp_close(&r);
 	return 0;
 }
 

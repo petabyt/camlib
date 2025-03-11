@@ -6,7 +6,7 @@
 
 #include <camlib.h>
 
-/* Some snippets
+/* Some snippets, if you dare to run them:
 Show green on display:
 ptp_eos_evproc_run(&r, "UndisplayPhysicalScreen");
 ptp_eos_evproc_run(&r, "CreateColor %d %d %d", 0, 70, 0);
@@ -19,19 +19,8 @@ ptp_eos_evproc_run(&r, "writeaddr %d %d", 0x3780, 0x12345678);
 */
 
 int main() {
-#if 0
-	int length = 0;
-	extern char *canon_evproc_pack(int *length, char *string);
-	char *data = canon_evproc_pack(&length, "Printf 'asd'");
-	FILE *f = fopen("DUMP", "wb");
-	fwrite(data, 1, length, f);
-	fclose(f);
-	return 0;
-	
-#endif
-
 	struct PtpRuntime r;
-	ptp_generic_init(&r);
+	ptp_init(&r);
 
 	struct PtpDeviceInfo di;
 
@@ -53,9 +42,7 @@ int main() {
 	ptp_device_info_json(&di, (char*)r.data, r.data_length);
 	printf("%s\n", (char*)r.data);
 
-	struct PtpDevPropDesc desc;
-
-	ptp_get_prop_desc(&r, PTP_DPC_EOS_ImageFormat, &desc);
+	// ...
 
 	ptp_close_session(&r);
 	ptp_device_close(&r);

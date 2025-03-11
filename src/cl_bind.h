@@ -29,7 +29,6 @@ struct BindReq {
 	int bytes_length;
 };
 
-
 // @brief Run a binding directly from an instance of struct BindReq
 int bind_run_req(struct PtpRuntime *r, struct BindReq *bind);
 
