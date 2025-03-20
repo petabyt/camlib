@@ -9,23 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <camlib.h>
-
-#ifndef CAMLIB_VERSION
-	#ifdef __DATE__
-		#define CAMLIB_VERSION __DATE__
-	#else
-		#define CAMLIB_VERSION "Unknown"
-	#endif
-#endif
-
-#ifndef CAMLIB_PLATFORM
-	#ifdef WIN32
-		#define CAMLIB_PLATFORM "windows"
-	#else
-		#define CAMLIB_PLATFORM "linux"
-	#endif
-#endif
+#include <libpict.h>
 
 int bind_initialized = 0;
 
@@ -48,7 +32,7 @@ int bind_init(struct BindReq *bind, struct PtpRuntime *r) {
 
 int bind_connect(struct BindReq *bind, struct PtpRuntime *r) {
 	// Sanity check if uninitialized
-	if (r->data_length != CAMLIB_DEFAULT_SIZE) {
+	if (r->data_length != PTP_DEFAULT_SIZE) {
 		return bind->out(bind, "{\"error\": %d}", PTP_OUT_OF_MEM);
 	}
 

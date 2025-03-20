@@ -1,10 +1,8 @@
 // Test directprint things
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 int main() {
 	struct PtpRuntime r;

@@ -15,3 +15,4 @@ libusb-fake-ptp
 *.d
 camlib
 *.a
+.idea

@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 // Custom snprint with offset
 static int osnprintf(char *str, int cur, int size, const char *format, ...) {

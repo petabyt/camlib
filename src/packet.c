@@ -5,9 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
-
-#include <ptp.h>
-#include <camlib.h>
+#include <libpict.h>
 
 // PTP/IP-specific packet
 int ptpip_bulk_packet(struct PtpRuntime *r, const struct PtpCommand *cmd, int type, int data_length) {

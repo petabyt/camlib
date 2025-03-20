@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <string.h>
-#include <camlib.h>
+#include <libpict.h>
 #include <stdint.h>
 
 int test_data(void) {

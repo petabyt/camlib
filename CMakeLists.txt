@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.4.4...3.5.0)
 
-project(camlib)
+project(pict)
 
 option(PTP_CANON_ADV "Include implementation for advanced Canon features" ON)
 option(PTP_STUFF "Include extra functions for debugging/testing" ON)
@@ -9,7 +9,7 @@ option(PTP_INCLUDE_CLI "Include CLI program" OFF)
 option(PTP_USE_LIBUSB "Use LibUSB backend on UNIX platforms" ON)
 option(PTP_INCLUDE_EXAMPLES "Include examples" ON)
 
-set(CAMLIB_CORE
+set(PICT_CORE
     src/operations.c
     src/packet.c
     src/enums.c
@@ -26,13 +26,13 @@ set(CAMLIB_CORE
     src/transport.c
 )
 if(PTP_CANON_ADV)
-    list(APPEND CAMLIB_CORE src/canon_adv.c)
+    list(APPEND PICT_CORE src/canon_adv.c)
 endif()
 if(PTP_STUFF)
-    list(APPEND CAMLIB_CORE src/stuff.c)
+    list(APPEND PICT_CORE src/stuff.c)
 endif()
 if(PTP_DEFAULT_LOGGING)
-    list(APPEND CAMLIB_CORE src/log.c)
+    list(APPEND PICT_CORE src/log.c)
 endif()
 
 if(UNIX AND PTP_USE_LIBUSB)
@@ -46,28 +46,27 @@ elseif(WIN32)
     set(PLATFORM_LIBS /usr/x86_64-w64-mingw32/lib/libwpd.a)
 endif()
 
-add_library(libcamlib STATIC ${CAMLIB_CORE} ${PLATFORM_LIB_FILES})
-target_compile_options(libcamlib
+add_library(libpict STATIC ${PICT_CORE} ${PLATFORM_LIB_FILES})
+target_compile_options(libpict
     PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
-    PUBLIC -DCAMLIB_NO_COMPAT
 )
-target_include_directories(libcamlib PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
-target_link_libraries(libcamlib PRIVATE ${PLATFORM_LIBS})
-set_target_properties(libcamlib PROPERTIES OUTPUT_NAME libcamlib)
+target_include_directories(libpict PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
+target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
+set_target_properties(libpict PROPERTIES OUTPUT_NAME pict) # libpict.a
 
 if(PTP_INCLUDE_CLI)
-    add_executable(camlib
+    add_executable(pict
         src/cli.c
         src/dec/main.c
     )
-    target_include_directories(camlib PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_link_libraries(camlib libcamlib ${LIBUSB_LIBRARIES} pcap)
+    target_include_directories(pict PUBLIC ${PROJECT_SOURCE_DIR}/src)
+    target_link_libraries(pict libpict ${LIBUSB_LIBRARIES} pcap)
 endif()
 
 macro(add_example exe_name source)
     add_executable(${exe_name} ${source})
     target_include_directories(${exe_name} PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_link_libraries(${exe_name} libcamlib ${LIBUSB_LIBRARIES})
+    target_link_libraries(${exe_name} libpict ${LIBUSB_LIBRARIES})
 endmacro()
 
 if(PTP_INCLUDE_EXAMPLES)

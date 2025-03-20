@@ -18,9 +18,7 @@
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
 #endif
-
-#include <camlib.h>
-#include <ptp.h>
+#include <libpict.h>
 
 #define DEBUG_BYTES() for (int i = 0; i < result; i++) { printf("%02X ", ((uint8_t *)data)[i]); } puts("");
 

@@ -1,7 +1,7 @@
 // Example implementation of function to safely kill the connection in a multithreaded application.
 // Copyright 2024 by Daniel C (https://github.com/petabyt/camlib)
 
-#include <camlib.h>
+#include <libpict.h>
 
 void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
 	if (r->io_kill_switch) return;

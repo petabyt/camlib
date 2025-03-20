@@ -6,8 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 int ptp_liveview_type(struct PtpRuntime *r) {

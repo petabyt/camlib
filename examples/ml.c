@@ -1,7 +1,6 @@
 // Test Magic Lantern things
 #include <stdio.h>
-#include <stdint.h>
-#include <camlib.h>
+#include <libpict.h>
 
 int main(int argc, char **argv) {
 	struct PtpRuntime r;

@@ -1,10 +1,7 @@
 // Test packet creation
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 void print_bytes(uint8_t *bytes, int n) {
 	for (int i = 0; i < n; i++) {

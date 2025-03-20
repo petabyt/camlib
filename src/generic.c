@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 int ptp_validate_property_value(struct PtpRuntime *r, int prop_code, uint32_t value) {
 	struct PtpPropAvail *n;

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <camlib.h>
+#include <libpict.h>
 
 // TODO: Standard MTP scales by 10,000
 struct CanonShutterSpeed {

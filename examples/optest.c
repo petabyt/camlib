@@ -1,10 +1,6 @@
 // Test basic opcode, get device properties
 #include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 int main() {
 	struct PtpRuntime r;

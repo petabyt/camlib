@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 // ptplv v1

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 void ptp_reset(struct PtpRuntime *r) {
@@ -25,12 +25,12 @@ void ptp_init(struct PtpRuntime *r) {
 	memset(r, 0, sizeof(struct PtpRuntime));
 	ptp_reset(r);
 
-	r->data = malloc(CAMLIB_DEFAULT_SIZE);
-	r->data_length = CAMLIB_DEFAULT_SIZE;
+	r->data = malloc(PTP_DEFAULT_SIZE);
+	r->data_length = PTP_DEFAULT_SIZE;
 
 	r->avail = calloc(1, sizeof(struct PtpPropAvail));
 
-	#ifndef CAMLIB_DONT_USE_MUTEX
+	#ifndef PTP_DONT_USE_MUTEX
 	r->mutex = malloc(sizeof(pthread_mutex_t));
 
 	// We want recursive mutex, so lock can be called multiple times in

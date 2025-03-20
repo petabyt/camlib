@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
-#include <camlib.h>
+#include <libpict.h>
 
 int ptp_list_devices(void) {
 	struct PtpRuntime *r = ptp_new(PTP_USB);

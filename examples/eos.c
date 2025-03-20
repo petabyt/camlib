@@ -1,10 +1,6 @@
 // Test dangerous Canon opcodes - only run this if you know what you're doing
 #include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 /* Some snippets, if you dare to run them:
 Show green on display:

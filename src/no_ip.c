@@ -1,6 +1,6 @@
 // Include this if you wish to never use TCP/IP
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 int ptpip_new_timeout_socket(char *addr, int port) {

@@ -1,9 +1,11 @@
-# camlib
+# libpict
 This is a Picture Transfer Protocol (PTP) library written in C.
 
 [Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
 
 *(This library doesn't have a stable release yet, use at your own risk)*  
+
+~Formerly 'camlib', renamed to prevent confusion between [gPhoto's camlib API](http://www.gphoto.org/doc/manual/api-camlib.html)~
 
 ## Roadmap
 - [x] Complete working implemention of PTP as per ISO 15740
@@ -25,7 +27,7 @@ This is a Picture Transfer Protocol (PTP) library written in C.
 ## Sample
 Get device info:
 ```
-#include <camlib.h>
+#include <libpict.h>
 
 int main() {
 	struct PtpRuntime *r = ptp_new(PTP_USB);
@@ -84,5 +86,5 @@ free(arr);
 ```
 
 ## License
-Camlib is licensed under the Apache License 2.0.  
+Licensed under the Apache License 2.0.  
 lua-cjson: http://tools.ietf.org/html/rfc4627 (MIT License)  

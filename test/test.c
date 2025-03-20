@@ -6,8 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 int test_data(void);
 

@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
-#include <camlib.h>
+#include <libpict.h>
 
 int ptp_decode_output(const char *mode, const char *input, const char *output);
 

@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 int main() {

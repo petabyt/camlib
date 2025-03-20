@@ -1,5 +1,5 @@
 #include <string.h>
-#include <camlib.h>
+#include <libpict.h>
 
 char *enum_null = "(null)";
 

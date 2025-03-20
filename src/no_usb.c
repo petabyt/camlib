@@ -1,5 +1,5 @@
 // Include this if you wish to never use USB
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 int ptp_device_init(struct PtpRuntime *r) {

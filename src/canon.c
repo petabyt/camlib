@@ -3,11 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <string.h>
 #include <sys/stat.h>
-
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 int ptp_eos_get_storage_ids(struct PtpRuntime *r) {

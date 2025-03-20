@@ -7,8 +7,7 @@
 #include <libusb.h>
 #include <string.h>
 
-#include <camlib.h>
-#include <ptp.h>
+#include <libpict.h>
 
 // Private struct
 struct LibUSBBackend {

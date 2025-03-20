@@ -7,8 +7,7 @@
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 struct PtpRuntime *luaptp_get_runtime(lua_State *L);
 

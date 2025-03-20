@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <camlib.h>
+#include <libpict.h>
 #include <string.h>
 #include <assert.h>
 #include <pcap.h>

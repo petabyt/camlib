@@ -4,10 +4,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <camlib.h>
+#include <libpict.h>
 
 int ptp_send_packet(struct PtpRuntime *r, int length) {
 	int sent = 0;
@@ -52,7 +49,7 @@ int ptpip_read_packet(struct PtpRuntime *r, int of) {
 
 		if (r->wait_for_response) {
 			ptp_error_log("Trying again...\n");
-			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
+			PTP_SLEEP(PTP_WAIT_MS);
 		}
 	}
 
@@ -161,15 +158,17 @@ int ptpusb_read_all_packets(struct PtpRuntime *r) {
 		if (rc < 0 && r->wait_for_response) {
 			ptp_error_log("Response error %d, trying again\n", rc);
 			r->wait_for_response--;
-			CAMLIB_SLEEP(CAMLIB_WAIT_MS);
+			PTP_SLEEP(PTP_WAIT_MS);
 			read_attempts++;
 			continue;
-		} else if (rc == 0 && r->wait_for_response) {
+		}
+		if (rc == 0 && r->wait_for_response) {
 			ptp_error_log("Got nothing, trying again\n", rc);
 			r->wait_for_response--;
 			read_attempts++;
 			continue;
-		} else if (rc < 0) {
+		}
+		if (rc < 0) {
 			return PTP_IO_ERR;
 		}
 		read += rc;

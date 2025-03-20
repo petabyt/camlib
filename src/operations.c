@@ -2,11 +2,10 @@
 // Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
 
 #include <stdio.h>
-#include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include <camlib.h>
+#include <libpict.h>
 #include <ptp.h>
 
 static struct PtpArray *dup_uint_array(const uint8_t *buf) {

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <camlib.h>
+#include <libpict.h>
 
 int camlib_verbose = 1;
 __attribute__((weak))

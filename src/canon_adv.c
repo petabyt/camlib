@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
-#include <camlib.h>
+#include <libpict.h>
 
 #define EOS_TOK_INT 2
 #define EOS_TOK_STR 4
