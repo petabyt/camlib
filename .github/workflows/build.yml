@@ -12,6 +12,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Setup git
+      run: |
+        git config --global url."https://github.com/".insteadOf "git@github.com:"
+        git submodule update --init --recursive
+
     - name: Install dependencies
       run: sudo apt install libusb-1.0-0-dev libexif-dev
 
