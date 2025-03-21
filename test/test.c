@@ -1,5 +1,4 @@
-// Unit testing for camlib
-// Designed for vcam libusb spoofer
+// Unit testing designed for vcam libusb spoofer
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

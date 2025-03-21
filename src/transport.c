@@ -1,6 +1,6 @@
 // Packet transport interface for PTPUSB, PTPIP, and PTPUSBIP - uses OS IO functions
 // For Windows MTP, this calls functions in libwpd.c
-// Copyright 2024 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2024 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdio.h>
 #include <stdint.h>

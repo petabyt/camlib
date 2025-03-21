@@ -1,5 +1,5 @@
 // Example implementation of function to safely kill the connection in a multithreaded application.
-// Copyright 2024 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2024 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <libpict.h>
 

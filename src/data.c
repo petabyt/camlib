@@ -1,6 +1,5 @@
 // Data structure unpacking and packing functions
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
-// This code uses unaligned access/writes, will probably be changed in the future
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdio.h>
 #include <stdlib.h>

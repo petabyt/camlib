@@ -12,7 +12,7 @@ struct Options {
 
 static int usage(void) {
 	printf(
-		"camlib\n"
+		"pict\n"
 		"  --dec <input_file> <output_file> Decode any PTP/USB packet dump into a readable text file\n"
 		"  --help\n"
 		"  --run <operation> <args>\n"
@@ -129,8 +129,8 @@ static int test(void) {
 }
 
 int main(int argc, char **argv) {
-	extern int camlib_verbose;
-	camlib_verbose = 1;
+	extern int ptp_verbose;
+	ptp_verbose = 1;
 	struct Options o;
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--help")) {

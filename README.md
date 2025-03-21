@@ -2,7 +2,7 @@
 This is a Picture Transfer Protocol (PTP) library written in C.  
 <sub>Formerly 'camlib', renamed to prevent confusion between [gPhoto's camlib API](http://www.gphoto.org/doc/manual/api-camlib.html)</sub>
 
-[Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
+[Documentation](https://danielc.dev/libpict/structPtpRuntime.html)
 
 *(This library doesn't have a stable release yet, use at your own risk)*
 

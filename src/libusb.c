@@ -1,5 +1,5 @@
 // Bindings to libusb v1.0 (2008)
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <errno.h>
 #include <stdio.h>

@@ -1,5 +1,5 @@
 // Liveview wrappers - headers defined in cl_ops.h
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 // Also see ml.c for Magic Lantern liveview implementation
 
 // TODO: ptp_liveview_jpeg will return pointer to jpeg and length
