@@ -1,7 +1,7 @@
 // Advanced developer opcodes for Canon EOS cameras - this is not meant to be compiled into
-// camlib in most cases - but this file is available as an extension if you need it
+// the library in most cases - but this file is available as an extension if you need it
 // These commands can easily brick your camera (you can literally delete the firmware). Be careful please.
-// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2023 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdarg.h>
 #include <string.h>

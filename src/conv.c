@@ -215,7 +215,7 @@ int ptp_eos_get_aperture(int data, int dir) {
 }
 
 // Lots of confusing types (resolutions, raw+jpeg, superfine, etc)
-// Converts to camlib wrapper types (enum ImageFormats)
+// Converts to libpict wrapper types (enum ImageFormats)
 struct CanonImageFormats {
 	int value;
 	uint32_t data[9];

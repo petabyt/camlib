@@ -1,6 +1,5 @@
-// Lua interface for camlib. This is not meant to be compiled with camlib.so.
-// This is an extension to camlib, and must be compiled with the app.
-// You must provide luaptp_get_runtime()
+// Lua interface extension, not meant to be compiled with the library.
+// The program linking in this file must provide luaptp_get_runtime()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

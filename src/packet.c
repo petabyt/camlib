@@ -1,5 +1,5 @@
 // Packet generation, parsing, and manipulation routines
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdlib.h>
 #include <stdint.h>

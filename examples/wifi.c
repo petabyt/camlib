@@ -28,7 +28,7 @@ int main() {
 		return 0;
 	}
 
-	if (ptpip_init_command_request(&r, "camlib")) {
+	if (ptpip_init_command_request(&r, "ptp lib")) {
 		puts("Error on initialize");
 		return 1;
 	}

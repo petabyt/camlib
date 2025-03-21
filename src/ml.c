@@ -1,5 +1,5 @@
 // Magic Lantern and CHDK extension functionality
-// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2023 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdlib.h>
 #include <stdio.h>

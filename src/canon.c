@@ -1,5 +1,5 @@
 // Basic Canon and EOS operations
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -21,7 +21,7 @@ jobs:
       run: sudo apt install libusb-1.0-0-dev libexif-dev cmake
 
     - name: Build
-      run: cmake -B build -G Ninja && cmake --build build
+      run: cmake -DPTP_INCLUDE_CLI=ON -DPTP_INCLUDE_EXAMPLES=ON -DPTP_INCLUDE_BIND=ON -B build -G Ninja && cmake --build build
 
     - name: Compile and run regression test
       run: |
