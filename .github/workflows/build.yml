@@ -30,7 +30,7 @@ jobs:
         build_test/test
 
     - name: Install Windows dependencies
-      run: gcc-mingw-w64-base g++-mingw-w64-x86-64-win32
+      run: sudo apt install gcc-mingw-w64-base g++-mingw-w64-x86-64-win32
 
     - name: Compile Windows
       run: |
