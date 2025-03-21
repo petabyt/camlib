@@ -1,5 +1,5 @@
 // Library frontend functions
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdlib.h>
 #include <stdio.h>

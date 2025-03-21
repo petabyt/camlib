@@ -1,4 +1,4 @@
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 
 // Generic text bindings to PTP functions
 // - The only function that is exposed is bind_run(), which returns

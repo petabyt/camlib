@@ -1,6 +1,5 @@
-/** \file */ 
-// Main header file for Camlib
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+/** \file */
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 #ifndef PTP_LIB_H
 #define PTP_LIB_H
 
@@ -34,11 +33,11 @@
 
 // Logging+panic mechanism, define it yourself or link in log.c
 /// @brief Verbose log debugging info, could be called dozens of times per second
-void ptp_verbose_log(char *fmt, ...);
+PUB void ptp_verbose_log(char *fmt, ...);
 /// @brief Used for critical IO errors, (not runtime errors)
-void ptp_error_log(char *fmt, ...);
+PUB void ptp_error_log(char *fmt, ...);
 /// @brief Client has no way out, crash the application
-__attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
+PUB __attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 
 /// @brief Camlib library errors, not PTP return codes
 enum PtpGeneralError {

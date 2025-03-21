@@ -1,5 +1,5 @@
 // Windows USB I/O frontend for libwpd (https://github.com/petabyt/libwpd)
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

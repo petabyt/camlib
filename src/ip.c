@@ -1,5 +1,5 @@
 // POSIX PTP/IP implementation
-// Copyright 2023 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2023 by Daniel C (https://github.com/petabyt/libpict)
 
 #include <stdio.h>
 #include <stdlib.h>

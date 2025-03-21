@@ -1,5 +1,5 @@
 // Include this if you wish to never use TCP/IP
-// Copyright 2022 by Daniel C (https://github.com/petabyt/camlib)
+// Copyright 2022 by Daniel C (https://github.com/petabyt/libpict)
 #include <libpict.h>
 #include <ptp.h>
 
