@@ -18,9 +18,9 @@ jobs:
         git submodule update --init --recursive
 
     - name: Install dependencies
-      run: sudo apt install libusb-1.0-0-dev libexif-dev cmake
+      run: sudo apt install libusb-1.0-0-dev libexif-dev cmake libpcap-dev
 
-    - name: Build
+    - name: Build everything
       run: cmake -DPTP_INCLUDE_CLI=ON -DPTP_INCLUDE_EXAMPLES=ON -DPTP_INCLUDE_BIND=ON -B build -G Ninja && cmake --build build
 
     - name: Compile and run regression test
@@ -29,10 +29,10 @@ jobs:
         cmake --build build_test
         build_test/test
 
-    - name: Install Windows dependencies
+    - name: Install mingw dependencies
       run: sudo apt install gcc-mingw-w64-base g++-mingw-w64-x86-64-win32
 
-    - name: Compile Windows
+    - name: Compile libpwd test
       run: |
         cmake -DCMAKE_TOOLCHAIN_FILE=.github/workflows/mingw.cmake -DPTP_INCLUDE_WINDOWS_TEST=ON -G Ninja -B build_win
         cmake --build build_win

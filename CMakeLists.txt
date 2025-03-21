@@ -71,12 +71,15 @@ target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS}) # Specify our libraries 
 set_target_properties(libpict PROPERTIES OUTPUT_NAME pict) # libpict.a
 
 if(PTP_INCLUDE_CLI)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(LIBPCAP REQUIRED libpcap)
+
     add_executable(pict
         src/cli.c
         src/dec/main.c
     )
-    target_include_directories(pict PUBLIC ${PROJECT_SOURCE_DIR}/src)
-    target_link_libraries(pict libpict ${LIBUSB_LIBRARIES} pcap)
+    target_include_directories(pict PUBLIC ${PROJECT_SOURCE_DIR}/src ${LIBPCAP_INCLUDE_DIRS})
+    target_link_libraries(pict libpict ${LIBUSB_LIBRARIES} ${LIBPCAP_LIBRARIES})
 endif()
 
 macro(add_example exe_name source)
