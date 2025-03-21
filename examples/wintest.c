@@ -29,7 +29,7 @@ int main() {
 	} else {
 		printf("Return Code: %X\n", ptp_get_return_code(&r));
 		ptp_device_info_json(&di, (char*)r.data, r.data_length);
-		printf("%s\n", (char*)r.data);
+		printf("%s\n", (char *)r.data);
 	}
 
 	ptp_eos_set_event_mode(&r, 1);

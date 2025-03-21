@@ -10,6 +10,10 @@ option(PTP_USE_LIBUSB "Use LibUSB backend on UNIX platforms" ON)
 option(PTP_INCLUDE_EXAMPLES "Include examples" OFF)
 option(PTP_INCLUDE_VCAM_TEST "Include vcam test" OFF)
 option(PTP_INCLUDE_LIBUSB_LIBS "make libusb libraries PUBLIC" OFF)
+option(PTP_INCLUDE_BIND "Include optional bind.c" ON)
+option(PTP_NO_USB "Compile src/no_usb.c in place of libusb/libwpd" OFF)
+option(PTP_NO_TCP "Compile no_ip.c in place of TCP code" OFF)
+option(PTP_INCLUDE_WINDOWS_TEST "Pull in libwpd and test windows compilation" OFF)
 
 set(PICT_CORE
     src/operations.c
@@ -20,13 +24,19 @@ set(PICT_CORE
     src/lib.c
     src/canon.c
     src/liveview.c
-    src/bind.c
-    src/ip.c
     src/ml.c
     src/conv.c
     src/generic.c
     src/transport.c
 )
+if(NOT PTP_NO_TCP)
+    list(APPEND PICT_CORE src/ip.c)
+else()
+    list(APPEND PICT_CORE src/no_ip.c)
+endif()
+if(PTP_INCLUDE_BIND)
+    list(APPEND PICT_CORE src/bind.c)
+endif()
 if(PTP_CANON_ADV)
     list(APPEND PICT_CORE src/canon_adv.c)
 endif()
@@ -37,15 +47,18 @@ if(PTP_DEFAULT_LOGGING)
     list(APPEND PICT_CORE src/log.c)
 endif()
 
-if(UNIX AND PTP_USE_LIBUSB)
+if(UNIX AND PTP_USE_LIBUSB AND NOT PTP_NO_USB)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
     set(PLATFORM_LIB_FILES src/libusb.c)
     set(PLATFORM_LIBS ${LIBUSB_LIBRARIES})
     set(PLATFORM_DIRS ${LIBUSB_INCLUDE_DIRS})
-elseif(WIN32)
+elseif(WIN32 AND NOT PTP_NO_USB)
     set(PLATFORM_LIB_FILES src/libwpd.c)
-    set(PLATFORM_LIBS /usr/x86_64-w64-mingw32/lib/libwpd.a)
+endif()
+
+if(PTP_NO_USB)
+    set(PLATFORM_LIB_FILES src/no_usb.c)
 endif()
 
 add_library(libpict STATIC ${PICT_CORE} ${PLATFORM_LIB_FILES})
@@ -53,9 +66,9 @@ target_compile_options(libpict
     PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
 )
 target_include_directories(libpict PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
-if(PTP_INCLUDE_LIBUSB_LIBS)
-    target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
-endif()
+#if(PTP_INCLUDE_LIBUSB_LIBS) # Not needed because this is a static library
+#    target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
+#endif()
 set_target_properties(libpict PROPERTIES OUTPUT_NAME pict) # libpict.a
 
 if(PTP_INCLUDE_CLI)
@@ -87,9 +100,22 @@ if(PTP_INCLUDE_EXAMPLES)
     add_example(wifi examples/wifi.c)
 endif()
 
+if(WIN32 AND PTP_INCLUDE_WINDOWS_TEST)
+    option(PTP_LIBWPD_FROM_GIT "" ON)
+    if(PTP_LIBWPD_FROM_GIT)
+        include(FetchContent)
+        FetchContent_Declare(libwpd GIT_REPOSITORY https://github.com/petabyt/libwpd GIT_TAG master GIT_SHALLOW 1)
+        FetchContent_MakeAvailable(libwpd)
+    else()
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libwpd ${CMAKE_CURRENT_BINARY_DIR}/libwpd)
+    endif()
+    add_executable(wintest examples/wintest.c)
+    target_link_libraries(wintest libpict wpd_static -lpthread -lurlmon -luuid -lws2_32)
+endif()
+
 if(PTP_INCLUDE_VCAM_TEST)
-    option(PTP_FROM_GIT "Use git repo for vcam" ON)
-    if(PTP_FROM_GIT)
+    option(PTP_VCAM_FROM_GIT "Use git repo for vcam" ON)
+    if(PTP_VCAM_FROM_GIT)
         include(FetchContent)
         FetchContent_Declare(vcam GIT_REPOSITORY https://github.com/petabyt/vcam GIT_TAG master GIT_SHALLOW 1)
         FetchContent_MakeAvailable(vcam)

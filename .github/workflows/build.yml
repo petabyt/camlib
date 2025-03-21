@@ -18,7 +18,7 @@ jobs:
         git submodule update --init --recursive
 
     - name: Install dependencies
-      run: sudo apt install libusb-1.0-0-dev libexif-dev
+      run: sudo apt install libusb-1.0-0-dev libexif-dev cmake gcc-mingw-w64-base
 
     - name: Build
       run: cmake -B build -G Ninja && cmake --build build
@@ -28,6 +28,11 @@ jobs:
         cmake -G Ninja -B build_test -DPTP_INCLUDE_VCAM_TEST=ON -DPTP_INCLUDE_LIBUSB_LIBS=OFF
         cmake --build build_test
         build_test/test
+
+    - Compile Windows
+      run: |
+        cmake -DCMAKE_TOOLCHAIN_FILE=.github/workflows/mingw.cmake -DPTP_INCLUDE_WINDOWS_TEST=ON -G Ninja -B build_win
+        cmake --build build_win
 
   macOS-build:
     runs-on: macos-latest
