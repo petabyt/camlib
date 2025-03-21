@@ -18,7 +18,7 @@ jobs:
         git submodule update --init --recursive
 
     - name: Install dependencies
-      run: sudo apt install libusb-1.0-0-dev libexif-dev cmake gcc-mingw-w64-base
+      run: sudo apt install libusb-1.0-0-dev libexif-dev cmake
 
     - name: Build
       run: cmake -B build -G Ninja && cmake --build build
@@ -28,6 +28,9 @@ jobs:
         cmake -G Ninja -B build_test -DPTP_INCLUDE_VCAM_TEST=ON -DPTP_INCLUDE_LIBUSB_LIBS=OFF
         cmake --build build_test
         build_test/test
+
+    - name: Install Windows dependencies
+      run: gcc-mingw-w64-base g++-mingw-w64-x86-64-win32
 
     - name: Compile Windows
       run: |
