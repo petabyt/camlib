@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>camlib: camlib</title>
+<title>pict: libpict</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,9 +32,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">camlib
+   <div id="projectname">pict
    </div>
-   <div id="projectbrief">Documentation for camlib is still a work-in-progress</div>
+   <div id="projectbrief">Documentation for pict is still a work-in-progress</div>
   </td>
     <td>        <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -103,14 +103,14 @@ $(function(){initNavTree('index.html',''); initResizable(true); });
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">camlib </div></div>
+  <div class="headertitle"><div class="title">libpict </div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<p>This is a Picture Transfer Protocol (PTP) library written in C.</p>
+<p>This is a Picture Transfer Protocol (PTP) library written in C. <br  />
+ <sub>Formerly 'camlib', renamed to prevent confusion between <a href="http://www.gphoto.org/doc/manual/api-camlib.html">gPhoto's camlib API</a></sub></p>
 <p><a href="https://danielc.dev/camlib/structPtpRuntime.html">Documentation</a></p>
-<p><em>(This library doesn't have a stable release yet, use at your own risk)</em> <br  />
-</p>
+<p><em>(This library doesn't have a stable release yet, use at your own risk)</em></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 Roadmap</h1>
 <ul class="check">
@@ -152,7 +152,7 @@ Design</h1>
 </ul>
 <h1><a class="anchor" id="autotoc_md3"></a>
 Sample</h1>
-<p>Get device info: </p><div class="fragment"><div class="line">#include &lt;camlib.h&gt;</div>
+<p>Get device info: </p><div class="fragment"><div class="line">#include &lt;libpict.h&gt;</div>
 <div class="line"> </div>
 <div class="line">int main() {</div>
 <div class="line">    struct PtpRuntime *r = ptp_new(PTP_USB);</div>
@@ -204,7 +204,7 @@ Sample</h1>
 <div class="line">free(arr);</div>
 </div><!-- fragment --><h1><a class="anchor" id="autotoc_md4"></a>
 License</h1>
-<p>Camlib is licensed under the Apache License 2.0. <br  />
+<p>Licensed under the Apache License 2.0. <br  />
  lua-cjson: <a href="http://tools.ietf.org/html/rfc4627">http://tools.ietf.org/html/rfc4627</a> (MIT License) </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>

@@ -24,11 +24,8 @@
 */
 var NAVTREE =
 [
-  [ "camlib", "index.html", [
-    [ "Roadmap", "index.html#autotoc_md1", null ],
-    [ "Design", "index.html#autotoc_md2", null ],
-    [ "Sample", "index.html#autotoc_md3", null ],
-    [ "License", "index.html#autotoc_md4", null ],
+  [ "pict", "index.html", [
+    [ "libpict", "index.html", "index" ],
     [ "API", "topics.html", "topics" ],
     [ "Magic Lantern PTP Ext", "md_docs_2ml.html", [
       [ "First Parameter", "md_docs_2ml.html#autotoc_md6", null ],

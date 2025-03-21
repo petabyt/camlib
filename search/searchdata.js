@@ -6,7 +6,7 @@ var indexSectionsWithContent =
   3: "p",
   4: "bnops",
   5: "bdeiops",
-  6: "celmp"
+  6: "elmp"
 };
 
 var indexSectionNames =
