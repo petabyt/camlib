@@ -39,7 +39,7 @@ PUB void ptp_error_log(char *fmt, ...);
 /// @brief Client has no way out, crash the application
 PUB __attribute__ ((noreturn)) void ptp_panic(char *fmt, ...);
 
-/// @brief Camlib library errors, not PTP return codes
+/// @brief Library errors, not PTP return codes
 enum PtpGeneralError {
 	PTP_OK = 0,
 	/// @brief No device found (USB)
@@ -148,7 +148,7 @@ struct PtpRuntime {
 	/// @brief Free pointer to hold per ptp session information
 	void *userdata;
 
-	/// @brief Optional (see CAMLIB_DONT_USE_MUTEX)
+	/// @brief Optional (see PTP_DONT_USE_MUTEX)
 	pthread_mutex_t *mutex;
 
 	/// @brief Optionally wait up to 256 seconds for a response. Some PTP operations require this, such as EOS capture.
