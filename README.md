@@ -1,11 +1,10 @@
 # libpict
-This is a Picture Transfer Protocol (PTP) library written in C.
+This is a Picture Transfer Protocol (PTP) library written in C.  
+<sub>Formerly 'camlib', renamed to prevent confusion between [gPhoto's camlib API](http://www.gphoto.org/doc/manual/api-camlib.html)</sub>
 
 [Documentation](https://danielc.dev/camlib/structPtpRuntime.html)
 
-*(This library doesn't have a stable release yet, use at your own risk)*  
-
-~Formerly 'camlib', renamed to prevent confusion between [gPhoto's camlib API](http://www.gphoto.org/doc/manual/api-camlib.html)~
+*(This library doesn't have a stable release yet, use at your own risk)*
 
 ## Roadmap
 - [x] Complete working implemention of PTP as per ISO 15740

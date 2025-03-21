@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.4...3.5.0)
+cmake_minimum_required(VERSION 3.15)
 
 project(pict)
 
@@ -7,7 +7,9 @@ option(PTP_STUFF "Include extra functions for debugging/testing" ON)
 option(PTP_DEFAULT_LOGGING "Include default log/panic/error implementation" ON)
 option(PTP_INCLUDE_CLI "Include CLI program" OFF)
 option(PTP_USE_LIBUSB "Use LibUSB backend on UNIX platforms" ON)
-option(PTP_INCLUDE_EXAMPLES "Include examples" ON)
+option(PTP_INCLUDE_EXAMPLES "Include examples" OFF)
+option(PTP_INCLUDE_VCAM_TEST "Include vcam test" OFF)
+option(PTP_INCLUDE_LIBUSB_LIBS "make libusb libraries PUBLIC" OFF)
 
 set(PICT_CORE
     src/operations.c
@@ -51,7 +53,9 @@ target_compile_options(libpict
     PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
 )
 target_include_directories(libpict PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
-target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
+if(PTP_INCLUDE_LIBUSB_LIBS)
+    target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
+endif()
 set_target_properties(libpict PROPERTIES OUTPUT_NAME pict) # libpict.a
 
 if(PTP_INCLUDE_CLI)
@@ -81,4 +85,19 @@ if(PTP_INCLUDE_EXAMPLES)
     add_example(storage examples/storage.c)
     add_example(usb examples/usb.c)
     add_example(wifi examples/wifi.c)
+endif()
+
+if(PTP_INCLUDE_VCAM_TEST)
+    option(PTP_FROM_GIT "Use git repo for vcam" ON)
+    if(PTP_FROM_GIT)
+        include(FetchContent)
+        FetchContent_Declare(vcam GIT_REPOSITORY https://github.com/petabyt/vcam GIT_TAG master GIT_SHALLOW 1)
+        FetchContent_MakeAvailable(vcam)
+    else()
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../vcam ${CMAKE_CURRENT_BINARY_DIR}/vcam)
+    endif()
+
+    add_executable(test test/test.c test/data.c)
+    target_link_libraries(test libpict usb-vcam)
+    #add_subdirectory(/home/daniel/Pulled/hello_imgui/ ${CMAKE_CURRENT_BINARY_DIR}/hello_imgui)
 endif()

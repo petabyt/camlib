@@ -13,6 +13,6 @@ test-ci
 libusb-fake-ptp
 *.so
 *.d
-camlib
 *.a
 .idea
+cmake-build-debug

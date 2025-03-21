@@ -1,9 +1,9 @@
 # Lua API
 
-The Lua API for camlib is under development. You can view the current source code
-for the bindings [here on Github](https://github.com/petabyt/camlib/blob/master/src/lua.c).
+The Lua API is under development. You can view the current source code
+for the bindings [here on Github](https://github.com/petabyt/libpict/blob/master/src/lua.c).
 
-Currently, the Lua bindings take advantage of the fact that camlib already can convert almost
+Currently, the Lua bindings take advantage of the fact that libpict already can convert almost
 every PTP data structure to JSON - and is able to convert the JSON to Lua tables using `lua-cjson`.
 
 ## `ptp.getDeviceInfo()`

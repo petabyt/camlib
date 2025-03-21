@@ -1,7 +1,7 @@
-PROJECT_NAME           = "camlib"
-PROJECT_BRIEF          = "Documentation for camlib is still a work-in-progress"
+PROJECT_NAME           = "pict"
+PROJECT_BRIEF          = "Documentation for pict is still a work-in-progress"
 INPUT                  = README.md docs/chdk.md docs/ml.md docs/ptp.md \
-rc/camlib.h  src/cl_backend.h  src/cl_bind.h  src/cl_data.h  src/cl_enum.h  src/cl_ops.h  src/ptp.h
+rc/libpict.h  src/cl_backend.h  src/cl_bind.h  src/cl_data.h  src/cl_enum.h  src/cl_ops.h  src/ptp.h
 USE_MDFILE_AS_MAINPAGE = README.md
 GENERATE_LATEX         = NO
 GENERATE_HTML          = YES

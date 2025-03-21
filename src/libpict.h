@@ -335,7 +335,6 @@ void *ptp_dup_payload(struct PtpRuntime *r);
 /// @note Debugging only
 int ptp_dump(struct PtpRuntime *r);
 
-#define CAMLIB_INCLUDE_IMPL
 #include "cl_data.h"
 #include "cl_backend.h"
 #include "cl_ops.h"

@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <libpict.h>
 
-int camlib_verbose = 1;
+int ptp_verbose = 1;
 __attribute__((weak))
 void ptp_verbose_log(char *fmt, ...) {
-	if (camlib_verbose) {
+	if (ptp_verbose) {
 		va_list args;
 		va_start(args, fmt);
 		vprintf(fmt, args);
