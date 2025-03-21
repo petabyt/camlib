@@ -55,6 +55,7 @@ if(UNIX AND PTP_USE_LIBUSB AND NOT PTP_NO_USB)
     set(PLATFORM_DIRS ${LIBUSB_INCLUDE_DIRS})
 elseif(WIN32 AND NOT PTP_NO_USB)
     set(PLATFORM_LIB_FILES src/libwpd.c)
+    set(PLATFORM_LIBS wpd_static)
 endif()
 
 if(PTP_NO_USB)
@@ -66,9 +67,7 @@ target_compile_options(libpict
     PRIVATE -Wall -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -Werror=deprecated-declarations -Wstrict-aliasing=3 -D VERBOSE
 )
 target_include_directories(libpict PUBLIC ${PROJECT_SOURCE_DIR}/src ${PLATFORM_DIRS})
-#if(PTP_INCLUDE_LIBUSB_LIBS) # Not needed because this is a static library
-#    target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS})
-#endif()
+target_link_libraries(libpict PRIVATE ${PLATFORM_LIBS}) # Specify our libraries so flags/include dirs will be added
 set_target_properties(libpict PROPERTIES OUTPUT_NAME pict) # libpict.a
 
 if(PTP_INCLUDE_CLI)
@@ -101,7 +100,7 @@ if(PTP_INCLUDE_EXAMPLES)
 endif()
 
 if(WIN32 AND PTP_INCLUDE_WINDOWS_TEST)
-    option(PTP_LIBWPD_FROM_GIT "" ON)
+    option(PTP_LIBWPD_FROM_GIT "Use git repo for libwpd" ON)
     if(PTP_LIBWPD_FROM_GIT)
         include(FetchContent)
         FetchContent_Declare(libwpd GIT_REPOSITORY https://github.com/petabyt/libwpd GIT_TAG master GIT_SHALLOW 1)
@@ -110,7 +109,7 @@ if(WIN32 AND PTP_INCLUDE_WINDOWS_TEST)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libwpd ${CMAKE_CURRENT_BINARY_DIR}/libwpd)
     endif()
     add_executable(wintest examples/wintest.c)
-    target_link_libraries(wintest libpict wpd_static -lpthread -lurlmon -luuid -lws2_32)
+    target_link_libraries(wintest wpd_static libpict -lpthread -lurlmon -luuid -lws2_32)
 endif()
 
 if(PTP_INCLUDE_VCAM_TEST)
